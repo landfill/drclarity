@@ -259,3 +259,30 @@ async function showCrumb() {
   crumb.style.animation = 'pulse 1s infinite';
   await wait(2000);
 }
+
+
+// Navigation Logic
+const navLinks = document.querySelectorAll('.nav-link');
+const topicContents = document.querySelectorAll('.topic-content');
+
+navLinks.forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (link.classList.contains('disabled')) return;
+
+    const targetId = link.getAttribute('data-target');
+    if (!targetId) return;
+
+    // Update Nav
+    navLinks.forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+
+    // Update Content
+    topicContents.forEach(content => {
+      content.classList.remove('active');
+      if (content.id === targetId) {
+        content.classList.add('active');
+      }
+    });
+  });
+});

@@ -20,65 +20,118 @@
       <div class="logo">Dr.Clarity</div>
       <nav class="site-nav">
         <ul>
-          <li><a href="#" class="nav-link active">부동소수점 오류</a></li>
-          <li><a href="#" class="nav-link disabled">25개의 꿀통과 5마리 개미</a></li>
-          <li><a href="#" class="nav-link disabled">알고리즘 (준비중)</a></li>
+          <li><a href="#" class="nav-link active" data-target="topic-floating-point">부동소수점 오류</a></li>
+          <li><a href="#" class="nav-link" data-target="topic-honey-pots">25개의 꿀통과 5마리 개미</a></li>
+          <li><a href="#" class="nav-link disabled" data-target="topic-algorithm">알고리즘 (준비중)</a></li>
         </ul>
       </nav>
     </div>
   </header>
 
   <main class="container">
-    <header class="hero">
-      <h1 class="fade-in">왜 <span class="highlight">0.1 + 0.2</span>는 0.3이 아닐까요?</h1>
-    </header>
+    <!-- Topic 1: Floating Point Error -->
+    <div id="topic-floating-point" class="topic-content active">
+      <header class="hero">
+        <h1 class="fade-in">왜 <span class="highlight">0.1 + 0.2</span>는 0.3이 아닐까요?</h1>
+      </header>
 
-    <section class="infographic-section fade-in delay-2">
-      <div class="card animation-card">
-        <div id="pizza-animation-container">
-          <div class="pizza-stage">
-            <h3>10진법 (1/10)</h3>
-            <div class="pizza" id="decimal-pizza"></div>
+      <section class="infographic-section fade-in delay-2">
+        <div class="card animation-card">
+          <div id="pizza-animation-container">
+            <div class="pizza-stage">
+              <h3>10진법 (1/10)</h3>
+              <div class="pizza" id="decimal-pizza"></div>
+            </div>
+            <div class="pizza-stage">
+              <h3>2진법 (근사값)</h3>
+              <div class="pizza" id="binary-pizza"></div>
+            </div>
           </div>
-          <div class="pizza-stage">
-            <h3>2진법 (근사값)</h3>
-            <div class="pizza" id="binary-pizza"></div>
+          <div id="animation-controls">
+            <button id="start-anim-btn" class="btn-secondary">피자 자르기!</button>
+            <p id="anim-status">준비...</p>
           </div>
         </div>
-        <div id="animation-controls">
-          <button id="start-anim-btn" class="btn-secondary">피자 자르기!</button>
-          <p id="anim-status">준비...</p>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="explanation-section fade-in delay-3">
-      <h2>부동소수점 오류란?</h2>
-      <div class="detailed-explanation">
-        <p>
-          우리는 일상에서 <strong>10진수</strong>를 사용합니다. 10진수에서 0.1은 1/10로 정확하게 표현됩니다.
-          마치 피자를 10조각으로 나누면 한 조각이 정확히 1/10이 되는 것처럼요.
-        </p>
-        <p>
-          하지만 컴퓨터는 전기 신호(켜짐/꺼짐)로만 작동하기 때문에 <strong>2진수</strong>만 이해합니다.
-          2진수에서는 1/2, 1/4, 1/8, 1/16... 처럼 2로 나눈 값들만 정확하게 표현할 수 있습니다.
-        </p>
-        <div class="highlight-box">
-          <p><strong>핵심 문제:</strong> 0.1을 2진수로 표현하면 <code>0.0001100110011...</code> 처럼 무한히 반복되는 소수가 됩니다.</p>
-          <p>이는 10진수에서 1/3 = 0.3333...으로 무한히 반복되는 것과 같은 원리입니다.</p>
+      <section class="explanation-section fade-in delay-3">
+        <h2>부동소수점 오류란?</h2>
+        <div class="detailed-explanation">
+          <p>
+            우리는 일상에서 <strong>10진수</strong>를 사용합니다. 10진수에서 0.1은 1/10로 정확하게 표현됩니다.
+            마치 피자를 10조각으로 나누면 한 조각이 정확히 1/10이 되는 것처럼요.
+          </p>
+          <p>
+            하지만 컴퓨터는 전기 신호(켜짐/꺼짐)로만 작동하기 때문에 <strong>2진수</strong>만 이해합니다.
+            2진수에서는 1/2, 1/4, 1/8, 1/16... 처럼 2로 나눈 값들만 정확하게 표현할 수 있습니다.
+          </p>
+          <div class="highlight-box">
+            <p><strong>핵심 문제:</strong> 0.1을 2진수로 표현하면 <code>0.0001100110011...</code> 처럼 무한히 반복되는 소수가 됩니다.</p>
+            <p>이는 10진수에서 1/3 = 0.3333...으로 무한히 반복되는 것과 같은 원리입니다.</p>
+          </div>
         </div>
-      </div>
-    </section>
-    <section class="interactive-section fade-in delay-4">
-      <div class="calculator-mockup">
-        <div class="display">
-          <span class="calc-text">0.1 + 0.2 = </span>
-          <span class="calc-result" id="calc-result">?</span>
+      </section>
+      <section class="interactive-section fade-in delay-4">
+        <div class="calculator-mockup">
+          <div class="display">
+            <span class="calc-text">0.1 + 0.2 = </span>
+            <span class="calc-result" id="calc-result">?</span>
+          </div>
+          <button id="reveal-btn" class="btn-primary">진실 확인하기</button>
+          <div id="calc-explanation" class="calc-explanation"></div>
         </div>
-        <button id="reveal-btn" class="btn-primary">진실 확인하기</button>
-        <div id="calc-explanation" class="calc-explanation"></div>
-      </div>
-    </section>
+      </section>
+    </div>
+
+    <!-- Topic 2: 25 Honey Pots (Riddle) -->
+    <div id="topic-honey-pots" class="topic-content">
+      <header class="hero">
+        <h1 class="fade-in">25개의 꿀통과 <span class="highlight">5마리 개미</span></h1>
+        <p class="subtitle fade-in delay-1">5마리의 개미로 가짜 꿀통을 찾아낼 수 있을까요?</p>
+      </header>
+
+      <section class="infographic-section fade-in delay-2">
+        <div class="card animation-card">
+          <div class="img-container">
+            <img src="/nano1.png" alt="25 Honey Pots and 5 Ants" class="infographic-img honey-pot-img">
+          </div>
+          <p class="caption">25개의 꿀통 중 딱 하나만 가짜입니다.</p>
+        </div>
+      </section>
+
+      <section class="explanation-section fade-in delay-3">
+        <h2>가짜 꿀통을 찾아라!</h2>
+        <div class="detailed-explanation">
+          <div class="highlight-box">
+            <p><strong>문제 상황:</strong> 25개의 꿀통 중 <strong>딱 1통만 가짜</strong>입니다.</p>
+            <p>가짜 꿀을 먹은 개미는 1시간 뒤에 죽습니다. (진짜는 안전함)</p>
+          </div>
+          <p>
+            <strong>제약 조건:</strong><br>
+            1. 우리에겐 개미가 총 <strong>5마리</strong>뿐입니다.<br>
+            2. 개미를 1시간 뒤에 돌려줘야 하므로, 결과 확인은 <strong>딱 한 번</strong>만 가능합니다.
+          </p>
+          <p>
+            <strong>질문:</strong><br>
+            25개 꿀통 중에서 무슨 꿀이 가짜인지를 1시간 만에 확실히 알아내려면, 이 5마리의 개미에게 꿀을 어떻게 나누어 먹여야 할까요?
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <!-- Topic 3: Algorithm -->
+    <div id="topic-algorithm" class="topic-content">
+      <header class="hero">
+        <h1 class="fade-in">알고리즘 <span class="highlight">(준비중)</span></h1>
+      </header>
+      <section class="explanation-section fade-in delay-2">
+        <div class="card">
+          <div class="detailed-explanation">
+            <p>다양한 알고리즘 시각화 콘텐츠가 추가될 예정입니다.</p>
+          </div>
+        </div>
+      </section>
+    </div>
   </main>
   <script type="module" src="/main.js"></script>
 </body>

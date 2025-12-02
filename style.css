@@ -147,6 +147,7 @@ h1 {
   font-weight: 700;
   margin-bottom: 2rem;
   color: var(--text-color);
+  width: 100%;
 }
 
 .highlight {
@@ -431,4 +432,45 @@ section {
 
 .highlight-box p:last-child {
   margin-bottom: 0;
+}
+
+/* Topic Switching */
+.topic-content {
+  display: none;
+}
+
+.topic-content.active {
+  display: block;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Honey Pot Specifics */
+.honey-pot-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.caption {
+  margin-top: 1rem;
+  color: #636e72;
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+.img-container {
+  padding: 1rem;
+  background: #fdfdfd;
+  border-radius: 12px;
 }
