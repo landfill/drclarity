@@ -22,7 +22,7 @@
         <ul>
           <li><a href="#" class="nav-link active" data-target="topic-floating-point">부동소수점 오류</a></li>
           <li><a href="#" class="nav-link" data-target="topic-honey-pots">25개의 꿀통과 5마리 개미</a></li>
-          <li><a href="#" class="nav-link disabled" data-target="topic-algorithm">알고리즘 (준비중)</a></li>
+          <li><a href="#" class="nav-link" data-target="topic-geometry">기하학 퍼즐</a></li>
         </ul>
       </nav>
     </div>
@@ -119,18 +119,38 @@
       </section>
     </div>
 
-    <!-- Topic 3: Algorithm -->
-    <div id="topic-algorithm" class="topic-content">
+    <!-- Topic 3: Geometry Puzzle -->
+    <div id="topic-geometry" class="topic-content">
       <header class="hero">
-        <h1 class="fade-in">알고리즘 <span class="highlight">(준비중)</span></h1>
+        <h2 class="fade-in">빨간색 영역의 넓이는?</h2>
+        <p id="main-explanation" class="subtitle fade-in delay-1" style="margin-bottom: 1rem;">
+          큰 사분원(반지름 6)에서 <strong>두 개의 흰색 반원</strong>을 제외한 <strong>빨간색 영역</strong>의 넓이를 구해보세요.
+        </p>
+        <p id="hint-text" class="subtitle fade-in delay-1" style="color: #d63031; font-weight: 500;">
+          <strong>힌트:</strong> 두 반원이 접한다는 성질이 핵심입니다.
+        </p>
       </header>
-      <section class="explanation-section fade-in delay-2">
-        <div class="card">
-          <div class="detailed-explanation">
-            <p>다양한 알고리즘 시각화 콘텐츠가 추가될 예정입니다.</p>
+
+      <section class="interactive-section fade-in delay-2">
+        <div class="card" style="text-align: center;">
+          <div class="canvas-container">
+            <canvas id="geometry-canvas" width="400" height="400"></canvas>
+          </div>
+
+          <div class="solution-controls fade-in delay-3">
+            <div id="step-description" class="step-text">
+              문제를 풀어볼까요? 아래 버튼을 눌러보세요.
+            </div>
+
+            <div class="button-group">
+              <button id="btn-next-step" class="action-btn">풀이 시작</button>
+              <button id="btn-reset" class="secondary-btn" style="display: none;">처음으로</button>
+            </div>
           </div>
         </div>
       </section>
+
+
     </div>
   </main>
   <script type="module" src="/main.js"></script>
