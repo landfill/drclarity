@@ -25,7 +25,7 @@ body {
 .solution-controls {
   margin-top: 1.5rem;
   background: white;
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   text-align: center;
@@ -36,10 +36,12 @@ body {
   color: #2d3436;
   margin-bottom: 1rem;
   min-height: 4rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  display: block;
+  /* Changed from flex column to block for natural inline flow */
+  text-align: center;
+  /* Helper for block centering */
+  padding-top: 0;
+  /* Visual centering approx */
   font-weight: 500;
   line-height: 1.6;
   word-break: keep-all;
@@ -560,8 +562,8 @@ section {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 2rem;
-  padding: 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
   background: white;
   border-radius: 20px;
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.03);
@@ -574,6 +576,10 @@ section {
   background-color: white;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   cursor: crosshair;
+}
+
+#topic-geometry .subtitle {
+  margin-bottom: 1rem;
 }
 
 .controls {

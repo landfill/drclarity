@@ -335,37 +335,245 @@ const steps = [
   },
   {
     // Step 1: Centers & Lines
-    text: "1. 원의 중심을 찾고 선을 그어야 합니다. 두 원이 접할 때, <strong>중심을 이은 선은 반드시 접점을 지납니다.</strong>",
+    text: "1. 원의 중심을 찾고 선을 그어야 합니다. <br>두 원이 접할 때, <strong>중심을 이은 선은 반드시 접점을 지납니다.</strong>",
     hint: "이 성질은 '오뚜기'처럼 두 원이 맞닿아 움직여도 항상 성립합니다.",
     action: () => playOttogiAnimation(), // Trigger animation
     draw: () => { drawProblemState(); drawCentersAndLines(false); } // Static state after anim (handled in action)
   },
   {
     // Step 2: Triangle
-    text: "2. 중심을 이으면 <strong>직각삼각형</strong>이 만들어집니다. 변의 길이를 반지름(x)으로 표현해봅시다.",
+    text: "2. 중심을 이으면 <strong>직각삼각형</strong>이 만들어집니다.<br>변의 길이를 반지름(x)으로 표현해봅시다.",
     hint: "높이는 전체 높이(6)에서 x를 뺀 값입니다.",
+    action: () => playTriangleFillAnimation(),
     draw: () => { drawProblemState(); drawCentersAndLines(false); drawTriangleVars(); }
   },
   {
     // Step 3: Pythagoras
-    text: "3. 피타고라스 정리를 이용합니다. 복잡한 식 대신 <strong>3:4:5 비율</strong>을 대입해보면, <strong>x=2</strong>임이 명확해집니다.",
-    hint: "3² + 4² = 5² 이므로 x=2 입니다.",
+    text: "3. <strong>피타고라스 정리</strong>를 이용합니다.<br>직각삼각형에서 가장 긴 변(빗변)의 제곱은 나머지 두 변의 제곱의 합과 같습니다.",
+    htmlContent: "공식: <span class='math-formula'>a² + b² = c²</span> 적용 → <span class='math-formula'>3² + (6-x)² = (3+x)²</span>",
+    hint: "높이(6-x)가 4, 빗변(3+x)이 5가 되면 등식이 성립합니다.",
+    action: () => playPythagorasLabelAnimation(),
     draw: () => { drawProblemState(); drawCentersAndLines(false); drawTriangleSolved(); }
   },
   {
     // Step 4: Final Calc Setup (Formula)
-    text: "4. 이제 최종 면적을 계산할 수 있습니다. 원의 넓이 공식: <span class='math-formula'>πr²</span>",
+    text: "4. 이제 최종 면적을 계산할 수 있습니다.",
     hint: "큰 사분원 - (중간 반원 + 작은 반원)",
-    htmlContent: "식: P = <span class='math-formula'>9π - 4.5π - 2π</span>",
+    htmlContent: "원의 넓이 공식: <span class='math-formula'>πr²</span>, 식: P = <span class='math-formula'>9π - 4.5π - 2π</span>",
     draw: () => { drawProblemState(); drawTriangleSolved(); }
   },
   {
     // Step 5: Answer
     text: "정답 도출! 9π - 6.5π = <span class='math-formula'>2.5π</span>",
     hint: "복잡한 계산 없이 도형의 성질로 해결했습니다.",
-    draw: () => { drawProblemState(); drawTriangleSolved(); drawFinalAnswer(); }
+    action: () => playFinalAnswerAnimation(),
+    draw: () => { drawProblemStateWithColor('#d63031'); } // Static dark red state
   }
 ];
+
+// ... (previous functions) ...
+
+let finalAnimId = null;
+function playFinalAnswerAnimation() {
+  if (finalAnimId) cancelAnimationFrame(finalAnimId);
+  const duration = 2000;
+  const start = performance.now();
+
+  function animate(time) {
+    const elapsed = time - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease = progress * (2 - progress); // ease-out
+
+    // Interpolate color from #ff7675 to #d63031
+    // Simple approach: Overlay black with opacity? Or explicit RGB mixing.
+    // #ff7675 is (255, 118, 117). #d63031 is (214, 48, 49).
+    const r = 255 - (255 - 214) * ease;
+    const g = 118 - (118 - 48) * ease;
+    const b = 117 - (117 - 49) * ease;
+    const color = `rgb(${r}, ${g}, ${b})`;
+
+    drawProblemStateWithColor(color);
+
+    if (progress < 1) {
+      finalAnimId = requestAnimationFrame(animate);
+    } else {
+      finalAnimId = null;
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function stopAllAnimations() {
+  if (animationFrameId) cancelAnimationFrame(animationFrameId);
+  if (triangleAnimId) cancelAnimationFrame(triangleAnimId);
+  if (pythagorasAnimId) cancelAnimationFrame(pythagorasAnimId);
+  if (finalAnimId) cancelAnimationFrame(finalAnimId);
+}
+
+// Reuse drawProblemState logic but with variable color
+function drawProblemStateWithColor(mainColor) {
+  ctx.clearRect(0, 0, geometryCanvas.width, geometryCanvas.height);
+  drawAxes();
+
+  // 1. Base Quarter Circle (Variables Color)
+  ctx.beginPath();
+  ctx.moveTo(toCanvasX(0), toCanvasY(0));
+  ctx.arc(toCanvasX(0), toCanvasY(0), 6 * SCALE, 1.5 * Math.PI, 0, false);
+  ctx.lineTo(toCanvasX(0), toCanvasY(0));
+  ctx.fillStyle = mainColor;
+  ctx.fill();
+  ctx.strokeStyle = '#2d3436';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // 2. Bottom Semicircle (White)
+  ctx.beginPath();
+  ctx.arc(toCanvasX(3), toCanvasY(0), 3 * SCALE, Math.PI, 0, false);
+  ctx.fillStyle = '#FFFBF0';
+  ctx.fill();
+  ctx.strokeStyle = '#2d3436';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // 3. Hanging Semicircle (Fixed x=2) (White)
+  const x = 2;
+  const centerY = 6 - x; // 4
+  ctx.beginPath();
+  ctx.arc(toCanvasX(0), toCanvasY(centerY), x * SCALE, 1.5 * Math.PI, 0.5 * Math.PI, false);
+  ctx.fillStyle = '#FFFBF0';
+  ctx.fill();
+  ctx.strokeStyle = '#2d3436';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // No triangle, no labels. Just the shapes.
+}
+
+// Rename original drawProblemState to use valid default or alias
+function drawProblemState() {
+  drawProblemStateWithColor('#ff7675');
+}
+
+// [Moved Functions]
+let triangleAnimId = null;
+function playTriangleFillAnimation() {
+  if (triangleAnimId) cancelAnimationFrame(triangleAnimId);
+  const duration = 1500;
+  const start = performance.now();
+
+  function animate(time) {
+    const elapsed = time - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease = progress * (2 - progress); // ease-out
+
+    // Clear and redraw
+    drawProblemState();
+    drawCentersAndLines(false);
+
+    // Animate opacity from 0 to 0.85 (Semi-transparent)
+    drawTriangleVars(0.85 * ease);
+
+    if (progress < 1) {
+      triangleAnimId = requestAnimationFrame(animate);
+    } else {
+      triangleAnimId = null;
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+let pythagorasAnimId = null;
+function playPythagorasLabelAnimation() {
+  if (pythagorasAnimId) cancelAnimationFrame(pythagorasAnimId);
+
+  function animate(time) {
+    const phase = Math.floor(time / 1000) % 2; // Toggle every 1.0s
+
+    drawProblemState();
+    drawCentersAndLines(false);
+    drawTriangleVars(0.85, false); // Draw with NO labels (showLabels=false)
+
+    // Toggle Labels
+    const labelVertical = phase === 0 ? "6-x" : "4";
+    const labelHypotenuse = phase === 0 ? "3+x" : "5";
+    const color = phase === 0 ? "#d63031" : "#00b894";
+
+    // Vertical Label
+    ctx.font = 'bold 24px Outfit';
+    ctx.fillStyle = color;
+    ctx.fillText(labelVertical, toCanvasX(-0.8), toCanvasY(2));
+
+    // Hypotenuse Label
+    ctx.fillText(labelHypotenuse, toCanvasX(1.6), toCanvasY(2.2));
+
+    // Base Label (Always 3, Static Red)
+    // Only draw here since drawTriangleVars(..., false) won't draw it
+    ctx.fillStyle = '#d63031';
+    ctx.fillText("3", toCanvasX(1.5), toCanvasY(-0.4));
+
+    pythagorasAnimId = requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+}
+
+function drawTriangleVars(fillOpacity = 0.85, showLabels = true) {
+  const centerY = 4;
+
+  // Triangle Outline
+  ctx.beginPath();
+  ctx.moveTo(toCanvasX(0), toCanvasY(0)); // Origin
+  ctx.lineTo(toCanvasX(3), toCanvasY(0)); // Bottom Right
+  ctx.lineTo(toCanvasX(0), toCanvasY(centerY)); // Top Left
+  ctx.lineTo(toCanvasX(0), toCanvasY(0)); // Close
+
+  // Fill with dynamic opacity (Lighter Orange)
+  ctx.fillStyle = `rgba(255, 200, 80, ${fillOpacity})`;
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(9, 132, 227, 0.5)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  if (showLabels) {
+    // Labels
+    ctx.font = 'bold 18px Outfit';
+    ctx.fillStyle = '#d63031';
+
+    // Bottom: 3
+    ctx.fillText("3", toCanvasX(1.5), toCanvasY(-0.4));
+
+    // Hypotenuse: 3+x
+    ctx.fillText("3+x", toCanvasX(1.6), toCanvasY(2.2));
+
+    // Vertical: 6-x
+    const labelX = toCanvasX(-0.8);
+    const labelY = toCanvasY(2);
+    ctx.fillText("6-x", labelX, labelY);
+
+    // Leader line for 6-x
+    ctx.beginPath();
+    ctx.moveTo(labelX + 25, labelY - 5);
+    ctx.lineTo(toCanvasX(-0.1), labelY - 5);
+    ctx.strokeStyle = '#636e72';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+}
+
+function drawTriangleSolved() {
+  const centerY = 4;
+
+  // Re-draw base triangle with NO default labels
+  drawTriangleVars(0.85, false);
+
+  // Labels 3-4-5 (Static solved state)
+  ctx.font = 'bold 24px Outfit';
+  ctx.fillStyle = '#00b894';
+
+  ctx.fillText("3", toCanvasX(1.5), toCanvasY(-0.4));
+  ctx.fillText("5", toCanvasX(1.6), toCanvasY(2.2));
+  ctx.fillText("4", toCanvasX(-0.8), toCanvasY(2));
+}
 
 
 // Event Listeners
@@ -381,12 +589,13 @@ if (btnNext) {
 if (btnReset) {
   btnReset.addEventListener('click', () => {
     currentStep = 0;
-    cancelAnimationFrame(animationFrameId);
+    stopAllAnimations();
     updateUI();
   });
 }
 
 function updateUI() {
+  stopAllAnimations(); // Ensure previous animations are stopped
   const stepData = steps[currentStep];
   if (!stepData) return;
 
@@ -401,6 +610,7 @@ function updateUI() {
   // Update Buttons
   if (currentStep === 0) {
     btnNext.innerText = "풀이 시작";
+    btnNext.style.display = 'inline-block'; // Ensure it is visible
     btnReset.style.display = 'none';
   } else if (currentStep >= TOTAL_STEPS) {
     btnNext.style.display = 'none';
@@ -432,41 +642,7 @@ function toCanvasY(y) { return ORIGIN_Y - y * SCALE; }
 /* --- Drawing Helper Functions --- */
 
 // Base Problem visualization
-function drawProblemState() {
-  ctx.clearRect(0, 0, geometryCanvas.width, geometryCanvas.height);
-  drawAxes();
 
-  // 1. Base Quarter Circle (RED)
-  ctx.beginPath();
-  ctx.moveTo(toCanvasX(0), toCanvasY(0));
-  ctx.arc(toCanvasX(0), toCanvasY(0), 6 * SCALE, 1.5 * Math.PI, 0, false);
-  ctx.lineTo(toCanvasX(0), toCanvasY(0));
-  ctx.fillStyle = '#ff7675';
-  ctx.fill();
-  ctx.strokeStyle = '#2d3436';
-  ctx.lineWidth = 3;
-  ctx.stroke();
-
-  // 2. Bottom Semicircle (White)
-  ctx.beginPath();
-  ctx.arc(toCanvasX(3), toCanvasY(0), 3 * SCALE, Math.PI, 0, false);
-  ctx.fillStyle = '#FFFBF0';
-  ctx.fill();
-  ctx.strokeStyle = '#2d3436';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  // 3. Hanging Semicircle (Fixed x=2) (White)
-  const x = 2;
-  const centerY = 6 - x; // 4
-  ctx.beginPath();
-  ctx.arc(toCanvasX(0), toCanvasY(centerY), x * SCALE, 1.5 * Math.PI, 0.5 * Math.PI, false);
-  ctx.fillStyle = '#FFFBF0';
-  ctx.fill();
-  ctx.strokeStyle = '#2d3436';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-}
 
 function drawAxes() {
   ctx.beginPath();
@@ -545,6 +721,7 @@ function animateLineDrawing() {
       // Draw Points
       drawPoint(3, 0, '#0984e3');
       drawPoint(0, 4, '#0984e3');
+      drawPoint(0, 0, '#0984e3'); // Origin point
 
       // Draw Partial Line
       const startX = toCanvasX(3);
@@ -581,6 +758,7 @@ function drawCentersAndLines(animate = false) {
 
   drawPoint(3, 0, '#0984e3');
   drawPoint(0, centerY, '#0984e3');
+  drawPoint(0, 0, '#0984e3'); // Origin point
 
   ctx.beginPath();
   ctx.moveTo(toCanvasX(3), toCanvasY(0));
@@ -592,58 +770,9 @@ function drawCentersAndLines(animate = false) {
   ctx.setLineDash([]);
 }
 
-function drawTriangleVars() {
-  const centerY = 4;
 
-  // Triangle Outline
-  ctx.beginPath();
-  ctx.moveTo(toCanvasX(0), toCanvasY(0)); // Origin
-  ctx.lineTo(toCanvasX(3), toCanvasY(0)); // Bottom Right
-  ctx.lineTo(toCanvasX(0), toCanvasY(centerY)); // Top Left
-  ctx.lineTo(toCanvasX(0), toCanvasY(0)); // Close
-  ctx.strokeStyle = 'rgba(9, 132, 227, 0.5)';
-  ctx.lineWidth = 2;
-  ctx.stroke();
 
-  // Labels
-  ctx.font = 'bold 18px Outfit';
-  ctx.fillStyle = '#d63031';
 
-  // Bottom: 3
-  ctx.fillText("3", toCanvasX(1.5), toCanvasY(-0.4));
-
-  // Hypotenuse: 3+x
-  ctx.fillText("3+x", toCanvasX(1.6), toCanvasY(2.2));
-
-  // Vertical: 6-x (Improved Visibility)
-  // Draw a bracket or leader line to avoid overlap with axis
-  const labelX = toCanvasX(-0.8);
-  const labelY = toCanvasY(2);
-
-  ctx.fillText("6-x", labelX, labelY);
-
-  // Leader line
-  ctx.beginPath();
-  ctx.moveTo(labelX + 25, labelY - 5);
-  ctx.lineTo(toCanvasX(-0.1), labelY - 5);
-  ctx.strokeStyle = '#636e72';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-}
-
-function drawTriangleSolved() {
-  const centerY = 4;
-
-  // Labels 3-4-5
-  ctx.font = 'bold 24px Outfit';
-  ctx.fillStyle = '#00b894';
-
-  ctx.fillText("3", toCanvasX(1.5), toCanvasY(-0.4));
-  ctx.fillText("5", toCanvasX(1.6), toCanvasY(2.2));
-
-  // Vertical 4
-  ctx.fillText("4", toCanvasX(-0.5), toCanvasY(2));
-}
 
 function drawFinalAnswer() {
   // Just highlight visual if needed, but text covers it.
