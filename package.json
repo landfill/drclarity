@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "generate:registry": "node scripts/generate-topic-registry.mts",
+    "generate:registry": "node scripts/generate-topic-registry.mjs",
     "predev": "npm run generate:registry",
     "prebuild": "npm run generate:registry",
     "postinstall": "npm run generate:registry",
