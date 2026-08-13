@@ -59,7 +59,7 @@ export const InteractiveCanvas = forwardRef<InteractiveCanvasHandle, Interactive
         for (const entry of entries) {
           const rect = entry.contentRect;
           const dpr = window.devicePixelRatio || 1;
-          const cssWidth = rect.width;
+          const cssWidth = Math.min(rect.width, logicalWidth);
           const cssHeight = (cssWidth / logicalWidth) * logicalHeight;
 
           canvas.width = Math.round(cssWidth * dpr);

@@ -90,7 +90,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, opts: SceneOptions): vo
     GEOMETRY.bottom.radius * SCALE, 
     0, Math.PI, true
   );
-  ctx.fillStyle = palette.surface;
+  ctx.fillStyle = palette.bg;
   ctx.fill();
   ctx.lineWidth = 2;
   ctx.stroke();
@@ -124,7 +124,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, opts: SceneOptions): vo
     ctx.restore();
   } else {
     ctx.closePath();
-    ctx.fillStyle = palette.surface;
+    ctx.fillStyle = palette.bg;
     ctx.fill();
     ctx.stroke();
   }
