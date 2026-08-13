@@ -14,8 +14,12 @@ export function getCategory(id: string): CategoryEntry | undefined {
 }
 
 /** status='published' 인 전체 주제. 카테고리 order → 주제 order 순. */
-export function getTopics(): TopicEntry[] {
-  return allTopics.filter(t => t.status === 'published').sort((a, b) => {
+export function getTopics(categoryId?: string): TopicEntry[] {
+  let filtered = allTopics.filter(t => t.status === 'published');
+  if (categoryId) {
+    filtered = filtered.filter(t => t.categoryId === categoryId);
+  }
+  return filtered.sort((a, b) => {
     const catA = getCategory(a.categoryId)?.order ?? 0;
     const catB = getCategory(b.categoryId)?.order ?? 0;
     if (catA !== catB) return catA - catB;

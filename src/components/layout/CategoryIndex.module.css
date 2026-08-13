@@ -1,0 +1,16 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--color-surface);
+  border-radius: 12px;
+  color: var(--color-muted);
+  font-size: 1.1rem;
+  margin-top: 2rem;
+}
