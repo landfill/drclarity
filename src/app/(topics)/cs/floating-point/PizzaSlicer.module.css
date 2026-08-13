@@ -1,0 +1,137 @@
+.container {
+  width: 100%;
+}
+
+.stage {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.pizzaBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pizzaLabel {
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.pizza {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: var(--color-dough);
+  border: 4px solid var(--color-warm);
+  position: relative;
+  overflow: hidden;
+}
+
+.sliceLine {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 1px);
+  width: 2px;
+  height: 100%;
+  background: var(--color-danger);
+}
+
+.highlightDec {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(from 0deg, var(--color-warm) 36deg, transparent 36deg);
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.highlightDec.active {
+  opacity: 1;
+}
+
+.binSlice {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.binSlice.preview {
+  opacity: 0.5;
+}
+
+.binSlice.kept {
+  opacity: 1;
+}
+
+.crumbIndicator {
+  position: absolute;
+  top: 10%;
+  left: 60%;
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-danger);
+  border-radius: 50%;
+  animation: pulse 1s infinite;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.5); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+.controls {
+  text-align: center;
+}
+
+.button {
+  padding: 0.8rem 2rem;
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.button:disabled {
+  background: var(--color-muted-2);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.button:not(:disabled):hover {
+  background: var(--color-warm);
+  transform: translateY(-2px);
+}
+
+.status {
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: var(--color-muted);
+  min-height: 1.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .highlightDec {
+    transition: none;
+  }
+  .crumbIndicator {
+    animation: none;
+    opacity: 1;
+  }
+}

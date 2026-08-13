@@ -1,0 +1,35 @@
+.card {
+  background: var(--color-surface);
+  border-radius: 20px;
+  padding: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.stage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.caption {
+  margin-top: 1rem;
+  color: var(--color-muted);
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+.controls {
+  margin-top: 1rem;
+}
+
+.status {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  min-height: 1.5em;
+}
