@@ -8,6 +8,7 @@ export const palette = {
   muted: '#636e72',
   'muted-2': '#b2bec3',
   subtle: '#dfe6e9',
+  border: '#e8e0d4',
   danger: '#d63031',
   'danger-soft': '#ff7675',
   warm: '#e17055',

@@ -28,8 +28,8 @@ const HONEY_STEPS: SolutionStep[] = [
   },
   {
     id: '4',
-    body: <><strong>판독:</strong> 1시간 뒤, <strong>죽은 개미들의 자릿값을 더하면</strong> 가짜 꿀통의 번호가 나옵니다.<br/>아래 꿀통 중 하나를 클릭해서 직접 결과를 확인해보세요!</>,
-    hint: <>직접 가짜 꿀통을 선택해보세요.</>
+    body: <><strong>판독:</strong> 1시간 뒤에 우리가 보는 것은 <strong>어떤 개미가 죽었는가</strong>뿐입니다. 죽은 개미들의 <strong>자릿값을 더하면</strong> 그게 곧 가짜 꿀통의 번호입니다.<br/>아래에서 개미를 눌러 죽은 개미를 골라보면, 그 조합이 어떤 번호를 가리키는지 알 수 있습니다.</>,
+    hint: <>죽은 개미 조합을 바꿔가며 결과를 확인해보세요.</>
   },
   {
     id: '5',
@@ -40,7 +40,14 @@ const HONEY_STEPS: SolutionStep[] = [
 export default function HoneyPotsClient() {
   const [stepIndex, setStepIndex] = useState(0);
   const [activeAntBit, setActiveAntBit] = useState<number | null>(null);
-  const [selectedPot, setSelectedPot] = useState<number | null>(null);
+  // 판독 단계의 입력은 "어떤 개미가 죽었는가" 하나뿐이다.
+  const [deadAntBits, setDeadAntBits] = useState<number[]>([]);
+
+  const toggleAntDead = (bit: number) => {
+    setDeadAntBits((prev) =>
+      prev.includes(bit) ? prev.filter((b) => b !== bit) : [...prev, bit]
+    );
+  };
 
   const getBoardMode = (): 'grid' | 'encoding' | 'simulation' => {
     if (stepIndex < 3) return 'grid';
@@ -75,19 +82,21 @@ export default function HoneyPotsClient() {
       </ExplanationBox>
 
       <AnimationCard>
-        <BinaryEncodingBoard 
+        <BinaryEncodingBoard
           mode={getBoardMode()}
           activeAntBit={activeAntBit}
           onActiveAntBitChange={setActiveAntBit}
-          selectedPot={selectedPot}
-          onSelectPot={setSelectedPot}
+          deadAntBits={deadAntBits}
+          onToggleAntDead={toggleAntDead}
         />
-        <SolutionStepper 
+        <SolutionStepper
           steps={HONEY_STEPS}
           onStepChange={(idx) => {
             setStepIndex(idx);
             if (idx !== 3) setActiveAntBit(null);
-            if (idx < 4) setSelectedPot(null);
+            // 판독 단계에 처음 들어오면 예시 조합(16+4=20번)을 보여준다.
+            if (idx < 4) setDeadAntBits([]);
+            else setDeadAntBits((prev) => (prev.length > 0 ? prev : [16, 4]));
           }}
         />
       </AnimationCard>
