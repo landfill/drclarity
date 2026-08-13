@@ -67,12 +67,12 @@ export function CalculatorReveal() {
     if (typedResult.length > SPLIT_INDEX) {
       return (
         <>
-          {typedResult.substring(0, SPLIT_INDEX)}
+          0.1 + 0.2 = {typedResult.substring(0, SPLIT_INDEX)}
           <span className={styles.highlight}>{typedResult.substring(SPLIT_INDEX)}</span>
         </>
       );
     }
-    return typedResult;
+    return `0.1 + 0.2 = ${typedResult}`;
   };
 
   return (
