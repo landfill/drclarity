@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { binaryFractions } from './binaryFractions';
+import { prefersReducedMotion } from '@/lib/reducedMotion';
 import styles from './PizzaSlicer.module.css';
 
 type Phase = 'idle' | 'slicing-decimal' | 'highlight-decimal' | 'slicing-binary' | 'crumb' | 'done';
@@ -24,6 +25,29 @@ export function PizzaSlicer() {
     setDecSlices(0);
     setBinSlices([]);
     cancelRef.current = false;
+
+    if (prefersReducedMotion()) {
+      setPhase('done');
+      setDecSlices(5);
+      
+      let currentDeg = 0;
+      const slices: BinarySlice[] = [];
+      for (const frac of binaryFractions) {
+        if (frac.keep) {
+          const sweep = 360 / frac.denominator;
+          slices.push({
+            denominator: frac.denominator,
+            startDeg: currentDeg,
+            sweepDeg: sweep,
+            state: 'kept'
+          });
+          currentDeg += sweep;
+        }
+      }
+      setBinSlices(slices);
+      setStatus('1/16 + 1/32 + 1/256 + 1/512 + 1/4096 + ... ≠ 0.1 (항상 부스러기가 남아요!)');
+      return;
+    }
 
     const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 

@@ -149,7 +149,7 @@ button.potTile:not(:disabled):hover {
 }
 
 .antResult.alive {
-  background: var(--color-success, #00b894);
+  background: var(--color-success);
   color: white;
 }
 
@@ -184,4 +184,10 @@ button.potTile:not(:disabled):hover {
 .decodeConclusion {
   font-size: 1.2rem;
   color: var(--color-danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .simulationResult {
+    animation: none;
+  }
 }

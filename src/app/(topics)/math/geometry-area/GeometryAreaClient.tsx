@@ -6,6 +6,7 @@ import { InteractiveCanvas, InteractiveCanvasHandle } from '@/components/topic/I
 import { SolutionStepper, SolutionStep } from '@/components/topic/SolutionStepper';
 import { drawScene, SceneOptions } from './scene';
 import { useAnimationFrame } from '@/hooks/useAnimationFrame';
+import { palette } from '@/styles/palette';
 
 
 const GEOMETRY_STEPS: SolutionStep[] = [
@@ -58,7 +59,7 @@ export default function GeometryAreaClient() {
     const fontFamily = getComputedStyle(document.body).getPropertyValue('--font-main') || 'Outfit';
 
     const opts: SceneOptions = {
-      redFill: 'var(--color-danger-soft, #ff7675)',
+      redFill: palette['danger-soft'],
       fontFamily
     };
 
@@ -133,11 +134,10 @@ export default function GeometryAreaClient() {
   useAnimationFrame(animationCb, getDuration(), [stepIndex, animationCb]);
 
   // 첫 렌더 또는 리사이즈용 정적 그리기
-  const draw = useCallback((ctx: CanvasRenderingContext2D) => {
+  const draw = useCallback(() => {
     // 애니메이션이 아닌 정적 상태의 그리기 (주로 초기 렌더링용)
-    const fontFamily = getComputedStyle(document.body).getPropertyValue('--font-main') || 'Outfit';
-    drawScene(ctx, { redFill: 'var(--color-danger-soft, #ff7675)', fontFamily });
-  }, []);
+    animationCb(10000, 1); // 10000ms, progress=1 (완료 상태)
+  }, [animationCb]);
 
   return (
     <TopicLayout 

@@ -1,3 +1,5 @@
+import { palette } from '@/styles/palette';
+
 export const SCALE = 50;                          // px per unit
 export const ORIGIN = { x: 40, y: 360 } as const; // 캔버스 픽셀 기준 원점
 export const CANVAS = { width: 400, height: 400 } as const;
@@ -30,7 +32,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, opts: SceneOptions): vo
   ctx.clearRect(0, 0, CANVAS.width, CANVAS.height);
 
   // 축
-  ctx.strokeStyle = 'var(--color-muted-2)';
+  ctx.strokeStyle = palette['muted-2'];
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(toCanvasX(0), 0);
@@ -39,7 +41,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, opts: SceneOptions): vo
   ctx.lineTo(CANVAS.width, toCanvasY(0));
   ctx.stroke();
 
-  ctx.fillStyle = 'var(--color-muted)';
+  ctx.fillStyle = palette.muted;
   ctx.font = `bold 16px "${opts.fontFamily}"`;
   ctx.textAlign = 'right';
   ctx.textBaseline = 'top';
@@ -76,7 +78,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, opts: SceneOptions): vo
   ctx.closePath();
   ctx.fillStyle = opts.redFill;
   ctx.fill();
-  ctx.strokeStyle = 'var(--color-ink)';
+  ctx.strokeStyle = palette.ink;
   ctx.lineWidth = 3;
   ctx.stroke();
 
@@ -88,7 +90,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, opts: SceneOptions): vo
     GEOMETRY.bottom.radius * SCALE, 
     0, Math.PI, true
   );
-  ctx.fillStyle = 'var(--color-surface)';
+  ctx.fillStyle = palette.surface;
   ctx.fill();
   ctx.lineWidth = 2;
   ctx.stroke();
@@ -99,7 +101,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, opts: SceneOptions): vo
     toCanvasX(hx), 
     toCanvasY(hy), 
     GEOMETRY.hanging.radius * SCALE, 
-    -Math.PI / 2, Math.PI / 2, true
+    -Math.PI / 2, Math.PI / 2, false
   );
   if (opts.ottogi) {
     // 오뚜기 회전 적용을 위해 arc 를 그리기보단 ctx.rotate 를 써야하지만, 
@@ -110,7 +112,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, opts: SceneOptions): vo
     ctx.translate(toCanvasX(hx), toCanvasY(hy));
     ctx.rotate(opts.ottogi.swayRad);
     ctx.beginPath();
-    ctx.arc(0, 0, GEOMETRY.hanging.radius * SCALE, -Math.PI / 2, Math.PI / 2, true);
+    ctx.arc(0, 0, GEOMETRY.hanging.radius * SCALE, -Math.PI / 2, Math.PI / 2, false);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
@@ -122,7 +124,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, opts: SceneOptions): vo
     ctx.restore();
   } else {
     ctx.closePath();
-    ctx.fillStyle = 'var(--color-surface)';
+    ctx.fillStyle = palette.surface;
     ctx.fill();
     ctx.stroke();
   }
@@ -145,22 +147,22 @@ export function drawScene(ctx: CanvasRenderingContext2D, opts: SceneOptions): vo
       const lBase = '3';
       let lHypot = '3+x';
       let lHeight = '6-x';
-      const cBase = 'var(--color-ink)';
-      let cHypot = 'var(--color-ink)';
-      let cHeight = 'var(--color-ink)';
+      const cBase = palette.ink;
+      let cHypot: string = palette.ink;
+      let cHeight: string = palette.ink;
 
       if (opts.triangle.labels === 'solved') {
         lHypot = '5';
         lHeight = '4';
       } else if (opts.triangle.labels === 'toggle') {
         if (opts.triangle.togglePhase === 0) {
-          cHypot = 'var(--color-danger)';
-          cHeight = 'var(--color-danger)';
+          cHypot = palette.danger;
+          cHeight = palette.danger;
         } else {
           lHypot = '5';
           lHeight = '4';
-          cHypot = 'var(--color-success, #00b894)';
-          cHeight = 'var(--color-success, #00b894)';
+          cHypot = palette.success;
+          cHeight = palette.success;
         }
       }
 
@@ -188,7 +190,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, opts: SceneOptions): vo
       
       // 인출선 (vars 모드)
       if (opts.triangle.labels === 'vars') {
-        ctx.strokeStyle = 'var(--color-ink)';
+        ctx.strokeStyle = palette.ink;
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(toCanvasX(-0.6), toCanvasY(2.0));
@@ -201,7 +203,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, opts: SceneOptions): vo
 
   // 중심점 3개
   if (opts.showCenters) {
-    ctx.fillStyle = 'var(--color-blue)';
+    ctx.fillStyle = palette.blue;
     [GEOMETRY.quarter.center, GEOMETRY.bottom.center, [hx, hy]].forEach(pt => {
       ctx.beginPath();
       ctx.arc(toCanvasX(pt[0]), toCanvasY(pt[1]), 5, 0, Math.PI * 2);
@@ -211,7 +213,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, opts: SceneOptions): vo
 
   // 연결선
   if (opts.connector !== undefined && opts.connector > 0) {
-    ctx.strokeStyle = 'var(--color-blue)';
+    ctx.strokeStyle = palette.blue;
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 5]);
     ctx.beginPath();
@@ -230,7 +232,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, opts: SceneOptions): vo
 
   // 오뚜기 라벨
   if (opts.ottogi) {
-    ctx.strokeStyle = 'var(--color-blue)';
+    ctx.strokeStyle = palette.blue;
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 5]);
     ctx.beginPath();
@@ -239,7 +241,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, opts: SceneOptions): vo
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.fillStyle = 'var(--color-blue)';
+    ctx.fillStyle = palette.blue;
     ctx.font = `bold 16px "${opts.fontFamily}"`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';

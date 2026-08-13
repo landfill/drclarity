@@ -16,12 +16,14 @@ export function AnimationCard({ children, controls, status, caption, className =
           {children}
         </div>
         {caption && <p className={styles.caption}>{caption}</p>}
-        {controls && (
+        {(controls || status) && (
           <div className={styles.controls}>
             {controls}
-            <p className={styles.status} aria-live="polite">
-              {status || ' '}
-            </p>
+            {status && (
+              <p className={styles.status} aria-live="polite">
+                {status}
+              </p>
+            )}
           </div>
         )}
       </div>

@@ -83,3 +83,9 @@
   white-space: pre-wrap;
   text-align: left;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .shake {
+    animation: none;
+  }
+}

@@ -1,4 +1,4 @@
-import { getCategory, getTopics } from '@/content/registry';
+import { getCategory } from '@/content/registry';
 import { TopicCard } from '@/components/topic/TopicCard';
 import { TopicLayout } from '@/components/layout/TopicLayout';
 import { notFound } from 'next/navigation';
@@ -15,7 +15,7 @@ export function CategoryIndex({ categoryId }: CategoryIndexProps) {
     notFound();
   }
 
-  const topics = getTopics(categoryId);
+  const topics = category.topics;
 
   return (
     <TopicLayout 

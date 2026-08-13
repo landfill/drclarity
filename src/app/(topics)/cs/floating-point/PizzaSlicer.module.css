@@ -125,3 +125,13 @@
   color: var(--color-muted);
   min-height: 1.5rem;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .highlightDec {
+    transition: none;
+  }
+  .crumbIndicator {
+    animation: none;
+    opacity: 1;
+  }
+}

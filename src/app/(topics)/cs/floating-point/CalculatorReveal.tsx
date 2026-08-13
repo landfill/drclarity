@@ -21,10 +21,6 @@ export function CalculatorReveal() {
     active: phase === 'calculating' || phase === 'done',
     onDone: () => {
       setPhase('done');
-      setTimeout(() => {
-        if (!prefersReducedMotion()) setShake(true);
-        setTimeout(() => setShowExplanation(true), 800);
-      }, 100);
     }
   });
 
@@ -38,6 +34,21 @@ export function CalculatorReveal() {
       panelRef.current.scrollTop = panelRef.current.scrollHeight;
     }
   }, [typedExplanation]);
+
+  useEffect(() => {
+    let t1: NodeJS.Timeout;
+    let t2: NodeJS.Timeout;
+    if (phase === 'done') {
+      t1 = setTimeout(() => {
+        if (!prefersReducedMotion()) setShake(true);
+        t2 = setTimeout(() => setShowExplanation(true), 800);
+      }, 100);
+    }
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [phase]);
 
   const startCalculation = () => {
     setPhase('calculating');

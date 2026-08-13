@@ -1,4 +1,4 @@
-import { getCategories, getTopics } from '@/content/registry';
+import { getCategories } from '@/content/registry';
 import { TopicCard } from '@/components/topic/TopicCard';
 import Link from 'next/link';
 import styles from './page.module.css';
@@ -15,7 +15,7 @@ export default function Home() {
 
       <main className={styles.main}>
         {categories.map((cat) => {
-          const topics = getTopics(cat.id);
+          const topics = cat.topics;
           
           return (
             <section key={cat.id} className={styles.categorySection}>

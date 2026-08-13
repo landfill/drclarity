@@ -1,8 +1,9 @@
 import { MetadataRoute } from 'next';
-import { getCategories, getTopics } from '@/content/registry';
+import { getCategories } from '@/content/registry';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'http://localhost:3000');
   const routes: MetadataRoute.Sitemap = [];
 
   // 홈
@@ -26,7 +27,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // 개별 토픽
   for (const cat of categories) {
-    const topics = getTopics(cat.id);
+    const topics = cat.topics;
     for (const topic of topics) {
       routes.push({
         url: `${baseUrl}${topic.href}`,
