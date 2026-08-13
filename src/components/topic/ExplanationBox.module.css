@@ -1,0 +1,49 @@
+.section {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--color-secondary);
+}
+
+.plain {
+  background: var(--color-surface);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  text-align: left;
+}
+
+.note {
+  background: var(--color-note-bg);
+  border-left: 5px solid var(--color-note-border);
+  padding: 1rem;
+  border-radius: 4px;
+  text-align: left;
+}
+
+.details {
+  margin-bottom: 2rem;
+}
+
+.summary {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-secondary);
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.plain :global(p),
+.note :global(p) {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: var(--color-ink);
+}
+
+.plain :global(p:last-child),
+.note :global(p:last-child) {
+  margin-bottom: 0;
+}

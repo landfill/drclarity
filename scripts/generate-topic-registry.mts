@@ -19,7 +19,7 @@ function run() {
   });
 
   let imports = '';
-  let allTopicsData: string[] = [];
+  const allTopicsData: string[] = [];
   let categoriesArray = '';
   
   const categoryIds: string[] = [];
@@ -108,7 +108,8 @@ ${allTopicsData.join(',\n')}
 
 export const allCategories: CategoryEntry[] = [
 ${categoriesArray}
-].sort((a,b) => a.order - b.order);
+];
+allCategories.sort((a,b) => a.order - b.order);
 `;
 
   fs.mkdirSync(path.dirname(REGISTRY_OUT), { recursive: true });
