@@ -2,37 +2,36 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
-  margin-top: 2rem;
+  gap: var(--space-lg);
+  margin-top: var(--space-md);
+  width: 100%;
 }
 
 .calculator {
   background: var(--color-ink);
-  padding: 2rem;
-  border-radius: 16px;
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   width: 100%;
-  /* '0.1 + 0.2 = 0.30000000000000004' 31자가 잘리지 않는 폭 */
   max-width: 560px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--space-md);
 }
 
 .display {
   background: var(--color-surface);
-  padding: 1rem;
-  border-radius: 8px;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
   font-family: monospace;
-  /* 좁은 화면에서도 전체 수식이 한 줄에 들어가도록 축소 */
-  font-size: clamp(0.7rem, 3vw, 1.5rem);
+  font-size: clamp(0.75rem, 3.2vw, 1.4rem);
   text-align: right;
-  min-height: 4rem;
+  min-height: 3.5rem;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   color: var(--color-ink);
-  overflow: hidden;
+  overflow-x: auto;
   white-space: nowrap;
 }
 
@@ -53,14 +52,19 @@
 }
 
 .button {
-  padding: 1rem;
+  padding: var(--space-sm) var(--space-md);
   background: var(--color-accent);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 1.2rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-lead);
   font-weight: 700;
   cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: opacity 0.2s;
 }
 
@@ -73,26 +77,40 @@
   background: var(--color-terminal-bg);
   color: var(--color-terminal-fg);
   border: 1px solid var(--color-terminal-border);
-  padding: 1.5rem;
-  border-radius: 8px;
+  padding: var(--space-md);
+  border-radius: var(--radius-sm);
   font-family: monospace;
-  font-size: 1.1rem;
+  font-size: var(--fs-body);
   line-height: 1.6;
   width: 100%;
   max-width: 600px;
-  max-height: 300px;
+  max-height: 240px;
   overflow-y: auto;
+  overflow-x: auto;
+  word-break: break-word;
   white-space: pre-wrap;
   text-align: left;
 }
 
 @media (max-width: 768px) {
+  .container {
+    gap: var(--space-md);
+    margin-top: var(--space-sm);
+  }
+
   .calculator {
-    padding: 1.25rem;
+    padding: var(--space-md);
+    gap: var(--space-sm);
   }
 
   .display {
-    padding: 0.75rem;
+    padding: var(--space-xs) var(--space-sm);
+    min-height: 3rem;
+  }
+
+  .explanationPanel {
+    padding: var(--space-sm);
+    max-height: 200px;
   }
 }
 
