@@ -14,7 +14,10 @@ export interface SolutionStepperProps {
   onStepChange?: (index: number, step: SolutionStep) => void;
   labels?: { start?: string; next?: string; reset?: string };
   children?: React.ReactNode;
+  /** @deprecated 인라인 표시가 기본 동작. WP-4에서 제거 예정. */
   showHintInline?: boolean;
+  /** true 면 데스크톱(1100px 이상)에서 2컬럼 그리드(시각 좌 / 지시문·버튼 우)로 배치 */
+  split?: boolean;
 }
 
 export function SolutionStepper({
@@ -22,7 +25,9 @@ export function SolutionStepper({
   onStepChange,
   labels,
   children,
-  showHintInline = false
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  showHintInline,
+  split = false
 }: SolutionStepperProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const controlsRef = useRef<HTMLDivElement>(null);
@@ -45,16 +50,26 @@ export function SolutionStepper({
     onStepChange?.(nextStep, nextStepData);
 
     requestAnimationFrame(() => {
+      const el = controlsRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const headerH = parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue('--header-h')
+      ) || 70;
+      if (rect.top >= headerH && rect.bottom <= window.innerHeight) return;
+
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      controlsRef.current?.scrollIntoView({
+      el.scrollIntoView({
         behavior: reduceMotion ? 'auto' : 'smooth',
         block: 'start'
       });
     });
   };
 
+  const controlsClass = `${styles.controls} ${split ? styles.controlsSplit : ''}`.trim();
+
   return (
-    <div ref={controlsRef} className={styles.controls}>
+    <div ref={controlsRef} className={controlsClass}>
       <div className={styles.stepText} aria-live="polite">
         {stepData.body}
         {stepData.formula && (
@@ -62,7 +77,7 @@ export function SolutionStepper({
             <span className={styles.formula}>{stepData.formula}</span>
           </div>
         )}
-        {showHintInline && stepData.hint && (
+        {stepData.hint && (
           <p className={styles.stepHint}>
             <strong>직접 확인:</strong> {stepData.hint}
           </p>

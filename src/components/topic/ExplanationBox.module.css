@@ -1,16 +1,16 @@
 .section {
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-lg);
 }
 
 .title {
-  font-size: 2rem;
+  font-size: var(--fs-h2);
   margin-bottom: 1rem;
   color: var(--color-secondary);
 }
 
 .plain {
   background: var(--color-surface);
-  padding: 2rem;
+  padding: var(--space-lg);
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   text-align: left;
@@ -25,7 +25,7 @@
 }
 
 .details {
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-lg);
 }
 
 .summary {
@@ -38,8 +38,8 @@
 
 .plain :global(p),
 .note :global(p) {
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
+  margin-bottom: var(--space-sm);
+  font-size: var(--fs-body);
   color: var(--color-ink);
 }
 

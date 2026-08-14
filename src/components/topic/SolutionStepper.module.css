@@ -1,6 +1,6 @@
 .controls {
   margin-top: 1.5rem;
-  scroll-margin-top: 86px;
+  scroll-margin-top: calc(var(--header-h) + var(--space-md));
   background: var(--color-surface);
   padding: 1rem;
   border-radius: 12px;
@@ -8,11 +8,25 @@
   text-align: center;
 }
 
+/* split 모드, 데스크톱만 */
+@media (min-width: 1100px) {
+  .controlsSplit {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    gap: var(--space-lg);
+    align-items: start;
+  }
+  .controlsSplit .stepText   { grid-column: 2; grid-row: 1; }
+  .controlsSplit .stage      { grid-column: 1; grid-row: 1 / span 2; margin: 0; }
+  .controlsSplit .buttonGroup{ grid-column: 2; grid-row: 2; }
+}
+
 .stepText {
   font-size: 1.05rem;
   color: var(--color-ink);
   margin-bottom: 1rem;
-  min-height: 4rem;
+  min-height: 3.5rem;
   display: block;
   text-align: center;
   font-weight: 500;
@@ -58,7 +72,7 @@
 }
 
 .actionBtn {
-  padding: 0.8rem 2rem;
+  padding: var(--space-sm) var(--space-lg);
   background: var(--color-blue);
   color: white;
   border: none;
@@ -74,7 +88,7 @@
 }
 
 .secondaryBtn {
-  padding: 0.8rem 2rem;
+  padding: var(--space-sm) var(--space-lg);
   background: var(--color-subtle);
   color: var(--color-muted);
   border: none;
