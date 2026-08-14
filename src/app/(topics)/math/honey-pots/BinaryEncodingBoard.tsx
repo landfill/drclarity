@@ -80,7 +80,11 @@ export function BinaryEncodingBoard({
           <strong>{selectedBinary}</strong>
         </div>
       </div>
-      <div className={styles.bitMeaningGrid} aria-label={`${selectedPot}번 꿀통의 개미 그룹`}>
+      <div
+        className={styles.bitMeaningGrid}
+        role="group"
+        aria-label={`${selectedPot}번 꿀통의 개미 그룹`}
+      >
         {ANT_BITS.map((bit, idx) => {
           const included = selectedAntBits.includes(bit);
           return (
@@ -106,7 +110,11 @@ export function BinaryEncodingBoard({
       <p className={styles.cupRule}>
         개미를 섞는 것이 아닙니다. <strong>개미마다 자기 혼합 컵이 하나씩</strong> 있고, 같은 꿀 샘플을 여러 컵에 나눠 넣습니다.
       </p>
-      <div className={styles.routingGrid} aria-label={`${selectedPot}번 꿀의 급여 경로`}>
+      <div
+        className={styles.routingGrid}
+        role="group"
+        aria-label={`${selectedPot}번 꿀의 급여 경로`}
+      >
         {ANT_BITS.map((bit, idx) => {
           const included = selectedAntBits.includes(bit);
           return (
@@ -179,8 +187,7 @@ export function BinaryEncodingBoard({
                 key={bit}
                 type="button"
                 className={`${styles.antTile} ${activeAntBit === bit ? styles.antActive : ''}`}
-                onFocus={() => onActiveAntBitChange?.(bit)}
-                onClick={() => onActiveAntBitChange?.(bit)}
+                onClick={() => onActiveAntBitChange?.(bit === activeAntBit ? null : bit)}
                 aria-pressed={activeAntBit === bit}
                 aria-label={`개미 ${ANT_LABELS[idx]}, 자릿값 ${bit}`}
               >
@@ -223,7 +230,11 @@ export function BinaryEncodingBoard({
         </>
       )}
 
-      <div className={styles.grid} aria-label="1번부터 25번까지의 꿀통">
+      <div
+        className={styles.grid}
+        role={potIsSelectable ? 'group' : 'list'}
+        aria-label="1번부터 25번까지의 꿀통"
+      >
         {pots.map((pot) => {
           const tileContent = (
             <>
@@ -246,6 +257,7 @@ export function BinaryEncodingBoard({
           ) : (
             <div
               key={pot}
+              role="listitem"
               className={`${styles.potTile} ${getPotState(pot)}`}
               aria-current={pot === decodedPot ? 'true' : undefined}
             >

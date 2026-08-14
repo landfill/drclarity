@@ -26,7 +26,6 @@ export function SolutionStepper({
 }: SolutionStepperProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const controlsRef = useRef<HTMLDivElement>(null);
-  const stepTextRef = useRef<HTMLDivElement>(null);
 
   const startLabel = labels?.start || '풀이 시작';
   const nextLabel = labels?.next || '다음 단계';
@@ -51,18 +50,12 @@ export function SolutionStepper({
         behavior: reduceMotion ? 'auto' : 'smooth',
         block: 'start'
       });
-      stepTextRef.current?.focus({ preventScroll: true });
     });
   };
 
   return (
     <div ref={controlsRef} className={styles.controls}>
-      <div
-        ref={stepTextRef}
-        className={styles.stepText}
-        aria-live="polite"
-        tabIndex={-1}
-      >
+      <div className={styles.stepText} aria-live="polite">
         {stepData.body}
         {stepData.formula && (
           <div className={styles.formulaWrap}>

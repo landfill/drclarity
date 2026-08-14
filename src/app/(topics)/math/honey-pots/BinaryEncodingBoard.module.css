@@ -172,7 +172,7 @@
   background: var(--color-warm);
   transform: translate(-50%, 0);
   box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.18);
-  animation: sampleTravel 1.4s ease-in-out both;
+  animation: sample-travel 1.4s ease-in-out both;
 }
 
 .routeLane:nth-child(2) .sampleDrop { animation-delay: 0.12s; }
@@ -180,10 +180,10 @@
 .routeLane:nth-child(4) .sampleDrop { animation-delay: 0.36s; }
 .routeLane:nth-child(5) .sampleDrop { animation-delay: 0.48s; }
 
-@keyframes sampleTravel {
-  from { opacity: 0; transform: translate(-50%, 0) scale(0.7); }
+@keyframes sample-travel {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.7); }
   20% { opacity: 1; }
-  to { opacity: 1; transform: translate(-50%, 1.85rem) scale(1); }
+  100% { opacity: 1; transform: translate(-50%, 1.85rem) scale(1); }
 }
 
 .cupCard {
@@ -220,12 +220,12 @@
 .routeActive .cupStatus {
   color: var(--color-blue);
   font-weight: 800;
-  animation: sampleAppears 0.45s ease-out 0.9s both;
+  animation: sample-appears 0.45s ease-out 0.9s both;
 }
 
-@keyframes sampleAppears {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes sample-appears {
+  0% { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 /* 아래 꿀통 격자와 같은 시각 언어를 쓴다. 별도 카드로 분리하지 않는다. */
@@ -387,6 +387,10 @@
   transform: translateY(-2px);
 }
 
+.potTile.chosen:hover {
+  transform: translateY(-2px) scale(1.04);
+}
+
 .potButton:focus-visible,
 .antTile:focus-visible {
   outline: 3px solid var(--color-blue-soft);
@@ -461,7 +465,11 @@
     transition: none;
   }
 
-  .sampleDrop,
+  .sampleDrop {
+    animation: none;
+    transform: translate(-50%, 1.85rem);
+  }
+
   .routeActive .cupStatus {
     animation: none;
   }
