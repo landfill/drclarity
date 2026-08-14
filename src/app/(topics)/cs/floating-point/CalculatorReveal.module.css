@@ -27,9 +27,7 @@
   font-size: clamp(0.75rem, 3.2vw, 1.4rem);
   text-align: right;
   min-height: 3.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: safe flex-end;
+  line-height: calc(3.5rem - 2 * var(--space-sm));
   color: var(--color-ink);
   overflow-x: auto;
   white-space: nowrap;
@@ -106,6 +104,7 @@
   .display {
     padding: var(--space-xs) var(--space-sm);
     min-height: 3rem;
+    line-height: calc(3rem - 2 * var(--space-xs));
   }
 
   .explanationPanel {

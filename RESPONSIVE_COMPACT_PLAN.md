@@ -783,7 +783,10 @@ RESPONSIVE_COMPACT_PLAN.md                      (§6 결정 로그 기록)
 | honey-pots 스텝 0 1뷰포트 | 레버 1(이미지 제거) → 레버 2(2컬럼 보드 타일 축소, 44px 하한) | 이미지 제거만으로는 D2(800px) 미달 | 2026-08-14 |
 | (국소 `overflow-x: auto` 허용 목록) | `CalculatorReveal.module.css` `.display`, `.explanationPanel` 2건 | 360px 모바일 및 긴 수식·텍스트 시 전역 스크롤바 방지 및 터미널 블록 자체에만 국소 스크롤 허용 (계획 조항 부합) | WP-4 확정 |
 | (44×44 미달 접근성 예외) | `SiteHeader` 로고(104×38), 네비게이션 링크, `honey-pots` 본문 인라인 참고문헌 링크 | 본문 인라인 텍스트 링크 및 헤더 브랜딩 요소에 대한 표준 접근성 규격 예외 (WP-0 baseline 유지, 신규 위반 0건) | WP-4 확정 |
-| (최종 토큰 값 조정) | 조정 없음 | `globals.css` `:root` 정의 토큰값 유지 및 전 화면 토큰 적용 완료 | WP-4 확정 |
+| (최종 토큰 값 조정) | 조정 없음 (토큰값 유지) | `globals.css` `:root` 정의 토큰값 유지. 홈 `.title` 에 남아있던 `3rem` 리터럴을 `var(--fs-hero)`로 교체하여 전 화면 토큰 적용 완료 | WP-5 정정 |
+| WP-5 결함 1: 계산기 디스플레이 safe flex-end | `display: flex` 제거, `text-align: right` + `line-height` 적용 | 구형 브라우저 safe 미지원/회귀 방지 및 LTR 오버플로 시 scrollLeft=0 접근성 보장, 3.5rem(모바일 3rem) 내 세로 가운데 정렬 유지 | WP-5 확정 |
+| WP-5 결함 2: summary 펼침 마커 복원 | `display: flex` 제거, `padding: var(--space-xs) 0` 추가 | UA 기본 `display: list-item` 복원으로 disclosure 삼각형 마커 렌더 보장 및 44×44px 터치타깃 유지 | WP-5 확정 |
+| WP-5 결함 3: 홈 히어로 제목 토큰화 | `font-size: var(--fs-hero)` 적용 | `page.module.css`의 하드코딩 `3rem`을 `--fs-hero`(2.25rem, 모바일 1.75rem) 토큰으로 일원화 | WP-5 확정 |
 
 ---
 
