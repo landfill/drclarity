@@ -19,6 +19,32 @@
   word-break: keep-all;
 }
 
+.stepText:focus {
+  outline: none;
+}
+
+.stepText:focus-visible {
+  outline: 3px solid var(--color-blue-soft);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+.stepHint {
+  margin: 0.75rem auto 0;
+  padding: 0.65rem 0.8rem;
+  max-width: 42rem;
+  color: var(--color-danger);
+  background: var(--color-note-bg);
+  border: 1px solid var(--color-note-border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.stage {
+  margin: 1rem 0 1.5rem;
+  text-align: left;
+}
+
 .formulaWrap {
   margin-top: 0.5rem;
 }

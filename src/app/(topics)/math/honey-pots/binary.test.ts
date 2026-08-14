@@ -4,7 +4,8 @@ import {
   potsForAnt, 
   antsForPot, 
   decodeDeadAnts, 
-  MAX_POTS, 
+  MAX_NON_ZERO_CODE,
+  OUTCOME_COUNT,
   POT_COUNT 
 } from './binary';
 
@@ -30,14 +31,20 @@ describe('binary.ts for honey-pots', () => {
     expect(toBinary5(25)).toBe('11001');
   });
 
+  it('maps pot 21 to ants A, C, and E', () => {
+    expect(antsForPot(21)).toEqual([16, 4, 1]);
+    expect(decodeDeadAnts([16, 4, 1])).toBe(21);
+  });
+
   it('potsForAnt is correct', () => {
     expect(potsForAnt(16)).toEqual([16, 17, 18, 19, 20, 21, 22, 23, 24, 25]);
     // Odd numbers
     expect(potsForAnt(1).length).toBe(13); // 1,3,5,7,9,11,13,15,17,19,21,23,25
   });
 
-  it('MAX_POTS constraint', () => {
-    expect(MAX_POTS).toBeGreaterThanOrEqual(POT_COUNT);
-    expect(MAX_POTS).toBe(31);
+  it('outcome capacity', () => {
+    expect(OUTCOME_COUNT).toBe(32);
+    expect(MAX_NON_ZERO_CODE).toBeGreaterThanOrEqual(POT_COUNT);
+    expect(MAX_NON_ZERO_CODE).toBe(31);
   });
 });
