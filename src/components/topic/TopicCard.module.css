@@ -1,7 +1,7 @@
 .card {
   display: block;
   background: var(--color-surface);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   text-decoration: none;
   overflow: hidden;
@@ -20,7 +20,14 @@
   position: relative;
   width: 100%;
   aspect-ratio: 16/9;
+  max-height: var(--media-max-h);
   background: var(--color-subtle);
+}
+
+@media (max-width: 768px) {
+  .thumbWrapper {
+    max-height: var(--media-max-h-mobile);
+  }
 }
 
 .thumb {
@@ -28,18 +35,18 @@
 }
 
 .content {
-  padding: 1.5rem;
+  padding: var(--space-lg);
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-xs);
 }
 
 .title {
-  font-size: 1.25rem;
+  font-size: var(--fs-lead);
   font-weight: 700;
   margin: 0;
   color: var(--color-ink);

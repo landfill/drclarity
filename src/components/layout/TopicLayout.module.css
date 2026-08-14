@@ -29,13 +29,6 @@
   margin-bottom: 1rem;
 }
 
-.hint {
-  font-size: 1.25rem;
-  color: var(--color-danger);
-  font-weight: 500;
-  margin-bottom: 1rem;
-}
-
 .highlight {
   color: var(--color-accent);
   background: rgba(255, 159, 67, 0.1);

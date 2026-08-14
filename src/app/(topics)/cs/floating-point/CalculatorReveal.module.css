@@ -29,7 +29,7 @@
   min-height: 3.5rem;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: safe flex-end;
   color: var(--color-ink);
   overflow-x: auto;
   white-space: nowrap;
@@ -84,7 +84,7 @@
   line-height: 1.6;
   width: 100%;
   max-width: 600px;
-  max-height: 240px;
+  max-height: var(--media-max-h);
   overflow-y: auto;
   overflow-x: auto;
   word-break: break-word;
@@ -110,7 +110,7 @@
 
   .explanationPanel {
     padding: var(--space-sm);
-    max-height: 200px;
+    max-height: var(--media-max-h-mobile);
   }
 }
 

@@ -14,8 +14,6 @@ export interface SolutionStepperProps {
   onStepChange?: (index: number, step: SolutionStep) => void;
   labels?: { start?: string; next?: string; reset?: string };
   children?: React.ReactNode;
-  /** @deprecated 인라인 표시가 기본 동작. WP-4에서 제거 예정. */
-  showHintInline?: boolean;
   /** true 면 데스크톱(1100px 이상)에서 2컬럼 그리드(시각 좌 / 지시문·버튼 우)로 배치 */
   split?: boolean;
 }
@@ -25,8 +23,6 @@ export function SolutionStepper({
   onStepChange,
   labels,
   children,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  showHintInline,
   split = false
 }: SolutionStepperProps) {
   const [currentStep, setCurrentStep] = useState(0);
