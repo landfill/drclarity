@@ -36,15 +36,17 @@
   --space-xs:  0.5rem;
   --space-sm:  0.75rem;
   --space-md:  1rem;
-  --space-lg:  1.5rem;   /* 기존 2rem 자리 → 컴팩트화 */
-  --space-xl:  2rem;     /* 기존 4rem 자리 → 컴팩트화 */
+  --space-lg:  2rem;      /* 1.5rem 에서 복원 — 원본 여백 */
+  --space-xl:  4rem;      /* 2rem 에서 복원 — 원본 섹션 간격 */
 
   /* --- 타이포 스케일 --- */
-  --fs-hero:  2.25rem;   /* 기존 TopicLayout .title 3rem */
-  --fs-h2:    1.5rem;    /* 기존 ExplanationBox .title 2rem */
-  --fs-lead:  1.05rem;   /* 기존 .subtitle 1.25rem */
-  --fs-body:  1rem;      /* 기존 본문 1.1rem */
+  --fs-hero:  3rem;      /* 2.25rem 에서 복원 — 원본 TopicLayout .title */
+  --fs-h2:    2rem;      /* 1.5rem 에서 복원 — 원본 ExplanationBox .title */
+  --fs-lead:  1.25rem;   /* 1.05rem 에서 복원 — 원본 .subtitle */
+  --fs-body:  1.1rem;    /* 1rem 에서 복원 — 원본 본문 */
   --fs-sm:    0.9rem;
+
+  --fs-display: 3.5rem;  /* 신규. 홈 히어로 전용 — 원본 page.module.css .title */
 
   /* --- 미디어 상한 (이슈 완료조건 3) --- */
   --media-max-h: 240px;
@@ -52,17 +54,15 @@
   --canvas-max-w: 400px;         /* InteractiveCanvas logicalWidth 와 동일 */
 
   /* --- 반경 (기존 20px/12px/8px 혼용 정리) --- */
-  --radius-lg: 16px;
+  --radius-lg: 20px;     /* 16px 에서 복원 — 원본 AnimationCard border-radius */
   --radius-md: 12px;
   --radius-sm: 8px;
 }
 
 @media (max-width: 768px) {
   :root {
-    --fs-hero: 1.75rem;
-    --fs-h2:   1.25rem;
-    --space-xl: 1.5rem;
-    --space-lg: 1rem;
+    --fs-hero: 2rem;       /* 1.75rem 에서 복원 — 원본 모바일 TopicLayout .title */
+    --fs-display: 2.5rem;  /* 원본 모바일 홈 .title */
   }
 }
 

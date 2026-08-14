@@ -1,6 +1,7 @@
 'use client';
 import { useState, useCallback, useRef } from 'react';
 import { TopicLayout } from '@/components/layout/TopicLayout';
+import { AnimationCard } from '@/components/topic/AnimationCard';
 import { InteractiveCanvas, InteractiveCanvasHandle } from '@/components/topic/InteractiveCanvas';
 import { SolutionStepper, SolutionStep } from '@/components/topic/SolutionStepper';
 import { drawScene, SceneOptions } from './scene';
@@ -141,24 +142,24 @@ export default function GeometryAreaClient() {
     <TopicLayout 
       title={<>빨간색 영역의 넓이는?</>}
       subtitle="큰 사분원(반지름 6)에서 두 개의 흰색 반원을 제외한 빨간색 영역의 넓이를 구해보세요."
-      wide
     >
-      <SolutionStepper 
-        steps={GEOMETRY_STEPS}
-        onStepChange={(idx) => setStepIndex(idx)}
-        split
-      >
-        <div className={styles.canvasSlot}>
-          <InteractiveCanvas 
-            ref={canvasRef}
-            logicalWidth={400}
-            logicalHeight={400}
-            draw={draw}
-            ariaLabel="기하학 퍼즐 과정"
-            waitForFonts={['bold 16px "Outfit"']}
-          />
-        </div>
-      </SolutionStepper>
+      <AnimationCard>
+        <SolutionStepper 
+          steps={GEOMETRY_STEPS}
+          onStepChange={(idx) => setStepIndex(idx)}
+        >
+          <div className={styles.canvasSlot}>
+            <InteractiveCanvas 
+              ref={canvasRef}
+              logicalWidth={400}
+              logicalHeight={400}
+              draw={draw}
+              ariaLabel="기하학 퍼즐 과정"
+              waitForFonts={['bold 16px "Outfit"']}
+            />
+          </div>
+        </SolutionStepper>
+      </AnimationCard>
     </TopicLayout>
   );
 }

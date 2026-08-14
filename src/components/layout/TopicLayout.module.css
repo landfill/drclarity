@@ -1,8 +1,8 @@
 .container {
   max-width: var(--content-max-w);
   margin: 0 auto;
-  padding: var(--space-md);
-  padding-top: calc(var(--header-h) + var(--space-md));
+  padding: var(--space-lg);
+  padding-top: calc(var(--header-h) + var(--space-lg));
   position: relative;
   z-index: 10;
 }
@@ -18,7 +18,7 @@
 .title {
   font-size: var(--fs-hero);
   font-weight: 700;
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-lg);
   color: var(--color-text);
   width: 100%;
 }
@@ -38,7 +38,7 @@
 
 @media (max-width: 768px) {
   .container {
-    padding: var(--space-xs);
-    padding-top: calc(var(--header-h) + var(--space-xs));
+    padding: var(--space-md);
+    padding-top: calc(var(--header-h) + var(--space-md));
   }
 }

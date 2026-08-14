@@ -367,14 +367,6 @@
   gap: var(--space-xs);
 }
 
-/* 데스크톱 2컬럼에서만. 44x44 하한은 절대 침범 금지 */
-@media (min-width: 1100px) {
-  .grid {
-    max-width: 320px;
-    margin-inline: auto;
-  }
-}
-
 @media (max-width: 480px) {
   .grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));

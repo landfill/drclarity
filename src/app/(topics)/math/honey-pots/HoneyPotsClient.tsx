@@ -69,7 +69,6 @@ export default function HoneyPotsClient() {
 
   return (
     <TopicLayout 
-      wide
       title={<>25개의 꿀통과 <Highlight>5마리 개미</Highlight></>}
       subtitle="5마리의 개미로 가짜 꿀통을 찾아낼 수 있을까요?"
     >
@@ -84,7 +83,6 @@ export default function HoneyPotsClient() {
       </ExplanationBox>
 
       <SolutionStepper
-        split
         steps={HONEY_STEPS}
         onStepChange={(idx) => {
           setStepIndex(idx);

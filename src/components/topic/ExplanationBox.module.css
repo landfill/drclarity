@@ -41,7 +41,7 @@
 
 .plain :global(p),
 .note :global(p) {
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-md);
   font-size: var(--fs-body);
   color: var(--color-ink);
 }

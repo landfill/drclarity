@@ -11,7 +11,7 @@
 }
 
 .title {
-  font-size: var(--fs-hero);
+  font-size: var(--fs-display);
   font-weight: 700;
   margin-bottom: var(--space-md);
   color: var(--color-ink);
@@ -87,11 +87,11 @@
 
 @media (max-width: 768px) {
   .container {
-    padding: var(--space-xs);
-    padding-top: calc(var(--header-h) + var(--space-xs));
+    padding: var(--space-md);
+    padding-top: calc(var(--header-h) + var(--space-md));
   }
 
   .title {
-    font-size: var(--fs-hero);
+    font-size: var(--fs-display);
   }
 }

@@ -1,5 +1,5 @@
 .canvasSlot {
   width: 100%;
-  max-width: min(var(--canvas-max-w), calc(var(--content-h) - 16rem));
+  max-width: var(--canvas-max-w);
   margin-inline: auto;
 }
