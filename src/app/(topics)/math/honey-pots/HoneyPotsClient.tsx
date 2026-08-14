@@ -124,6 +124,29 @@ export default function HoneyPotsClient() {
           />
         </SolutionStepper>
       </AnimationCard>
+
+      <ExplanationBox title="현실에서는 어디에 쓰일까?" variant="note">
+        <p>
+          현실에서는 이런 생각을 <strong>그룹 테스팅(group testing)</strong>이라고 합니다.
+          1943년 로버트 도프먼은 여러 사람의 혈액을 섞어 한 번에 검사함으로써
+          매독 선별검사 비용을 줄이는 방법을 제안했습니다. COVID-19 시기에 활용된
+          검체 풀링도 같은 계열의 기법입니다. 이 퍼즐은 그 아이디어를
+          <strong> “5개의 검사 결과를 이진 코드처럼 읽어 가짜 꿀통 하나를 찾는 문제”</strong>로
+          단순화한 모델입니다.
+        </p>
+        <p>
+          <small>
+            참고:{' '}
+            <a href="https://doi.org/10.1214/aoms/1177731363" target="_blank" rel="noreferrer">
+              도프먼의 1943년 논문
+            </a>
+            {' · '}
+            <a href="https://www.cdc.gov/mmwr/volumes/69/wr/mm6946e1.htm" target="_blank" rel="noreferrer">
+              CDC의 COVID-19 풀링 검사 사례
+            </a>
+          </small>
+        </p>
+      </ExplanationBox>
     </TopicLayout>
   );
 }
