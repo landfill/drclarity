@@ -1,18 +1,15 @@
 'use client';
 import { useState } from 'react';
-import Image from 'next/image';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
-import { AnimationCard } from '@/components/topic/AnimationCard';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { SolutionStepper, SolutionStep } from '@/components/topic/SolutionStepper';
 import { BinaryEncodingBoard, HoneyBoardMode } from './BinaryEncodingBoard';
 import { antsForPot } from './binary';
 
-
 const HONEY_STEPS: SolutionStep[] = [
   {
     id: '0',
-    body: <><strong>문제 재확인:</strong> 25통 중 1통이 가짜입니다. 개미 5마리가 있고, 결과 확인은 1시간 뒤 <strong>단 한 번</strong>만 가능합니다.<br/>가장 중요한 규칙: <strong>여러 통의 꿀을 섞어 먹여도 됩니다.</strong></>,
+    body: <><strong>문제 재확인:</strong> 25통 중 1통이 가짜이고 개미는 5마리뿐이며, 결과 확인은 1시간 뒤 <strong>단 한 번</strong>만 가능합니다.<br/>과연 5마리의 생사 결과만으로 25통 중 어느 꿀통이 가짜인지 확실하게 찾아낼 수 있을까요?</>,
   },
   {
     id: '1',
@@ -72,19 +69,10 @@ export default function HoneyPotsClient() {
 
   return (
     <TopicLayout 
+      wide
       title={<>25개의 꿀통과 <Highlight>5마리 개미</Highlight></>}
       subtitle="5마리의 개미로 가짜 꿀통을 찾아낼 수 있을까요?"
     >
-      <AnimationCard caption="25개의 꿀통 중 딱 하나만 가짜입니다.">
-        <Image 
-          src="/topics/honey-pots/problem.png" 
-          alt="25개의 꿀통과 5마리의 개미" 
-          width={1408} 
-          height={768} 
-          style={{ width: '100%', height: 'auto', borderRadius: '12px' }}
-        />
-      </AnimationCard>
-
       <ExplanationBox variant="note">
         <p><strong>문제 상황:</strong> 25개의 꿀통 중 하나에 가짜 꿀(먹으면 1시간 뒤 죽는 꿀)이 들어 있습니다.</p>
         <p><strong>조건:</strong></p>
@@ -95,37 +83,35 @@ export default function HoneyPotsClient() {
         </ul>
       </ExplanationBox>
 
-      <AnimationCard>
-        <SolutionStepper
-          steps={HONEY_STEPS}
-          showHintInline
-          onStepChange={(idx) => {
-            setStepIndex(idx);
-            if (idx !== 5) setActiveAntBit(null);
+      <SolutionStepper
+        split
+        steps={HONEY_STEPS}
+        onStepChange={(idx) => {
+          setStepIndex(idx);
+          if (idx !== 5) setActiveAntBit(null);
 
-            if (idx === 0) {
-              setSelectedPot(21);
-              setDeadAntBits([]);
-            } else if (idx < 6) {
-              setDeadAntBits([]);
-            } else if (idx === 6) {
-              setDeadAntBits(antsForPot(selectedPot));
-            }
-          }}
-        >
-          <BinaryEncodingBoard
-            mode={getBoardMode()}
-            selectedPot={selectedPot}
-            onSelectPot={setSelectedPot}
-            activeAntBit={activeAntBit}
-            onActiveAntBitChange={setActiveAntBit}
-            deadAntBits={deadAntBits}
-            onToggleAntDead={toggleAntDead}
-          />
-        </SolutionStepper>
-      </AnimationCard>
+          if (idx === 0) {
+            setSelectedPot(21);
+            setDeadAntBits([]);
+          } else if (idx < 6) {
+            setDeadAntBits([]);
+          } else if (idx === 6) {
+            setDeadAntBits(antsForPot(selectedPot));
+          }
+        }}
+      >
+        <BinaryEncodingBoard
+          mode={getBoardMode()}
+          selectedPot={selectedPot}
+          onSelectPot={setSelectedPot}
+          activeAntBit={activeAntBit}
+          onActiveAntBitChange={setActiveAntBit}
+          deadAntBits={deadAntBits}
+          onToggleAntDead={toggleAntDead}
+        />
+      </SolutionStepper>
 
-      <ExplanationBox title="현실에서는 어디에 쓰일까?" variant="note">
+      <ExplanationBox title="현실에서는 어디에 쓰일까?" variant="note" collapsible defaultOpen={false}>
         <p>
           현실에서는 이런 생각을 <strong>그룹 테스팅(group testing)</strong>이라고 합니다.
           1943년 로버트 도프먼은 여러 사람의 혈액을 섞어 한 번에 검사함으로써
