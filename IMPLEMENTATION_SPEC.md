@@ -884,7 +884,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, opts: SceneOptions): vo
 - 예: 18번이 가짜 → `18 = 10010₂` → 개미 A(16)와 D(2)가 죽음 → `16 + 2 = 18`
 - 유일성: 1~25의 모든 수는 서로 다른 비트 패턴을 가지므로 죽은 개미 조합이 겹치지 않는다.
 - 1~25 의 모든 수는 최소 1개의 비트가 1이므로 "아무도 죽지 않는" 경우는 발생하지 않는다 (문제가 가짜 꿀통의 존재를 보장하므로 무모순).
-- 일반화: 개미 n마리로 최대 `2ⁿ − 1` 개의 꿀통을 판별할 수 있다. **5마리 → 31통까지 가능**하므로 25통은 여유가 있다. ("가짜가 없을 수도 있다"는 변형이라면 0번 상태를 써서 `2ⁿ`가지.)
+- 일반화: 가짜가 정확히 하나라고 보장되면 `00000`도 특정 꿀통의 코드로 배정할 수 있으므로, 개미 n마리의 `2ⁿ`가지 생사 결과로 최대 `2ⁿ`통을 판별할 수 있다. **5마리 → 32통까지 가능**하므로 25통은 여유가 있다. 다만 현재 1~25번 배정은 0번 코드를 사용하지 않으며, 가짜가 없을 수도 있는 변형에서는 `00000`을 "가짜 없음"에 남겨 두어 최대 `2ⁿ − 1`통을 판별한다.
 
 #### 7.3.3 순수 로직 — `binary.ts` (MUST)
 
@@ -894,8 +894,10 @@ export const POT_COUNT = 25;
 /** 개미 A~E 의 자릿값. 표시 순서와 동일. */
 export const ANT_BITS = [16, 8, 4, 2, 1] as const;
 export const ANT_LABELS = ['A', 'B', 'C', 'D', 'E'] as const;
-/** 개미 n마리로 판별 가능한 최대 꿀통 수. */
-export const MAX_POTS = 2 ** ANT_COUNT - 1;   // 31
+/** 개미 n마리의 전체 생사 결과 수. 00000 포함. */
+export const OUTCOME_COUNT = 2 ** ANT_COUNT;  // 32
+/** 0을 제외한 가장 큰 코드. */
+export const MAX_NON_ZERO_CODE = OUTCOME_COUNT - 1; // 31
 
 /** 해당 자릿값 개미가 마셔야 할 꿀통 번호 목록. */
 export function potsForAnt(bitValue: number): number[];
@@ -916,7 +918,7 @@ export function decodeDeadAnts(deadBits: readonly number[]): number;
 - `toBinary5(18) === '10010'`, `toBinary5(1) === '00001'`, `toBinary5(25) === '11001'`
 - `potsForAnt(16)` 이 `[16, 17, 18, 19, 20, 21, 22, 23, 24, 25]` 와 일치 (1~25 중 16의 자리 비트가 켜진 수)
 - `potsForAnt(1)` 의 길이가 13 (1~25 중 홀수의 개수)
-- `MAX_POTS >= POT_COUNT`
+- `OUTCOME_COUNT > POT_COUNT`, `MAX_NON_ZERO_CODE >= POT_COUNT`
 
 #### 7.3.4 `BinaryEncodingBoard` (client, 신규)
 

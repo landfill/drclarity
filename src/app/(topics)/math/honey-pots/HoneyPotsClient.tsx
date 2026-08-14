@@ -5,7 +5,8 @@ import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { AnimationCard } from '@/components/topic/AnimationCard';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { SolutionStepper, SolutionStep } from '@/components/topic/SolutionStepper';
-import { BinaryEncodingBoard } from './BinaryEncodingBoard';
+import { BinaryEncodingBoard, HoneyBoardMode } from './BinaryEncodingBoard';
+import { antsForPot } from './binary';
 
 
 const HONEY_STEPS: SolutionStep[] = [
@@ -23,22 +24,33 @@ const HONEY_STEPS: SolutionStep[] = [
   },
   {
     id: '3',
-    body: <><strong>인코딩(Encoding):</strong> 개미들에게 각각 16, 8, 4, 2, 1의 <strong>자릿값</strong>을 부여하고 꿀통 번호를 <strong>2진수</strong>로 적습니다.<br/>각 개미는 자기 자릿값에 해당하는 비트가 1인 모든 꿀통의 꿀을 섞어 마십니다.</>,
-    hint: <>각 개미 버튼에 마우스를 올려보세요!</>
+    body: <><strong>핵심 연결 — 결과를 이름표로 쓰기:</strong> 32가지 생사 결과 중 25개를 꿀통의 고유한 이름표로 배정합니다.<br/>예를 들어 <strong>A·C·E가 포함된 그룹</strong>을 10101로 쓰고, 그 이름표가 붙은 꿀통을 21번이라고 부릅니다. 둘이 원래 연결된 것이 아니라 <strong>우리가 일부러 같은 이름을 붙인 것</strong>입니다.</>,
+    hint: <>아래에서 다른 꿀통을 눌러 이름표와 개미 그룹이 함께 바뀌는지 확인해보세요.</>
   },
   {
     id: '4',
-    body: <><strong>판독:</strong> 1시간 뒤에 우리가 보는 것은 <strong>어떤 개미가 죽었는가</strong>뿐입니다. 죽은 개미들의 <strong>자릿값을 더하면</strong> 그게 곧 가짜 꿀통의 번호입니다.<br/>아래에서 개미를 눌러 죽은 개미를 골라보면, 그 조합이 어떤 번호를 가리키는지 알 수 있습니다.</>,
-    hint: <>죽은 개미 조합을 바꿔가며 결과를 확인해보세요.</>
+    body: <><strong>이름표를 급여 지시서로 사용:</strong> 이진수의 각 자리를 A~E 개미에게 하나씩 연결합니다.<br/>자리가 1이면 그 개미의 <strong>개별 혼합 컵</strong>에 해당 꿀통의 꿀을 한 방울 넣고, 0이면 넣지 않습니다. 가짜 꿀통의 이름표가 그대로 생사 결과로 나타나도록 실험을 설계하는 것입니다.</>,
+    hint: <>선택한 꿀통의 한 방울이 어느 개미들의 컵으로 들어가는지 따라가 보세요.</>
   },
   {
     id: '5',
-    body: <><strong>정답과 일반화:</strong> 개미 n마리로는 최대 2ⁿ - 1통까지 검사할 수 있습니다.<br/>5마리면 무려 <strong>31통</strong>까지 가능합니다! 이것이 정보를 비트로 압축하여 다루는 마법입니다.</>,
+    body: <><strong>25통 전체로 확장:</strong> 개미들에게 각각 16, 8, 4, 2, 1의 자릿값을 부여합니다.<br/>각 개미의 컵에는 자기 자리의 비트가 1인 <strong>여러 꿀통의 샘플</strong>이 조금씩 섞입니다. 가짜는 하나뿐이므로 진짜 꿀이 함께 섞여도 판독에는 영향을 주지 않습니다.</>,
+    hint: <>개미를 하나씩 선택해 각자의 혼합 컵에 들어가는 꿀통들을 확인해보세요.</>
+  },
+  {
+    id: '6',
+    body: <><strong>1시간 뒤 판독:</strong> 이제 보는 것은 어떤 개미가 죽었는가뿐입니다. 죽은 개미들의 자릿값을 더하면 가짜 꿀통의 번호가 됩니다.<br/>앞 단계에서 선택한 꿀통의 이름표가 초기 생사 결과로 이어집니다.</>,
+    hint: <>개미를 눌러 생존과 사망을 바꾸면 합계와 가짜 꿀통이 즉시 바뀝니다.</>
+  },
+  {
+    id: '7',
+    body: <><strong>정답과 일반화:</strong> 개미 n마리의 생사 결과는 2ⁿ가지이므로, 가짜가 반드시 하나라면 이론적으로 최대 <strong>2ⁿ통</strong>까지 구별할 수 있습니다.<br/>현재 1~25번 배정은 00001부터 시작해 00000을 쓰지 않으므로, 모두 살아남는 결과는 나오지 않습니다.</>,
   }
 ];
 
 export default function HoneyPotsClient() {
   const [stepIndex, setStepIndex] = useState(0);
+  const [selectedPot, setSelectedPot] = useState(21);
   const [activeAntBit, setActiveAntBit] = useState<number | null>(null);
   // 판독 단계의 입력은 "어떤 개미가 죽었는가" 하나뿐이다.
   const [deadAntBits, setDeadAntBits] = useState<number[]>([]);
@@ -49,9 +61,12 @@ export default function HoneyPotsClient() {
     );
   };
 
-  const getBoardMode = (): 'grid' | 'encoding' | 'simulation' => {
-    if (stepIndex < 3) return 'grid';
-    if (stepIndex === 3) return 'encoding';
+  const getBoardMode = (): HoneyBoardMode => {
+    if (stepIndex < 2) return 'grid';
+    if (stepIndex === 2) return 'codes';
+    if (stepIndex === 3) return 'signature';
+    if (stepIndex === 4) return 'routing';
+    if (stepIndex === 5) return 'encoding';
     return 'simulation';
   };
 
@@ -59,7 +74,6 @@ export default function HoneyPotsClient() {
     <TopicLayout 
       title={<>25개의 꿀통과 <Highlight>5마리 개미</Highlight></>}
       subtitle="5마리의 개미로 가짜 꿀통을 찾아낼 수 있을까요?"
-      hint={HONEY_STEPS[stepIndex].hint}
     >
       <AnimationCard caption="25개의 꿀통 중 딱 하나만 가짜입니다.">
         <Image 
@@ -82,24 +96,57 @@ export default function HoneyPotsClient() {
       </ExplanationBox>
 
       <AnimationCard>
-        <BinaryEncodingBoard
-          mode={getBoardMode()}
-          activeAntBit={activeAntBit}
-          onActiveAntBitChange={setActiveAntBit}
-          deadAntBits={deadAntBits}
-          onToggleAntDead={toggleAntDead}
-        />
         <SolutionStepper
           steps={HONEY_STEPS}
+          showHintInline
           onStepChange={(idx) => {
             setStepIndex(idx);
-            if (idx !== 3) setActiveAntBit(null);
-            // 판독 단계에 처음 들어오면 예시 조합(16+4=20번)을 보여준다.
-            if (idx < 4) setDeadAntBits([]);
-            else setDeadAntBits((prev) => (prev.length > 0 ? prev : [16, 4]));
+            if (idx !== 5) setActiveAntBit(null);
+
+            if (idx === 0) {
+              setSelectedPot(21);
+              setDeadAntBits([]);
+            } else if (idx < 6) {
+              setDeadAntBits([]);
+            } else if (idx === 6) {
+              setDeadAntBits(antsForPot(selectedPot));
+            }
           }}
-        />
+        >
+          <BinaryEncodingBoard
+            mode={getBoardMode()}
+            selectedPot={selectedPot}
+            onSelectPot={setSelectedPot}
+            activeAntBit={activeAntBit}
+            onActiveAntBitChange={setActiveAntBit}
+            deadAntBits={deadAntBits}
+            onToggleAntDead={toggleAntDead}
+          />
+        </SolutionStepper>
       </AnimationCard>
+
+      <ExplanationBox title="현실에서는 어디에 쓰일까?" variant="note">
+        <p>
+          현실에서는 이런 생각을 <strong>그룹 테스팅(group testing)</strong>이라고 합니다.
+          1943년 로버트 도프먼은 여러 사람의 혈액을 섞어 한 번에 검사함으로써
+          매독 선별검사 비용을 줄이는 방법을 제안했습니다. COVID-19 시기에 활용된
+          검체 풀링도 같은 계열의 기법입니다. 이 퍼즐은 그 아이디어를
+          <strong> “5개의 검사 결과를 이진 코드처럼 읽어 가짜 꿀통 하나를 찾는 문제”</strong>로
+          단순화한 모델입니다.
+        </p>
+        <p>
+          <small>
+            참고:{' '}
+            <a href="https://doi.org/10.1214/aoms/1177731363" target="_blank" rel="noreferrer">
+              도프먼의 1943년 논문
+            </a>
+            {' · '}
+            <a href="https://www.cdc.gov/mmwr/volumes/69/wr/mm6946e1.htm" target="_blank" rel="noreferrer">
+              CDC의 COVID-19 풀링 검사 사례
+            </a>
+          </small>
+        </p>
+      </ExplanationBox>
     </TopicLayout>
   );
 }

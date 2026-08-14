@@ -5,6 +5,229 @@
   width: 100%;
 }
 
+.bridgePanel {
+  padding: 1rem;
+  background: var(--color-note-bg);
+  border: 2px solid var(--color-note-border);
+  border-radius: 12px;
+}
+
+.bridgeTitle {
+  margin: 0 0 0.85rem;
+  color: var(--color-ink);
+  font-size: 1.15rem;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.signatureEquation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.selectedPotBadge,
+.binaryBadge {
+  min-width: 8rem;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+}
+
+.selectedPotBadge span,
+.binaryBadge span {
+  color: var(--color-muted);
+  font-size: 0.82rem;
+}
+
+.selectedPotBadge strong {
+  color: var(--color-blue);
+  font-size: 1.35rem;
+}
+
+.binaryBadge strong {
+  color: var(--color-danger);
+  font-family: monospace;
+  font-size: 1.35rem;
+  letter-spacing: 0.08em;
+}
+
+.equality {
+  color: var(--color-muted);
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.bitMeaningGrid,
+.routingGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.bitMeaning {
+  padding: 0.65rem 0.35rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.bitMeaning strong {
+  font-family: monospace;
+  font-size: 1.35rem;
+}
+
+.bitMeaning small {
+  min-height: 2.4em;
+  display: flex;
+  align-items: center;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  word-break: keep-all;
+}
+
+.bitIncluded {
+  color: white;
+  background: var(--color-blue);
+  border-color: var(--color-blue);
+}
+
+.bridgeConclusion,
+.cupRule {
+  margin: 0.85rem 0 0;
+  color: var(--color-ink);
+  text-align: center;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+.cupRule {
+  margin: 0 0 1rem;
+  color: var(--color-muted);
+  font-size: 0.92rem;
+}
+
+.routeLane {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.routeAnt {
+  font-weight: 800;
+  color: var(--color-ink);
+}
+
+.routeBit {
+  width: 2rem;
+  height: 2rem;
+  margin-top: 0.35rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-subtle);
+  color: var(--color-muted);
+  font-family: monospace;
+}
+
+.routeActive .routeBit {
+  background: var(--color-blue);
+  color: white;
+}
+
+.routeTrack {
+  position: relative;
+  width: 2px;
+  height: 2.5rem;
+  margin: 0.25rem 0;
+  background: var(--color-border);
+}
+
+.routeActive .routeTrack {
+  background: var(--color-blue-soft);
+}
+
+.sampleDrop {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  background: var(--color-warm);
+  transform: translate(-50%, 0);
+  box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.18);
+  animation: sample-travel 1.4s ease-in-out both;
+}
+
+.routeLane:nth-child(2) .sampleDrop { animation-delay: 0.12s; }
+.routeLane:nth-child(3) .sampleDrop { animation-delay: 0.24s; }
+.routeLane:nth-child(4) .sampleDrop { animation-delay: 0.36s; }
+.routeLane:nth-child(5) .sampleDrop { animation-delay: 0.48s; }
+
+@keyframes sample-travel {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.7); }
+  20% { opacity: 1; }
+  100% { opacity: 1; transform: translate(-50%, 1.85rem) scale(1); }
+}
+
+.cupCard {
+  width: 100%;
+  min-height: 5.4rem;
+  padding: 0.65rem 0.35rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 2px solid var(--color-border);
+  border-radius: 8px 8px 18px 18px;
+  background: var(--color-surface);
+  color: var(--color-muted);
+}
+
+.routeActive .cupCard {
+  border-color: var(--color-blue);
+  color: var(--color-ink);
+  box-shadow: inset 0 -12px 0 rgba(74, 144, 226, 0.1);
+}
+
+.cupCard strong {
+  font-size: 0.8rem;
+  word-break: keep-all;
+}
+
+.cupStatus {
+  font-size: 0.72rem;
+  line-height: 1.3;
+  word-break: keep-all;
+}
+
+.routeActive .cupStatus {
+  color: var(--color-blue);
+  font-weight: 800;
+  animation: sample-appears 0.45s ease-out 0.9s both;
+}
+
+@keyframes sample-appears {
+  0% { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
 /* 아래 꿀통 격자와 같은 시각 언어를 쓴다. 별도 카드로 분리하지 않는다. */
 .antBar {
   margin-bottom: 0.25rem;
@@ -145,6 +368,35 @@
   box-shadow: 0 4px 12px rgba(214, 48, 49, 0.3);
 }
 
+.potTile.chosen {
+  background: var(--color-blue);
+  border-color: var(--color-blue);
+  color: white;
+  transform: scale(1.04);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.25);
+}
+
+.potButton {
+  color: var(--color-text);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.potButton:hover {
+  border-color: var(--color-blue);
+  transform: translateY(-2px);
+}
+
+.potTile.chosen:hover {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.potButton:focus-visible,
+.antTile:focus-visible {
+  outline: 3px solid var(--color-blue-soft);
+  outline-offset: 2px;
+}
+
 .potNumber {
   font-size: 1.2rem;
   font-weight: 700;
@@ -159,7 +411,8 @@
 }
 
 .potTile.highlighted .potBinary,
-.potTile.selected .potBinary {
+.potTile.selected .potBinary,
+.potTile.chosen .potBinary {
   background: rgba(255, 255, 255, 0.2);
 }
 
@@ -210,5 +463,55 @@
   .antTile,
   .potTile {
     transition: none;
+  }
+
+  .sampleDrop {
+    animation: none;
+    transform: translate(-50%, 1.85rem);
+  }
+
+  .routeActive .cupStatus {
+    animation: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .bridgePanel {
+    padding: 0.75rem;
+  }
+
+  .signatureEquation {
+    gap: 0.5rem;
+  }
+
+  .selectedPotBadge,
+  .binaryBadge {
+    min-width: 0;
+    flex: 1;
+    padding: 0.6rem 0.4rem;
+  }
+
+  .bitMeaningGrid,
+  .routingGrid {
+    gap: 0.25rem;
+  }
+
+  .bitMeaning,
+  .cupCard {
+    padding-left: 0.2rem;
+    padding-right: 0.2rem;
+  }
+
+  .bitMeaning span,
+  .routeAnt {
+    font-size: 0.78rem;
+  }
+
+  .antTileName {
+    font-size: 0.92rem;
+  }
+
+  .antTile {
+    padding: 0.65rem 0.2rem;
   }
 }
