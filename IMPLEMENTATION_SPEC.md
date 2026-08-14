@@ -1104,7 +1104,7 @@ export interface BinaryEncodingBoardProps {
 - **완료 기준**: 6단계 전부 동작, 3단계 무한 토글이 페이지 이탈 시 정지, `scene.test.ts` 통과
 
 ### Step 6 — `/math/honey-pots` (§7.3)
-- **완료 기준**: 6단계 풀이 + 시뮬레이션 인터랙션 동작, `binary.test.ts` 통과, 문제 서술에 혼합 급여 규칙 포함 (L16)
+- **완료 기준**: 6단계 풀이 + 시뮬레이션 인터랙션 동작, `binary.test.ts` 통과, 문제 서술에 꿀 혼합 규칙 포함 (L16)
 
 ### Step 7 — 홈 / 카테고리 인덱스 / 사이트맵 (§7.4–7.6)
 - **완료 기준**: 전 경로 200 응답, `/sitemap.xml` 에 7개 경로 포함

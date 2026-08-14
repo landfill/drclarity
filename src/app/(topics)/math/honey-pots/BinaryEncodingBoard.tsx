@@ -97,7 +97,7 @@ export function BinaryEncodingBoard({
         })}
       </div>
       <p className={styles.bridgeConclusion}>
-        이진수와 개미가 원래 연결된 것이 아니라, <strong>이 이름표를 급여 지시서로 쓰기로 정한 것</strong>입니다.
+        이진수와 개미가 원래 연결된 것이 아니라, <strong>이 이름표를 어느 개미의 컵에 꿀을 넣을지 알려 주는 배분표로 정한 것</strong>입니다.
       </p>
     </section>
   );
@@ -113,7 +113,7 @@ export function BinaryEncodingBoard({
       <div
         className={styles.routingGrid}
         role="group"
-        aria-label={`${selectedPot}번 꿀의 급여 경로`}
+        aria-label={`${selectedPot}번 꿀이 들어가는 경로`}
       >
         {ANT_BITS.map((bit, idx) => {
           const included = selectedAntBits.includes(bit);
