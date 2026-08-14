@@ -1,6 +1,8 @@
 'use client';
 import { useState } from 'react';
+import Image from 'next/image';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
+import { AnimationCard } from '@/components/topic/AnimationCard';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { SolutionStepper, SolutionStep } from '@/components/topic/SolutionStepper';
 import { BinaryEncodingBoard, HoneyBoardMode } from './BinaryEncodingBoard';
@@ -72,6 +74,16 @@ export default function HoneyPotsClient() {
       title={<>25개의 꿀통과 <Highlight>5마리 개미</Highlight></>}
       subtitle="5마리의 개미로 가짜 꿀통을 찾아낼 수 있을까요?"
     >
+      <AnimationCard caption="25개의 꿀통 중 딱 하나만 가짜입니다.">
+        <Image 
+          src="/topics/honey-pots/problem.png" 
+          alt="25개의 꿀통과 5마리의 개미" 
+          width={1408} 
+          height={768} 
+          style={{ borderRadius: '12px' }}
+        />
+      </AnimationCard>
+
       <ExplanationBox variant="note">
         <p><strong>문제 상황:</strong> 25개의 꿀통 중 하나에 가짜 꿀(먹으면 1시간 뒤 죽는 꿀)이 들어 있습니다.</p>
         <p><strong>조건:</strong></p>

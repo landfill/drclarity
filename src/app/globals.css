@@ -49,8 +49,8 @@
   --fs-display: 3.5rem;  /* 신규. 홈 히어로 전용 — 원본 page.module.css .title */
 
   /* --- 미디어 상한 (이슈 완료조건 3) --- */
-  --media-max-h: 240px;
-  --media-max-h-mobile: 180px;
+  --media-max-h: 400px;
+  --media-max-h-mobile: 260px;
   --canvas-max-w: 400px;         /* InteractiveCanvas logicalWidth 와 동일 */
 
   /* --- 반경 (기존 20px/12px/8px 혼용 정리) --- */
