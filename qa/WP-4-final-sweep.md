@@ -35,19 +35,19 @@
   - M2 (360×740): `w: 344px, h: 44px`, `min-height: 44px` (WCAG 44×44px 규격 100% 충족 ✅)
   - 높이 최적화로 `/math/honey-pots` Step 0 @ D2 800px 1뷰포트 통과에 직접 기여.
 
-### 2) `CalculatorReveal.module.css` 의 `.display` flex-end 오버플로 스크롤 버그 수정
+### 2) `CalculatorReveal.module.css` 의 `.display` flex-end 오버플로 스크롤 버그 수정 *(※ WP-5 이전 기록)*
 - **문제**: `.display`가 `flex` + `justify-content: flex-end` + `overflow-x: auto`로 구성되어, 오버플로 발생 시 시작 지점(왼쪽)으로 빠져나가 LTR 스크롤로 앞부분에 도달할 수 없었음.
-- **조치**: `justify-content: safe flex-end`로 수정하여 오버플로 시 안전하게 시작 정렬로 폴백되도록 수정.
+- **조치 (WP-4 당시)**: `justify-content: safe flex-end`로 수정하여 오버플로 시 안전하게 시작 정렬로 폴백되도록 수정. *(※ 이후 WP-5에서 safe flex-end 방식을 폐기하고 브라우저 호환성을 위해 `text-align: right` 방식으로 대체됨)*
 - **실측치 및 스크롤 도달 검증**:
   - `justifyContent: 'safe flex-end'`
   - `canScrollToStart: true` (수식 앞부분 '0.1 + 0.2 ...' 스크롤 도달 성공 ✅)
   - `canScrollToEnd: true` (수식 뒷부분 스크롤 도달 성공 ✅)
   - `restoredStart: true` (원복 성공 ✅)
 
-### 3) `CalculatorReveal.module.css` 의 `max-height` 리터럴 토큰화
+### 3) `CalculatorReveal.module.css` 의 `max-height` 리터럴 토큰화 *(※ WP-4 당시 계획값)*
 - **문제**: `max-height: 240px` 및 모바일 `200px` 리터럴 사용.
-- **조치**: `max-height: var(--media-max-h)`(240px), 모바일 `@media (max-width: 768px)`에 `max-height: var(--media-max-h-mobile)`(180px) 적용.
-- **실측치**: 데스크톱 렌더 높이 85px (상한 240px 이내), 모바일 103px (상한 180px 이내)로 `overflow-y: auto` 및 `overflow-x: auto` 정상 동작 확인.
+- **조치**: `max-height: var(--media-max-h)`(당시 240px), 모바일 `@media (max-width: 768px)`에 `max-height: var(--media-max-h-mobile)`(당시 180px) 적용. *(※ 최종 복원된 토큰값은 각각 400px, 260px임)*
+- **실측치**: 데스크톱 렌더 높이 85px (당시 상한 240px 이내), 모바일 103px (당시 상한 180px 이내)로 `overflow-y: auto` 및 `overflow-x: auto` 정상 동작 확인.
 
 ---
 
@@ -149,11 +149,11 @@
 |---|---|:---:|---|
 | **1** | **중복 정보·불필요 UI 제거/통합** | **PASS ✅** | - `/cs/floating-point`: `ExplanationBox` 2개 → 1개 통합 (교육 문장 100% 보존)<br>- `/math/honey-pots`: 스텝 0 중복 규칙 제거, 정적 삽화 `problem.png` 렌더트리 제거 (물리 파일 보존)<br>- `TopicLayout.hint` 제거 및 `SolutionStepper` 인라인 힌트 단일화 |
 | **2** | **데스크톱 대표 뷰포트에서 예외 제외 세로 스크롤 없음** | **PASS ✅** | - `/math/geometry-area`: 6개 스텝 전체 @ D1(900px)/D2(800px) 세로 스크롤 0px (100% 1뷰포트 달성)<br>- `/math/honey-pots`: 스텝 0 @ D1(900px)/D2(800px) 세로 스크롤 0px (100% 1뷰포트 달성)<br>- 예외 화면(`/cs/floating-point` 산문 해설, `honey-pots` 44px 타일 보존 스텝)도 불필요한 스크롤 최소화 |
-| **3** | **이미지 최대 크기·반응형 동작 정의** | **PASS ✅** | - `TopicCard`: 썸네일 `max-height: var(--media-max-h)` (301×169px, 16:9 비율 유지)<br>- `InteractiveCanvas`: 384×384px (1.000 비율 완벽 유지, 찌그러짐/왜곡 없음)<br>- `CalculatorReveal`: `explanationPanel` max-height 240px(모바일 180px) 토큰 적용 |
+| **3** | **이미지 최대 크기·반응형 동작 정의** | **PASS ✅** | - `TopicCard`: 썸네일 `max-height: var(--media-max-h)` (301×169px, 16:9 비율 유지)<br>- `InteractiveCanvas`: 384×384px (1.000 비율 완벽 유지, 찌그러짐/왜곡 없음)<br>- `CalculatorReveal`: `explanationPanel` max-height 240px(모바일 180px) 토큰 적용 *(※ 당시 WP-4 기준값)* |
 | **4** | **모바일 대표 뷰포트에서 자연스러운 재배치** | **PASS ✅** | - 1100px 이상에서 2컬럼 그리드 (`sideBySide: true`), 1100px 미만에서 단일 컬럼 (`sideBySide: false`) 자동 전환<br>- M1(390px)/M2(360px)에서 수직 스택으로 안정적 재배치 및 DOM 읽기 순서 완벽 보존 |
 | **5** | **모바일 가로 스크롤·잘림·겹침 없음** | **PASS ✅** | - 7개 라우트 × 4개 뷰포트 = 28개 전 조합 및 상태 체크포인트에서 `docOverflowX === 0`, `overflowEls === 0건`<br>- 홈 360px 오버플로 3건(MAIN, .categorySection, .grid) 완벽 해소 |
-| **6** | **예외 상황에서도 핵심 UI 정상 동작** | **PASS ✅** | - `prefers-reduced-motion: reduce` 분기 동작 확인<br>- `CalculatorReveal.display`: `safe flex-end` 적용으로 긴 수식/글꼴 확대 시 앞부분 스크롤 도달 성공<br>- 25칸 보드 개미 생사 토글, 꿀통 선택, 스테퍼 전환 모두 완벽 동작 |
-| **7** | **PC·모바일 시각 검수 완료** | **PASS ✅** | - Chrome Headless + CDP를 통해 28개 조합 및 체크포인트 전체 계측 및 스크린샷 캡처 완료<br>- WP-4 전담 워커로서 최종 시각 QA 통과 선언 |
+| **6** | **예외 상황에서도 핵심 UI 정상 동작** | **PASS ✅** | - `prefers-reduced-motion: reduce` 분기 동작 확인<br>- `CalculatorReveal.display`: 긴 수식/글꼴 확대 시 앞부분 스크롤 도달 확인 (WP-4 당시 `safe flex-end` 기준 계측, 이후 WP-5에서 `text-align: right`로 대체됨)<br>- 25칸 보드 개미 생사 토글, 꿀통 선택, 스테퍼 전환 모두 완벽 동작 |
+| **7** | **PC·모바일 시각 검수 완료** | **계측 완료 / 사람 시각 검수 미수행** | - Chrome Headless + CDP를 통해 28개 조합 및 체크포인트 수치 계측 완료<br>- 당시 실측 스윕 시점에는 스크린샷 파일 미저장 및 사람 시각 검수가 미수행 상태였음 (현재는 `qa/shots/` 에 8개 주요 화면 스크린샷이 확보되어 있으나 사람 승인은 미완료 상태임) |
 
 ---
 

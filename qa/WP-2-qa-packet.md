@@ -1,5 +1,7 @@
 # WP-2 QA 패킷 — `/math/geometry-area` 컴팩트화 및 반응형 검증
 
+> ※ 이 패킷은 WP-6/WP-7 방향 수정 **이전**의 계측 기록이다. 현재 레이아웃은 단일 컬럼이며 최종 수치는 qa/shots/ 와 PR #17 본문을 참조하라.
+
 - **대상 라우트**: `/math/geometry-area`
 - **배정 포트**: `3002` (`http://localhost:3002/math/geometry-area`)
 - **작업 브랜치/커밋**: feat(#16): geometry-area 2컬럼 및 1뷰포트 달성

@@ -597,6 +597,13 @@
   }
 }
 
+@media (max-width: 768px) and (prefers-reduced-motion: reduce) {
+  .sampleDrop {
+    animation: none;
+    transform: translate(1.85rem, -50%);
+  }
+}
+
 @media (max-width: 600px) {
   .bridgePanel {
     padding: var(--space-xs) var(--space-sm);

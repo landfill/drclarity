@@ -30,8 +30,11 @@ export function CalculatorReveal() {
   });
 
   useEffect(() => {
-    if (panelRef.current) {
-      panelRef.current.scrollTop = panelRef.current.scrollHeight;
+    const panel = panelRef.current;
+    if (!panel) return;
+    const isNearBottom = panel.scrollHeight - panel.scrollTop - panel.clientHeight < 24;
+    if (isNearBottom) {
+      panel.scrollTop = panel.scrollHeight;
     }
   }, [typedExplanation]);
 

@@ -1,5 +1,7 @@
 # WP-3 QA 패킷 — /math/honey-pots 컴팩트화 및 반응형 검증 보고서
 
+> ※ 이 패킷은 WP-6/WP-7 방향 수정 **이전**의 계측 기록이다. 현재 레이아웃은 단일 컬럼이며 최종 수치는 qa/shots/ 와 PR #17 본문을 참조하라.
+
 ## 1. 개요 및 검증 환경
 - **대상 라우트**: `/math/honey-pots` (`http://localhost:3003/math/honey-pots`)
 - **작업 브랜치**: `landfill/wp3-honey-pots` (WP-0 커밋 `df4bde7` 기반)

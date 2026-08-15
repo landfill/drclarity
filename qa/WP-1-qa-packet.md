@@ -1,5 +1,7 @@
 # WP-1 QA 패킷 — /cs/floating-point 컴팩트화 검증
 
+> ※ 이 패킷은 WP-6/WP-7 방향 수정 **이전**의 계측 기록이다. 현재 레이아웃은 단일 컬럼이며 최종 수치는 qa/shots/ 와 PR #17 본문을 참조하라.
+
 ## 1. 개요 및 확인 URL
 - **대상 라우트**: `/cs/floating-point` ("왜 0.1 + 0.2는 0.3이 아닐까?")
 - **확인 URL**: `http://localhost:3001/cs/floating-point` (배정 포트: 3001)
