@@ -40,3 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 src/content/registry.generated.ts
+
+# QA 스크린샷 (리뷰용 산출물, 저장소에 보관하지 않음)
+qa/shots/

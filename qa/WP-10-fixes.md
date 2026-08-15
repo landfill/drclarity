@@ -1,5 +1,7 @@
 # WP-10 검증 보고서 — geometry 캔버스 도형 꽉 채우기 및 타이틀 축소
 
+> **주의:** 아래에 언급된 `qa/shots/` 스크린샷은 검토 후 저장소에서 제거했다(용량 절감). 파일 경로는 촬영 시점의 기록으로만 남긴다.
+
 - **검증 일시**: 2026-08-15
 - **대상 브랜치**: `feat/16-responsive-compact`
 - **검증 환경**: Next.js App Router (`npm run dev -- --port 3000`), Microsoft Edge Headless (CDP 계측)
