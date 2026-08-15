@@ -40,7 +40,7 @@
   --space-xl:  4rem;      /* 2rem 에서 복원 — 원본 섹션 간격 */
 
   /* --- 타이포 스케일 --- */
-  --fs-hero:  3rem;      /* 2.25rem 에서 복원 — 원본 TopicLayout .title */
+  --fs-hero:  2.5rem;    /* 3rem (48px) -> 2.5rem (40px) 타이틀 축소 */
   --fs-h2:    2rem;      /* 1.5rem 에서 복원 — 원본 ExplanationBox .title */
   --fs-lead:  1.25rem;   /* 1.05rem 에서 복원 — 원본 .subtitle */
   --fs-body:  1.1rem;    /* 1rem 에서 복원 — 원본 본문 */
@@ -51,7 +51,7 @@
   /* --- 미디어 상한 (이슈 완료조건 3) --- */
   --media-max-h: 400px;
   --media-max-h-mobile: 260px;
-  --canvas-max-w: 400px;         /* InteractiveCanvas logicalWidth 와 동일 */
+  --canvas-max-w: 520px;         /* InteractiveCanvas logicalWidth 와 동일 */
 
   /* --- 반경 (기존 20px/12px/8px 혼용 정리) --- */
   --radius-lg: 20px;     /* 16px 에서 복원 — 원본 AnimationCard border-radius */

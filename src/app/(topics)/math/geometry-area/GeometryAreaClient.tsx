@@ -151,8 +151,8 @@ export default function GeometryAreaClient() {
           <div className={styles.canvasSlot}>
             <InteractiveCanvas 
               ref={canvasRef}
-              logicalWidth={400}
-              logicalHeight={400}
+              logicalWidth={520}
+              logicalHeight={520}
               draw={draw}
               ariaLabel="기하학 퍼즐 과정"
               waitForFonts={['bold 16px "Outfit"']}

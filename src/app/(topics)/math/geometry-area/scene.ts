@@ -1,8 +1,8 @@
 import { palette } from '@/styles/palette';
 
-export const SCALE = 50;                          // px per unit
-export const ORIGIN = { x: 70, y: 340 } as const; // 캔버스 픽셀 기준 원점
-export const CANVAS = { width: 400, height: 400 } as const;
+export const SCALE = 68;                          // px per unit
+export const ORIGIN = { x: 88, y: 440 } as const; // 캔버스 픽셀 기준 원점
+export const CANVAS = { width: 520, height: 520 } as const;
 
 export const toCanvasX = (x: number) => ORIGIN.x + x * SCALE;
 export const toCanvasY = (y: number) => ORIGIN.y - y * SCALE;
