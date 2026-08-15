@@ -1,34 +1,31 @@
 .container {
-  max-width: 800px;
+  max-width: var(--content-max-w);
   margin: 0 auto;
-  padding: 2rem;
-  padding-top: 6rem;
+  padding: var(--space-lg);
+  padding-top: calc(var(--header-h) + var(--space-lg));
   position: relative;
   z-index: 10;
 }
 
+.wide {
+  max-width: var(--index-max-w);
+}
+
 .hero {
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-lg);
 }
 
 .title {
-  font-size: 3rem;
+  font-size: var(--fs-hero);
   font-weight: 700;
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-lg);
   color: var(--color-text);
   width: 100%;
 }
 
 .subtitle {
-  font-size: 1.25rem;
+  font-size: var(--fs-lead);
   color: var(--color-muted);
-  margin-bottom: 1rem;
-}
-
-.hint {
-  font-size: 1.25rem;
-  color: var(--color-danger);
-  font-weight: 500;
   margin-bottom: 1rem;
 }
 
@@ -41,10 +38,7 @@
 
 @media (max-width: 768px) {
   .container {
-    padding: 1rem;
-    padding-top: 5rem;
-  }
-  .title {
-    font-size: 2rem;
+    padding: var(--space-md);
+    padding-top: calc(var(--header-h) + var(--space-md));
   }
 }

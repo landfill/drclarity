@@ -28,15 +28,15 @@ export default function FloatingPointPage() {
           하지만 컴퓨터는 전기 신호(켜짐/꺼짐)로만 작동하기 때문에 <strong>2진수</strong>만 이해합니다.
           2진수에서는 1/2, 1/4, 1/8, 1/16... 처럼 2로 나눈 값들만 정확하게 표현할 수 있습니다.
         </p>
-      </ExplanationBox>
-
-      <ExplanationBox variant="note">
-        <p><strong>핵심 문제:</strong> 0.1을 2진수로 표현하면 <code>0.0001100110011...</code> 처럼 무한히 반복되는 소수가 됩니다.</p>
-        <p>이는 10진수에서 1/3 = 0.3333...으로 무한히 반복되는 것과 같은 원리입니다.</p>
+        <p>
+          <strong>핵심 문제:</strong> 0.1을 2진수로 표현하면 <code>0.0001100110011...</code> 처럼 무한히 반복되는 소수가 됩니다.
+        </p>
+        <p>
+          이는 10진수에서 1/3 = 0.3333...으로 무한히 반복되는 것과 같은 원리입니다.
+        </p>
       </ExplanationBox>
 
       <CalculatorReveal />
-
     </TopicLayout>
   );
 }

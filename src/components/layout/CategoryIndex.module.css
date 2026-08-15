@@ -1,16 +1,16 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-xl);
 }
 
 .empty {
   text-align: center;
   padding: 4rem 2rem;
   background: var(--color-surface);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   color: var(--color-muted);
   font-size: 1.1rem;
-  margin-top: 2rem;
+  margin-top: var(--space-xl);
 }

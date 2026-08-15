@@ -7,6 +7,7 @@ import { SolutionStepper, SolutionStep } from '@/components/topic/SolutionSteppe
 import { drawScene, SceneOptions } from './scene';
 import { useAnimationFrame } from '@/hooks/useAnimationFrame';
 import { palette } from '@/styles/palette';
+import styles from './GeometryAreaClient.module.css';
 
 
 const GEOMETRY_STEPS: SolutionStep[] = [
@@ -47,8 +48,6 @@ const GEOMETRY_STEPS: SolutionStep[] = [
 export default function GeometryAreaClient() {
   const [stepIndex, setStepIndex] = useState(0);
   const canvasRef = useRef<InteractiveCanvasHandle>(null);
-  
-  const currentStep = GEOMETRY_STEPS[stepIndex];
 
   // 애니메이션 훅 콜백
   const animationCb = useCallback((elapsedMs: number, progress: number) => {
@@ -143,21 +142,23 @@ export default function GeometryAreaClient() {
     <TopicLayout 
       title={<>빨간색 영역의 넓이는?</>}
       subtitle="큰 사분원(반지름 6)에서 두 개의 흰색 반원을 제외한 빨간색 영역의 넓이를 구해보세요."
-      hint={currentStep?.hint}
     >
       <AnimationCard>
-        <InteractiveCanvas 
-          ref={canvasRef}
-          logicalWidth={400}
-          logicalHeight={400}
-          draw={draw}
-          ariaLabel="기하학 퍼즐 과정"
-          waitForFonts={['bold 16px "Outfit"']}
-        />
         <SolutionStepper 
           steps={GEOMETRY_STEPS}
           onStepChange={(idx) => setStepIndex(idx)}
-        />
+        >
+          <div className={styles.canvasSlot}>
+            <InteractiveCanvas 
+              ref={canvasRef}
+              logicalWidth={520}
+              logicalHeight={520}
+              draw={draw}
+              ariaLabel="기하학 퍼즐 과정"
+              waitForFonts={['bold 16px "Outfit"']}
+            />
+          </div>
+        </SolutionStepper>
       </AnimationCard>
     </TopicLayout>
   );

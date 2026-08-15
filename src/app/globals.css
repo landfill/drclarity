@@ -24,6 +24,46 @@
   --color-terminal-border: #404448;
   --color-triangle-fill: rgba(255, 200, 80, 1);
   --color-triangle-stroke: rgba(9, 132, 227, 0.5);
+
+  /* --- 레이아웃 골격 --- */
+  --header-h: 70px;                              /* SiteHeader.module.css 의 height 와 동일해야 함 */
+  --content-h: calc(100dvh - var(--header-h));   /* vh 아님. 모바일 브라우저 크롬 때문에 dvh 필수 */
+  --content-max-w: 800px;                        /* TopicLayout 기존값 */
+  --index-max-w: 1000px;                         /* 홈/헤더 기존값 */
+
+  /* --- 여백 스케일 (6단계) --- */
+  --space-2xs: 0.25rem;
+  --space-xs:  0.5rem;
+  --space-sm:  0.75rem;
+  --space-md:  1rem;
+  --space-lg:  2rem;      /* 1.5rem 에서 복원 — 원본 여백 */
+  --space-xl:  4rem;      /* 2rem 에서 복원 — 원본 섹션 간격 */
+
+  /* --- 타이포 스케일 --- */
+  --fs-hero:  2.5rem;    /* 3rem (48px) -> 2.5rem (40px) 타이틀 축소 */
+  --fs-h2:    2rem;      /* 1.5rem 에서 복원 — 원본 ExplanationBox .title */
+  --fs-lead:  1.25rem;   /* 1.05rem 에서 복원 — 원본 .subtitle */
+  --fs-body:  1.1rem;    /* 1rem 에서 복원 — 원본 본문 */
+  --fs-sm:    0.9rem;
+
+  --fs-display: 3.5rem;  /* 신규. 홈 히어로 전용 — 원본 page.module.css .title */
+
+  /* --- 미디어 상한 (이슈 완료조건 3) --- */
+  --media-max-h: 400px;
+  --media-max-h-mobile: 260px;
+  --canvas-max-w: 520px;         /* InteractiveCanvas logicalWidth 와 동일 */
+
+  /* --- 반경 (기존 20px/12px/8px 혼용 정리) --- */
+  --radius-lg: 20px;     /* 16px 에서 복원 — 원본 AnimationCard border-radius */
+  --radius-md: 12px;
+  --radius-sm: 8px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --fs-hero: 2rem;       /* 1.75rem 에서 복원 — 원본 모바일 TopicLayout .title */
+    --fs-display: 2.5rem;  /* 원본 모바일 홈 .title */
+  }
 }
 
 * {
@@ -37,5 +77,4 @@ body {
   background-color: var(--color-bg);
   color: var(--color-text);
   line-height: 1.6;
-  overflow-x: hidden;
 }
