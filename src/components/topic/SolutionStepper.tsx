@@ -12,7 +12,7 @@ export interface SolutionStep {
 export interface SolutionStepperProps {
   steps: SolutionStep[];
   onStepChange?: (index: number, step: SolutionStep) => void;
-  labels?: { start?: string; next?: string; reset?: string };
+  labels?: { start?: string; prev?: string; next?: string; reset?: string };
   children?: React.ReactNode;
   /** true 면 데스크톱(1100px 이상)에서 2컬럼 그리드(시각 좌 / 지시문·버튼 우)로 배치 */
   split?: boolean;
@@ -29,6 +29,7 @@ export function SolutionStepper({
   const controlsRef = useRef<HTMLDivElement>(null);
 
   const startLabel = labels?.start || '풀이 시작';
+  const prevLabel = labels?.prev || '이전 단계';
   const nextLabel = labels?.next || '다음 단계';
   const resetLabel = labels?.reset || '처음으로';
 
@@ -39,11 +40,12 @@ export function SolutionStepper({
   if (!stepData) return null;
 
   const goToStep = (nextStep: number) => {
-    const nextStepData = steps[nextStep];
+    const targetStep = Math.max(0, Math.min(steps.length - 1, nextStep));
+    const nextStepData = steps[targetStep];
     if (!nextStepData) return;
 
-    setCurrentStep(nextStep);
-    onStepChange?.(nextStep, nextStepData);
+    setCurrentStep(targetStep);
+    onStepChange?.(targetStep, nextStepData);
 
     requestAnimationFrame(() => {
       const el = controlsRef.current;
@@ -90,6 +92,9 @@ export function SolutionStepper({
         )}
         {!isFirst && !isLast && (
           <>
+            <button className={styles.secondaryBtn} onClick={() => goToStep(Math.max(0, currentStep - 1))}>
+              {prevLabel}
+            </button>
             <button className={styles.actionBtn} onClick={() => goToStep(currentStep + 1)}>
               {nextLabel}
             </button>
@@ -99,9 +104,14 @@ export function SolutionStepper({
           </>
         )}
         {isLast && (
-          <button className={styles.secondaryBtn} onClick={() => goToStep(0)}>
-            {resetLabel}
-          </button>
+          <>
+            <button className={styles.secondaryBtn} onClick={() => goToStep(Math.max(0, currentStep - 1))}>
+              {prevLabel}
+            </button>
+            <button className={styles.secondaryBtn} onClick={() => goToStep(0)}>
+              {resetLabel}
+            </button>
+          </>
         )}
       </div>
     </div>

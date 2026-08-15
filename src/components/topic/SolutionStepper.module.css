@@ -68,18 +68,27 @@
 .buttonGroup {
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
 }
 
 .actionBtn {
+  min-height: 44px;
+  min-width: 44px;
   padding: var(--space-sm) var(--space-lg);
   background: var(--color-blue);
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   transition: all 0.2s;
+  user-select: none;
 }
 
 .actionBtn:hover {
@@ -88,16 +97,35 @@
 }
 
 .secondaryBtn {
+  min-height: 44px;
+  min-width: 44px;
   padding: var(--space-sm) var(--space-lg);
   background: var(--color-subtle);
   color: var(--color-muted);
   border: none;
   border-radius: 8px;
   font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   transition: all 0.2s;
+  user-select: none;
 }
 
 .secondaryBtn:hover {
   background: var(--color-muted-2);
+}
+
+@media (max-width: 480px) {
+  .buttonGroup {
+    gap: var(--space-xs);
+  }
+  .actionBtn,
+  .secondaryBtn {
+    padding: var(--space-sm) var(--space-sm);
+    font-size: 0.95rem;
+  }
 }
