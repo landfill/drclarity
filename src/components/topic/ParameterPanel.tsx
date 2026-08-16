@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties, KeyboardEvent } from 'react';
 import {
   logPositionToValue,
@@ -109,13 +109,17 @@ function RangeControl({
   registerReset: (reset: () => void) => () => void;
   domId: string;
 }) {
-  const [optimisticState, setOptimisticState] = useState<{
-    sourceValue: number;
-    value: number;
-  } | null>(null);
+  const [localState, setLocalState] = useState<{
+    controlledValue: number;
+    optimisticValue: number | null;
+  }>({ controlledValue: param.value, optimisticValue: null });
+  const controlledValueIsCurrent = Object.is(localState.controlledValue, param.value);
+  if (!controlledValueIsCurrent) {
+    setLocalState({ controlledValue: param.value, optimisticValue: null });
+  }
   const localValue =
-    optimisticState && Object.is(optimisticState.sourceValue, param.value)
-      ? optimisticState.value
+    controlledValueIsCurrent && localState.optimisticValue !== null
+      ? localState.optimisticValue
     : param.value;
   const scale = param.scale ?? 'linear';
   const format = param.format ?? defaultNumberFormat;
@@ -135,14 +139,29 @@ function RangeControl({
 
   const { schedule: emitChange, cancel: cancelPendingChange } = useRafThrottledCallback(
     (value: number) => {
-      setOptimisticState(null);
+      setLocalState((currentState) => ({
+        ...currentState,
+        optimisticValue: null,
+      }));
       onChange(param.id, value);
     },
   );
   const resetPendingChange = useCallback(() => {
     cancelPendingChange();
-    setOptimisticState(null);
+    setLocalState((currentState) => ({
+      ...currentState,
+      optimisticValue: null,
+    }));
   }, [cancelPendingChange]);
+
+  const previousControlledValueRef = useRef(param.value);
+
+  useLayoutEffect(() => {
+    if (!Object.is(previousControlledValueRef.current, param.value)) {
+      cancelPendingChange();
+      previousControlledValueRef.current = param.value;
+    }
+  }, [cancelPendingChange, param.value]);
 
   useEffect(
     () => registerReset(resetPendingChange),
@@ -154,7 +173,7 @@ function RangeControl({
       param.step === undefined
         ? value
         : snapValueToStep(value, param.min, param.max, param.step);
-    setOptimisticState({ sourceValue: param.value, value: steppedValue });
+    setLocalState({ controlledValue: param.value, optimisticValue: steppedValue });
     emitChange(steppedValue);
   };
 

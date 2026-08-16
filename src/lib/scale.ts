@@ -35,8 +35,10 @@ export function snapValueToStep(
 
   const snappedValue = min + Math.round((boundedValue - min) / step) * step;
   const clampedValue = clamp(snappedValue, min, max);
-  const precision = Math.max(decimalPlaces(min), decimalPlaces(step));
-  return precision <= 100 ? Number(clampedValue.toFixed(precision)) : clampedValue;
+  const precision = Math.max(decimalPlaces(min), decimalPlaces(max), decimalPlaces(step));
+  const normalizedValue =
+    precision <= 100 ? Number(clampedValue.toFixed(precision)) : clampedValue;
+  return clamp(normalizedValue, min, max);
 }
 
 export function logPositionToValue(
