@@ -38,7 +38,15 @@ export function snapValueToStep(
   if (boundedValue === min || boundedValue === max) return boundedValue;
 
   const precision = Math.max(decimalPlaces(min), decimalPlaces(max), decimalPlaces(step));
-  const quotient = (boundedValue - min) / step;
+  const difference = boundedValue - min;
+  const quotient = Number.isFinite(difference)
+    ? difference / step
+    : boundedValue / step - min / step;
+  if (!Number.isFinite(quotient)) {
+    // The step is below the numeric resolution at this magnitude, so snapping
+    // cannot produce a distinct JavaScript number.
+    return boundedValue;
+  }
   const lowerStepCount = Math.floor(quotient);
   const fraction = quotient - lowerStepCount;
   const tieTolerance = Math.min(

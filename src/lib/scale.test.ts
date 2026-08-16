@@ -61,6 +61,7 @@ describe('scale utilities', () => {
     expect(snapValueToStep(0.14996, 0, 1, 0.1)).toBe(0.1);
     expect(snapValueToStep(0.92, 0, 0.95, 0.1)).toBe(0.9);
     expect(snapValueToStep(0.94, 0, 0.95, 0.1)).toBe(0.95);
+    expect(snapValueToStep(1, 0, 2, Number.MIN_VALUE)).toBe(1);
     expect(
       snapValueToStep(1_000_000_000_000_000, 0, 2_000_000_000_000_000, 1),
     ).toBe(1_000_000_000_000_000);
