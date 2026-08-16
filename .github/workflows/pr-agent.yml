@@ -6,6 +6,11 @@ on:
   issue_comment:
     types: [created]
 
+# 연속 푸시 시 진행 중이던 리뷰를 취소하고 최신 커밋 기준으로만 한 번 돌린다.
+concurrency:
+  group: pr-agent-${{ github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: true
+
 jobs:
   pr-agent:
     if: >-
@@ -29,4 +34,6 @@ jobs:
           OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
           config.model: "gpt-5.6-luna"
           config.fallback_models: '["gpt-5.6-luna"]'
-          config.reasoning_effort: "xhigh"
+          config.reasoning_effort: "medium"
+          config.response_language: "ko-KR"
+          github_action_config.pr_actions: '["opened", "reopened", "ready_for_review", "synchronize"]'

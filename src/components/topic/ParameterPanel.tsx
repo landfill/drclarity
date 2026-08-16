@@ -1,0 +1,550 @@
+'use client';
+
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import type { CSSProperties, KeyboardEvent } from 'react';
+import {
+  logPositionToValue,
+  moveValueBySteps,
+  snapValueToStep,
+  valueToLogPosition,
+  valueToPercentage,
+} from '@/lib/scale';
+import { useNextAnimationFrame } from '@/hooks/useAnimationFrame';
+import styles from './ParameterPanel.module.css';
+
+const LOG_SLIDER_RESOLUTION = 1000;
+
+export type ParameterDefinition =
+  | {
+      kind: 'range';
+      id: string;
+      label: string;
+      min: number;
+      max: number;
+      step?: number;
+      value: number;
+      scale?: 'linear' | 'log';
+      format?: (value: number) => string;
+    }
+  | {
+      kind: 'toggle';
+      id: string;
+      label: string;
+      value: boolean;
+    }
+  | {
+      kind: 'select';
+      id: string;
+      label: string;
+      options: { value: string; label: string }[];
+      value: string;
+    };
+
+export interface ParameterPanelProps {
+  params: ParameterDefinition[];
+  onChange: (id: string, value: number | boolean | string) => void;
+  onReset?: () => void;
+  marks?: Record<string, { at: number; label: string }[]>;
+}
+
+type MarkStyle = CSSProperties & {
+  '--mark-position': string;
+  '--mark-shift': string;
+};
+
+function findLastMatchingValue<T>(
+  entries: { value: T }[],
+  value: T,
+): number {
+  for (let index = entries.length - 1; index >= 0; index -= 1) {
+    if (Object.is(entries[index].value, value)) return index;
+  }
+  return -1;
+}
+
+function useRafThrottledCallback<TArgs extends unknown[]>(
+  callback: (...args: TArgs) => void,
+): { schedule: (...args: TArgs) => void; cancel: () => void } {
+  const callbackRef = useRef(callback);
+  const latestArgsRef = useRef<TArgs | null>(null);
+  const scheduledRef = useRef(false);
+  const [frameRequest, setFrameRequest] = useState({ active: false, version: 0 });
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  const cancel = useCallback(() => {
+    scheduledRef.current = false;
+    latestArgsRef.current = null;
+    setFrameRequest((currentRequest) =>
+      currentRequest.active ? { ...currentRequest, active: false } : currentRequest,
+    );
+  }, []);
+
+  useEffect(() => cancel, [cancel]);
+
+  useNextAnimationFrame(
+    frameRequest.active
+      ? () => {
+          const latestArgs = latestArgsRef.current;
+          scheduledRef.current = false;
+          latestArgsRef.current = null;
+          setFrameRequest((currentRequest) => ({ ...currentRequest, active: false }));
+          if (latestArgs) callbackRef.current(...latestArgs);
+        }
+      : null,
+    [frameRequest.active, frameRequest.version],
+  );
+
+  const schedule = useCallback((...args: TArgs) => {
+    latestArgsRef.current = args;
+    if (scheduledRef.current) return;
+
+    scheduledRef.current = true;
+    setFrameRequest((currentRequest) => ({
+      active: true,
+      version: currentRequest.version + 1,
+    }));
+  }, []);
+
+  return { schedule, cancel };
+}
+
+function useRafThrottledValue<T>(
+  controlledValue: T,
+  onCommit: (value: T) => void,
+): { value: T; update: (value: T) => void; reset: () => void } {
+  const [localState, setLocalState] = useState<{
+    controlledValue: T;
+    optimisticValue: T;
+    optimisticSequence: number;
+    hasOptimisticValue: boolean;
+    pendingAcknowledgements: { sequence: number; value: T }[];
+  }>({
+    controlledValue,
+    optimisticValue: controlledValue,
+    optimisticSequence: 0,
+    hasOptimisticValue: false,
+    pendingAcknowledgements: [],
+  });
+  const controlledValueIsCurrent = Object.is(localState.controlledValue, controlledValue);
+  if (!controlledValueIsCurrent) {
+    const acknowledgementIndex = findLastMatchingValue(
+      localState.pendingAcknowledgements,
+      controlledValue,
+    );
+    const isAcknowledgement = acknowledgementIndex >= 0;
+    const acknowledgedSequence = isAcknowledgement
+      ? localState.pendingAcknowledgements[acknowledgementIndex].sequence
+      : -1;
+    const remainingAcknowledgements = isAcknowledgement
+      ? localState.pendingAcknowledgements.slice(acknowledgementIndex + 1)
+      : [];
+    const keepOptimisticValue =
+      isAcknowledgement &&
+      localState.hasOptimisticValue &&
+      localState.optimisticSequence > acknowledgedSequence;
+    setLocalState({
+      controlledValue,
+      optimisticValue: keepOptimisticValue ? localState.optimisticValue : controlledValue,
+      optimisticSequence: localState.optimisticSequence,
+      hasOptimisticValue: keepOptimisticValue,
+      pendingAcknowledgements: remainingAcknowledgements,
+    });
+  }
+  const value =
+    controlledValueIsCurrent && localState.hasOptimisticValue
+      ? localState.optimisticValue
+      : controlledValue;
+
+  const nextSequenceRef = useRef(0);
+  const pendingAcknowledgementsRef = useRef<{ sequence: number; value: T }[]>([]);
+  const { schedule, cancel } = useRafThrottledCallback(
+    (emission: { sequence: number; value: T }) => {
+      pendingAcknowledgementsRef.current.push(emission);
+      setLocalState((currentState) => ({
+        ...currentState,
+        pendingAcknowledgements: [...currentState.pendingAcknowledgements, emission],
+      }));
+      onCommit(emission.value);
+    },
+  );
+  const previousControlledValueRef = useRef(controlledValue);
+
+  useLayoutEffect(() => {
+    if (!Object.is(previousControlledValueRef.current, controlledValue)) {
+      const acknowledgementIndex = findLastMatchingValue(
+        pendingAcknowledgementsRef.current,
+        controlledValue,
+      );
+      if (acknowledgementIndex >= 0) {
+        pendingAcknowledgementsRef.current = pendingAcknowledgementsRef.current.slice(
+          acknowledgementIndex + 1,
+        );
+      } else {
+        cancel();
+        pendingAcknowledgementsRef.current = [];
+      }
+      previousControlledValueRef.current = controlledValue;
+    }
+  }, [cancel, controlledValue]);
+
+  const update = useCallback(
+    (nextValue: T) => {
+      const sequence = nextSequenceRef.current + 1;
+      nextSequenceRef.current = sequence;
+      setLocalState((currentState) => ({
+        controlledValue,
+        optimisticValue: nextValue,
+        optimisticSequence: sequence,
+        hasOptimisticValue: true,
+        pendingAcknowledgements: currentState.pendingAcknowledgements,
+      }));
+      schedule({ sequence, value: nextValue });
+    },
+    [controlledValue, schedule],
+  );
+  const reset = useCallback(() => {
+    cancel();
+    pendingAcknowledgementsRef.current = [];
+    setLocalState((currentState) => ({
+      ...currentState,
+      hasOptimisticValue: false,
+      pendingAcknowledgements: [],
+    }));
+  }, [cancel]);
+
+  return { value, update, reset };
+}
+
+function defaultNumberFormat(value: number): string {
+  return Number.parseFloat(value.toPrecision(4)).toString();
+}
+
+function markShift(position: number): string {
+  if (position <= 8) return '0%';
+  if (position >= 92) return '-100%';
+  return '-50%';
+}
+
+function RangeControl({
+  param,
+  marks,
+  onChange,
+  registerReset,
+  domId,
+  marksId,
+}: {
+  param: Extract<ParameterDefinition, { kind: 'range' }>;
+  marks: { at: number; label: string }[];
+  onChange: ParameterPanelProps['onChange'];
+  registerReset: (reset: () => void) => () => void;
+  domId: string;
+  marksId: string;
+}) {
+  const {
+    value: localValue,
+    update: updateThrottledValue,
+    reset: resetPendingChange,
+  } = useRafThrottledValue(param.value, (value) => onChange(param.id, value));
+  const scale = param.scale ?? 'linear';
+  const format = param.format ?? defaultNumberFormat;
+  const presentedValue = Math.min(param.max, Math.max(param.min, localValue));
+  const displayValue = format(presentedValue);
+  const validMarks = marks.filter(
+    (mark) => Number.isFinite(mark.at) && mark.at >= param.min && mark.at <= param.max,
+  );
+
+  const sliderValue =
+    scale === 'log'
+      ? valueToLogPosition(presentedValue, param.min, param.max, LOG_SLIDER_RESOLUTION)
+      : presentedValue;
+  const sliderMin = scale === 'log' ? 0 : param.min;
+  const sliderMax = scale === 'log' ? LOG_SLIDER_RESOLUTION : param.max;
+  const sliderStep = scale === 'log' && param.step === undefined ? 1 : 'any';
+
+  useEffect(
+    () => registerReset(resetPendingChange),
+    [registerReset, resetPendingChange],
+  );
+
+  const previousConstraintsRef = useRef({
+    min: param.min,
+    max: param.max,
+    step: param.step,
+    scale,
+  });
+  useLayoutEffect(() => {
+    const previous = previousConstraintsRef.current;
+    const constraintsChanged =
+      !Object.is(previous.min, param.min) ||
+      !Object.is(previous.max, param.max) ||
+      !Object.is(previous.step, param.step) ||
+      previous.scale !== scale;
+    if (constraintsChanged) resetPendingChange();
+    previousConstraintsRef.current = {
+      min: param.min,
+      max: param.max,
+      step: param.step,
+      scale,
+    };
+  }, [param.max, param.min, param.step, resetPendingChange, scale]);
+
+  const updateValue = (value: number) => {
+    const steppedValue =
+      param.step === undefined
+        ? value
+        : snapValueToStep(value, param.min, param.max, param.step);
+    updateThrottledValue(steppedValue);
+  };
+
+  const handleChange = (rawValue: number) => {
+    const value =
+      scale === 'log'
+        ? rawValue <= 0
+          ? param.min
+          : rawValue >= LOG_SLIDER_RESOLUTION
+            ? param.max
+            : logPositionToValue(rawValue, param.min, param.max, LOG_SLIDER_RESOLUTION)
+        : rawValue;
+    updateValue(value);
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (param.step === undefined) return;
+
+    let nextValue: number;
+    switch (event.key) {
+      case 'ArrowUp':
+      case 'ArrowRight':
+        nextValue = moveValueBySteps(presentedValue, param.min, param.max, param.step, 1);
+        break;
+      case 'ArrowDown':
+      case 'ArrowLeft':
+        nextValue = moveValueBySteps(presentedValue, param.min, param.max, param.step, -1);
+        break;
+      case 'PageUp':
+        nextValue = moveValueBySteps(presentedValue, param.min, param.max, param.step, 1, 10);
+        break;
+      case 'PageDown':
+        nextValue = moveValueBySteps(presentedValue, param.min, param.max, param.step, -1, 10);
+        break;
+      case 'Home':
+        nextValue = param.min;
+        break;
+      case 'End':
+        nextValue = param.max;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    updateValue(nextValue);
+  };
+
+  return (
+    <div className={styles.parameterRow}>
+      <div className={styles.labelRow}>
+        <label htmlFor={domId} className={styles.label}>
+          {param.label}
+        </label>
+        <output htmlFor={domId} className={styles.valueDisplay}>
+          {displayValue}
+        </output>
+      </div>
+
+      <input
+        id={domId}
+        type="range"
+        min={sliderMin}
+        max={sliderMax}
+        step={sliderStep}
+        value={sliderValue}
+        onChange={(event) => handleChange(event.currentTarget.valueAsNumber)}
+        onKeyDown={handleKeyDown}
+        className={styles.rangeInput}
+        aria-valuemin={param.min}
+        aria-valuemax={param.max}
+        aria-valuenow={presentedValue}
+        aria-valuetext={displayValue}
+        aria-describedby={validMarks.length > 0 ? marksId : undefined}
+      />
+
+      {validMarks.length > 0 && (
+        <div id={marksId} className={styles.marks}>
+          {validMarks.map((mark) => {
+            const position = valueToPercentage(mark.at, param.min, param.max, scale);
+            const style: MarkStyle = {
+              '--mark-position': `${position}%`,
+              '--mark-shift': markShift(position),
+            };
+
+            return (
+              <span
+                key={`${mark.at}-${mark.label}`}
+                className={styles.mark}
+                style={style}
+                aria-label={`${format(mark.at)}: ${mark.label}`}
+              >
+                <span className={styles.markTick} aria-hidden="true" />
+                <span className={styles.markLabel}>{mark.label}</span>
+              </span>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ToggleControl({
+  param,
+  onChange,
+  registerReset,
+  domId,
+}: {
+  param: Extract<ParameterDefinition, { kind: 'toggle' }>;
+  onChange: ParameterPanelProps['onChange'];
+  registerReset: (reset: () => void) => () => void;
+  domId: string;
+}) {
+  const { value, update, reset } = useRafThrottledValue(param.value, (nextValue) =>
+    onChange(param.id, nextValue),
+  );
+
+  useEffect(() => registerReset(reset), [registerReset, reset]);
+
+  return (
+    <label htmlFor={domId} className={styles.toggleRow}>
+      <span className={styles.label}>{param.label}</span>
+      <input
+        id={domId}
+        type="checkbox"
+        checked={value}
+        onChange={(event) => update(event.currentTarget.checked)}
+        className={styles.toggleInput}
+      />
+    </label>
+  );
+}
+
+function SelectControl({
+  param,
+  onChange,
+  registerReset,
+  domId,
+}: {
+  param: Extract<ParameterDefinition, { kind: 'select' }>;
+  onChange: ParameterPanelProps['onChange'];
+  registerReset: (reset: () => void) => () => void;
+  domId: string;
+}) {
+  const { value, update, reset } = useRafThrottledValue(param.value, (nextValue) =>
+    onChange(param.id, nextValue),
+  );
+  const optionValuesKey = JSON.stringify(param.options.map((option) => option.value));
+  const previousOptionValuesKeyRef = useRef(optionValuesKey);
+  const valueIsAvailable = param.options.some((option) => option.value === value);
+
+  useLayoutEffect(() => {
+    const optionsChanged = previousOptionValuesKeyRef.current !== optionValuesKey;
+    if (optionsChanged && !valueIsAvailable) reset();
+    previousOptionValuesKeyRef.current = optionValuesKey;
+  }, [optionValuesKey, reset, valueIsAvailable]);
+
+  const presentedValue = valueIsAvailable ? value : (param.options[0]?.value ?? '');
+
+  useEffect(() => registerReset(reset), [registerReset, reset]);
+
+  return (
+    <div className={styles.parameterRow}>
+      <label htmlFor={domId} className={styles.label}>
+        {param.label}
+      </label>
+      <select
+        id={domId}
+        value={presentedValue}
+        onChange={(event) => update(event.currentTarget.value)}
+        className={styles.selectInput}
+      >
+        {param.options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+export function ParameterPanel({ params, onChange, onReset, marks = {} }: ParameterPanelProps) {
+  const panelId = useId();
+  const resetCallbacksRef = useRef(new Set<() => void>());
+  const registerReset = useCallback((reset: () => void) => {
+    resetCallbacksRef.current.add(reset);
+    return () => resetCallbacksRef.current.delete(reset);
+  }, []);
+  const handleReset = useCallback(() => {
+    resetCallbacksRef.current.forEach((reset) => reset());
+    onReset?.();
+  }, [onReset]);
+
+  return (
+    <section className={styles.panel} aria-label="파라미터 설정">
+      {onReset && (
+        <div className={styles.toolbar}>
+          <button type="button" onClick={handleReset} className={styles.resetButton}>
+            초기화
+          </button>
+        </div>
+      )}
+
+      <div className={styles.parameterGroup}>
+        {params.map((param) => {
+          const domId = `${panelId}-input-${param.id}`;
+
+          if (param.kind === 'range') {
+            const paramMarks = Object.prototype.hasOwnProperty.call(marks, param.id)
+              ? marks[param.id]
+              : undefined;
+            return (
+              <RangeControl
+                key={param.id}
+                param={param}
+                marks={paramMarks ?? []}
+                onChange={onChange}
+                registerReset={registerReset}
+                domId={domId}
+                marksId={`${panelId}-marks-${param.id}`}
+              />
+            );
+          }
+
+          if (param.kind === 'toggle') {
+            return (
+              <ToggleControl
+                key={param.id}
+                param={param}
+                onChange={onChange}
+                registerReset={registerReset}
+                domId={domId}
+              />
+            );
+          }
+
+          return (
+            <SelectControl
+              key={param.id}
+              param={param}
+              onChange={onChange}
+              registerReset={registerReset}
+              domId={domId}
+            />
+          );
+        })}
+      </div>
+    </section>
+  );
+}
