@@ -1,6 +1,7 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import styles from './SolutionStepper.module.css';
+import { SplitStage } from './SplitStage';
 
 export interface SolutionStep {
   id: string;
@@ -15,7 +16,6 @@ export interface SolutionStepperProps {
   labels?: { start?: string; prev?: string; next?: string; reset?: string };
   children?: React.ReactNode;
   /** true 면 데스크톱(1100px 이상)에서 2컬럼 그리드(시각 좌 / 지시문·버튼 우)로 배치 */
-  split?: boolean;
 }
 
 export function SolutionStepper({
@@ -23,10 +23,8 @@ export function SolutionStepper({
   onStepChange,
   labels,
   children,
-  split = false
 }: SolutionStepperProps) {
   const [currentStep, setCurrentStep] = useState(0);
-  const controlsRef = useRef<HTMLDivElement>(null);
 
   const startLabel = labels?.start || '풀이 시작';
   const prevLabel = labels?.prev || '이전 단계';
@@ -36,6 +34,8 @@ export function SolutionStepper({
   const stepData = steps[currentStep];
   const isFirst = currentStep === 0;
   const isLast = currentStep === steps.length - 1;
+  const formulaVisible = stepData?.formula != null;
+  const hintVisible = stepData?.hint != null;
 
   if (!stepData) return null;
 
@@ -47,42 +47,27 @@ export function SolutionStepper({
     setCurrentStep(targetStep);
     onStepChange?.(targetStep, nextStepData);
 
-    requestAnimationFrame(() => {
-      const el = controlsRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const headerH = parseFloat(
-        getComputedStyle(document.documentElement).getPropertyValue('--header-h')
-      ) || 70;
-      if (rect.top >= headerH && rect.bottom <= window.innerHeight) return;
-
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      el.scrollIntoView({
-        behavior: reduceMotion ? 'auto' : 'smooth',
-        block: 'start'
-      });
-    });
   };
 
-  const controlsClass = `${styles.controls} ${split ? styles.controlsSplit : ''}`.trim();
-
   return (
-    <div ref={controlsRef} className={controlsClass}>
+    <SplitStage stage={children}>
       <div className={styles.stepText} aria-live="polite">
         {stepData.body}
-        {stepData.formula && (
+        <div
+          className={`${styles.formulaSlot} ${formulaVisible ? styles.slotVisible : ''}`}
+          aria-hidden={!formulaVisible}
+        >
           <div className={styles.formulaWrap}>
             <span className={styles.formula}>{stepData.formula}</span>
           </div>
-        )}
-        {stepData.hint && (
-          <p className={styles.stepHint}>
-            <strong>직접 확인:</strong> {stepData.hint}
-          </p>
-        )}
+        </div>
+        <p
+          className={`${styles.stepHint} ${hintVisible ? styles.slotVisible : ''}`}
+          aria-hidden={!hintVisible}
+        >
+          <strong>직접 확인:</strong> {stepData.hint}
+        </p>
       </div>
-
-      {children && <div className={styles.stage}>{children}</div>}
 
       <div className={styles.buttonGroup}>
         {isFirst && (
@@ -114,6 +99,6 @@ export function SolutionStepper({
           </>
         )}
       </div>
-    </div>
+    </SplitStage>
   );
 }

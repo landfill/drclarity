@@ -73,6 +73,11 @@
   cursor: not-allowed;
 }
 
+/*
+ * Reserve the full EXPLANATION_TEXT footprint before typing starts. At the
+ * shared split's roughly 468px right-column width, the two paragraphs need
+ * 240px; this keeps document height stable when visibility changes.
+ */
 .explanationPanel {
   background: var(--color-terminal-bg);
   color: var(--color-terminal-fg);
@@ -84,12 +89,28 @@
   line-height: 1.5;
   width: 100%;
   max-width: 600px;
-  max-height: 280px;
-  overflow-y: auto;
+  min-height: 310px;
   overflow-x: auto;
   word-break: break-word;
   white-space: pre-wrap;
   text-align: left;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.explanationPanel.visible {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (min-width: 1100px) {
+  .explanationPanel {
+    max-width: 100%;
+    min-height: 240px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -104,12 +125,15 @@
 
   .explanationPanel {
     padding: var(--space-sm);
-    max-height: 220px;
+    min-height: 310px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .shake {
     animation: none;
+  }
+  .explanationPanel {
+    transition: none;
   }
 }

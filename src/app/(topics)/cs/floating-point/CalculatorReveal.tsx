@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useTypewriter } from '@/hooks/useTypewriter';
 import { prefersReducedMotion } from '@/lib/reducedMotion';
 import styles from './CalculatorReveal.module.css';
@@ -15,8 +15,6 @@ export function CalculatorReveal() {
   const [showExplanation, setShowExplanation] = useState(false);
   const [shake, setShake] = useState(false);
   const [runId, setRunId] = useState(0);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const prevScrollHeightRef = useRef(0);
 
   const typedResult = useTypewriter(RESULT_TEXT, {
     intervalMs: 50,
@@ -32,17 +30,6 @@ export function CalculatorReveal() {
     active: showExplanation,
     resetKey: runId
   });
-
-  useEffect(() => {
-    const panel = panelRef.current;
-    if (!panel) return;
-    const prev = prevScrollHeightRef.current;
-    const wasNearBottom = prev === 0 || prev - panel.scrollTop - panel.clientHeight < 24;
-    if (wasNearBottom) {
-      panel.scrollTop = panel.scrollHeight;
-    }
-    prevScrollHeightRef.current = panel.scrollHeight;
-  }, [typedExplanation]);
 
   useEffect(() => {
     let t1: NodeJS.Timeout;
@@ -65,7 +52,6 @@ export function CalculatorReveal() {
     setPhase('calculating');
     setShowExplanation(false);
     setShake(false);
-    prevScrollHeightRef.current = 0;
   };
 
   const getButtonLabel = () => {
@@ -102,11 +88,11 @@ export function CalculatorReveal() {
         </button>
       </div>
       
-      {showExplanation && (
-        <div className={styles.explanationPanel} ref={panelRef}>
-          {typedExplanation}
-        </div>
-      )}
+      <div 
+        className={`${styles.explanationPanel} ${showExplanation ? styles.visible : ''}`}
+      >
+        {typedExplanation}
+      </div>
     </div>
   );
 }

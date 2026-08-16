@@ -1,32 +1,10 @@
-.controls {
-  margin-top: var(--space-md);
-  scroll-margin-top: calc(var(--header-h) + var(--space-md));
-  background: var(--color-surface);
-  padding: var(--space-md);
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  text-align: center;
-}
-
-/* split 모드, 데스크톱만 */
-@media (min-width: 1100px) {
-  .controlsSplit {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-rows: auto 1fr;
-    gap: var(--space-md);
-    align-items: start;
-  }
-  .controlsSplit .stepText   { grid-column: 2; grid-row: 1; }
-  .controlsSplit .stage      { grid-column: 1; grid-row: 1 / span 2; margin: 0; }
-  .controlsSplit .buttonGroup{ grid-column: 2; grid-row: 2; }
-}
-
 .stepText {
   font-size: 1rem;
   color: var(--color-ink);
   margin-bottom: var(--space-sm);
-  min-height: 2.5rem;
+  /* Reserve the longest current body + formula + hint footprint so the stage
+     keeps its document coordinate stable while the step changes. */
+  min-height: 22rem;
   display: block;
   text-align: center;
   font-weight: 500;
@@ -36,6 +14,7 @@
 
 .stepHint {
   margin: 0.75rem auto 0;
+  min-height: 3.7rem;
   padding: 0.65rem 0.8rem;
   max-width: 42rem;
   color: var(--color-danger);
@@ -43,15 +22,29 @@
   border: 1px solid var(--color-note-border);
   border-radius: 8px;
   font-size: 0.95rem;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
 }
 
-.stage {
-  margin: var(--space-sm) 0;
-  text-align: left;
-}
-
-.formulaWrap {
+.formulaSlot {
+  min-height: 3.5rem;
   margin-top: 0.5rem;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.formulaSlot .formulaWrap {
+  margin-top: 0;
+}
+
+.slotVisible {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .formula {
@@ -70,6 +63,20 @@
   justify-content: center;
   gap: var(--space-sm);
   flex-wrap: wrap;
+  margin-top: var(--space-md);
+}
+
+@media (max-width: 1099px) {
+  .stepText {
+    margin-bottom: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .formulaSlot,
+  .stepHint {
+    transition: none;
+  }
 }
 
 .actionBtn {

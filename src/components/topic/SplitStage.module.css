@@ -1,0 +1,72 @@
+.root {
+  margin-top: var(--space-md);
+  scroll-margin-top: calc(var(--header-h) + var(--space-md));
+  background: var(--color-surface);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  padding: var(--space-md);
+  text-align: center;
+}
+
+.stage {
+  margin: var(--space-sm) 0;
+  text-align: left;
+}
+
+.content {
+  min-width: 0;
+}
+
+@media (min-width: 1100px) {
+  .root {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-md);
+    align-items: start;
+  }
+
+  .stage {
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0;
+  }
+
+  .content {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+@media (max-width: 1099px) {
+  .root {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-md);
+    align-items: start;
+  }
+
+  .stage {
+    grid-row: 1;
+    /* Tall stages remain in flow; only measured stages may stick. */
+    position: static;
+    top: auto;
+    z-index: auto;
+    margin: 0;
+    padding: var(--space-sm) 0;
+    background: var(--color-surface);
+  }
+
+  .stageSticky {
+    position: sticky;
+    top: var(--header-h);
+    /* A pinned stage must paint above the scrolling content below it. */
+    z-index: 3;
+  }
+
+  .content {
+    grid-row: 2;
+    position: relative;
+    z-index: 2;
+    background: var(--color-surface);
+  }
+}
