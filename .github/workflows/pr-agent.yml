@@ -31,3 +31,4 @@ jobs:
           config.fallback_models: '["gpt-5.6-luna"]'
           config.reasoning_effort: "xhigh"
           config.response_language: "ko-KR"
+          github_action_config.pr_actions: '["opened", "reopened", "ready_for_review", "synchronize"]'
