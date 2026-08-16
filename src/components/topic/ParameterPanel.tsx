@@ -1,9 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, KeyboardEvent } from 'react';
 import {
   logPositionToValue,
+  snapValueToStep,
   valueToLogPosition,
   valueToPercentage,
 } from '@/lib/scale';
@@ -127,7 +128,7 @@ function RangeControl({
       : localValue;
   const sliderMin = scale === 'log' ? 0 : param.min;
   const sliderMax = scale === 'log' ? LOG_SLIDER_RESOLUTION : param.max;
-  const sliderStep = scale === 'log' ? 1 : (param.step ?? 1);
+  const sliderStep = scale === 'log' && param.step !== undefined ? 'any' : (param.step ?? 1);
 
   const { schedule: emitChange, cancel: cancelPendingChange } = useRafThrottledCallback(
     (value: number) => {
@@ -144,13 +145,58 @@ function RangeControl({
     [registerReset, resetPendingChange],
   );
 
+  const updateValue = (value: number) => {
+    const steppedValue =
+      param.step === undefined
+        ? value
+        : snapValueToStep(value, param.min, param.max, param.step);
+    setLocalState({ sourceValue: param.value, value: steppedValue });
+    emitChange(steppedValue);
+  };
+
   const handleChange = (rawValue: number) => {
     const value =
       scale === 'log'
-        ? logPositionToValue(rawValue, param.min, param.max, LOG_SLIDER_RESOLUTION)
+        ? rawValue <= 0
+          ? param.min
+          : rawValue >= LOG_SLIDER_RESOLUTION
+            ? param.max
+            : logPositionToValue(rawValue, param.min, param.max, LOG_SLIDER_RESOLUTION)
         : rawValue;
-    setLocalState({ sourceValue: param.value, value });
-    emitChange(value);
+    updateValue(value);
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (scale !== 'log' || param.step === undefined) return;
+
+    let nextValue: number;
+    switch (event.key) {
+      case 'ArrowUp':
+      case 'ArrowRight':
+        nextValue = localValue + param.step;
+        break;
+      case 'ArrowDown':
+      case 'ArrowLeft':
+        nextValue = localValue - param.step;
+        break;
+      case 'PageUp':
+        nextValue = localValue + param.step * 10;
+        break;
+      case 'PageDown':
+        nextValue = localValue - param.step * 10;
+        break;
+      case 'Home':
+        nextValue = param.min;
+        break;
+      case 'End':
+        nextValue = param.max;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    updateValue(nextValue);
   };
 
   return (
@@ -172,6 +218,7 @@ function RangeControl({
         step={sliderStep}
         value={sliderValue}
         onChange={(event) => handleChange(event.currentTarget.valueAsNumber)}
+        onKeyDown={handleKeyDown}
         className={styles.rangeInput}
         aria-valuetext={displayValue}
         aria-describedby={validMarks.length > 0 ? marksId : undefined}

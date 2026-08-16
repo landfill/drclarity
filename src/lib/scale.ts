@@ -13,6 +13,24 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
+export function snapValueToStep(
+  value: number,
+  min: number,
+  max: number,
+  step: number,
+): number {
+  assertBounds(min, max, 'linear');
+  if (!Number.isFinite(value) || !Number.isFinite(step) || step <= 0) {
+    throw new Error('Range value and step must be finite, with step greater than 0');
+  }
+
+  const boundedValue = clamp(value, min, max);
+  if (boundedValue === min || boundedValue === max) return boundedValue;
+
+  const snappedValue = min + Math.round((boundedValue - min) / step) * step;
+  return Number(clamp(snappedValue, min, max).toPrecision(15));
+}
+
 export function logPositionToValue(
   position: number,
   min: number,

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { logPositionToValue, valueToLogPosition, valueToPercentage } from './scale';
+import {
+  logPositionToValue,
+  snapValueToStep,
+  valueToLogPosition,
+  valueToPercentage,
+} from './scale';
 
 describe('scale utilities', () => {
   it('maps logarithmic slider positions to real values', () => {
@@ -36,5 +41,17 @@ describe('scale utilities', () => {
     expect(() => logPositionToValue(10, 1, 100, Number.POSITIVE_INFINITY)).toThrow();
     expect(() => valueToLogPosition(10, 1, 100, Number.NaN)).toThrow();
     expect(() => valueToLogPosition(10, 1, 100, Number.POSITIVE_INFINITY)).toThrow();
+  });
+
+  it('snaps values to a step while preserving range endpoints', () => {
+    expect(snapValueToStep(0.26, 0.001, 1, 0.1)).toBeCloseTo(0.301);
+    expect(snapValueToStep(1, 0.001, 1, 0.1)).toBe(1);
+    expect(snapValueToStep(-1, 0.001, 1, 0.1)).toBe(0.001);
+  });
+
+  it('rejects invalid step values', () => {
+    expect(() => snapValueToStep(1, 0, 10, 0)).toThrow();
+    expect(() => snapValueToStep(1, 0, 10, Number.NaN)).toThrow();
+    expect(() => snapValueToStep(1, 0, 10, Number.POSITIVE_INFINITY)).toThrow();
   });
 });
