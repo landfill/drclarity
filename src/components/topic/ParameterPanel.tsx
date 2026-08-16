@@ -238,15 +238,16 @@ function RangeControl({
   } = useRafThrottledValue(param.value, (value) => onChange(param.id, value));
   const scale = param.scale ?? 'linear';
   const format = param.format ?? defaultNumberFormat;
-  const displayValue = format(localValue);
+  const presentedValue = Math.min(param.max, Math.max(param.min, localValue));
+  const displayValue = format(presentedValue);
   const validMarks = marks.filter(
     (mark) => Number.isFinite(mark.at) && mark.at >= param.min && mark.at <= param.max,
   );
 
   const sliderValue =
     scale === 'log'
-      ? valueToLogPosition(localValue, param.min, param.max, LOG_SLIDER_RESOLUTION)
-      : localValue;
+      ? valueToLogPosition(presentedValue, param.min, param.max, LOG_SLIDER_RESOLUTION)
+      : presentedValue;
   const sliderMin = scale === 'log' ? 0 : param.min;
   const sliderMax = scale === 'log' ? LOG_SLIDER_RESOLUTION : param.max;
   const sliderStep = scale === 'log' && param.step === undefined ? 1 : 'any';
@@ -283,17 +284,17 @@ function RangeControl({
     switch (event.key) {
       case 'ArrowUp':
       case 'ArrowRight':
-        nextValue = moveValueBySteps(localValue, param.min, param.max, param.step, 1);
+        nextValue = moveValueBySteps(presentedValue, param.min, param.max, param.step, 1);
         break;
       case 'ArrowDown':
       case 'ArrowLeft':
-        nextValue = moveValueBySteps(localValue, param.min, param.max, param.step, -1);
+        nextValue = moveValueBySteps(presentedValue, param.min, param.max, param.step, -1);
         break;
       case 'PageUp':
-        nextValue = moveValueBySteps(localValue, param.min, param.max, param.step, 1, 10);
+        nextValue = moveValueBySteps(presentedValue, param.min, param.max, param.step, 1, 10);
         break;
       case 'PageDown':
-        nextValue = moveValueBySteps(localValue, param.min, param.max, param.step, -1, 10);
+        nextValue = moveValueBySteps(presentedValue, param.min, param.max, param.step, -1, 10);
         break;
       case 'Home':
         nextValue = param.min;
@@ -332,7 +333,7 @@ function RangeControl({
         className={styles.rangeInput}
         aria-valuemin={param.min}
         aria-valuemax={param.max}
-        aria-valuenow={localValue}
+        aria-valuenow={presentedValue}
         aria-valuetext={displayValue}
         aria-describedby={validMarks.length > 0 ? marksId : undefined}
       />
