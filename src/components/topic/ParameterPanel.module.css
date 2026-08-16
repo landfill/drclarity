@@ -48,6 +48,8 @@
 }
 
 .parameterRow {
+  --range-thumb-size: calc(var(--space-md) + var(--space-xs));
+
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
@@ -94,8 +96,9 @@
 }
 
 .rangeInput::-webkit-slider-thumb {
-  width: 1.5rem;
-  height: 1.5rem;
+  box-sizing: border-box;
+  width: var(--range-thumb-size);
+  height: var(--range-thumb-size);
   margin-top: -0.525rem;
   appearance: none;
   background: var(--color-accent);
@@ -111,8 +114,9 @@
 }
 
 .rangeInput::-moz-range-thumb {
-  width: 1.125rem;
-  height: 1.125rem;
+  box-sizing: border-box;
+  width: var(--range-thumb-size);
+  height: var(--range-thumb-size);
   background: var(--color-accent);
   border: 3px solid var(--color-surface);
   border-radius: 50%;
@@ -122,7 +126,7 @@
 .marks {
   position: relative;
   height: 2rem;
-  margin: calc(var(--space-2xs) * -1) 0 0;
+  margin: calc(var(--space-2xs) * -1) calc(var(--range-thumb-size) / 2) 0;
 }
 
 .mark {

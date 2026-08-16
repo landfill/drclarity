@@ -23,6 +23,14 @@ function normalizedDistance(left: number, right: number, scale: number): number 
   return Math.abs(left / scale - right / scale);
 }
 
+function logarithmicDistance(upper: number, lower: number): number {
+  const difference = upper - lower;
+  const relativeDifference = difference / lower;
+  return Number.isFinite(relativeDifference)
+    ? Math.log1p(relativeDifference)
+    : Math.log(upper) - Math.log(lower);
+}
+
 export function snapValueToStep(
   value: number,
   min: number,
@@ -94,7 +102,15 @@ export function logPositionToValue(
   }
 
   const progress = clamp(position, 0, resolution) / resolution;
-  return Math.exp(Math.log(min) + progress * (Math.log(max) - Math.log(min)));
+  if (progress === 0) return min;
+  if (progress === 1) return max;
+
+  const logRange = logarithmicDistance(max, min);
+  const ratio = max / min;
+  const value = Number.isFinite(ratio)
+    ? min * Math.exp(progress * logRange)
+    : Math.exp(Math.log(min) + progress * logRange);
+  return clamp(value, min, max);
 }
 
 export function valueToLogPosition(
@@ -111,7 +127,10 @@ export function valueToLogPosition(
   }
 
   const boundedValue = clamp(value, min, max);
-  const progress = (Math.log(boundedValue) - Math.log(min)) / (Math.log(max) - Math.log(min));
+  if (boundedValue === min) return 0;
+  if (boundedValue === max) return resolution;
+
+  const progress = logarithmicDistance(boundedValue, min) / logarithmicDistance(max, min);
   return progress * resolution;
 }
 

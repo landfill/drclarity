@@ -19,6 +19,18 @@ describe('scale utilities', () => {
     expect(valueToLogPosition(100, 1, 100)).toBeCloseTo(1000);
   });
 
+  it('preserves narrow logarithmic ranges at large magnitudes', () => {
+    const min = 1e308;
+    const max = 1.0000000000000002e308;
+
+    expect(logPositionToValue(0, min, max)).toBe(min);
+    expect(logPositionToValue(1000, min, max)).toBe(max);
+    expect(logPositionToValue(500, min, max)).toBeGreaterThanOrEqual(min);
+    expect(logPositionToValue(500, min, max)).toBeLessThanOrEqual(max);
+    expect(valueToLogPosition(min, min, max)).toBe(0);
+    expect(valueToLogPosition(max, min, max)).toBe(1000);
+  });
+
   it('positions linear and logarithmic marks correctly', () => {
     expect(valueToPercentage(25, 0, 100, 'linear')).toBeCloseTo(25);
     expect(valueToPercentage(10, 1, 100, 'log')).toBeCloseTo(50);
