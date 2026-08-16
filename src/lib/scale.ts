@@ -121,6 +121,61 @@ export function snapValueToStep(
   return clamp(decimalToNumber(selectedValue, commonExponent), min, max);
 }
 
+export function moveValueBySteps(
+  value: number,
+  min: number,
+  max: number,
+  step: number,
+  direction: -1 | 1,
+  count = 1,
+): number {
+  assertBounds(min, max, 'linear');
+  if (
+    !Number.isFinite(value) ||
+    !Number.isFinite(step) ||
+    step <= 0 ||
+    !Number.isInteger(count) ||
+    count <= 0
+  ) {
+    throw new Error('Range value and step count must be finite and greater than 0');
+  }
+
+  const boundedValue = clamp(value, min, max);
+  if ((direction > 0 && boundedValue === max) || (direction < 0 && boundedValue === min)) {
+    return boundedValue;
+  }
+
+  const valueParts = decimalParts(boundedValue);
+  const minParts = decimalParts(min);
+  const maxParts = decimalParts(max);
+  const stepParts = decimalParts(step);
+  const commonExponent = Math.min(
+    valueParts.exponent,
+    minParts.exponent,
+    maxParts.exponent,
+    stepParts.exponent,
+  );
+  const scaledValue = scaleDecimal(valueParts, commonExponent);
+  const scaledMin = scaleDecimal(minParts, commonExponent);
+  const scaledMax = scaleDecimal(maxParts, commonExponent);
+  const scaledStep = scaleDecimal(stepParts, commonExponent);
+  const difference = scaledValue - scaledMin;
+  const quotient = difference / scaledStep;
+  const isAligned = difference % scaledStep === BigInt(0);
+  const stepOffset = BigInt(count);
+  const targetStep =
+    direction > 0
+      ? quotient + stepOffset
+      : quotient - stepOffset + (isAligned ? BigInt(0) : BigInt(1));
+  const targetValue = scaledMin + targetStep * scaledStep;
+  const clampedValue = targetValue < scaledMin
+    ? scaledMin
+    : targetValue > scaledMax
+      ? scaledMax
+      : targetValue;
+  return clamp(decimalToNumber(clampedValue, commonExponent), min, max);
+}
+
 export function logPositionToValue(
   position: number,
   min: number,

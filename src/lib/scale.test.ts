@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   logPositionToValue,
+  moveValueBySteps,
   snapValueToStep,
   valueToLogPosition,
   valueToPercentage,
@@ -110,5 +111,14 @@ describe('scale utilities', () => {
     expect(() => snapValueToStep(1, 0, 10, 0)).toThrow();
     expect(() => snapValueToStep(1, 0, 10, Number.NaN)).toThrow();
     expect(() => snapValueToStep(1, 0, 10, Number.POSITIVE_INFINITY)).toThrow();
+  });
+
+  it('moves to the next directional step without overflowing', () => {
+    expect(moveValueBySteps(0.94, 0, 0.95, 0.1, -1)).toBe(0.9);
+    expect(moveValueBySteps(0.94, 0, 0.95, 0.1, 1)).toBe(0.95);
+    expect(moveValueBySteps(0.9, 0, 0.95, 0.1, -1)).toBe(0.8);
+    expect(moveValueBySteps(1e308, 0, Number.MAX_VALUE, 1e308, 1)).toBe(
+      Number.MAX_VALUE,
+    );
   });
 });

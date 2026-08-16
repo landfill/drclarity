@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from
 import type { CSSProperties, KeyboardEvent } from 'react';
 import {
   logPositionToValue,
+  moveValueBySteps,
   snapValueToStep,
   valueToLogPosition,
   valueToPercentage,
@@ -221,12 +222,14 @@ function RangeControl({
   onChange,
   registerReset,
   domId,
+  marksId,
 }: {
   param: Extract<ParameterDefinition, { kind: 'range' }>;
   marks: { at: number; label: string }[];
   onChange: ParameterPanelProps['onChange'];
   registerReset: (reset: () => void) => () => void;
   domId: string;
+  marksId: string;
 }) {
   const {
     value: localValue,
@@ -236,7 +239,6 @@ function RangeControl({
   const scale = param.scale ?? 'linear';
   const format = param.format ?? defaultNumberFormat;
   const displayValue = format(localValue);
-  const marksId = `${domId}-marks`;
   const validMarks = marks.filter(
     (mark) => Number.isFinite(mark.at) && mark.at >= param.min && mark.at <= param.max,
   );
@@ -277,31 +279,21 @@ function RangeControl({
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (param.step === undefined) return;
 
-    const moveBySteps = (direction: -1 | 1, count = 1) => {
-      const endpoint = direction > 0 ? param.max : param.min;
-      const offset = param.step! * count;
-      if (!Number.isFinite(offset)) return endpoint;
-
-      const candidate = localValue + direction * offset;
-      if (!Number.isFinite(candidate)) return endpoint;
-      return Math.min(param.max, Math.max(param.min, candidate));
-    };
-
     let nextValue: number;
     switch (event.key) {
       case 'ArrowUp':
       case 'ArrowRight':
-        nextValue = moveBySteps(1);
+        nextValue = moveValueBySteps(localValue, param.min, param.max, param.step, 1);
         break;
       case 'ArrowDown':
       case 'ArrowLeft':
-        nextValue = moveBySteps(-1);
+        nextValue = moveValueBySteps(localValue, param.min, param.max, param.step, -1);
         break;
       case 'PageUp':
-        nextValue = moveBySteps(1, 10);
+        nextValue = moveValueBySteps(localValue, param.min, param.max, param.step, 1, 10);
         break;
       case 'PageDown':
-        nextValue = moveBySteps(-1, 10);
+        nextValue = moveValueBySteps(localValue, param.min, param.max, param.step, -1, 10);
         break;
       case 'Home':
         nextValue = param.min;
@@ -462,7 +454,7 @@ export function ParameterPanel({ params, onChange, onReset, marks = {} }: Parame
 
       <div className={styles.parameterGroup}>
         {params.map((param) => {
-          const domId = `${panelId}-${param.id}`;
+          const domId = `${panelId}-input-${param.id}`;
 
           if (param.kind === 'range') {
             return (
@@ -473,6 +465,7 @@ export function ParameterPanel({ params, onChange, onReset, marks = {} }: Parame
                 onChange={onChange}
                 registerReset={registerReset}
                 domId={domId}
+                marksId={`${panelId}-marks-${param.id}`}
               />
             );
           }
