@@ -33,11 +33,27 @@ export function snapValueToStep(
   const boundedValue = clamp(value, min, max);
   if (boundedValue === min || boundedValue === max) return boundedValue;
 
-  const quotient = (boundedValue - min) / step;
-  const roundingTolerance = Number.EPSILON * Math.max(1, Math.abs(quotient)) * 2;
-  const snappedValue = min + Math.round(quotient + roundingTolerance) * step;
-  const clampedValue = clamp(snappedValue, min, max);
   const precision = Math.max(decimalPlaces(min), decimalPlaces(max), decimalPlaces(step));
+  const arithmeticPrecision = Math.min(
+    15,
+    Math.max(precision, Math.min(decimalPlaces(boundedValue), precision + 3)),
+  );
+  const scaleFactor = 10 ** arithmeticPrecision;
+  const scaledValue = Math.round(boundedValue * scaleFactor);
+  const scaledMin = Math.round(min * scaleFactor);
+  const scaledMax = Math.round(max * scaleFactor);
+  const scaledStep = Math.round(step * scaleFactor);
+  const canUseIntegerArithmetic =
+    Number.isSafeInteger(scaledValue) &&
+    Number.isSafeInteger(scaledMin) &&
+    Number.isSafeInteger(scaledMax) &&
+    Number.isSafeInteger(scaledStep) &&
+    scaledStep > 0;
+  const stepCount = canUseIntegerArithmetic
+    ? Math.round((scaledValue - scaledMin) / scaledStep)
+    : Math.round((boundedValue - min) / step);
+  const snappedValue = min + stepCount * step;
+  const clampedValue = clamp(snappedValue, min, max);
   const normalizedValue =
     precision <= 100 ? Number(clampedValue.toFixed(precision)) : clampedValue;
   return clamp(normalizedValue, min, max);
