@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import type { CSSProperties, KeyboardEvent } from 'react';
 import {
   logPositionToValue,
@@ -101,23 +101,26 @@ function RangeControl({
   marks,
   onChange,
   registerReset,
+  domId,
 }: {
   param: Extract<ParameterDefinition, { kind: 'range' }>;
   marks: { at: number; label: string }[];
   onChange: ParameterPanelProps['onChange'];
   registerReset: (reset: () => void) => () => void;
+  domId: string;
 }) {
-  const [localState, setLocalState] = useState({
-    sourceValue: param.value,
-    value: param.value,
-  });
-  const localValue = Object.is(localState.sourceValue, param.value)
-    ? localState.value
+  const [optimisticState, setOptimisticState] = useState<{
+    sourceValue: number;
+    value: number;
+  } | null>(null);
+  const localValue =
+    optimisticState && Object.is(optimisticState.sourceValue, param.value)
+      ? optimisticState.value
     : param.value;
   const scale = param.scale ?? 'linear';
   const format = param.format ?? defaultNumberFormat;
   const displayValue = format(localValue);
-  const marksId = `${param.id}-marks`;
+  const marksId = `${domId}-marks`;
   const validMarks = marks.filter(
     (mark) => Number.isFinite(mark.at) && mark.at >= param.min && mark.at <= param.max,
   );
@@ -132,13 +135,14 @@ function RangeControl({
 
   const { schedule: emitChange, cancel: cancelPendingChange } = useRafThrottledCallback(
     (value: number) => {
+      setOptimisticState(null);
       onChange(param.id, value);
     },
   );
   const resetPendingChange = useCallback(() => {
     cancelPendingChange();
-    setLocalState({ sourceValue: param.value, value: param.value });
-  }, [cancelPendingChange, param.value]);
+    setOptimisticState(null);
+  }, [cancelPendingChange]);
 
   useEffect(
     () => registerReset(resetPendingChange),
@@ -150,7 +154,7 @@ function RangeControl({
       param.step === undefined
         ? value
         : snapValueToStep(value, param.min, param.max, param.step);
-    setLocalState({ sourceValue: param.value, value: steppedValue });
+    setOptimisticState({ sourceValue: param.value, value: steppedValue });
     emitChange(steppedValue);
   };
 
@@ -202,16 +206,16 @@ function RangeControl({
   return (
     <div className={styles.parameterRow}>
       <div className={styles.labelRow}>
-        <label htmlFor={param.id} className={styles.label}>
+        <label htmlFor={domId} className={styles.label}>
           {param.label}
         </label>
-        <output htmlFor={param.id} className={styles.valueDisplay}>
+        <output htmlFor={domId} className={styles.valueDisplay}>
           {displayValue}
         </output>
       </div>
 
       <input
-        id={param.id}
+        id={domId}
         type="range"
         min={sliderMin}
         max={sliderMax}
@@ -252,6 +256,7 @@ function RangeControl({
 }
 
 export function ParameterPanel({ params, onChange, onReset, marks = {} }: ParameterPanelProps) {
+  const panelId = useId();
   const rangeResetCallbacksRef = useRef(new Set<() => void>());
   const registerRangeReset = useCallback((reset: () => void) => {
     rangeResetCallbacksRef.current.add(reset);
@@ -274,6 +279,8 @@ export function ParameterPanel({ params, onChange, onReset, marks = {} }: Parame
 
       <div className={styles.parameterGroup}>
         {params.map((param) => {
+          const domId = `${panelId}-${param.id}`;
+
           if (param.kind === 'range') {
             return (
               <RangeControl
@@ -282,16 +289,17 @@ export function ParameterPanel({ params, onChange, onReset, marks = {} }: Parame
                 marks={marks[param.id] ?? []}
                 onChange={onChange}
                 registerReset={registerRangeReset}
+                domId={domId}
               />
             );
           }
 
           if (param.kind === 'toggle') {
             return (
-              <label key={param.id} htmlFor={param.id} className={styles.toggleRow}>
+              <label key={param.id} htmlFor={domId} className={styles.toggleRow}>
                 <span className={styles.label}>{param.label}</span>
                 <input
-                  id={param.id}
+                  id={domId}
                   type="checkbox"
                   checked={param.value}
                   onChange={(event) => onChange(param.id, event.currentTarget.checked)}
@@ -303,11 +311,11 @@ export function ParameterPanel({ params, onChange, onReset, marks = {} }: Parame
 
           return (
             <div key={param.id} className={styles.parameterRow}>
-              <label htmlFor={param.id} className={styles.label}>
+              <label htmlFor={domId} className={styles.label}>
                 {param.label}
               </label>
               <select
-                id={param.id}
+                id={domId}
                 value={param.value}
                 onChange={(event) => onChange(param.id, event.currentTarget.value)}
                 className={styles.selectInput}

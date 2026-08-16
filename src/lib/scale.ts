@@ -13,6 +13,12 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
+function decimalPlaces(value: number): number {
+  const [coefficient, exponentText = '0'] = value.toString().toLowerCase().split('e');
+  const fractionLength = coefficient.split('.')[1]?.length ?? 0;
+  return Math.max(0, fractionLength - Number(exponentText));
+}
+
 export function snapValueToStep(
   value: number,
   min: number,
@@ -28,7 +34,9 @@ export function snapValueToStep(
   if (boundedValue === min || boundedValue === max) return boundedValue;
 
   const snappedValue = min + Math.round((boundedValue - min) / step) * step;
-  return Number(clamp(snappedValue, min, max).toPrecision(15));
+  const clampedValue = clamp(snappedValue, min, max);
+  const precision = Math.max(decimalPlaces(min), decimalPlaces(step));
+  return precision <= 100 ? Number(clampedValue.toFixed(precision)) : clampedValue;
 }
 
 export function logPositionToValue(
