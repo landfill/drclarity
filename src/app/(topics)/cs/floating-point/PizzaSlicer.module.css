@@ -154,6 +154,19 @@
   }
 }
 
+.explainingSection {
+  width: 100%;
+}
+
+/* 1컬럼 폭(1100px 미만)에서는 애니메이션 카드를 explainingSection 내에서 sticky 로 고정 */
+@media (max-width: 1099px) {
+  .stickySection {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 5;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .highlightDec {
     transition: none;

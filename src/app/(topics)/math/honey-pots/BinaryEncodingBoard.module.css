@@ -5,6 +5,32 @@
   width: 100%;
 }
 
+.stageContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  width: 100%;
+}
+
+.problemVisual {
+  margin: 0;
+  text-align: center;
+}
+
+.problemVisual img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+.problemVisual figcaption {
+  margin-top: var(--space-xs);
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
 .bridgePanel {
   padding: var(--space-sm) var(--space-md);
   background: var(--color-note-bg);

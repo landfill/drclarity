@@ -138,12 +138,14 @@ export default function GeometryAreaClient() {
   }, [animationCb]);
 
   return (
-    <TopicLayout 
+    <TopicLayout
+      wide
       title={<>빨간색 영역의 넓이는?</>}
       subtitle="큰 사분원(반지름 6)에서 두 개의 흰색 반원을 제외한 빨간색 영역의 넓이를 구해보세요."
     >
       <SolutionStepper
         steps={GEOMETRY_STEPS}
+        split
         onStepChange={(idx) => setStepIndex(idx)}
       >
         <div className={styles.canvasSlot}>

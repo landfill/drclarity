@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import styles from './SolutionStepper.module.css';
 
 export interface SolutionStep {
@@ -26,7 +26,6 @@ export function SolutionStepper({
   split = false
 }: SolutionStepperProps) {
   const [currentStep, setCurrentStep] = useState(0);
-  const controlsRef = useRef<HTMLDivElement>(null);
 
   const startLabel = labels?.start || '풀이 시작';
   const prevLabel = labels?.prev || '이전 단계';
@@ -47,39 +46,28 @@ export function SolutionStepper({
     setCurrentStep(targetStep);
     onStepChange?.(targetStep, nextStepData);
 
-    requestAnimationFrame(() => {
-      const el = controlsRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const headerH = parseFloat(
-        getComputedStyle(document.documentElement).getPropertyValue('--header-h')
-      ) || 70;
-      if (rect.top >= headerH && rect.bottom <= window.innerHeight) return;
-
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      el.scrollIntoView({
-        behavior: reduceMotion ? 'auto' : 'smooth',
-        block: 'start'
-      });
-    });
   };
 
   const controlsClass = `${styles.controls} ${split ? styles.controlsSplit : ''}`.trim();
 
   return (
-    <div ref={controlsRef} className={controlsClass}>
+    <div className={controlsClass}>
       <div className={styles.stepText} aria-live="polite">
         {stepData.body}
-        {stepData.formula && (
+        <div
+          className={`${styles.formulaSlot} ${stepData.formula ? styles.slotVisible : ''}`}
+          aria-hidden={!stepData.formula}
+        >
           <div className={styles.formulaWrap}>
             <span className={styles.formula}>{stepData.formula}</span>
           </div>
-        )}
-        {stepData.hint && (
-          <p className={styles.stepHint}>
-            <strong>직접 확인:</strong> {stepData.hint}
-          </p>
-        )}
+        </div>
+        <p
+          className={`${styles.stepHint} ${stepData.hint ? styles.slotVisible : ''}`}
+          aria-hidden={!stepData.hint}
+        >
+          <strong>직접 확인:</strong> {stepData.hint}
+        </p>
       </div>
 
       {children && <div className={styles.stage}>{children}</div>}
