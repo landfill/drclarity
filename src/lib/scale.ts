@@ -87,7 +87,11 @@ export function snapValueToStep(
   const snappedNumber = clamp(decimalToNumber(selectedValue, commonExponent), min, max);
   const numericResolution =
     Number.EPSILON * Math.max(Math.abs(boundedValue), Math.abs(snappedNumber));
-  return Math.abs(boundedValue - snappedNumber) <= numericResolution
+  const independentlyCalculatedStep = boundedValue / step - min / step;
+  const preservesBinaryAlignment =
+    Math.abs(boundedValue - snappedNumber) <= numericResolution &&
+    Number.isInteger(independentlyCalculatedStep);
+  return preservesBinaryAlignment
     ? boundedValue
     : snappedNumber;
 }
