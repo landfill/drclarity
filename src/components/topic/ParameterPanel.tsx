@@ -330,6 +330,9 @@ function RangeControl({
         onChange={(event) => handleChange(event.currentTarget.valueAsNumber)}
         onKeyDown={handleKeyDown}
         className={styles.rangeInput}
+        aria-valuemin={param.min}
+        aria-valuemax={param.max}
+        aria-valuenow={localValue}
         aria-valuetext={displayValue}
         aria-describedby={validMarks.length > 0 ? marksId : undefined}
       />
