@@ -57,7 +57,12 @@ export function snapValueToStep(
     Math.abs(fraction - 0.5) <= tieTolerance
       ? lowerStepCount + 1
       : Math.round(quotient);
-  const snappedValue = min + stepCount * step;
+  let snappedValue = min + stepCount * step;
+  if (!Number.isFinite(snappedValue)) {
+    const magnitude = Math.max(Math.abs(min), Math.abs(max), Math.abs(step));
+    const scaledValue = min / magnitude + stepCount * (step / magnitude);
+    snappedValue = clamp(scaledValue, min / magnitude, max / magnitude) * magnitude;
+  }
   const clampedValue = clamp(snappedValue, min, max);
   const normalizedValue =
     precision <= 100 ? Number(clampedValue.toFixed(precision)) : clampedValue;
