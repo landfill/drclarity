@@ -434,15 +434,15 @@ function SelectControl({
   );
   const optionValuesKey = JSON.stringify(param.options.map((option) => option.value));
   const previousOptionValuesKeyRef = useRef(optionValuesKey);
+  const valueIsAvailable = param.options.some((option) => option.value === value);
 
   useLayoutEffect(() => {
-    if (previousOptionValuesKeyRef.current !== optionValuesKey) reset();
+    const optionsChanged = previousOptionValuesKeyRef.current !== optionValuesKey;
+    if (optionsChanged && !valueIsAvailable) reset();
     previousOptionValuesKeyRef.current = optionValuesKey;
-  }, [optionValuesKey, reset]);
+  }, [optionValuesKey, reset, valueIsAvailable]);
 
-  const presentedValue = param.options.some((option) => option.value === value)
-    ? value
-    : (param.options[0]?.value ?? '');
+  const presentedValue = valueIsAvailable ? value : (param.options[0]?.value ?? '');
 
   useEffect(() => registerReset(reset), [registerReset, reset]);
 
