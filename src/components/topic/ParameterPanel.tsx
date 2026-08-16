@@ -257,6 +257,28 @@ function RangeControl({
     [registerReset, resetPendingChange],
   );
 
+  const previousConstraintsRef = useRef({
+    min: param.min,
+    max: param.max,
+    step: param.step,
+    scale,
+  });
+  useLayoutEffect(() => {
+    const previous = previousConstraintsRef.current;
+    const constraintsChanged =
+      !Object.is(previous.min, param.min) ||
+      !Object.is(previous.max, param.max) ||
+      !Object.is(previous.step, param.step) ||
+      previous.scale !== scale;
+    if (constraintsChanged) resetPendingChange();
+    previousConstraintsRef.current = {
+      min: param.min,
+      max: param.max,
+      step: param.step,
+      scale,
+    };
+  }, [param.max, param.min, param.step, resetPendingChange, scale]);
+
   const updateValue = (value: number) => {
     const steppedValue =
       param.step === undefined
@@ -461,11 +483,14 @@ export function ParameterPanel({ params, onChange, onReset, marks = {} }: Parame
           const domId = `${panelId}-input-${param.id}`;
 
           if (param.kind === 'range') {
+            const paramMarks = Object.prototype.hasOwnProperty.call(marks, param.id)
+              ? marks[param.id]
+              : undefined;
             return (
               <RangeControl
                 key={param.id}
                 param={param}
-                marks={marks[param.id] ?? []}
+                marks={paramMarks ?? []}
                 onChange={onChange}
                 registerReset={registerReset}
                 domId={domId}
