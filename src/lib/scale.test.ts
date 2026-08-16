@@ -30,4 +30,11 @@ describe('scale utilities', () => {
     expect(() => logPositionToValue(10, 0, 100)).toThrow();
     expect(() => valueToLogPosition(0, 1, 100)).toThrow();
   });
+
+  it('rejects non-finite logarithmic scale resolutions', () => {
+    expect(() => logPositionToValue(10, 1, 100, Number.NaN)).toThrow();
+    expect(() => logPositionToValue(10, 1, 100, Number.POSITIVE_INFINITY)).toThrow();
+    expect(() => valueToLogPosition(10, 1, 100, Number.NaN)).toThrow();
+    expect(() => valueToLogPosition(10, 1, 100, Number.POSITIVE_INFINITY)).toThrow();
+  });
 });

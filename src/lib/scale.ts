@@ -20,8 +20,10 @@ export function logPositionToValue(
   resolution = 1000,
 ): number {
   assertBounds(min, max, 'log');
-  if (!Number.isFinite(position) || resolution <= 0) {
-    throw new Error('Log scale position must be finite and resolution must be greater than 0');
+  if (!Number.isFinite(position) || !Number.isFinite(resolution) || resolution <= 0) {
+    throw new Error(
+      'Log scale position and resolution must be finite, with resolution greater than 0',
+    );
   }
 
   const progress = clamp(position, 0, resolution) / resolution;
@@ -35,8 +37,10 @@ export function valueToLogPosition(
   resolution = 1000,
 ): number {
   assertBounds(min, max, 'log');
-  if (!Number.isFinite(value) || value <= 0 || resolution <= 0) {
-    throw new Error('Log scale value and resolution must be greater than 0');
+  if (!Number.isFinite(value) || !Number.isFinite(resolution) || value <= 0 || resolution <= 0) {
+    throw new Error(
+      'Log scale value must be positive and resolution must be finite and greater than 0',
+    );
   }
 
   const boundedValue = clamp(value, min, max);

@@ -128,26 +128,26 @@
 .mark {
   position: absolute;
   left: var(--mark-position);
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  align-items: flex-start;
-  max-width: 8rem;
+  width: 0;
   color: var(--color-muted);
   font-size: 0.75rem;
   line-height: 1.15;
-  transform: translateX(var(--mark-shift));
 }
 
 .markTick {
+  display: block;
   width: 1px;
   height: 0.4rem;
-  margin-left: 50%;
   background: var(--color-muted-2);
 }
 
 .markLabel {
+  display: block;
+  width: max-content;
+  max-width: 8rem;
+  margin-top: 0.15rem;
   overflow-wrap: anywhere;
+  transform: translateX(var(--mark-shift));
 }
 
 .toggleRow {
@@ -198,7 +198,7 @@
     align-items: flex-start;
   }
 
-  .mark {
+  .markLabel {
     max-width: 5.5rem;
     font-size: 0.7rem;
   }

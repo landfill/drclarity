@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import {
   logPositionToValue,
@@ -51,7 +51,7 @@ type MarkStyle = CSSProperties & {
 
 function useRafThrottledCallback<TArgs extends unknown[]>(
   callback: (...args: TArgs) => void,
-): (...args: TArgs) => void {
+): { schedule: (...args: TArgs) => void; cancel: () => void } {
   const callbackRef = useRef(callback);
   const frameRef = useRef<number | null>(null);
   const latestArgsRef = useRef<TArgs | null>(null);
@@ -60,17 +60,17 @@ function useRafThrottledCallback<TArgs extends unknown[]>(
     callbackRef.current = callback;
   }, [callback]);
 
-  useEffect(() => {
-    return () => {
-      if (frameRef.current !== null) {
-        cancelAnimationFrame(frameRef.current);
-      }
-      frameRef.current = null;
-      latestArgsRef.current = null;
-    };
+  const cancel = useCallback(() => {
+    if (frameRef.current !== null) {
+      cancelAnimationFrame(frameRef.current);
+    }
+    frameRef.current = null;
+    latestArgsRef.current = null;
   }, []);
 
-  return useCallback((...args: TArgs) => {
+  useEffect(() => cancel, [cancel]);
+
+  const schedule = useCallback((...args: TArgs) => {
     latestArgsRef.current = args;
     if (frameRef.current !== null) return;
 
@@ -81,6 +81,8 @@ function useRafThrottledCallback<TArgs extends unknown[]>(
       if (latestArgs) callbackRef.current(...latestArgs);
     });
   }, []);
+
+  return { schedule, cancel };
 }
 
 function defaultNumberFormat(value: number): string {
@@ -97,15 +99,23 @@ function RangeControl({
   param,
   marks,
   onChange,
+  registerReset,
 }: {
   param: Extract<ParameterDefinition, { kind: 'range' }>;
   marks: { at: number; label: string }[];
   onChange: ParameterPanelProps['onChange'];
+  registerReset: (reset: () => void) => () => void;
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [localState, setLocalState] = useState({
+    sourceValue: param.value,
+    value: param.value,
+  });
+  const localValue = Object.is(localState.sourceValue, param.value)
+    ? localState.value
+    : param.value;
   const scale = param.scale ?? 'linear';
   const format = param.format ?? defaultNumberFormat;
-  const displayValue = format(param.value);
+  const displayValue = format(localValue);
   const marksId = `${param.id}-marks`;
   const validMarks = marks.filter(
     (mark) => Number.isFinite(mark.at) && mark.at >= param.min && mark.at <= param.max,
@@ -113,27 +123,33 @@ function RangeControl({
 
   const sliderValue =
     scale === 'log'
-      ? valueToLogPosition(param.value, param.min, param.max, LOG_SLIDER_RESOLUTION)
-      : param.value;
+      ? valueToLogPosition(localValue, param.min, param.max, LOG_SLIDER_RESOLUTION)
+      : localValue;
   const sliderMin = scale === 'log' ? 0 : param.min;
   const sliderMax = scale === 'log' ? LOG_SLIDER_RESOLUTION : param.max;
   const sliderStep = scale === 'log' ? 1 : (param.step ?? 1);
 
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.value = sliderValue.toString();
-    }
-  }, [sliderValue]);
+  const { schedule: emitChange, cancel: cancelPendingChange } = useRafThrottledCallback(
+    (value: number) => {
+      onChange(param.id, value);
+    },
+  );
+  const resetPendingChange = useCallback(() => {
+    cancelPendingChange();
+    setLocalState({ sourceValue: param.value, value: param.value });
+  }, [cancelPendingChange, param.value]);
 
-  const emitChange = useRafThrottledCallback((value: number) => {
-    onChange(param.id, value);
-  });
+  useEffect(
+    () => registerReset(resetPendingChange),
+    [registerReset, resetPendingChange],
+  );
 
   const handleChange = (rawValue: number) => {
     const value =
       scale === 'log'
         ? logPositionToValue(rawValue, param.min, param.max, LOG_SLIDER_RESOLUTION)
         : rawValue;
+    setLocalState({ sourceValue: param.value, value });
     emitChange(value);
   };
 
@@ -149,13 +165,12 @@ function RangeControl({
       </div>
 
       <input
-        ref={inputRef}
         id={param.id}
         type="range"
         min={sliderMin}
         max={sliderMax}
         step={sliderStep}
-        defaultValue={sliderValue}
+        value={sliderValue}
         onChange={(event) => handleChange(event.currentTarget.valueAsNumber)}
         className={styles.rangeInput}
         aria-valuetext={displayValue}
@@ -190,11 +205,21 @@ function RangeControl({
 }
 
 export function ParameterPanel({ params, onChange, onReset, marks = {} }: ParameterPanelProps) {
+  const rangeResetCallbacksRef = useRef(new Set<() => void>());
+  const registerRangeReset = useCallback((reset: () => void) => {
+    rangeResetCallbacksRef.current.add(reset);
+    return () => rangeResetCallbacksRef.current.delete(reset);
+  }, []);
+  const handleReset = useCallback(() => {
+    rangeResetCallbacksRef.current.forEach((reset) => reset());
+    onReset?.();
+  }, [onReset]);
+
   return (
     <section className={styles.panel} aria-label="파라미터 설정">
       {onReset && (
         <div className={styles.toolbar}>
-          <button type="button" onClick={onReset} className={styles.resetButton}>
+          <button type="button" onClick={handleReset} className={styles.resetButton}>
             초기화
           </button>
         </div>
@@ -209,6 +234,7 @@ export function ParameterPanel({ params, onChange, onReset, marks = {} }: Parame
                 param={param}
                 marks={marks[param.id] ?? []}
                 onChange={onChange}
+                registerReset={registerRangeReset}
               />
             );
           }
