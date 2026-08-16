@@ -13,14 +13,29 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-function decimalPlaces(value: number): number {
-  const [coefficient, exponentText = '0'] = value.toString().toLowerCase().split('e');
-  const fractionLength = coefficient.split('.')[1]?.length ?? 0;
-  return Math.max(0, fractionLength - Number(exponentText));
+function decimalParts(value: number): { coefficient: bigint; exponent: number } {
+  const [coefficientText, exponentText = '0'] = value.toString().toLowerCase().split('e');
+  const negative = coefficientText.startsWith('-');
+  const unsignedCoefficient = negative ? coefficientText.slice(1) : coefficientText;
+  const [whole, fraction = ''] = unsignedCoefficient.split('.');
+  const coefficient = BigInt(`${negative ? '-' : ''}${whole}${fraction}`);
+  return { coefficient, exponent: Number(exponentText) - fraction.length };
 }
 
-function normalizedDistance(left: number, right: number, scale: number): number {
-  return Math.abs(left / scale - right / scale);
+function scaleDecimal(
+  value: { coefficient: bigint; exponent: number },
+  exponent: number,
+): bigint {
+  return value.coefficient * BigInt(10) ** BigInt(value.exponent - exponent);
+}
+
+function decimalToNumber(coefficient: bigint, exponent: number): number {
+  return Number(`${coefficient.toString()}e${exponent}`);
+}
+
+function bigintDistance(left: bigint, right: bigint): bigint {
+  const difference = left - right;
+  return difference < BigInt(0) ? -difference : difference;
 }
 
 function logarithmicDistance(upper: number, lower: number): number {
@@ -45,50 +60,36 @@ export function snapValueToStep(
   const boundedValue = clamp(value, min, max);
   if (boundedValue === min || boundedValue === max) return boundedValue;
 
-  const precision = Math.max(decimalPlaces(min), decimalPlaces(max), decimalPlaces(step));
-  const difference = boundedValue - min;
-  const quotient = Number.isFinite(difference)
-    ? difference / step
-    : boundedValue / step - min / step;
-  if (!Number.isFinite(quotient)) {
-    // The step is below the numeric resolution at this magnitude, so snapping
-    // cannot produce a distinct JavaScript number.
-    return boundedValue;
-  }
-  const lowerStepCount = Math.floor(quotient);
-  const fraction = quotient - lowerStepCount;
-  const quotientTolerance = Number.EPSILON * Math.max(1, Math.abs(quotient)) * 2;
-  const subtractionTolerance =
-    (Number.EPSILON * (Math.abs(boundedValue) + Math.abs(min)) * 2) / step;
-  const tieTolerance = Math.min(
-    1e-12,
-    Math.max(quotientTolerance, subtractionTolerance),
+  const valueParts = decimalParts(boundedValue);
+  const minParts = decimalParts(min);
+  const maxParts = decimalParts(max);
+  const stepParts = decimalParts(step);
+  const commonExponent = Math.min(
+    valueParts.exponent,
+    minParts.exponent,
+    maxParts.exponent,
+    stepParts.exponent,
   );
-  const stepCount =
-    Math.abs(fraction - 0.5) <= tieTolerance
-      ? lowerStepCount + 1
-      : Math.round(quotient);
-  let snappedValue = min + stepCount * step;
-  if (!Number.isFinite(snappedValue)) {
-    const magnitude = Math.max(Math.abs(min), Math.abs(max), Math.abs(step));
-    const scaledValue = min / magnitude + stepCount * (step / magnitude);
-    snappedValue = clamp(scaledValue, min / magnitude, max / magnitude) * magnitude;
-  }
-  const clampedValue = clamp(snappedValue, min, max);
-  const normalizedValue =
-    precision <= 100 ? Number(clampedValue.toFixed(precision)) : clampedValue;
-  const steppedCandidate = clamp(normalizedValue, min, max);
-  if (steppedCandidate === max) return max;
+  const scaledValue = scaleDecimal(valueParts, commonExponent);
+  const scaledMin = scaleDecimal(minParts, commonExponent);
+  const scaledMax = scaleDecimal(maxParts, commonExponent);
+  const scaledStep = scaleDecimal(stepParts, commonExponent);
+  const difference = scaledValue - scaledMin;
+  let stepCount = difference / scaledStep;
+  if ((difference % scaledStep) * BigInt(2) >= scaledStep) stepCount += BigInt(1);
 
-  const distanceScale = Math.max(
-    Math.abs(min),
-    Math.abs(boundedValue),
-    Math.abs(steppedCandidate),
-    Math.abs(max),
-  );
-  const steppedDistance = normalizedDistance(boundedValue, steppedCandidate, distanceScale);
-  const endpointDistance = normalizedDistance(boundedValue, max, distanceScale);
-  return endpointDistance <= steppedDistance ? max : steppedCandidate;
+  const steppedValue = scaledMin + stepCount * scaledStep;
+  const steppedCandidate = steppedValue > scaledMax ? scaledMax : steppedValue;
+  const selectedValue =
+    bigintDistance(scaledValue, scaledMax) <= bigintDistance(scaledValue, steppedCandidate)
+      ? scaledMax
+      : steppedCandidate;
+  const snappedNumber = clamp(decimalToNumber(selectedValue, commonExponent), min, max);
+  const numericResolution =
+    Number.EPSILON * Math.max(Math.abs(boundedValue), Math.abs(snappedNumber));
+  return Math.abs(boundedValue - snappedNumber) <= numericResolution
+    ? boundedValue
+    : snappedNumber;
 }
 
 export function logPositionToValue(
