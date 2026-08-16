@@ -22,6 +22,10 @@ describe('scale utilities', () => {
   it('positions linear and logarithmic marks correctly', () => {
     expect(valueToPercentage(25, 0, 100, 'linear')).toBeCloseTo(25);
     expect(valueToPercentage(10, 1, 100, 'log')).toBeCloseTo(50);
+    expect(valueToPercentage(0, -Number.MAX_VALUE, Number.MAX_VALUE)).toBeCloseTo(50);
+    expect(
+      valueToPercentage(Number.MAX_VALUE, -Number.MAX_VALUE, Number.MAX_VALUE),
+    ).toBe(100);
   });
 
   it('clamps values outside the configured range', () => {
@@ -55,6 +59,8 @@ describe('scale utilities', () => {
     expect(snapValueToStep(1.005, 0, 2, 0.01)).toBe(1.01);
     expect(snapValueToStep(0.4995, 0, 2, 1)).toBe(0);
     expect(snapValueToStep(0.14996, 0, 1, 0.1)).toBe(0.1);
+    expect(snapValueToStep(0.92, 0, 0.95, 0.1)).toBe(0.9);
+    expect(snapValueToStep(0.94, 0, 0.95, 0.1)).toBe(0.95);
     expect(
       snapValueToStep(1_000_000_000_000_000, 0, 2_000_000_000_000_000, 1),
     ).toBe(1_000_000_000_000_000);

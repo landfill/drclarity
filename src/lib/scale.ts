@@ -19,6 +19,10 @@ function decimalPlaces(value: number): number {
   return Math.max(0, fractionLength - Number(exponentText));
 }
 
+function normalizedDistance(left: number, right: number, scale: number): number {
+  return Math.abs(left / scale - right / scale);
+}
+
 export function snapValueToStep(
   value: number,
   min: number,
@@ -49,7 +53,18 @@ export function snapValueToStep(
   const clampedValue = clamp(snappedValue, min, max);
   const normalizedValue =
     precision <= 100 ? Number(clampedValue.toFixed(precision)) : clampedValue;
-  return clamp(normalizedValue, min, max);
+  const steppedCandidate = clamp(normalizedValue, min, max);
+  if (steppedCandidate === max) return max;
+
+  const distanceScale = Math.max(
+    Math.abs(min),
+    Math.abs(boundedValue),
+    Math.abs(steppedCandidate),
+    Math.abs(max),
+  );
+  const steppedDistance = normalizedDistance(boundedValue, steppedCandidate, distanceScale);
+  const endpointDistance = normalizedDistance(boundedValue, max, distanceScale);
+  return endpointDistance <= steppedDistance ? max : steppedCandidate;
 }
 
 export function logPositionToValue(
@@ -101,5 +116,13 @@ export function valueToPercentage(
   if (scale === 'log') {
     return valueToLogPosition(value, min, max, 100);
   }
-  return ((clamp(value, min, max) - min) / (max - min)) * 100;
+  const boundedValue = clamp(value, min, max);
+  const span = max - min;
+  if (Number.isFinite(span)) {
+    return ((boundedValue - min) / span) * 100;
+  }
+
+  const magnitude = Math.max(Math.abs(min), Math.abs(max));
+  const scaledMin = min / magnitude;
+  return ((boundedValue / magnitude - scaledMin) / (max / magnitude - scaledMin)) * 100;
 }
