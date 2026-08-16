@@ -8,7 +8,7 @@ import {
   valueToLogPosition,
   valueToPercentage,
 } from '@/lib/scale';
-import { useAnimationFrame } from '@/hooks/useAnimationFrame';
+import { useNextAnimationFrame } from '@/hooks/useAnimationFrame';
 import styles from './ParameterPanel.module.css';
 
 const LOG_SLIDER_RESOLUTION = 1000;
@@ -73,7 +73,7 @@ function useRafThrottledCallback<TArgs extends unknown[]>(
 
   useEffect(() => cancel, [cancel]);
 
-  useAnimationFrame(
+  useNextAnimationFrame(
     frameRequest.active
       ? () => {
           const latestArgs = latestArgsRef.current;
@@ -83,7 +83,6 @@ function useRafThrottledCallback<TArgs extends unknown[]>(
           if (latestArgs) callbackRef.current(...latestArgs);
         }
       : null,
-    0,
     [frameRequest.active, frameRequest.version],
   );
 
@@ -108,30 +107,36 @@ function useRafThrottledValue<T>(
   const [localState, setLocalState] = useState<{
     controlledValue: T;
     optimisticValue: T;
+    optimisticSequence: number;
     hasOptimisticValue: boolean;
-    pendingAcknowledgements: T[];
+    pendingAcknowledgements: { sequence: number; value: T }[];
   }>({
     controlledValue,
     optimisticValue: controlledValue,
+    optimisticSequence: 0,
     hasOptimisticValue: false,
     pendingAcknowledgements: [],
   });
   const controlledValueIsCurrent = Object.is(localState.controlledValue, controlledValue);
   if (!controlledValueIsCurrent) {
-    const acknowledgementIndex = localState.pendingAcknowledgements.findIndex((value) =>
-      Object.is(value, controlledValue),
+    const acknowledgementIndex = localState.pendingAcknowledgements.findIndex((entry) =>
+      Object.is(entry.value, controlledValue),
     );
     const isAcknowledgement = acknowledgementIndex >= 0;
+    const acknowledgedSequence = isAcknowledgement
+      ? localState.pendingAcknowledgements[acknowledgementIndex].sequence
+      : -1;
     const remainingAcknowledgements = isAcknowledgement
       ? localState.pendingAcknowledgements.slice(acknowledgementIndex + 1)
       : [];
     const keepOptimisticValue =
       isAcknowledgement &&
       localState.hasOptimisticValue &&
-      !Object.is(localState.optimisticValue, controlledValue);
+      localState.optimisticSequence > acknowledgedSequence;
     setLocalState({
       controlledValue,
       optimisticValue: keepOptimisticValue ? localState.optimisticValue : controlledValue,
+      optimisticSequence: localState.optimisticSequence,
       hasOptimisticValue: keepOptimisticValue,
       pendingAcknowledgements: remainingAcknowledgements,
     });
@@ -141,21 +146,24 @@ function useRafThrottledValue<T>(
       ? localState.optimisticValue
       : controlledValue;
 
-  const pendingAcknowledgementsRef = useRef<T[]>([]);
-  const { schedule, cancel } = useRafThrottledCallback((nextValue: T) => {
-    pendingAcknowledgementsRef.current.push(nextValue);
-    setLocalState((currentState) => ({
-      ...currentState,
-      pendingAcknowledgements: [...currentState.pendingAcknowledgements, nextValue],
-    }));
-    onCommit(nextValue);
-  });
+  const nextSequenceRef = useRef(0);
+  const pendingAcknowledgementsRef = useRef<{ sequence: number; value: T }[]>([]);
+  const { schedule, cancel } = useRafThrottledCallback(
+    (emission: { sequence: number; value: T }) => {
+      pendingAcknowledgementsRef.current.push(emission);
+      setLocalState((currentState) => ({
+        ...currentState,
+        pendingAcknowledgements: [...currentState.pendingAcknowledgements, emission],
+      }));
+      onCommit(emission.value);
+    },
+  );
   const previousControlledValueRef = useRef(controlledValue);
 
   useLayoutEffect(() => {
     if (!Object.is(previousControlledValueRef.current, controlledValue)) {
-      const acknowledgementIndex = pendingAcknowledgementsRef.current.findIndex((value) =>
-        Object.is(value, controlledValue),
+      const acknowledgementIndex = pendingAcknowledgementsRef.current.findIndex((entry) =>
+        Object.is(entry.value, controlledValue),
       );
       if (acknowledgementIndex >= 0) {
         pendingAcknowledgementsRef.current = pendingAcknowledgementsRef.current.slice(
@@ -171,13 +179,16 @@ function useRafThrottledValue<T>(
 
   const update = useCallback(
     (nextValue: T) => {
+      const sequence = nextSequenceRef.current + 1;
+      nextSequenceRef.current = sequence;
       setLocalState((currentState) => ({
         controlledValue,
         optimisticValue: nextValue,
+        optimisticSequence: sequence,
         hasOptimisticValue: true,
         pendingAcknowledgements: currentState.pendingAcknowledgements,
       }));
-      schedule(nextValue);
+      schedule({ sequence, value: nextValue });
     },
     [controlledValue, schedule],
   );

@@ -53,3 +53,22 @@ export function useAnimationFrame(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }
+
+export function useNextAnimationFrame(
+  callback: (() => void) | null,
+  deps: React.DependencyList,
+): void {
+  const callbackRef = useRef(callback);
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  useEffect(() => {
+    if (!callbackRef.current) return;
+
+    const requestId = requestAnimationFrame(() => callbackRef.current?.());
+    return () => cancelAnimationFrame(requestId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+}
