@@ -43,3 +43,6 @@ src/content/registry.generated.ts
 
 # QA 스크린샷 (리뷰용 산출물, 저장소에 보관하지 않음)
 qa/shots/
+
+# 브라우저 자동화 도구 산출물 (콘솔 로그/스냅샷)
+.playwright-mcp/
