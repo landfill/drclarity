@@ -1,8 +1,8 @@
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
-import { AnimationCard } from '@/components/topic/AnimationCard';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { PizzaSlicer } from './PizzaSlicer';
 import { CalculatorReveal } from './CalculatorReveal';
+import { FloatingPointAnimationCard } from './FloatingPointAnimationCard';
 import meta from './meta';
 import styles from './PizzaSlicer.module.css';
 import { Metadata } from 'next';
@@ -18,9 +18,9 @@ export default function FloatingPointPage() {
       title={<>왜 <Highlight>0.1 + 0.2</Highlight>는 0.3이 아닐까요?</>}
     >
       <div className={styles.explainingSection}>
-        <AnimationCard className={styles.stickySection}>
+        <FloatingPointAnimationCard>
           <PizzaSlicer />
-        </AnimationCard>
+        </FloatingPointAnimationCard>
 
         <ExplanationBox title="부동소수점 오류란?">
           <p>

@@ -158,7 +158,16 @@
   width: 100%;
 }
 
-/* 1컬럼 폭(1100px 미만)에서는 애니메이션 카드를 explainingSection 내에서 sticky 로 고정 */
+.cardWrapper {
+  width: 100%;
+  position: static;
+}
+
+/* 
+ * 1컬럼 폭(1100px 미만)에서 카드가 헤더 아래 가용 높이에 들어갈 때만 sticky 고정.
+ * (SolutionStepper 와 동일하게 window.innerHeight - headerHeight - 16 >= 카드 높이 조건 충족 시 .stickySection 적용)
+ * 가로모드 폰(예: 844x390)처럼 낮은 뷰포트에서는 카드가 가용 공간을 초과하여 하단이 잘리는 문제를 방지하기 위해 일반 흐름(static)을 유지합니다.
+ */
 @media (max-width: 1099px) {
   .stickySection {
     position: sticky;
