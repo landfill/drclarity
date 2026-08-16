@@ -277,21 +277,31 @@ function RangeControl({
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (param.step === undefined) return;
 
+    const moveBySteps = (direction: -1 | 1, count = 1) => {
+      const endpoint = direction > 0 ? param.max : param.min;
+      const offset = param.step! * count;
+      if (!Number.isFinite(offset)) return endpoint;
+
+      const candidate = localValue + direction * offset;
+      if (!Number.isFinite(candidate)) return endpoint;
+      return Math.min(param.max, Math.max(param.min, candidate));
+    };
+
     let nextValue: number;
     switch (event.key) {
       case 'ArrowUp':
       case 'ArrowRight':
-        nextValue = localValue + param.step;
+        nextValue = moveBySteps(1);
         break;
       case 'ArrowDown':
       case 'ArrowLeft':
-        nextValue = localValue - param.step;
+        nextValue = moveBySteps(-1);
         break;
       case 'PageUp':
-        nextValue = localValue + param.step * 10;
+        nextValue = moveBySteps(1, 10);
         break;
       case 'PageDown':
-        nextValue = localValue - param.step * 10;
+        nextValue = moveBySteps(-1, 10);
         break;
       case 'Home':
         nextValue = param.min;
