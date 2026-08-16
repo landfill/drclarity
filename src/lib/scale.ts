@@ -57,9 +57,12 @@ export function snapValueToStep(
   }
   const lowerStepCount = Math.floor(quotient);
   const fraction = quotient - lowerStepCount;
+  const quotientTolerance = Number.EPSILON * Math.max(1, Math.abs(quotient)) * 2;
+  const subtractionTolerance =
+    (Number.EPSILON * (Math.abs(boundedValue) + Math.abs(min)) * 2) / step;
   const tieTolerance = Math.min(
     1e-12,
-    Number.EPSILON * Math.max(1, Math.abs(quotient)) * 2,
+    Math.max(quotientTolerance, subtractionTolerance),
   );
   const stepCount =
     Math.abs(fraction - 0.5) <= tieTolerance
