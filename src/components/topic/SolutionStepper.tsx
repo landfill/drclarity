@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styles from './SolutionStepper.module.css';
 
 export interface SolutionStep {
@@ -26,6 +26,8 @@ export function SolutionStepper({
   split = false
 }: SolutionStepperProps) {
   const [currentStep, setCurrentStep] = useState(0);
+  const [stageCanStick, setStageCanStick] = useState(false);
+  const stageRef = useRef<HTMLDivElement>(null);
 
   const startLabel = labels?.start || '풀이 시작';
   const prevLabel = labels?.prev || '이전 단계';
@@ -35,6 +37,31 @@ export function SolutionStepper({
   const stepData = steps[currentStep];
   const isFirst = currentStep === 0;
   const isLast = currentStep === steps.length - 1;
+  const formulaVisible = stepData?.formula != null;
+  const hintVisible = stepData?.hint != null;
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    const updateStageStickiness = () => {
+      const rootStyles = getComputedStyle(document.documentElement);
+      const headerHeight = Number.parseFloat(rootStyles.getPropertyValue('--header-h')) || 0;
+      // Keep a small breathing room below the fixed header and viewport edge.
+      const availableHeight = window.innerHeight - headerHeight - 16;
+      setStageCanStick(stage.getBoundingClientRect().height <= availableHeight);
+    };
+
+    updateStageStickiness();
+    window.addEventListener('resize', updateStageStickiness);
+    const resizeObserver = new ResizeObserver(updateStageStickiness);
+    resizeObserver.observe(stage);
+
+    return () => {
+      window.removeEventListener('resize', updateStageStickiness);
+      resizeObserver.disconnect();
+    };
+  }, [children]);
 
   if (!stepData) return null;
 
@@ -55,22 +82,26 @@ export function SolutionStepper({
       <div className={styles.stepText} aria-live="polite">
         {stepData.body}
         <div
-          className={`${styles.formulaSlot} ${stepData.formula ? styles.slotVisible : ''}`}
-          aria-hidden={!stepData.formula}
+          className={`${styles.formulaSlot} ${formulaVisible ? styles.slotVisible : ''}`}
+          aria-hidden={!formulaVisible}
         >
           <div className={styles.formulaWrap}>
             <span className={styles.formula}>{stepData.formula}</span>
           </div>
         </div>
         <p
-          className={`${styles.stepHint} ${stepData.hint ? styles.slotVisible : ''}`}
-          aria-hidden={!stepData.hint}
+          className={`${styles.stepHint} ${hintVisible ? styles.slotVisible : ''}`}
+          aria-hidden={!hintVisible}
         >
           <strong>직접 확인:</strong> {stepData.hint}
         </p>
       </div>
 
-      {children && <div className={styles.stage}>{children}</div>}
+      {children && (
+        <div ref={stageRef} className={`${styles.stage} ${stageCanStick ? styles.stageSticky : ''}`}>
+          {children}
+        </div>
+      )}
 
       <div className={styles.buttonGroup}>
         {isFirst && (

@@ -104,12 +104,20 @@
 
   .stage {
     grid-row: 1;
-    position: sticky;
-    top: var(--header-h);
+    /* A tall stage stays in normal flow so its lower controls cannot be trapped
+       below the viewport or covered by the fixed SiteHeader. SolutionStepper
+       adds .stageSticky only after measuring that the full stage fits. */
+    position: static;
+    top: auto;
     z-index: 1;
     margin: 0;
     padding: var(--space-sm) 0;
     background: var(--color-surface);
+  }
+
+  .stageSticky {
+    position: sticky;
+    top: var(--header-h);
   }
 
   .stepText {
