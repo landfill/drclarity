@@ -1,7 +1,5 @@
 export type NumericScale = 'linear' | 'log';
 
-const FLOAT_64_VIEW = new DataView(new ArrayBuffer(8));
-
 function assertBounds(min: number, max: number, scale: NumericScale): void {
   if (!Number.isFinite(min) || !Number.isFinite(max) || max <= min) {
     throw new Error('Scale bounds must be finite and max must be greater than min');
@@ -40,37 +38,6 @@ function bigintDistance(left: bigint, right: bigint): bigint {
   return difference < BigInt(0) ? -difference : difference;
 }
 
-function binaryParts(value: number): { significand: bigint; exponent: number } {
-  FLOAT_64_VIEW.setFloat64(0, value);
-  const high = FLOAT_64_VIEW.getUint32(0);
-  const low = FLOAT_64_VIEW.getUint32(4);
-  const negative = (high >>> 31) === 1;
-  const exponentBits = (high >>> 20) & 0x7ff;
-  const fraction =
-    (BigInt(high & 0x000f_ffff) << BigInt(32)) | BigInt(low);
-  const significand =
-    exponentBits === 0 ? fraction : BigInt('4503599627370496') + fraction;
-  return {
-    significand: negative ? -significand : significand,
-    exponent: exponentBits === 0 ? -1074 : exponentBits - 1023 - 52,
-  };
-}
-
-function isBinaryStepAligned(value: number, min: number, step: number): boolean {
-  const valueParts = binaryParts(value);
-  const minParts = binaryParts(min);
-  const stepParts = binaryParts(step);
-  const commonExponent = Math.min(
-    valueParts.exponent,
-    minParts.exponent,
-    stepParts.exponent,
-  );
-  const scaledValue = valueParts.significand << BigInt(valueParts.exponent - commonExponent);
-  const scaledMin = minParts.significand << BigInt(minParts.exponent - commonExponent);
-  const scaledStep = stepParts.significand << BigInt(stepParts.exponent - commonExponent);
-  return (scaledValue - scaledMin) % scaledStep === BigInt(0);
-}
-
 function logarithmicDistance(upper: number, lower: number): number {
   const difference = upper - lower;
   const relativeDifference = difference / lower;
@@ -92,7 +59,6 @@ export function snapValueToStep(
 
   const boundedValue = clamp(value, min, max);
   if (boundedValue === min || boundedValue === max) return boundedValue;
-  if (isBinaryStepAligned(boundedValue, min, step)) return boundedValue;
 
   const valueParts = decimalParts(boundedValue);
   const minParts = decimalParts(min);

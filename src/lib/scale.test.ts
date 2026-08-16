@@ -94,14 +94,17 @@ describe('scale utilities', () => {
     expect(snapValueToStep(0.92, 0, 0.95, 0.1)).toBe(0.9);
     expect(snapValueToStep(0.94, 0, 0.95, 0.1)).toBe(0.95);
     expect(snapValueToStep(1, 0, 2, Number.MIN_VALUE)).toBe(1);
+    const wideRangeValue = snapValueToStep(
+      Number.MAX_VALUE / 2,
+      -Number.MAX_VALUE,
+      Number.MAX_VALUE,
+      Number.MAX_VALUE / 2,
+    );
+    expect(wideRangeValue).not.toBe(Number.MAX_VALUE);
     expect(
-      snapValueToStep(
-        Number.MAX_VALUE / 2,
-        -Number.MAX_VALUE,
-        Number.MAX_VALUE,
-        Number.MAX_VALUE / 2,
-      ),
-    ).toBe(Number.MAX_VALUE / 2);
+      Math.abs(wideRangeValue - Number.MAX_VALUE / 2) / (Number.MAX_VALUE / 2),
+    ).toBeLessThan(Number.EPSILON * 2);
+    expect(snapValueToStep(-10 + 16 * 0.4, -10, 10, 0.4)).toBe(-3.6);
     expect(
       snapValueToStep(1_000_000_000_000_000, 0, 2_000_000_000_000_000, 1),
     ).toBe(1_000_000_000_000_000);

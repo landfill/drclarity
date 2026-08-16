@@ -432,6 +432,17 @@ function SelectControl({
   const { value, update, reset } = useRafThrottledValue(param.value, (nextValue) =>
     onChange(param.id, nextValue),
   );
+  const optionValuesKey = JSON.stringify(param.options.map((option) => option.value));
+  const previousOptionValuesKeyRef = useRef(optionValuesKey);
+
+  useLayoutEffect(() => {
+    if (previousOptionValuesKeyRef.current !== optionValuesKey) reset();
+    previousOptionValuesKeyRef.current = optionValuesKey;
+  }, [optionValuesKey, reset]);
+
+  const presentedValue = param.options.some((option) => option.value === value)
+    ? value
+    : (param.options[0]?.value ?? '');
 
   useEffect(() => registerReset(reset), [registerReset, reset]);
 
@@ -442,7 +453,7 @@ function SelectControl({
       </label>
       <select
         id={domId}
-        value={value}
+        value={presentedValue}
         onChange={(event) => update(event.currentTarget.value)}
         className={styles.selectInput}
       >
