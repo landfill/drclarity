@@ -5,20 +5,24 @@ export interface TypewriterOptions {
   intervalMs: number;
   active: boolean;
   onDone?: () => void;
+  /** 값이 바뀌면 active 가 계속 true 여도 처음부터 다시 타이핑한다 */
+  resetKey?: number | string;
 }
 
 export function useTypewriter(fullText: string, options: TypewriterOptions): string {
-  const { intervalMs, active, onDone } = options;
-  
+  const { intervalMs, active, onDone, resetKey } = options;
+
   const [state, setState] = useState({
     active,
+    resetKey,
     text: active && prefersReducedMotion() ? fullText : '',
     doneCalled: false
   });
 
-  if (active !== state.active) {
+  if (active !== state.active || resetKey !== state.resetKey) {
     setState({
       active,
+      resetKey,
       text: active && prefersReducedMotion() ? fullText : '',
       doneCalled: false
     });

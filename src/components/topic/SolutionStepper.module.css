@@ -1,8 +1,8 @@
 .controls {
-  margin-top: 1.5rem;
+  margin-top: var(--space-md);
   scroll-margin-top: calc(var(--header-h) + var(--space-md));
   background: var(--color-surface);
-  padding: 1rem;
+  padding: var(--space-md);
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   text-align: center;
@@ -14,7 +14,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-rows: auto 1fr;
-    gap: var(--space-lg);
+    gap: var(--space-md);
     align-items: start;
   }
   .controlsSplit .stepText   { grid-column: 2; grid-row: 1; }
@@ -23,10 +23,10 @@
 }
 
 .stepText {
-  font-size: 1.05rem;
+  font-size: 1rem;
   color: var(--color-ink);
-  margin-bottom: 1rem;
-  min-height: 3.5rem;
+  margin-bottom: var(--space-sm);
+  min-height: 2.5rem;
   display: block;
   text-align: center;
   font-weight: 500;
@@ -46,7 +46,7 @@
 }
 
 .stage {
-  margin: 1rem 0 1.5rem;
+  margin: var(--space-sm) 0;
   text-align: left;
 }
 
