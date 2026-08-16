@@ -145,7 +145,6 @@ export default function GeometryAreaClient() {
     >
       <SolutionStepper
         steps={GEOMETRY_STEPS}
-        split
         onStepChange={(idx) => setStepIndex(idx)}
       >
         <div className={styles.canvasSlot}>

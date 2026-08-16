@@ -1,10 +1,9 @@
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
+import { SplitStage } from '@/components/topic/SplitStage';
 import { PizzaSlicer } from './PizzaSlicer';
 import { CalculatorReveal } from './CalculatorReveal';
-import { FloatingPointAnimationCard } from './FloatingPointAnimationCard';
 import meta from './meta';
-import styles from './PizzaSlicer.module.css';
 import { Metadata } from 'next';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -17,10 +16,7 @@ export default function FloatingPointPage() {
       wide
       title={<>왜 <Highlight>0.1 + 0.2</Highlight>는 0.3이 아닐까요?</>}
     >
-      <div className={styles.explainingSection}>
-        <FloatingPointAnimationCard>
-          <PizzaSlicer />
-        </FloatingPointAnimationCard>
+      <SplitStage stage={<PizzaSlicer />}>
 
         <ExplanationBox title="부동소수점 오류란?">
           <p>
@@ -38,9 +34,8 @@ export default function FloatingPointPage() {
             이는 10진수에서 1/3 = 0.3333...으로 무한히 반복되는 것과 같은 원리입니다.
           </p>
         </ExplanationBox>
-      </div>
-
-      <CalculatorReveal />
+        <CalculatorReveal />
+      </SplitStage>
     </TopicLayout>
   );
 }

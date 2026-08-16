@@ -87,7 +87,6 @@ export default function HoneyPotsClient() {
 
       <SolutionStepper
         steps={HONEY_STEPS}
-        split
         onStepChange={(idx) => {
           setStepIndex(idx);
           if (idx !== 5) setActiveAntBit(null);

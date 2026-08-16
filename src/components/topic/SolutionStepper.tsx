@@ -1,6 +1,7 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import styles from './SolutionStepper.module.css';
+import { SplitStage } from './SplitStage';
 
 export interface SolutionStep {
   id: string;
@@ -15,7 +16,6 @@ export interface SolutionStepperProps {
   labels?: { start?: string; prev?: string; next?: string; reset?: string };
   children?: React.ReactNode;
   /** true 면 데스크톱(1100px 이상)에서 2컬럼 그리드(시각 좌 / 지시문·버튼 우)로 배치 */
-  split?: boolean;
 }
 
 export function SolutionStepper({
@@ -23,11 +23,8 @@ export function SolutionStepper({
   onStepChange,
   labels,
   children,
-  split = false
 }: SolutionStepperProps) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [stageCanStick, setStageCanStick] = useState(false);
-  const stageRef = useRef<HTMLDivElement>(null);
 
   const startLabel = labels?.start || '풀이 시작';
   const prevLabel = labels?.prev || '이전 단계';
@@ -39,29 +36,6 @@ export function SolutionStepper({
   const isLast = currentStep === steps.length - 1;
   const formulaVisible = stepData?.formula != null;
   const hintVisible = stepData?.hint != null;
-
-  useEffect(() => {
-    const stage = stageRef.current;
-    if (!stage) return;
-
-    const updateStageStickiness = () => {
-      const rootStyles = getComputedStyle(document.documentElement);
-      const headerHeight = Number.parseFloat(rootStyles.getPropertyValue('--header-h')) || 0;
-      // Keep a small breathing room below the fixed header and viewport edge.
-      const availableHeight = window.innerHeight - headerHeight - 16;
-      setStageCanStick(stage.getBoundingClientRect().height <= availableHeight);
-    };
-
-    updateStageStickiness();
-    window.addEventListener('resize', updateStageStickiness);
-    const resizeObserver = new ResizeObserver(updateStageStickiness);
-    resizeObserver.observe(stage);
-
-    return () => {
-      window.removeEventListener('resize', updateStageStickiness);
-      resizeObserver.disconnect();
-    };
-  }, [children]);
 
   if (!stepData) return null;
 
@@ -75,10 +49,8 @@ export function SolutionStepper({
 
   };
 
-  const controlsClass = `${styles.controls} ${split ? styles.controlsSplit : ''}`.trim();
-
   return (
-    <div className={controlsClass}>
+    <SplitStage stage={children}>
       <div className={styles.stepText} aria-live="polite">
         {stepData.body}
         <div
@@ -96,12 +68,6 @@ export function SolutionStepper({
           <strong>직접 확인:</strong> {stepData.hint}
         </p>
       </div>
-
-      {children && (
-        <div ref={stageRef} className={`${styles.stage} ${stageCanStick ? styles.stageSticky : ''}`}>
-          {children}
-        </div>
-      )}
 
       <div className={styles.buttonGroup}>
         {isFirst && (
@@ -133,6 +99,6 @@ export function SolutionStepper({
           </>
         )}
       </div>
-    </div>
+    </SplitStage>
   );
 }
