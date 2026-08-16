@@ -86,6 +86,66 @@ function useRafThrottledCallback<TArgs extends unknown[]>(
   return { schedule, cancel };
 }
 
+function useRafThrottledValue<T>(
+  controlledValue: T,
+  onCommit: (value: T) => void,
+): { value: T; update: (value: T) => void; reset: () => void } {
+  const [localState, setLocalState] = useState<{
+    controlledValue: T;
+    optimisticValue: T;
+    hasOptimisticValue: boolean;
+  }>({ controlledValue, optimisticValue: controlledValue, hasOptimisticValue: false });
+  const controlledValueIsCurrent = Object.is(localState.controlledValue, controlledValue);
+  if (!controlledValueIsCurrent) {
+    setLocalState({
+      controlledValue,
+      optimisticValue: controlledValue,
+      hasOptimisticValue: false,
+    });
+  }
+  const value =
+    controlledValueIsCurrent && localState.hasOptimisticValue
+      ? localState.optimisticValue
+      : controlledValue;
+
+  const { schedule, cancel } = useRafThrottledCallback((nextValue: T) => {
+    setLocalState((currentState) => ({
+      ...currentState,
+      hasOptimisticValue: false,
+    }));
+    onCommit(nextValue);
+  });
+  const previousControlledValueRef = useRef(controlledValue);
+
+  useLayoutEffect(() => {
+    if (!Object.is(previousControlledValueRef.current, controlledValue)) {
+      cancel();
+      previousControlledValueRef.current = controlledValue;
+    }
+  }, [cancel, controlledValue]);
+
+  const update = useCallback(
+    (nextValue: T) => {
+      setLocalState({
+        controlledValue,
+        optimisticValue: nextValue,
+        hasOptimisticValue: true,
+      });
+      schedule(nextValue);
+    },
+    [controlledValue, schedule],
+  );
+  const reset = useCallback(() => {
+    cancel();
+    setLocalState((currentState) => ({
+      ...currentState,
+      hasOptimisticValue: false,
+    }));
+  }, [cancel]);
+
+  return { value, update, reset };
+}
+
 function defaultNumberFormat(value: number): string {
   return Number.parseFloat(value.toPrecision(4)).toString();
 }
@@ -109,18 +169,11 @@ function RangeControl({
   registerReset: (reset: () => void) => () => void;
   domId: string;
 }) {
-  const [localState, setLocalState] = useState<{
-    controlledValue: number;
-    optimisticValue: number | null;
-  }>({ controlledValue: param.value, optimisticValue: null });
-  const controlledValueIsCurrent = Object.is(localState.controlledValue, param.value);
-  if (!controlledValueIsCurrent) {
-    setLocalState({ controlledValue: param.value, optimisticValue: null });
-  }
-  const localValue =
-    controlledValueIsCurrent && localState.optimisticValue !== null
-      ? localState.optimisticValue
-    : param.value;
+  const {
+    value: localValue,
+    update: updateThrottledValue,
+    reset: resetPendingChange,
+  } = useRafThrottledValue(param.value, (value) => onChange(param.id, value));
   const scale = param.scale ?? 'linear';
   const format = param.format ?? defaultNumberFormat;
   const displayValue = format(localValue);
@@ -135,33 +188,7 @@ function RangeControl({
       : localValue;
   const sliderMin = scale === 'log' ? 0 : param.min;
   const sliderMax = scale === 'log' ? LOG_SLIDER_RESOLUTION : param.max;
-  const sliderStep = scale === 'log' && param.step !== undefined ? 'any' : (param.step ?? 1);
-
-  const { schedule: emitChange, cancel: cancelPendingChange } = useRafThrottledCallback(
-    (value: number) => {
-      setLocalState((currentState) => ({
-        ...currentState,
-        optimisticValue: null,
-      }));
-      onChange(param.id, value);
-    },
-  );
-  const resetPendingChange = useCallback(() => {
-    cancelPendingChange();
-    setLocalState((currentState) => ({
-      ...currentState,
-      optimisticValue: null,
-    }));
-  }, [cancelPendingChange]);
-
-  const previousControlledValueRef = useRef(param.value);
-
-  useLayoutEffect(() => {
-    if (!Object.is(previousControlledValueRef.current, param.value)) {
-      cancelPendingChange();
-      previousControlledValueRef.current = param.value;
-    }
-  }, [cancelPendingChange, param.value]);
+  const sliderStep = scale === 'log' && param.step === undefined ? 1 : 'any';
 
   useEffect(
     () => registerReset(resetPendingChange),
@@ -173,8 +200,7 @@ function RangeControl({
       param.step === undefined
         ? value
         : snapValueToStep(value, param.min, param.max, param.step);
-    setLocalState({ controlledValue: param.value, optimisticValue: steppedValue });
-    emitChange(steppedValue);
+    updateThrottledValue(steppedValue);
   };
 
   const handleChange = (rawValue: number) => {
@@ -190,7 +216,7 @@ function RangeControl({
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (scale !== 'log' || param.step === undefined) return;
+    if (param.step === undefined) return;
 
     let nextValue: number;
     switch (event.key) {
@@ -274,15 +300,84 @@ function RangeControl({
   );
 }
 
+function ToggleControl({
+  param,
+  onChange,
+  registerReset,
+  domId,
+}: {
+  param: Extract<ParameterDefinition, { kind: 'toggle' }>;
+  onChange: ParameterPanelProps['onChange'];
+  registerReset: (reset: () => void) => () => void;
+  domId: string;
+}) {
+  const { value, update, reset } = useRafThrottledValue(param.value, (nextValue) =>
+    onChange(param.id, nextValue),
+  );
+
+  useEffect(() => registerReset(reset), [registerReset, reset]);
+
+  return (
+    <label htmlFor={domId} className={styles.toggleRow}>
+      <span className={styles.label}>{param.label}</span>
+      <input
+        id={domId}
+        type="checkbox"
+        checked={value}
+        onChange={(event) => update(event.currentTarget.checked)}
+        className={styles.toggleInput}
+      />
+    </label>
+  );
+}
+
+function SelectControl({
+  param,
+  onChange,
+  registerReset,
+  domId,
+}: {
+  param: Extract<ParameterDefinition, { kind: 'select' }>;
+  onChange: ParameterPanelProps['onChange'];
+  registerReset: (reset: () => void) => () => void;
+  domId: string;
+}) {
+  const { value, update, reset } = useRafThrottledValue(param.value, (nextValue) =>
+    onChange(param.id, nextValue),
+  );
+
+  useEffect(() => registerReset(reset), [registerReset, reset]);
+
+  return (
+    <div className={styles.parameterRow}>
+      <label htmlFor={domId} className={styles.label}>
+        {param.label}
+      </label>
+      <select
+        id={domId}
+        value={value}
+        onChange={(event) => update(event.currentTarget.value)}
+        className={styles.selectInput}
+      >
+        {param.options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 export function ParameterPanel({ params, onChange, onReset, marks = {} }: ParameterPanelProps) {
   const panelId = useId();
-  const rangeResetCallbacksRef = useRef(new Set<() => void>());
-  const registerRangeReset = useCallback((reset: () => void) => {
-    rangeResetCallbacksRef.current.add(reset);
-    return () => rangeResetCallbacksRef.current.delete(reset);
+  const resetCallbacksRef = useRef(new Set<() => void>());
+  const registerReset = useCallback((reset: () => void) => {
+    resetCallbacksRef.current.add(reset);
+    return () => resetCallbacksRef.current.delete(reset);
   }, []);
   const handleReset = useCallback(() => {
-    rangeResetCallbacksRef.current.forEach((reset) => reset());
+    resetCallbacksRef.current.forEach((reset) => reset());
     onReset?.();
   }, [onReset]);
 
@@ -307,7 +402,7 @@ export function ParameterPanel({ params, onChange, onReset, marks = {} }: Parame
                 param={param}
                 marks={marks[param.id] ?? []}
                 onChange={onChange}
-                registerReset={registerRangeReset}
+                registerReset={registerReset}
                 domId={domId}
               />
             );
@@ -315,37 +410,24 @@ export function ParameterPanel({ params, onChange, onReset, marks = {} }: Parame
 
           if (param.kind === 'toggle') {
             return (
-              <label key={param.id} htmlFor={domId} className={styles.toggleRow}>
-                <span className={styles.label}>{param.label}</span>
-                <input
-                  id={domId}
-                  type="checkbox"
-                  checked={param.value}
-                  onChange={(event) => onChange(param.id, event.currentTarget.checked)}
-                  className={styles.toggleInput}
-                />
-              </label>
+              <ToggleControl
+                key={param.id}
+                param={param}
+                onChange={onChange}
+                registerReset={registerReset}
+                domId={domId}
+              />
             );
           }
 
           return (
-            <div key={param.id} className={styles.parameterRow}>
-              <label htmlFor={domId} className={styles.label}>
-                {param.label}
-              </label>
-              <select
-                id={domId}
-                value={param.value}
-                onChange={(event) => onChange(param.id, event.currentTarget.value)}
-                className={styles.selectInput}
-              >
-                {param.options.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <SelectControl
+              key={param.id}
+              param={param}
+              onChange={onChange}
+              registerReset={registerReset}
+              domId={domId}
+            />
           );
         })}
       </div>

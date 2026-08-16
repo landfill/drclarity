@@ -51,6 +51,8 @@ describe('scale utilities', () => {
       snapValueToStep(1_000_000_000_000_001, 1_000_000_000_000_000, 1_000_000_000_000_010, 1),
     ).toBe(1_000_000_000_000_001);
     expect(snapValueToStep(10.051, 1, 10.06, 0.1)).toBe(10.06);
+    expect(snapValueToStep(0.3, 0, 1, 0.2)).toBe(0.4);
+    expect(snapValueToStep(1.005, 0, 2, 0.01)).toBe(1.01);
   });
 
   it('rejects invalid step values', () => {

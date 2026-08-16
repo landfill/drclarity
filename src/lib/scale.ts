@@ -33,7 +33,9 @@ export function snapValueToStep(
   const boundedValue = clamp(value, min, max);
   if (boundedValue === min || boundedValue === max) return boundedValue;
 
-  const snappedValue = min + Math.round((boundedValue - min) / step) * step;
+  const quotient = (boundedValue - min) / step;
+  const roundingTolerance = Number.EPSILON * Math.max(1, Math.abs(quotient)) * 2;
+  const snappedValue = min + Math.round(quotient + roundingTolerance) * step;
   const clampedValue = clamp(snappedValue, min, max);
   const precision = Math.max(decimalPlaces(min), decimalPlaces(max), decimalPlaces(step));
   const normalizedValue =
