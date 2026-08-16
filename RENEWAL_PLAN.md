@@ -1,5 +1,7 @@
 # Dr.Clarity 프로젝트 리뉴얼 및 확장 계획서
 
+> **상태: 완료 (2026-08-16).** 이 문서는 Vanilla JS에서 Next.js App Router로 전환한 당시의 계획 기록입니다. 현재 제품 범위와 시스템 구조는 [`prd.md`](./prd.md)와 [`sdd.md`](./sdd.md)를 따릅니다.
+>
 > 이 문서는 **왜/무엇을** 다룹니다. **어떻게** 구현하는지는 [`IMPLEMENTATION_SPEC.md`](./IMPLEMENTATION_SPEC.md)에 있습니다.
 > 구현을 담당하는 코드 에이전트는 이 문서로 맥락을 잡은 뒤 구현 명세서를 따르십시오.
 
