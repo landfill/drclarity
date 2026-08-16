@@ -8,6 +8,7 @@ import {
   valueToLogPosition,
   valueToPercentage,
 } from '@/lib/scale';
+import { useAnimationFrame } from '@/hooks/useAnimationFrame';
 import styles from './ParameterPanel.module.css';
 
 const LOG_SLIDER_RESOLUTION = 1000;
@@ -54,33 +55,47 @@ function useRafThrottledCallback<TArgs extends unknown[]>(
   callback: (...args: TArgs) => void,
 ): { schedule: (...args: TArgs) => void; cancel: () => void } {
   const callbackRef = useRef(callback);
-  const frameRef = useRef<number | null>(null);
   const latestArgsRef = useRef<TArgs | null>(null);
+  const scheduledRef = useRef(false);
+  const [frameRequest, setFrameRequest] = useState({ active: false, version: 0 });
 
   useEffect(() => {
     callbackRef.current = callback;
   }, [callback]);
 
   const cancel = useCallback(() => {
-    if (frameRef.current !== null) {
-      cancelAnimationFrame(frameRef.current);
-    }
-    frameRef.current = null;
+    scheduledRef.current = false;
     latestArgsRef.current = null;
+    setFrameRequest((currentRequest) =>
+      currentRequest.active ? { ...currentRequest, active: false } : currentRequest,
+    );
   }, []);
 
   useEffect(() => cancel, [cancel]);
 
+  useAnimationFrame(
+    frameRequest.active
+      ? () => {
+          const latestArgs = latestArgsRef.current;
+          scheduledRef.current = false;
+          latestArgsRef.current = null;
+          setFrameRequest((currentRequest) => ({ ...currentRequest, active: false }));
+          if (latestArgs) callbackRef.current(...latestArgs);
+        }
+      : null,
+    0,
+    [frameRequest.active, frameRequest.version],
+  );
+
   const schedule = useCallback((...args: TArgs) => {
     latestArgsRef.current = args;
-    if (frameRef.current !== null) return;
+    if (scheduledRef.current) return;
 
-    frameRef.current = requestAnimationFrame(() => {
-      const latestArgs = latestArgsRef.current;
-      frameRef.current = null;
-      latestArgsRef.current = null;
-      if (latestArgs) callbackRef.current(...latestArgs);
-    });
+    scheduledRef.current = true;
+    setFrameRequest((currentRequest) => ({
+      active: true,
+      version: currentRequest.version + 1,
+    }));
   }, []);
 
   return { schedule, cancel };
@@ -94,13 +109,31 @@ function useRafThrottledValue<T>(
     controlledValue: T;
     optimisticValue: T;
     hasOptimisticValue: boolean;
-  }>({ controlledValue, optimisticValue: controlledValue, hasOptimisticValue: false });
+    pendingAcknowledgements: T[];
+  }>({
+    controlledValue,
+    optimisticValue: controlledValue,
+    hasOptimisticValue: false,
+    pendingAcknowledgements: [],
+  });
   const controlledValueIsCurrent = Object.is(localState.controlledValue, controlledValue);
   if (!controlledValueIsCurrent) {
+    const acknowledgementIndex = localState.pendingAcknowledgements.findIndex((value) =>
+      Object.is(value, controlledValue),
+    );
+    const isAcknowledgement = acknowledgementIndex >= 0;
+    const remainingAcknowledgements = isAcknowledgement
+      ? localState.pendingAcknowledgements.slice(acknowledgementIndex + 1)
+      : [];
+    const keepOptimisticValue =
+      isAcknowledgement &&
+      localState.hasOptimisticValue &&
+      !Object.is(localState.optimisticValue, controlledValue);
     setLocalState({
       controlledValue,
-      optimisticValue: controlledValue,
-      hasOptimisticValue: false,
+      optimisticValue: keepOptimisticValue ? localState.optimisticValue : controlledValue,
+      hasOptimisticValue: keepOptimisticValue,
+      pendingAcknowledgements: remainingAcknowledgements,
     });
   }
   const value =
@@ -108,10 +141,12 @@ function useRafThrottledValue<T>(
       ? localState.optimisticValue
       : controlledValue;
 
+  const pendingAcknowledgementsRef = useRef<T[]>([]);
   const { schedule, cancel } = useRafThrottledCallback((nextValue: T) => {
+    pendingAcknowledgementsRef.current.push(nextValue);
     setLocalState((currentState) => ({
       ...currentState,
-      hasOptimisticValue: false,
+      pendingAcknowledgements: [...currentState.pendingAcknowledgements, nextValue],
     }));
     onCommit(nextValue);
   });
@@ -119,27 +154,40 @@ function useRafThrottledValue<T>(
 
   useLayoutEffect(() => {
     if (!Object.is(previousControlledValueRef.current, controlledValue)) {
-      cancel();
+      const acknowledgementIndex = pendingAcknowledgementsRef.current.findIndex((value) =>
+        Object.is(value, controlledValue),
+      );
+      if (acknowledgementIndex >= 0) {
+        pendingAcknowledgementsRef.current = pendingAcknowledgementsRef.current.slice(
+          acknowledgementIndex + 1,
+        );
+      } else {
+        cancel();
+        pendingAcknowledgementsRef.current = [];
+      }
       previousControlledValueRef.current = controlledValue;
     }
   }, [cancel, controlledValue]);
 
   const update = useCallback(
     (nextValue: T) => {
-      setLocalState({
+      setLocalState((currentState) => ({
         controlledValue,
         optimisticValue: nextValue,
         hasOptimisticValue: true,
-      });
+        pendingAcknowledgements: currentState.pendingAcknowledgements,
+      }));
       schedule(nextValue);
     },
     [controlledValue, schedule],
   );
   const reset = useCallback(() => {
     cancel();
+    pendingAcknowledgementsRef.current = [];
     setLocalState((currentState) => ({
       ...currentState,
       hasOptimisticValue: false,
+      pendingAcknowledgements: [],
     }));
   }, [cancel]);
 
