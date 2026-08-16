@@ -52,6 +52,16 @@ type MarkStyle = CSSProperties & {
   '--mark-shift': string;
 };
 
+function findLastMatchingValue<T>(
+  entries: { value: T }[],
+  value: T,
+): number {
+  for (let index = entries.length - 1; index >= 0; index -= 1) {
+    if (Object.is(entries[index].value, value)) return index;
+  }
+  return -1;
+}
+
 function useRafThrottledCallback<TArgs extends unknown[]>(
   callback: (...args: TArgs) => void,
 ): { schedule: (...args: TArgs) => void; cancel: () => void } {
@@ -120,8 +130,9 @@ function useRafThrottledValue<T>(
   });
   const controlledValueIsCurrent = Object.is(localState.controlledValue, controlledValue);
   if (!controlledValueIsCurrent) {
-    const acknowledgementIndex = localState.pendingAcknowledgements.findIndex((entry) =>
-      Object.is(entry.value, controlledValue),
+    const acknowledgementIndex = findLastMatchingValue(
+      localState.pendingAcknowledgements,
+      controlledValue,
     );
     const isAcknowledgement = acknowledgementIndex >= 0;
     const acknowledgedSequence = isAcknowledgement
@@ -163,8 +174,9 @@ function useRafThrottledValue<T>(
 
   useLayoutEffect(() => {
     if (!Object.is(previousControlledValueRef.current, controlledValue)) {
-      const acknowledgementIndex = pendingAcknowledgementsRef.current.findIndex((entry) =>
-        Object.is(entry.value, controlledValue),
+      const acknowledgementIndex = findLastMatchingValue(
+        pendingAcknowledgementsRef.current,
+        controlledValue,
       );
       if (acknowledgementIndex >= 0) {
         pendingAcknowledgementsRef.current = pendingAcknowledgementsRef.current.slice(
