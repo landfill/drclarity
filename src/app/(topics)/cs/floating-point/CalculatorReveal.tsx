@@ -14,12 +14,14 @@ export function CalculatorReveal() {
   const [phase, setPhase] = useState<'idle' | 'calculating' | 'done'>('idle');
   const [showExplanation, setShowExplanation] = useState(false);
   const [shake, setShake] = useState(false);
+  const [runId, setRunId] = useState(0);
   const panelRef = useRef<HTMLDivElement>(null);
   const prevScrollHeightRef = useRef(0);
 
   const typedResult = useTypewriter(RESULT_TEXT, {
     intervalMs: 50,
     active: phase === 'calculating' || phase === 'done',
+    resetKey: runId,
     onDone: () => {
       setPhase('done');
     }
@@ -27,7 +29,8 @@ export function CalculatorReveal() {
 
   const typedExplanation = useTypewriter(EXPLANATION_TEXT, {
     intervalMs: 20,
-    active: showExplanation
+    active: showExplanation,
+    resetKey: runId
   });
 
   useEffect(() => {
@@ -57,6 +60,8 @@ export function CalculatorReveal() {
   }, [phase]);
 
   const startCalculation = () => {
+    // active 가 true→true 로 유지되는 재실행이라 resetKey 로 타이핑을 되감는다
+    setRunId((id) => id + 1);
     setPhase('calculating');
     setShowExplanation(false);
     setShake(false);

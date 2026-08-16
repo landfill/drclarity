@@ -1,16 +1,16 @@
 .section {
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-md);
 }
 
 .title {
-  font-size: var(--fs-h2);
-  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  margin-bottom: var(--space-sm);
   color: var(--color-secondary);
 }
 
 .plain {
   background: var(--color-surface);
-  padding: var(--space-lg);
+  padding: var(--space-md);
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   text-align: left;
@@ -25,11 +25,11 @@
 }
 
 .details {
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-md);
 }
 
 .summary {
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: var(--color-secondary);
   cursor: pointer;
@@ -41,8 +41,9 @@
 
 .plain :global(p),
 .note :global(p) {
-  margin-bottom: var(--space-md);
-  font-size: var(--fs-body);
+  margin-bottom: var(--space-sm);
+  font-size: 1rem;
+  line-height: 1.55;
   color: var(--color-ink);
 }
 
