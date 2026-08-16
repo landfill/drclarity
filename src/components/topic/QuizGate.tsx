@@ -40,9 +40,12 @@ export function QuizGate({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [submittedId, setSubmittedId] = useState<string | null>(null);
   const [skipped, setSkipped] = useState(false);
+  const [hasRevealed, setHasRevealed] = useState(false);
 
   const isCorrect = submittedId === correctId;
-  const revealed = submittedId !== null || skipped || !gateContent;
+  // 한 번 열린 풀이는 다시 닫지 않는다. '다시 고르기'로 선택만 되돌릴 때
+  // 풀이가 사라지면 이미 읽은 내용이 없어지고, 하위 컴포넌트의 내부 상태도 초기화된다.
+  const revealed = hasRevealed || submittedId !== null || skipped || !gateContent;
 
   return (
     <section className={styles.gate} aria-label="풀이 전 답 고르기">
@@ -88,14 +91,25 @@ export function QuizGate({
             <button
               type="button"
               className={styles.submitButton}
-              onClick={() => selectedId && setSubmittedId(selectedId)}
+              onClick={() => {
+                if (!selectedId) return;
+                setSubmittedId(selectedId);
+                setHasRevealed(true);
+              }}
               disabled={selectedId === null}
             >
               {submitLabel}
             </button>
             {allowSkip && !skipped && (
               // 강제 게이트는 이탈을 만든다. 빠져나갈 길을 항상 열어 둔다.
-              <button type="button" className={styles.skipButton} onClick={() => setSkipped(true)}>
+              <button
+                type="button"
+                className={styles.skipButton}
+                onClick={() => {
+                  setSkipped(true);
+                  setHasRevealed(true);
+                }}
+              >
                 {skipLabel}
               </button>
             )}

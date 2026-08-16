@@ -46,7 +46,11 @@ const SOLUTION_STEPS: SolutionStep[] = [
       </>
     ),
     formula: <>P(처음 선택이 자동차) = 1/3</>,
-    hint: <>표의 &lsquo;내 선택&rsquo; 열을 보세요. 세 경우 중 자동차인 것은 하나뿐입니다.</>,
+    hint: (
+      <>
+        표의 세 줄을 보세요. 내 선택은 늘 1번인데, 자동차가 1번에 있는 줄은 하나뿐입니다.
+      </>
+    ),
   },
   {
     id: '3',
@@ -170,37 +174,38 @@ export default function MontyHallClient() {
 
         <DoorStage phase={phase} trial={trial} finalStrategy={finalStrategy} onPick={handlePick} />
 
-        <div className={styles.playControls} role="status" aria-live="polite">
-          {phase === 'picking' && <p className={styles.playPrompt}>문을 하나 고르세요.</p>}
+        <div className={styles.playControls}>
+          {/* 안내 문구만 라이브 리전에 둔다. 버튼까지 감싸면 단계가 바뀔 때마다
+              버튼 문구 전체가 다시 읽힌다. */}
+          <p className={styles.playPrompt} role="status" aria-live="polite">
+            {phase === 'picking' && '문을 하나 고르세요.'}
+            {phase === 'opened' &&
+              trial &&
+              `사회자가 ${trial.openedDoor + 1}번 문을 열어 염소를 보여줬습니다. 어떻게 하시겠습니까?`}
+            {phase === 'resolved' &&
+              trial &&
+              `${won ? '자동차를 얻었습니다! 🚗' : '염소였습니다. 🐐'} ${
+                finalStrategy === 'switch' ? '바꾼' : '유지한'
+              } 결과입니다.`}
+          </p>
 
           {phase === 'opened' && trial && (
-            <>
-              <p className={styles.playPrompt}>
-                사회자가 {trial.openedDoor + 1}번 문을 열어 염소를 보여줬습니다. 어떻게 하시겠습니까?
-              </p>
-              <div className={styles.playButtons}>
-                <button type="button" className={styles.primaryButton} onClick={() => decide('switch')}>
-                  {trial.switchDoor + 1}번으로 바꾼다
-                </button>
-                <button type="button" className={styles.secondaryButton} onClick={() => decide('stay')}>
-                  {trial.pickedDoor + 1}번을 유지한다
-                </button>
-              </div>
-            </>
+            <div className={styles.playButtons}>
+              <button type="button" className={styles.primaryButton} onClick={() => decide('switch')}>
+                {trial.switchDoor + 1}번으로 바꾼다
+              </button>
+              <button type="button" className={styles.secondaryButton} onClick={() => decide('stay')}>
+                {trial.pickedDoor + 1}번을 유지한다
+              </button>
+            </div>
           )}
 
           {phase === 'resolved' && trial && (
-            <>
-              <p className={styles.playPrompt}>
-                {won ? '자동차를 얻었습니다! 🚗' : '염소였습니다. 🐐'}{' '}
-                {finalStrategy === 'switch' ? '바꾼' : '유지한'} 결과입니다.
-              </p>
-              <div className={styles.playButtons}>
-                <button type="button" className={styles.primaryButton} onClick={playAgain}>
-                  한 판 더
-                </button>
-              </div>
-            </>
+            <div className={styles.playButtons}>
+              <button type="button" className={styles.primaryButton} onClick={playAgain}>
+                한 판 더
+              </button>
+            </div>
           )}
         </div>
 

@@ -19,6 +19,7 @@ function doorState(
   door: number,
   phase: PlayPhase,
   trial: MontyHallTrial | null,
+  finalStrategy: Strategy | null,
 ): { open: boolean; content: string; note: string } {
   if (phase === 'picking' || !trial) {
     return { open: false, content: '?', note: '' };
@@ -35,10 +36,16 @@ function doorState(
     };
   }
 
+  // 실제로 바꿨는지에 따라 남은 문의 설명이 달라진다. note 는 aria-label 로도 쓰이므로
+  // 사용자가 택하지 않은 쪽의 가정법을 읽어주면 안 된다.
+  const switched = finalStrategy === 'switch';
+  const remainingNote = switched ? '바꿔서 고른 문' : '바꿨다면 이 문';
+  const pickedNote = switched ? '처음 고른 문' : '유지한 문';
+
   return {
     open: true,
     content: door === trial.carDoor ? '🚗' : '🐐',
-    note: isPicked ? '처음 고른 문' : isOpenedByHost ? '사회자가 열었습니다' : '바꿨다면 이 문',
+    note: isPicked ? pickedNote : isOpenedByHost ? '사회자가 열었습니다' : remainingNote,
   };
 }
 
@@ -47,7 +54,7 @@ export function DoorStage({ phase, trial, finalStrategy, onPick }: DoorStageProp
     <div className={styles.doorStage}>
       <ul className={styles.doorRow}>
         {Array.from({ length: DOOR_COUNT }, (_, door) => {
-          const { open, content, note } = doorState(door, phase, trial);
+          const { open, content, note } = doorState(door, phase, trial, finalStrategy);
           const isPicked = trial?.pickedDoor === door;
           const isFinal =
             phase === 'resolved' &&
