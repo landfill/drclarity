@@ -1,0 +1,188 @@
+.runner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.presetGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.runButton,
+.resetButton {
+  min-height: 2.75rem;
+  padding: var(--space-xs) var(--space-md);
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.runButton {
+  color: var(--color-surface);
+  background: var(--color-blue);
+  border: 1px solid var(--color-blue);
+}
+
+.runButton:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-blue) 85%, var(--color-ink));
+}
+
+.resetButton {
+  color: var(--color-blue);
+  background: var(--color-surface);
+  border: 1px solid var(--color-blue-soft);
+}
+
+.resetButton:hover:not(:disabled) {
+  background: var(--color-subtle);
+  border-color: var(--color-blue);
+}
+
+.runButton:disabled,
+.resetButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.runButton:focus-visible,
+.resetButton:focus-visible {
+  outline: 3px solid var(--color-blue-soft);
+  outline-offset: 3px;
+}
+
+.total {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--fs-sm);
+}
+
+.total strong {
+  color: var(--color-text);
+  font-size: var(--fs-body);
+}
+
+.progress {
+  color: var(--color-blue);
+}
+
+.bucketList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bucket {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  min-width: 0;
+}
+
+.bucketHead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.bucketLabel {
+  font-weight: 700;
+}
+
+.bucketValue {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.bucketCount {
+  color: var(--color-muted);
+  font-size: var(--fs-sm);
+  font-weight: 400;
+}
+
+.barTrack {
+  position: relative;
+  height: 1.5rem;
+  background: var(--color-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: var(--radius-sm);
+  transition: width 120ms linear;
+}
+
+.primary {
+  background: var(--color-accent);
+}
+
+.secondary {
+  background: var(--color-blue-soft);
+}
+
+/* 이론값 눈금. 표본이 늘면서 막대가 이 선으로 수렴하는 것이 이 컴포넌트의 요점이다. */
+.theoreticalMark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-ink);
+}
+
+.theoreticalNote {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--fs-sm);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barFill {
+    transition: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .toolbar {
+    justify-content: stretch;
+  }
+
+  .presetGroup {
+    flex: 1;
+  }
+}
