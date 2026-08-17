@@ -8,11 +8,27 @@
   color: var(--color-muted);
 }
 
+/*
+ * TopicLayout 의 .container 는 gap 을 주지 않고, globals.css 가 모든 margin 을
+ * 0 으로 지운다. 그래서 최상위 블록은 ExplanationBox(.section)처럼 각자
+ * margin-bottom 을 들고 있어야 한다. 없으면 섹션이 전부 맞붙는다.
+ */
+.playSection,
+.simSection,
+.solutionSection {
+  margin-bottom: var(--space-md);
+}
+
+/* 카드 표면은 SplitStage/.plain 과 같은 시각 언어를 쓴다. */
 .playSection,
 .simSection {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 /* --- 문 --- */

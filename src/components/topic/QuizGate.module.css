@@ -1,7 +1,14 @@
+/* ExplanationBox .section 과 같은 이유로 바깥 여백을 스스로 들고 있어야 한다.
+   TopicLayout 컨테이너에는 gap 이 없고 globals.css 가 margin 을 지운다. */
 .gate {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+  margin-bottom: var(--space-md);
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 .question {
@@ -159,8 +166,9 @@
   margin-bottom: 0;
 }
 
+/* 자식이 스스로 margin 을 들고 오는 경우가 많으므로 gap 은 최소로만 준다. */
 .revealed {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: var(--space-xs);
 }

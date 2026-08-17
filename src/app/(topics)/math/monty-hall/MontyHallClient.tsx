@@ -268,7 +268,7 @@ export default function MontyHallClient() {
           />
         </section>
 
-        <section aria-label="풀이">
+        <section className={styles.solutionSection} aria-label="풀이">
           <h2 className={styles.sectionTitle}>왜 그럴까</h2>
           <SolutionStepper steps={SOLUTION_STEPS} onStepChange={(index) => setStepIndex(index)}>
             <CaseBoard highlight={HIGHLIGHT_BY_STEP[stepIndex] ?? 'none'} />
