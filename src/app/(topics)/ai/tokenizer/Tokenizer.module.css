@@ -1,0 +1,260 @@
+/*
+ * globals.css 가 모든 margin 을 지우고 TopicLayout 의 .container 에는 gap 이 없다.
+ * 최상위 블록은 각자 margin-bottom 을 들고 있어야 한다.
+ */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: var(--fs-h2);
+}
+
+.lead {
+  margin: 0;
+  color: var(--color-ink);
+}
+
+.caveat {
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  color: var(--color-ink);
+  font-size: var(--fs-sm);
+  background: var(--color-note-bg);
+  border-left: 4px solid var(--color-note-border);
+  border-radius: var(--radius-sm);
+}
+
+/* --- 입력 --- */
+
+.inputLabel {
+  color: var(--color-muted);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+.input {
+  width: 100%;
+  padding: var(--space-sm);
+  font: inherit;
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  resize: vertical;
+}
+
+.input:focus-visible {
+  outline: 3px solid var(--color-blue-soft);
+  outline-offset: 2px;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  margin: 0;
+}
+
+.stat {
+  display: flex;
+  gap: var(--space-2xs);
+  align-items: baseline;
+}
+
+.stat dt {
+  color: var(--color-muted);
+  font-size: var(--fs-sm);
+}
+
+.stat dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+/* --- 토큰 블록 --- */
+
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+  margin: 0;
+  padding: var(--space-sm);
+  list-style: none;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.emptyStrip {
+  margin: 0;
+  padding: var(--space-sm);
+  color: var(--color-muted);
+  font-size: var(--fs-sm);
+  background: var(--color-bg);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.token {
+  display: inline-flex;
+  gap: var(--space-2xs);
+  align-items: baseline;
+  padding: var(--space-2xs) var(--space-xs);
+  border-radius: var(--radius-sm);
+  white-space: pre-wrap;
+}
+
+.tokenText {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--fs-sm);
+}
+
+.tokenIndex {
+  color: var(--color-muted);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 색은 경계를 훑기 위한 보조 수단이다. 정보는 블록 안 글자와 순번에도 있다. */
+.tone0 {
+  background: color-mix(in srgb, var(--color-blue-soft) 35%, var(--color-surface));
+}
+
+.tone1 {
+  background: color-mix(in srgb, var(--color-accent) 30%, var(--color-surface));
+}
+
+.tone2 {
+  background: color-mix(in srgb, var(--color-success) 25%, var(--color-surface));
+}
+
+.tone3 {
+  background: color-mix(in srgb, var(--color-dough) 70%, var(--color-surface));
+}
+
+/* 글자가 되지 않는 바이트 조각. 점선 테두리로 다르다는 것을 색 없이도 알린다. */
+.byteToken {
+  border: 1px dashed var(--color-danger-soft);
+}
+
+.byteToken .tokenText {
+  color: var(--color-danger);
+  font-size: 0.7rem;
+}
+
+/* --- 비교 --- */
+
+.comparePair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-md);
+}
+
+.compareItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  min-width: 0;
+}
+
+.compareTitle {
+  margin: 0;
+  font-size: var(--fs-sm);
+}
+
+.compareTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.tableCaption {
+  margin-bottom: var(--space-xs);
+  color: var(--color-muted);
+  font-size: var(--fs-sm);
+  text-align: left;
+}
+
+.compareTable th,
+.compareTable td {
+  padding: var(--space-xs);
+  text-align: center;
+  border: 1px solid var(--color-border);
+  font-variant-numeric: tabular-nums;
+}
+
+.compareTable thead th {
+  background: var(--color-subtle);
+}
+
+.sentenceCell {
+  text-align: left !important;
+  font-weight: 400;
+}
+
+.langTag {
+  display: inline-block;
+  padding: 0 var(--space-2xs);
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  background: var(--color-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.emphasis {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+/* --- 숫자 --- */
+
+.numberList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.numberItem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.numberLabel {
+  min-width: 6rem;
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .stats {
+    gap: var(--space-md);
+  }
+}
