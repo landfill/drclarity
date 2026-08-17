@@ -220,9 +220,14 @@ export function TrialRunner<R>({
                   style={{ width: `${ratio * 100}%` }}
                 />
                 {bucket.theoretical !== undefined && (
+                  // .barTrack 이 overflow:hidden 이므로 눈금이 양 끝에서 잘린다.
+                  // 위치와 같은 비율로 되밀어 0%·100% 에서도 트랙 안에 남게 한다.
                   <span
                     className={styles.theoreticalMark}
-                    style={{ left: `${bucket.theoretical * 100}%` }}
+                    style={{
+                      left: `${bucket.theoretical * 100}%`,
+                      transform: `translateX(-${bucket.theoretical * 100}%)`,
+                    }}
                   />
                 )}
               </div>
