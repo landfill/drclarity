@@ -114,17 +114,32 @@ export default function MontyHallClient() {
     rounds: 0,
   });
   const [stepIndex, setStepIndex] = useState(0);
+  const firstDoorRef = useRef<HTMLButtonElement>(null);
+  const switchButtonRef = useRef<HTMLButtonElement>(null);
   const playAgainRef = useRef<HTMLButtonElement>(null);
 
-  // 결정 버튼과 '한 판 더'는 서로 다른 노드라, 판이 끝나면 포커스가
-  // body 로 떨어져 탭 이동이 페이지 처음부터 다시 시작된다. 잃어버렸을 때만
-  // 이어받을 컨트롤로 옮긴다. 사용자가 다른 곳을 보고 있으면 가로채지 않는다.
+  /*
+   * 단계마다 누를 컨트롤이 바뀜다 — 문을 고르면 문 버튼이 disabled 가 되고,
+   * 전략을 고르면 그 버튼이 사라지며, 한 판 더를 누르면 그 버튼이 사라진다.
+   * 그때마다 포커스가 body 로 떨어져 탭 이동이 페이지 처음부터 다시 시작된다.
+   * 다음에 누를 곳으로 넘겨준다. 단, 포커스를 실제로 잃었을 때만 움직여
+   * 사용자가 다른 곳을 보고 있으면 가로채지 않는다.
+   */
   useEffect(() => {
-    if (phase !== 'resolved') return;
+    // 최초 로드 직후에도 activeElement 는 body 다. 한 판이라도 끝난 뒤에만 개입한다.
+    if (phase === 'picking' && playLog.rounds === 0) return;
+
     const active = document.activeElement;
     if (active && active !== document.body) return;
-    playAgainRef.current?.focus();
-  }, [phase]);
+
+    const next =
+      phase === 'picking'
+        ? firstDoorRef.current
+        : phase === 'opened'
+          ? switchButtonRef.current
+          : playAgainRef.current;
+    next?.focus();
+  }, [phase, playLog.rounds]);
 
   const handlePick = (door: number) => {
     if (phase !== 'picking') return;
@@ -183,7 +198,13 @@ export default function MontyHallClient() {
       <section className={styles.playSection} aria-label="직접 플레이">
         <h2 className={styles.sectionTitle}>먼저 직접 해보세요</h2>
 
-        <DoorStage phase={phase} trial={trial} finalStrategy={finalStrategy} onPick={handlePick} />
+        <DoorStage
+          phase={phase}
+          trial={trial}
+          finalStrategy={finalStrategy}
+          onPick={handlePick}
+          firstDoorRef={firstDoorRef}
+        />
 
         <div className={styles.playControls}>
           {/* 안내 문구만 라이브 리전에 둔다. 버튼까지 감싸면 단계가 바뀔 때마다
@@ -202,7 +223,12 @@ export default function MontyHallClient() {
 
           {phase === 'opened' && trial && (
             <div className={styles.playButtons}>
-              <button type="button" className={styles.primaryButton} onClick={() => decide('switch')}>
+              <button
+                ref={switchButtonRef}
+                type="button"
+                className={styles.primaryButton}
+                onClick={() => decide('switch')}
+              >
                 {trial.switchDoor + 1}번으로 바꾼다
               </button>
               <button type="button" className={styles.secondaryButton} onClick={() => decide('stay')}>

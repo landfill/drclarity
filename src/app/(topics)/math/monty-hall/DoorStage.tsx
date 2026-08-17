@@ -7,6 +7,8 @@ export type PlayPhase = 'picking' | 'opened' | 'resolved';
 
 export interface DoorStageProps {
   phase: PlayPhase;
+  /** 다음 판을 시작할 때 포커스를 되돌려줄 수 있게 첫 문을 내준다. */
+  firstDoorRef?: React.Ref<HTMLButtonElement>;
   trial: MontyHallTrial | null;
   /** 최종 선택. resolved 단계에서만 채워진다. */
   finalStrategy: Strategy | null;
@@ -53,7 +55,7 @@ function doorState(
   };
 }
 
-export function DoorStage({ phase, trial, finalStrategy, onPick }: DoorStageProps) {
+export function DoorStage({ phase, trial, finalStrategy, onPick, firstDoorRef }: DoorStageProps) {
   return (
     <div className={styles.doorStage}>
       <ul className={styles.doorRow}>
@@ -69,6 +71,7 @@ export function DoorStage({ phase, trial, finalStrategy, onPick }: DoorStageProp
           return (
             <li key={door} className={styles.doorCell}>
               <button
+                ref={door === 0 ? firstDoorRef : undefined}
                 type="button"
                 className={[
                   styles.door,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import styles from './QuizGate.module.css';
 
 export interface QuizChoice {
@@ -42,6 +42,18 @@ export function QuizGate({
   const [skipped, setSkipped] = useState(false);
   const [hasRevealed, setHasRevealed] = useState(false);
 
+  const firstChoiceRef = useRef<HTMLInputElement>(null);
+  const revealedRef = useRef<HTMLDivElement>(null);
+  // 상태가 바뀌어 다시 그려진 뒤에야 옵션이 다시 활성화되므로,
+  // 클릭 핸들러가 아니라 효과에서 포커스를 옮긴다.
+  const retryRequestedRef = useRef(false);
+
+  useEffect(() => {
+    if (!retryRequestedRef.current || submittedId !== null) return;
+    retryRequestedRef.current = false;
+    firstChoiceRef.current?.focus();
+  }, [submittedId]);
+
   const isCorrect = submittedId === correctId;
   // 한 번 열린 풀이는 다시 닫지 않는다. '다시 고르기'로 선택만 되돌릴 때
   // 풀이가 사라지면 이미 읽은 내용이 없어지고, 하위 컴포넌트의 내부 상태도 초기화된다.
@@ -53,7 +65,7 @@ export function QuizGate({
 
       <fieldset className={styles.choices} disabled={submittedId !== null}>
         <legend className={styles.legend}>답을 하나 고르세요</legend>
-        {choices.map((choice) => {
+        {choices.map((choice, index) => {
           const inputId = `${groupId}-${choice.id}`;
           const isSubmitted = submittedId === choice.id;
           // 오답일 때는 정답을 곧바로 짚어주지 않는다. 정답 위치를 바로 보여주면
@@ -73,6 +85,7 @@ export function QuizGate({
                 .join(' ')}
             >
               <input
+                ref={index === 0 ? firstChoiceRef : undefined}
                 id={inputId}
                 type="radio"
                 name={groupId}
@@ -98,6 +111,9 @@ export function QuizGate({
           className={submittedId === null ? styles.submitButton : styles.skipButton}
           onClick={() => {
             if (submittedId !== null) {
+              // 이 버튼은 곧바로 disabled 가 되어 포커스를 들고 있을 수 없다.
+              // 다시 고를 수 있게 된 첫 선택지로 넘긴다.
+              retryRequestedRef.current = true;
               setSubmittedId(null);
               setSelectedId(null);
               return;
@@ -119,6 +135,8 @@ export function QuizGate({
             onClick={() => {
               setSkipped(true);
               setHasRevealed(true);
+              // 이 버튼은 사라지므로, 사용자가 요청한 풀이로 포커스를 보낸다.
+              requestAnimationFrame(() => revealedRef.current?.focus());
             }}
           >
             {skipLabel}
@@ -137,7 +155,11 @@ export function QuizGate({
         )}
       </div>
 
-      {revealed && <div className={styles.revealed}>{children}</div>}
+      {revealed && (
+        <div ref={revealedRef} className={styles.revealed} tabIndex={-1}>
+          {children}
+        </div>
+      )}
     </section>
   );
 }
