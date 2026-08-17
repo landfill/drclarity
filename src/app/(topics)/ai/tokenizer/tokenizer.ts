@@ -112,8 +112,21 @@ const MERGED_BY_KEY: Map<string, Token> = new Map(
   MERGES.map((rule) => [pairKey(rule.left, rule.right), rule.merged]),
 );
 
-/** 입력이 아무리 길어도 재계산이 폭주하지 않도록 자른다. */
+/** 입력이 아무리 길어도 재계산이 폭주하지 않도록 자른다. 단위는 사람이 세는 글자다. */
 export const MAX_INPUT_LENGTH = 300;
+
+/**
+ * 입력을 최대 길이로 자른다. **코드 포인트 단위**로 자르는 것이 중요하다.
+ *
+ * String.slice 는 UTF-16 코드 단위로 자르므로 이모지처럼 두 단위를 쓰는 글자가
+ * 경계에 걸리면 서로게이트 한 쪽만 남는다. 그런 문자열은 UTF-8로 바꿀 때
+ * U+FFFD 로 대체되어 왕복이 깨진다. 화면의 '최대 N자'와도 셈이 어긋난다.
+ */
+export function clampInput(text: string, maxLength: number = MAX_INPUT_LENGTH): string {
+  const characters = Array.from(text);
+  if (characters.length <= maxLength) return text;
+  return characters.slice(0, maxLength).join('');
+}
 
 /**
  * 텍스트를 토큰으로 자른다.

@@ -37,7 +37,9 @@ export function TokenStrip({ tokens, emptyLabel = '입력하면 여기에 토큰
               styles[`tone${index % 4}`]
             }`}
           >
-            <span className={styles.tokenText}>
+            {/* 보이는 글자와 아래 srOnly 설명이 모두 읽히면 토큰 내용이 두 번 나온다.
+                공백을 대신하는 가운덴점까지 그대로 읽힌다. 읽히는 쪽은 srOnly 하나로 모은다. */}
+            <span className={styles.tokenText} aria-hidden="true">
               {isBytes ? text : visibleText(text)}
             </span>
             <span className={styles.tokenIndex} aria-hidden="true">

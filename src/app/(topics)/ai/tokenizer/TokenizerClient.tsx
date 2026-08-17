@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { TokenStrip } from './TokenStrip';
-import { MAX_INPUT_LENGTH, encode, statsOf } from './tokenizer';
+import { MAX_INPUT_LENGTH, clampInput, encode, statsOf } from './tokenizer';
 import styles from './Tokenizer.module.css';
 
 const DEFAULT_INPUT = '토큰 하나가 글자 하나는 아닙니다. the token is not a letter.';
@@ -60,13 +60,15 @@ export default function TokenizerClient() {
         <label className={styles.inputLabel} htmlFor="tokenizer-input">
           문장을 입력하면 토큰 경계가 보입니다 (최대 {MAX_INPUT_LENGTH}자)
         </label>
+        {/* maxLength 는 UTF-16 단위라 이모지를 두 칸으로 센다. 유효한 입력을
+            사전에 막지 않게 느슨하게 잡고, 실제 제한은 글자 단위로 clampInput 이 맡는다. */}
         <textarea
           id="tokenizer-input"
           className={styles.input}
           value={input}
-          maxLength={MAX_INPUT_LENGTH}
+          maxLength={MAX_INPUT_LENGTH * 2}
           rows={3}
-          onChange={(event) => setInput(event.currentTarget.value.slice(0, MAX_INPUT_LENGTH))}
+          onChange={(event) => setInput(clampInput(event.currentTarget.value))}
         />
 
         <dl className={styles.stats}>

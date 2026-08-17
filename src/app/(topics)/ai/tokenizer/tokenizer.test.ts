@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   MERGES,
   byteLength,
+  clampInput,
   charLength,
   decode,
   encode,
@@ -98,6 +99,32 @@ describe('주제가 주장하는 것들', () => {
     const tokens = encode('쀍');
     expect(tokens).toHaveLength(3);
     expect(tokens.every((token) => token.length === 1)).toBe(true);
+  });
+});
+
+describe('입력 자르기', () => {
+  it('짧은 입력은 그대로 둔다', () => {
+    expect(clampInput('안녕', 10)).toBe('안녕');
+  });
+
+  it('글자 수 기준으로 자른다 — 이모지 하나는 한 글자다', () => {
+    // UTF-16 코드 단위로 자르면 이모지가 두 칸을 먹어 화면의 '최대 N자'와 셈이 어긋난다.
+    const emojis = '🙂🙂🙂🙂🙂';
+    expect(charLength(clampInput(emojis, 3))).toBe(3);
+  });
+
+  it('서로게이트 쌍을 쪼개지 않는다', () => {
+    // 반쪽만 남으면 UTF-8 변환에서 U+FFFD 로 대체되어 왕복이 깨진다.
+    const clamped = clampInput('🙂🙂', 1);
+    expect(clamped).toBe('🙂');
+    expect(decode(encode(clamped))).toBe(clamped);
+  });
+
+  it('자른 결과는 항상 왕복이 유지된다', () => {
+    for (const limit of [1, 2, 3, 5]) {
+      const clamped = clampInput('a🙂가b🙂다', limit);
+      expect(decode(encode(clamped)), `limit=${limit}`).toBe(clamped);
+    }
   });
 });
 
