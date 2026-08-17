@@ -20,9 +20,9 @@ function doorState(
   phase: PlayPhase,
   trial: MontyHallTrial | null,
   finalStrategy: Strategy | null,
-): { open: boolean; content: string; note: string } {
+): { open: boolean; content: string; note: string; prize: string } {
   if (phase === 'picking' || !trial) {
-    return { open: false, content: '?', note: '' };
+    return { open: false, content: '?', note: '', prize: '' };
   }
 
   const isOpenedByHost = door === trial.openedDoor;
@@ -33,6 +33,9 @@ function doorState(
       open: isOpenedByHost,
       content: isOpenedByHost ? '🐐' : '?',
       note: isOpenedByHost ? '사회자가 열었습니다' : isPicked ? '내가 고른 문' : '',
+      // 열린 문의 상품은 그림문자로만 보이고 그 span 은 aria-hidden 이다.
+      // 읽어줄 수 있는 곳은 접근성 이름뿐이므로 여기에 담는다.
+      prize: isOpenedByHost ? '염소' : '',
     };
   }
 
@@ -46,6 +49,7 @@ function doorState(
     open: true,
     content: door === trial.carDoor ? '🚗' : '🐐',
     note: isPicked ? pickedNote : isOpenedByHost ? '사회자가 열었습니다' : remainingNote,
+    prize: door === trial.carDoor ? '자동차' : '염소',
   };
 }
 
@@ -54,7 +58,7 @@ export function DoorStage({ phase, trial, finalStrategy, onPick }: DoorStageProp
     <div className={styles.doorStage}>
       <ul className={styles.doorRow}>
         {Array.from({ length: DOOR_COUNT }, (_, door) => {
-          const { open, content, note } = doorState(door, phase, trial, finalStrategy);
+          const { open, content, note, prize } = doorState(door, phase, trial, finalStrategy);
           const isPicked = trial?.pickedDoor === door;
           const isFinal =
             phase === 'resolved' &&
@@ -76,7 +80,7 @@ export function DoorStage({ phase, trial, finalStrategy, onPick }: DoorStageProp
                   .join(' ')}
                 onClick={() => onPick(door)}
                 disabled={phase !== 'picking'}
-                aria-label={`${DOOR_LABELS[door]}${note ? ` — ${note}` : ''}`}
+                aria-label={[DOOR_LABELS[door], prize, note].filter(Boolean).join(' — ')}
               >
                 <span className={styles.doorNumber}>{door + 1}</span>
                 <span className={styles.doorContent} aria-hidden="true">
