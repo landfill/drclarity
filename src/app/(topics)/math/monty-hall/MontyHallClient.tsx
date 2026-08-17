@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
@@ -114,6 +114,17 @@ export default function MontyHallClient() {
     rounds: 0,
   });
   const [stepIndex, setStepIndex] = useState(0);
+  const playAgainRef = useRef<HTMLButtonElement>(null);
+
+  // 결정 버튼과 '한 판 더'는 서로 다른 노드라, 판이 끝나면 포커스가
+  // body 로 떨어져 탭 이동이 페이지 처음부터 다시 시작된다. 잃어버렸을 때만
+  // 이어받을 컨트롤로 옮긴다. 사용자가 다른 곳을 보고 있으면 가로채지 않는다.
+  useEffect(() => {
+    if (phase !== 'resolved') return;
+    const active = document.activeElement;
+    if (active && active !== document.body) return;
+    playAgainRef.current?.focus();
+  }, [phase]);
 
   const handlePick = (door: number) => {
     if (phase !== 'picking') return;
@@ -202,7 +213,12 @@ export default function MontyHallClient() {
 
           {phase === 'resolved' && trial && (
             <div className={styles.playButtons}>
-              <button type="button" className={styles.primaryButton} onClick={playAgain}>
+              <button
+                ref={playAgainRef}
+                type="button"
+                className={styles.primaryButton}
+                onClick={playAgain}
+              >
                 한 판 더
               </button>
             </div>
