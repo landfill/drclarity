@@ -38,17 +38,31 @@ export function decodeTagParam(raw: string): string {
   return normalizeTag(decoded);
 }
 
+/**
+ * 한 주제의 tags 를 정규화하고 빈 값·중복을 제거한다. 원래 순서는 유지.
+ * 집계(collectTags)와 렌더(TagList)가 같은 목록을 보도록 여기서 한 번에 처리한다.
+ */
+export function dedupeTags(tags?: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+
+  for (const raw of tags ?? []) {
+    const tag = normalizeTag(raw);
+    if (!tag || seen.has(tag)) continue;
+    seen.add(tag);
+    out.push(tag);
+  }
+
+  return out;
+}
+
 /** 주제 배열에서 태그별 개수를 집계한다. count 내림차순 → 태그명 사전순. */
 export function collectTags(topics: TopicEntry[]): TagCount[] {
   const counts = new Map<string, number>();
 
   for (const topic of topics) {
     // 한 주제 안의 중복 태그는 1회만 센다.
-    const seen = new Set<string>();
-    for (const raw of topic.tags ?? []) {
-      const tag = normalizeTag(raw);
-      if (!tag || seen.has(tag)) continue;
-      seen.add(tag);
+    for (const tag of dedupeTags(topic.tags)) {
       counts.set(tag, (counts.get(tag) ?? 0) + 1);
     }
   }

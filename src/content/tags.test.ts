@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { ALLOWED_TAGS, collectTags, decodeTagParam, filterTopicsByTag, normalizeTag, tagHref } from './tags';
+import {
+  ALLOWED_TAGS,
+  collectTags,
+  decodeTagParam,
+  dedupeTags,
+  filterTopicsByTag,
+  normalizeTag,
+  tagHref,
+} from './tags';
 import type { TopicEntry } from './types';
 
 function topic(slug: string, tags?: string[]): TopicEntry {
@@ -51,6 +59,32 @@ describe('decodeTagParam', () => {
     for (const tag of ALLOWED_TAGS) {
       expect(decodeTagParam(tagHref(tag).replace('/tags/', ''))).toBe(tag);
     }
+  });
+});
+
+describe('dedupeTags', () => {
+  it('중복을 제거하고 순서를 유지한다', () => {
+    expect(dedupeTags(['확률', '기하', '확률'])).toEqual(['확률', '기하']);
+  });
+
+  it('정규화 형태만 다른 중복도 제거한다', () => {
+    expect(dedupeTags(['이진법', '이진법'.normalize('NFD')])).toEqual(['이진법']);
+  });
+
+  it('빈 값과 공백만 있는 값을 버린다', () => {
+    expect(dedupeTags(['', '  ', '오차'])).toEqual(['오차']);
+  });
+
+  it('undefined 면 빈 배열', () => {
+    expect(dedupeTags(undefined)).toEqual([]);
+  });
+
+  it('collectTags 와 같은 목록을 본다 — 화면과 인덱스가 어긋나지 않는다', () => {
+    const tags = ['확률', '확률', '  기하  ', ''];
+    // 정렬 기준이 다르므로(dedupe는 원래 순서, collect는 count/사전순) 집합으로 비교한다.
+    expect([...dedupeTags(tags)].sort()).toEqual(
+      collectTags([topic('a', tags)]).map(r => r.tag).sort()
+    );
   });
 });
 
