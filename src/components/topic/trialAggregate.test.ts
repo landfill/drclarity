@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { countBuckets, formatRate, mergeBucketCounts } from './trialAggregate';
+import { countBuckets, formatCount, formatRate, mergeBucketCounts } from './trialAggregate';
 import { playRound, type MontyHallTrial } from '@/app/(topics)/math/monty-hall/montyHall';
 
 /** 몬티 홀에서 쓰는 것과 같은 환원 함수. 한 시행이 두 버킷에 걸칠 수 있다. */
@@ -53,6 +53,13 @@ describe('trialAggregate.ts', () => {
 
     expect(merged).toEqual({ switch: 13, stay: 5, other: 1 });
     expect(previous).toEqual({ switch: 10, stay: 5 });
+  });
+
+  it('formatCount 는 실행 환경 로케일과 무관하게 같은 문자열을 낸다', () => {
+    // 로케일을 고정하지 않으면 서버와 브라우저 출력이 갈려 하이드레이션이 깨진다.
+    expect(formatCount(10000)).toBe('10,000');
+    expect(formatCount(1000)).toBe('1,000');
+    expect(formatCount(0)).toBe('0');
   });
 
   it('formatRate 는 시행 0회를 나눗셈하지 않는다', () => {

@@ -41,6 +41,17 @@ export function mergeBucketCounts(previous: BucketCounts, delta: BucketCounts): 
   return merged;
 }
 
+/**
+ * 시행 횟수 표기. 로케일을 고정한다.
+ *
+ * toLocaleString() 을 인자 없이 쓰면 서버와 브라우저의 로케일이 달라
+ * 천 단위 구분자가 엇갈리고(10,000 vs 10.000), 프리렌더링된 버튼 문구가
+ * 하이드레이션 불일치를 낸다.
+ */
+export function formatCount(value: number): string {
+  return value.toLocaleString('ko-KR');
+}
+
 /** 비율을 백분율 문자열로. 시행이 0회면 '—'. */
 export function formatRate(count: number, total: number): string {
   if (total === 0) return '—';

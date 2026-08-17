@@ -2,7 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { prefersReducedMotion } from '@/lib/reducedMotion';
-import { countBuckets, formatRate, mergeBucketCounts, type BucketCounts, type BucketsOf } from './trialAggregate';
+import {
+  countBuckets,
+  formatCount,
+  formatRate,
+  mergeBucketCounts,
+  type BucketCounts,
+  type BucketsOf,
+} from './trialAggregate';
 import styles from './TrialRunner.module.css';
 
 /** 집계 막대 하나. 이론값을 주면 실측과 나란히 비교된다. */
@@ -101,7 +108,7 @@ export function TrialRunner<R>({
 
   const announce = useCallback(
     (runCount: number) => {
-      setAnnouncement(`${runCount.toLocaleString()}회 실행을 마쳤습니다.`);
+      setAnnouncement(`${formatCount(runCount)}회 실행을 마쳤습니다.`);
     },
     [],
   );
@@ -167,7 +174,7 @@ export function TrialRunner<R>({
               onClick={() => start(preset)}
               disabled={isRunning}
             >
-              {preset.toLocaleString()}
+              {formatCount(preset)}
               {runLabel}
             </button>
           ))}
@@ -195,8 +202,8 @@ export function TrialRunner<R>({
       </p>
 
       <p className={styles.total} aria-hidden="true">
-        {totalLabel} <strong>{total.toLocaleString()}</strong>회
-        {isRunning && <span className={styles.progress}> · {remaining.toLocaleString()}회 남음</span>}
+        {totalLabel} <strong>{formatCount(total)}</strong>회
+        {isRunning && <span className={styles.progress}> · {formatCount(remaining)}회 남음</span>}
       </p>
 
       <ul className={styles.bucketList} aria-hidden="true">
@@ -210,7 +217,7 @@ export function TrialRunner<R>({
                 <span className={styles.bucketLabel}>{bucket.label}</span>
                 <span className={styles.bucketValue}>
                   {formatRate(count, total)}
-                  <span className={styles.bucketCount}> ({count.toLocaleString()}회)</span>
+                  <span className={styles.bucketCount}> ({formatCount(count)}회)</span>
                 </span>
               </div>
 
@@ -250,7 +257,7 @@ export function TrialRunner<R>({
       */}
       <p role="status" aria-live="polite" className={styles.srOnly}>
         {announcement && total > 0
-          ? `${announcement} 누적 ${total.toLocaleString()}회. ${buckets
+          ? `${announcement} 누적 ${formatCount(total)}회. ${buckets
               .map((bucket) => {
                 const observed = `${bucket.label} ${formatRate(counts[bucket.id] ?? 0, total)}`;
                 if (bucket.theoretical === undefined) return observed;
