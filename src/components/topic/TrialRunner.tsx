@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { prefersReducedMotion } from '@/lib/reducedMotion';
+import { useAnimationFrame } from '@/hooks/useAnimationFrame';
 import {
   countBuckets,
   formatCount,
@@ -62,11 +62,18 @@ export function TrialRunner<R>({
   const [counts, setCounts] = useState<BucketCounts>({});
   const [total, setTotal] = useState(0);
   const [remaining, setRemaining] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
   const [results, setResults] = useState<R[]>([]);
   /** 방금 끝난 실행의 요약. 실행 중에는 비워 두어 라이브 리전이 매 프레임 떠들지 않게 한다. */
   const [announcement, setAnnouncement] = useState('');
 
-  const frameRef = useRef<number | null>(null);
+  /*
+   * 남은 시행 수와 이번 실행의 총량은 state 가 아니라 ref 다. tick 이 state 를 읽으면
+   * 매 프레임 tick 의 정체성이 바뀌어 useAnimationFrame 의 deps 가 흔들리고,
+   * 훅이 프레임마다 rAF 를 취소·재등록하게 된다. remaining state 는 화면 표시 전용이다.
+   */
+  const remainingRef = useRef(0);
+  const runCountRef = useRef(0);
   // 실행 루프가 항상 최신 콜백을 쓰도록 ref 로 넘긴다.
   const runTrialRef = useRef(runTrial);
   const bucketsOfRef = useRef(bucketsOf);
@@ -80,13 +87,6 @@ export function TrialRunner<R>({
     bucketIdsRef.current = buckets.map((bucket) => bucket.id);
     collectResultsRef.current = collectResults;
   }, [buckets, bucketsOf, collectResults, runTrial]);
-
-  useEffect(() => {
-    return () => {
-      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
-      frameRef.current = null;
-    };
-  }, []);
 
   /** 시행 batchSize 회를 실제로 돌리고 집계 델타를 만든다. */
   const runBatch = useCallback((batchSize: number) => {
@@ -113,54 +113,79 @@ export function TrialRunner<R>({
     [],
   );
 
+  /** 이번 실행을 끝내고 루프를 내린다. */
+  const finish = useCallback(() => {
+    remainingRef.current = 0;
+    setRemaining(0);
+    setIsRunning(false);
+    announce(runCountRef.current);
+  }, [announce]);
+
+  const tick = useCallback(
+    (_elapsedMs: number, progress: number) => {
+      // 'infinite' 모드에서 progress 는 늘 0이다. 1이 오는 경우는
+      // prefers-reduced-motion 이라 훅이 콜백을 한 번만 부르는 상황뿐이다.
+      // 그때는 배치로 나누지 않고 남은 시행을 전부 돌린 뒤 최종 수치만 보여준다.
+      if (progress === 1) {
+        runBatch(remainingRef.current);
+        finish();
+        return;
+      }
+
+      const batchSize = Math.min(TRIALS_PER_FRAME, remainingRef.current);
+      runBatch(batchSize);
+      remainingRef.current -= batchSize;
+
+      if (remainingRef.current > 0) {
+        setRemaining(remainingRef.current);
+      } else {
+        finish();
+      }
+    },
+    [finish, runBatch],
+  );
+
+  /*
+   * 루프의 종료 조건은 시간이 아니라 시행 소진이므로 duration 은 'infinite' 다.
+   * 정지는 콜백을 null 로 내려 훅의 cleanup 이 rAF 를 취소하게 한다.
+   * isRunning 이 deps 에 없으면 다음 실행에서 루프가 다시 시작되지 않는다.
+   */
+  useAnimationFrame(isRunning ? tick : null, 'infinite', [isRunning, tick]);
+
   const start = useCallback(
     (runCount: number) => {
-      if (frameRef.current !== null) return;
+      if (isRunning) return;
       setAnnouncement('');
+      runCountRef.current = runCount;
 
-      // reduced-motion 이거나 한 프레임에 담기는 양이면 배치 애니메이션 없이 즉시 끝낸다.
-      if (prefersReducedMotion() || runCount <= TRIALS_PER_FRAME) {
+      // 한 프레임에 담기는 양이면 루프를 띄우지 않고 즉시 끝낸다.
+      if (runCount <= TRIALS_PER_FRAME) {
         runBatch(runCount);
+        remainingRef.current = 0;
         setRemaining(0);
         announce(runCount);
         return;
       }
 
-      let left = runCount;
-      setRemaining(left);
-
-      const step = () => {
-        const batchSize = Math.min(TRIALS_PER_FRAME, left);
-        runBatch(batchSize);
-        left -= batchSize;
-        setRemaining(left);
-
-        if (left > 0) {
-          frameRef.current = requestAnimationFrame(step);
-        } else {
-          frameRef.current = null;
-          announce(runCount);
-        }
-      };
-
-      frameRef.current = requestAnimationFrame(step);
+      remainingRef.current = runCount;
+      setRemaining(runCount);
+      setIsRunning(true);
     },
-    [announce, runBatch],
+    [announce, isRunning, runBatch],
   );
 
   const reset = useCallback(() => {
-    if (frameRef.current !== null) {
-      cancelAnimationFrame(frameRef.current);
-      frameRef.current = null;
-    }
+    // 실행 중에도 초기화 버튼은 열려 있다. 남은 시행을 함께 비우지 않으면
+    // 다음 실행이 이전 실행의 잔량을 물려받는다.
+    remainingRef.current = 0;
+    runCountRef.current = 0;
+    setIsRunning(false);
     setCounts({});
     setTotal(0);
     setRemaining(0);
     setResults([]);
     setAnnouncement('집계를 초기화했습니다.');
   }, []);
-
-  const isRunning = remaining > 0;
 
   return (
     <section className={styles.runner} aria-label="반복 시뮬레이션">
