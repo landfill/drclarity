@@ -152,9 +152,17 @@ export function* quickSort(arr: number[]): SortGenerator {
       yield { kind: 'swap', indices: [boundary, high] };
     }
 
-    // 큰 쪽을 먼저 쌓아 작은 쪽부터 처리한다. 스택이 깊어지는 것을 줄인다.
-    stack.push([low, boundary - 1]);
-    stack.push([boundary + 1, high]);
+    // 큰 쪽을 먼저 쌓아 작은 쪽부터 꺼낸다. 이래야 스택 깊이가 O(log n) 으로 묶인다.
+    // 순서를 고정하면 한쪽으로 쏠린 입력에서 스택이 n 까지 자란다.
+    const left: [number, number] = [low, boundary - 1];
+    const right: [number, number] = [boundary + 1, high];
+    if (boundary - low > high - boundary) {
+      stack.push(left);
+      stack.push(right);
+    } else {
+      stack.push(right);
+      stack.push(left);
+    }
   }
 }
 
