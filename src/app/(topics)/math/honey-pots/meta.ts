@@ -5,7 +5,8 @@ const meta: TopicMeta = {
   summary: '5마리의 개미로 가짜 꿀통을 찾아낼 수 있을까요?',
   order: 2,
   difficulty: 3,
-  thumbnail: '/topics/honey-pots/problem.png'
+  thumbnail: '/topics/honey-pots/problem.png',
+  tags: ['이진법', '정보량', '논리 퍼즐']
 };
 
 export default meta;

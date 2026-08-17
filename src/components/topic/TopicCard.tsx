@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { TopicEntry } from '@/content/types';
+import { TagList } from './TagList';
 import styles from './TopicCard.module.css';
 
 export interface TopicCardProps {
@@ -27,6 +28,8 @@ export function TopicCard({ topic }: TopicCardProps) {
           </div>
         </div>
         <p className={styles.summary}>{topic.summary}</p>
+        {/* 카드 전체가 <a> 라 중첩 링크가 불가하다. 여기서는 배지만 보여준다. */}
+        <TagList tags={topic.tags} variant="plain" className={styles.tags} />
       </div>
     </Link>
   );

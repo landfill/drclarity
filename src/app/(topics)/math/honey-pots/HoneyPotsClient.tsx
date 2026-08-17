@@ -7,6 +7,7 @@ import { SolutionStepper, SolutionStep } from '@/components/topic/SolutionSteppe
 import { BinaryEncodingBoard, HoneyBoardMode } from './BinaryEncodingBoard';
 import styles from './BinaryEncodingBoard.module.css';
 import { antsForPot } from './binary';
+import meta from './meta';
 
 const HONEY_STEPS: SolutionStep[] = [
   {
@@ -72,6 +73,7 @@ export default function HoneyPotsClient() {
   return (
     <TopicLayout
       wide
+      tags={meta.tags}
       title={<>25개의 꿀통과 <Highlight>5마리 개미</Highlight></>}
       subtitle="5마리의 개미로 가짜 꿀통을 찾아낼 수 있을까요?"
     >

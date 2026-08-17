@@ -29,6 +29,10 @@
   margin-bottom: 1rem;
 }
 
+.tags {
+  margin-top: var(--space-md);
+}
+
 .highlight {
   color: var(--color-accent);
   background: rgba(255, 159, 67, 0.1);

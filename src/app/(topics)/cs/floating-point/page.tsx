@@ -12,8 +12,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function FloatingPointPage() {
   return (
-    <TopicLayout 
+    <TopicLayout
       wide
+      tags={meta.tags}
       title={<>왜 <Highlight>0.1 + 0.2</Highlight>는 0.3이 아닐까요?</>}
     >
       <SplitStage stage={<PizzaSlicer />}>

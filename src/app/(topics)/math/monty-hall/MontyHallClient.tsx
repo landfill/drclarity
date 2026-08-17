@@ -16,6 +16,7 @@ import {
   type MontyHallTrial,
   type Strategy,
 } from './montyHall';
+import meta from './meta';
 import styles from './MontyHall.module.css';
 
 const SOLUTION_STEPS: SolutionStep[] = [
@@ -179,6 +180,7 @@ export default function MontyHallClient() {
   return (
     <TopicLayout
       wide
+      tags={meta.tags}
       title={<>문을 <Highlight>바꿔야</Highlight> 할까?</>}
       subtitle="직관이 가장 크게 배신당하는 확률 문제, 몬티 홀"
     >

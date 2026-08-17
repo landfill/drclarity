@@ -24,6 +24,14 @@ export function SiteHeader() {
                 </li>
               );
             })}
+            <li>
+              <Link
+                href="/tags"
+                className={`${styles.link} ${pathname.startsWith('/tags') ? styles.active : ''}`}
+              >
+                태그
+              </Link>
+            </li>
           </ul>
         </nav>
       </div>

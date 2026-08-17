@@ -6,6 +6,7 @@ import { SolutionStepper, SolutionStep } from '@/components/topic/SolutionSteppe
 import { drawScene, SceneOptions } from './scene';
 import { useAnimationFrame } from '@/hooks/useAnimationFrame';
 import { palette } from '@/styles/palette';
+import meta from './meta';
 import styles from './GeometryAreaClient.module.css';
 
 
@@ -140,6 +141,7 @@ export default function GeometryAreaClient() {
   return (
     <TopicLayout
       wide
+      tags={meta.tags}
       title={<>빨간색 영역의 넓이는?</>}
       subtitle="큰 사분원(반지름 6)에서 두 개의 흰색 반원을 제외한 빨간색 영역의 넓이를 구해보세요."
     >
