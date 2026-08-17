@@ -51,3 +51,35 @@
 .note :global(p:last-child) {
   margin-bottom: 0;
 }
+
+/*
+ * globals.css 의 `* { padding: 0 }` 이 목록의 기본 들여쓰기까지 지운다.
+ * 그대로 두면 불릿이 본문 왼쪽 끝에 붙어 목록으로 읽히지 않으므로 되살린다.
+ */
+.plain :global(ul),
+.note :global(ul),
+.plain :global(ol),
+.note :global(ol) {
+  margin-bottom: var(--space-sm);
+  padding-left: var(--space-lg);
+}
+
+.plain :global(ul:last-child),
+.note :global(ul:last-child),
+.plain :global(ol:last-child),
+.note :global(ol:last-child) {
+  margin-bottom: 0;
+}
+
+.plain :global(li),
+.note :global(li) {
+  margin-bottom: var(--space-2xs);
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--color-ink);
+}
+
+.plain :global(li:last-child),
+.note :global(li:last-child) {
+  margin-bottom: 0;
+}
