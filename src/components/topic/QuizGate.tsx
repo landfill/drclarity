@@ -56,7 +56,9 @@ export function QuizGate({
         {choices.map((choice) => {
           const inputId = `${groupId}-${choice.id}`;
           const isSubmitted = submittedId === choice.id;
-          const marksCorrect = submittedId !== null && choice.id === correctId;
+          // 오답일 때는 정답을 곧바로 짚어주지 않는다. 정답 위치를 바로 보여주면
+          // 다시 고르기가 '이미 아는 답 다시 누르기'가 되어 아무것도 남지 않는다.
+          const marksCorrect = isCorrect && choice.id === correctId;
 
           return (
             <label
@@ -86,44 +88,40 @@ export function QuizGate({
       </fieldset>
 
       <div className={styles.actions}>
-        {submittedId === null ? (
-          <>
-            <button
-              type="button"
-              className={styles.submitButton}
-              onClick={() => {
-                if (!selectedId) return;
-                setSubmittedId(selectedId);
-                setHasRevealed(true);
-              }}
-              disabled={selectedId === null}
-            >
-              {submitLabel}
-            </button>
-            {allowSkip && !skipped && (
-              // 강제 게이트는 이탈을 만든다. 빠져나갈 길을 항상 열어 둔다.
-              <button
-                type="button"
-                className={styles.skipButton}
-                onClick={() => {
-                  setSkipped(true);
-                  setHasRevealed(true);
-                }}
-              >
-                {skipLabel}
-              </button>
-            )}
-          </>
-        ) : (
+        {/*
+          제출과 재선택이 같은 버튼 노드를 쓴다. 분기마다 다른 노드를 그리면
+          상태가 바뀔 때 이전 노드가 언마운트되어 키보드 포커스가 body 로 떨어지고,
+          다음 탭 이동이 페이지 처음부터 다시 시작된다. 그래서 조건부로 감추지 않는다.
+        */}
+        <button
+          type="button"
+          className={submittedId === null ? styles.submitButton : styles.skipButton}
+          onClick={() => {
+            if (submittedId !== null) {
+              setSubmittedId(null);
+              setSelectedId(null);
+              return;
+            }
+            if (!selectedId) return;
+            setSubmittedId(selectedId);
+            setHasRevealed(true);
+          }}
+          disabled={submittedId === null && selectedId === null}
+        >
+          {submittedId === null ? submitLabel : retryLabel}
+        </button>
+
+        {submittedId === null && allowSkip && !skipped && (
+          // 강제 게이트는 이탈을 만든다. 빠져나갈 길을 항상 열어 둔다.
           <button
             type="button"
             className={styles.skipButton}
             onClick={() => {
-              setSubmittedId(null);
-              setSelectedId(null);
+              setSkipped(true);
+              setHasRevealed(true);
             }}
           >
-            {retryLabel}
+            {skipLabel}
           </button>
         )}
       </div>
