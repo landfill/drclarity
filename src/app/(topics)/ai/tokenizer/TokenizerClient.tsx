@@ -5,6 +5,7 @@ import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { TokenStrip } from './TokenStrip';
 import { MAX_INPUT_LENGTH, clampInput, encode, statsOf } from './tokenizer';
+import meta from './meta';
 import styles from './Tokenizer.module.css';
 
 const DEFAULT_INPUT = '토큰 하나가 글자 하나는 아닙니다. the token is not a letter.';
@@ -40,6 +41,7 @@ export default function TokenizerClient() {
   return (
     <TopicLayout
       wide
+      tags={meta.tags}
       title={<>AI는 글자가 아니라 <Highlight>토큰</Highlight>을 본다</>}
       subtitle="글자도 단어도 아닌 중간 단위. 이 차이가 비용과 한도를 정합니다."
     >

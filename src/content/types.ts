@@ -12,7 +12,10 @@ export interface TopicMeta {
   thumbnail?: string;
   /** 난이도 1(쉬움)~3(어려움). 카드에 점 3개로 표시. */
   difficulty?: 1 | 2 | 3;
-  /** 검색/분류용 자유 태그. 이번 범위에서 UI 노출은 없으나 메타데이터로 보존. */
+  /**
+   * 분류용 태그. 카드/주제 페이지에 배지로 노출되고 /tags/[tag] 인덱스를 만든다.
+   * 값은 src/content/tags.json 의 허용 목록에서 고른다 (수집기가 벗어난 값을 경고).
+   */
   tags?: string[];
 }
 

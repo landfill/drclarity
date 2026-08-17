@@ -17,6 +17,7 @@ import {
   type SortCounters,
   type SortGenerator,
 } from './sorting';
+import meta from './meta';
 import styles from './SortingRace.module.css';
 
 /**
@@ -244,6 +245,7 @@ export default function SortingRaceClient() {
   return (
     <TopicLayout
       wide
+      tags={meta.tags}
       title={<>같은 배열, <Highlight>다른 속도</Highlight></>}
       subtitle="O(n²)와 O(n log n)의 차이를 말이 아니라 속도로 봅니다."
     >

@@ -1,7 +1,8 @@
 import { allTopics, allCategories, type CategoryId } from './registry.generated';
+import { collectTags, filterTopicsByTag, type TagCount } from './tags';
 import type { CategoryEntry, TopicEntry } from './types';
 
-export type { CategoryId, CategoryEntry, TopicEntry };
+export type { CategoryId, CategoryEntry, TopicEntry, TagCount };
 
 /** status='published' 인 카테고리 목록. order 오름차순. */
 export function getCategories(): CategoryEntry[] {
@@ -29,6 +30,16 @@ export function getTopics(): TopicEntry[] {
 /** 단일 주제. 없으면 undefined. */
 export function getTopic(categoryId: string, slug: string): TopicEntry | undefined {
   return allTopics.find(t => t.categoryId === categoryId && t.slug === slug);
+}
+
+/** 노출 중인 주제에 실제로 붙어 있는 태그와 개수. count 내림차순 → 태그명 사전순. */
+export function getAllTags(): TagCount[] {
+  return collectTags(getTopics());
+}
+
+/** 해당 태그가 붙은 노출 중인 주제. 카테고리를 넘나든다. */
+export function getTopicsByTag(tag: string): TopicEntry[] {
+  return filterTopicsByTag(getTopics(), tag);
 }
 
 /** 홈 대시보드 추천 슬롯용. order 순 상위 N개. */

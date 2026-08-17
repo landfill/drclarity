@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
-import { getCategories } from '@/content/registry';
+import { getAllTags, getCategories } from '@/content/registry';
+import { tagHref } from '@/content/tags';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ||
@@ -36,6 +37,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.6,
       });
     }
+  }
+
+  // 태그 인덱스 + 개별 태그 (경로는 tagHref가 인코딩한다)
+  routes.push({
+    url: `${baseUrl}/tags`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly',
+    priority: 0.5,
+  });
+
+  for (const { tag } of getAllTags()) {
+    routes.push({
+      url: `${baseUrl}${tagHref(tag)}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.4,
+    });
   }
 
   return routes;

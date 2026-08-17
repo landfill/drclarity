@@ -8,9 +8,52 @@ import path from 'path';
 
 const TOPICS_DIR = path.join(process.cwd(), 'src/app/(topics)');
 const REGISTRY_OUT = path.join(process.cwd(), 'src/content/registry.generated.ts');
+const TAGS_DICT = path.join(process.cwd(), 'src/content/tags.json');
 
 function isKebabCase(str) {
   return /^[a-z0-9-]+$/.test(str);
+}
+
+function loadAllowedTags() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(TAGS_DICT, 'utf8'));
+    return Array.isArray(raw.allowed) ? new Set(raw.allowed) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * meta.ts 원문에서 tags 배열의 문자열 리터럴을 뽑는다.
+ * 정적 리터럴이 아니면(변수 참조 등) null 을 돌려주고 검증을 건너뛴다.
+ */
+function extractTags(metaContent) {
+  const match = metaContent.match(/tags:\s*\[([^\]]*)\]/);
+  if (!match) return null;
+  const body = match[1].trim();
+  if (body === '') return [];
+  const literals = body.match(/'[^']*'|"[^"]*"/g);
+  if (!literals) return null;
+  // 리터럴이 아닌 요소가 섞여 있으면 판단하지 않는다.
+  if (literals.length !== body.split(',').filter((s) => s.trim() !== '').length) return null;
+  return literals.map((s) => s.slice(1, -1));
+}
+
+/**
+ * 태그 사전 검증. 컨텐츠 품질 점검이라 경고만 한다 — 이 스크립트는 postinstall 에서
+ * 돌기 때문에 오타 하나로 npm install 이 실패하면 안 된다.
+ */
+function warnUnknownTags(allowedTags, label, metaContent) {
+  if (!allowedTags) return;
+  const tags = extractTags(metaContent);
+  if (!tags) return;
+  for (const tag of tags) {
+    if (!allowedTags.has(tag.normalize('NFC'))) {
+      console.warn(
+        `${label}: 사전에 없는 태그 '${tag}'. src/content/tags.json 에 추가하거나 표기를 맞추세요.`
+      );
+    }
+  }
 }
 
 function run() {
@@ -22,6 +65,8 @@ function run() {
     const stat = fs.statSync(path.join(TOPICS_DIR, d));
     return stat.isDirectory() && !d.startsWith('.');
   });
+
+  const allowedTags = loadAllowedTags();
 
   let imports = '';
   const allTopicsData = [];
@@ -90,6 +135,8 @@ function run() {
           }
           ordersInCat.add(order);
         }
+
+        warnUnknownTags(allowedTags, `${catId}/${slug}`, metaContent);
 
         const topicImportName = `meta_${catId.replace(/-/g, '_')}_${slug.replace(/-/g, '_')}`;
         imports += `import ${topicImportName} from '@/app/(topics)/${catId}/${slug}/meta';\n`;
