@@ -182,6 +182,18 @@ export function TrialRunner<R>({
         </button>
       </div>
 
+      {/* 실행 전에도 무엇을 재는지, 이론값이 얼마인지 알 수 있어야 한다. 갱신되지 않는
+          정적 설명이므로 라이브 리전이 아니다. */}
+      <p className={styles.srOnly}>
+        {`측정 항목: ${buckets
+          .map((bucket) =>
+            bucket.theoretical === undefined
+              ? bucket.label
+              : `${bucket.label} (이론값 ${(bucket.theoretical * 100).toFixed(1)}%)`,
+          )
+          .join(', ')}.`}
+      </p>
+
       <p className={styles.total} aria-hidden="true">
         {totalLabel} <strong>{total.toLocaleString()}</strong>회
         {isRunning && <span className={styles.progress}> · {remaining.toLocaleString()}회 남음</span>}
@@ -226,13 +238,19 @@ export function TrialRunner<R>({
       </ul>
 
       {/*
-        매 프레임 갱신되는 수치를 그대로 읽히면 스크린 리더가 밀린다.
-        실행이 끝났을 때 한 번만 요약을 내보낸다.
+        위 막대 목록은 aria-hidden 이다. 매 프레임 갱신되는 수치를 그대로 읽히면
+        스크린 리더가 밀리기 때문이다. 대신 실행이 끝났을 때 여기서 한 번만
+        요약을 내보내되, 목록에만 있던 이론값도 함께 담아야 한다.
+        실측만 읽어주면 "이론값에 수렴한다"는 이 컴포넌트의 요점이 사라진다.
       */}
       <p role="status" aria-live="polite" className={styles.srOnly}>
         {announcement && total > 0
           ? `${announcement} 누적 ${total.toLocaleString()}회. ${buckets
-              .map((bucket) => `${bucket.label} ${formatRate(counts[bucket.id] ?? 0, total)}`)
+              .map((bucket) => {
+                const observed = `${bucket.label} ${formatRate(counts[bucket.id] ?? 0, total)}`;
+                if (bucket.theoretical === undefined) return observed;
+                return `${observed} (이론값 ${(bucket.theoretical * 100).toFixed(1)}%)`;
+              })
               .join(', ')}.`
           : announcement}
       </p>
