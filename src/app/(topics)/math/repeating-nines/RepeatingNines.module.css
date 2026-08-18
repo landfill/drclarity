@@ -1,0 +1,76 @@
+/*
+ * globals.css 가 모든 margin 을 지우고 TopicLayout 의 .container 에는 gap 이 없다.
+ * 최상위 블록은 각자 margin-bottom 을 들고 있어야 한다.
+ */
+.sectionTitle {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--fs-h2);
+  color: var(--color-text);
+}
+
+.sectionLead {
+  margin-bottom: var(--space-md);
+  color: var(--color-muted);
+}
+
+.stage {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.solutionSection {
+  margin-bottom: var(--space-lg);
+}
+
+.canvas {
+  max-width: 520px;
+  width: 100%;
+  margin: var(--space-md) auto 0;
+}
+
+.readouts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  margin-top: var(--space-md);
+}
+
+.readout dt {
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.readout dd {
+  margin: 0;
+  font-size: var(--fs-lead);
+  color: var(--color-text);
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+  /* 자릿수가 늘어도 줄이 밀리지 않게. */
+  overflow-wrap: anywhere;
+}
+
+.gap {
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+.punchline {
+  margin-top: var(--space-md);
+  color: var(--color-text);
+}
+
+@media (max-width: 768px) {
+  .stage {
+    padding: var(--space-md);
+  }
+
+  .readouts {
+    gap: var(--space-md);
+  }
+}
