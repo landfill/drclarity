@@ -1056,6 +1056,34 @@ export interface BinaryEncodingBoardProps {
   ```
 - `src/app/sitemap.ts` 가 `getCategories()` + `getTopics()` 로 전 경로를 생성한다. 자동 수집 구조의 실질적 이득을 보여주는 지점이다.
 
+#### 7.6.1 OG 이미지 — `opengraph-image.tsx` (MUST)
+
+공유 카드용 이미지를 `next/og` 의 `ImageResponse` 로 빌드 시점에 생성한다. 공통 레이아웃과 폰트 로딩은 `src/lib/og.tsx` 한 곳에 있고, 각 라우트 파일은 자기 데이터만 넘긴다.
+
+| 경로 | 파일 | 내용 |
+| --- | --- | --- |
+| `/` (및 자기 이미지가 없는 모든 경로) | `src/app/opengraph-image.tsx` | 워드마크 + 태그라인 |
+| `/math`, `/cs`, `/ai` | `(topics)/<cat>/opengraph-image.tsx` | `카테고리` + `category.label` + `description` |
+| 각 주제 | `(topics)/<cat>/<slug>/opengraph-image.tsx` | `category.label` + `meta.title` + 난이도 점 3개 |
+
+**Satori 제약 (MUST)**
+
+- **flexbox 만 지원한다. `display: grid` 는 동작하지 않는다.** 자식이 둘 이상인 요소에는 `display: flex` 를 명시한다 — 생략하면 레이아웃이 조용히 어긋난다.
+- 번들 상한 **500KB**. JSX·CSS·폰트·이미지를 모두 합친 값이다.
+- 폰트는 `ttf`/`otf`/`woff` 만 읽는다. **`woff2` 는 불가.**
+
+**한글 폰트 (MUST)**
+
+한글 폰트 전체는 수 MB 라 위 500KB 한도를 넘는다. Google Fonts 의 `text=` 서브셋을 이미지에 실제로 그릴 글자만으로 요청한다. 현재 한 이미지당 30KB 안팎이고, 주제가 늘어도 서브셋이 자동으로 따라온다.
+
+> **`User-Agent` 를 비워서 요청한다 (MUST).** 최신 UA 를 보내면 Google 이 `woff2` 를 돌려주는데 Satori 가 읽지 못한다. UA 가 없으면 `truetype` 으로 응답한다. `src/lib/og.tsx` 는 응답 형식을 검사해 예상 밖 형식이면 빌드를 실패시킨다 — 조용히 넘기면 한글이 통째로 □□□ 로 나간다.
+
+빌드는 이미 `next/font/google` 로 Google Fonts 에 의존하므로, 이 요청이 새로운 종류의 의존성을 만들지는 않는다.
+
+**라우트 커버리지 (MUST)**
+
+주제마다 파일이 하나씩 필요하고 그 안의 경로는 문자열 리터럴이라 타입이 잡아주지 못한다. 빠뜨리거나 오타를 내면 공유 카드가 조용히 기본 이미지로 떨어진다. `src/lib/og.test.ts` 가 모든 주제·카테고리에 대해 파일 존재와 경로 일치를 검사하므로, **주제를 추가하면 이 테스트가 먼저 실패한다.**
+
 ---
 
 ## 8. 에셋 처리
