@@ -568,6 +568,8 @@ export interface TopicLayoutProps {
 
 레거시의 `.hero` + `.container` 구조에 대응한다.
 
+> **`hint` 슬롯에 관하여** — 이전 판의 이 표에는 `hint?: React.ReactNode` 가 있었으나 구현에는 존재한 적이 없다. 단계별 힌트는 `SolutionStepper` 가 자기 안에서 '직접 확인:' 줄로 렌더한다(§6.5). §6 의 "제거·이름 변경 불가" 규칙은 구현이 지켜야 할 계약을 말하는 것이고, 이 삭제는 처음부터 구현된 적 없는 항목을 명세에서 걷어낸 것이다.
+
 **진행 상태바는 포함하지 않는다 (MUST NOT).** 이전/다음 내비게이션은 RENEWAL_PLAN D6이 "구조가 자리잡은 뒤 추가"로 유보한 항목이며, 주제가 6개가 된 시점에 `topicHref` 슬롯으로 도입했다 (#12). D6의 제외 조항은 이 항목에 한해 해제된 것으로 본다.
 
 `Highlight` 는 레거시 `.highlight` 스팬(주황 배경 + 라운드)에 대응하는 작은 컴포넌트로 함께 만든다.
@@ -657,7 +659,7 @@ export interface SolutionStep {
   body: React.ReactNode;
   /** 수식 강조 줄. 레거시 .math-formula 스타일로 렌더. */
   formula?: React.ReactNode;
-  /** TopicLayout 의 hint 슬롯으로 올려보낼 힌트. */
+  /** 단계별 힌트. SolutionStepper 가 '직접 확인:' 줄로 직접 렌더한다(TopicLayout 으로 올리지 않는다). */
   hint?: React.ReactNode;
 }
 
@@ -917,7 +919,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, opts: SceneOptions): vo
 - 레거시의 이중 sin (`Math.sin(Math.sin(t/200)*0.1)`, 결함 L6) 은 의도 불명이므로 단일 sin 으로 단순화한다: `swayRad = Math.sin(elapsedMs / 200) * 0.1`.
 
 **페이지 구성**:
-1. `TopicLayout` — 제목 `빨간색 영역의 넓이는?`, 부제 `큰 사분원(반지름 6)에서 두 개의 흰색 반원을 제외한 빨간색 영역의 넓이를 구해보세요.`, 힌트는 현재 단계의 `hint` 를 연동
+1. `TopicLayout` — 제목 `빨간색 영역의 넓이는?`, 부제 `큰 사분원(반지름 6)에서 두 개의 흰색 반원을 제외한 빨간색 영역의 넓이를 구해보세요.` (단계별 힌트는 `SolutionStepper` 가 직접 렌더한다)
 2. 카드 안에 `InteractiveCanvas` (400×400)
 3. 그 아래 `SolutionStepper`
 
