@@ -1,0 +1,65 @@
+/*
+ * globals.css 가 모든 margin 을 지우고 TopicLayout 의 .container 에는 gap 이 없다.
+ * 최상위 블록은 각자 margin-bottom 을 들고 있어야 한다.
+ */
+.sectionTitle {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--fs-h2);
+  color: var(--color-text);
+}
+
+.sectionLead {
+  margin-bottom: var(--space-md);
+  color: var(--color-muted);
+}
+
+.stage {
+  margin-bottom: var(--space-lg);
+}
+
+.simSection {
+  margin-bottom: var(--space-lg);
+}
+
+.canvas {
+  /* InteractiveCanvas 논리 너비와 같은 상한. 좁아지면 비율을 지키며 줄어든다. */
+  max-width: 520px;
+  margin: var(--space-md) auto 0;
+}
+
+.readouts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-lg);
+  margin: var(--space-md) 0 0;
+}
+
+.readout dt {
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.readout dd {
+  margin: 0;
+  font-size: var(--fs-lead);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+.probability {
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+.punchline {
+  margin: var(--space-md) 0 0;
+  text-align: center;
+  color: var(--color-muted);
+}
+
+@media (max-width: 768px) {
+  .readouts {
+    gap: var(--space-md);
+  }
+}
