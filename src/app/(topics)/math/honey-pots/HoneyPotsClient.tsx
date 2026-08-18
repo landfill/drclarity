@@ -74,6 +74,7 @@ export default function HoneyPotsClient() {
     <TopicLayout
       wide
       tags={meta.tags}
+      topicHref="/math/honey-pots"
       title={<>25개의 꿀통과 <Highlight>5마리 개미</Highlight></>}
       subtitle="5마리의 개미로 가짜 꿀통을 찾아낼 수 있을까요?"
     >

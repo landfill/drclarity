@@ -9,6 +9,7 @@ import path from 'path';
 const TOPICS_DIR = path.join(process.cwd(), 'src/app/(topics)');
 const REGISTRY_OUT = path.join(process.cwd(), 'src/content/registry.generated.ts');
 const TAGS_DICT = path.join(process.cwd(), 'src/content/tags.json');
+const SERIES_DICT = path.join(process.cwd(), 'src/content/series.json');
 
 function isKebabCase(str) {
   return /^[a-z0-9-]+$/.test(str);
@@ -18,6 +19,15 @@ function loadAllowedTags() {
   try {
     const raw = JSON.parse(fs.readFileSync(TAGS_DICT, 'utf8'));
     return Array.isArray(raw.allowed) ? new Set(raw.allowed) : null;
+  } catch {
+    return null;
+  }
+}
+
+function loadKnownSeries() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(SERIES_DICT, 'utf8'));
+    return raw.series && typeof raw.series === 'object' ? new Set(Object.keys(raw.series)) : null;
   } catch {
     return null;
   }
@@ -56,6 +66,22 @@ function warnUnknownTags(allowedTags, label, metaContent) {
   }
 }
 
+/**
+ * 시리즈 키 검증. 태그와 같은 이유로 경고만 한다 — postinstall 에서 도는 스크립트라
+ * 오타 하나로 npm install 이 실패하면 안 된다.
+ */
+function warnUnknownSeries(knownSeries, label, metaContent) {
+  if (!knownSeries) return;
+  const match = metaContent.match(/series:\s*'([^']*)'|series:\s*"([^"]*)"/);
+  if (!match) return;
+  const key = match[1] ?? match[2];
+  if (!knownSeries.has(key)) {
+    console.warn(
+      `${label}: 사전에 없는 시리즈 '${key}'. src/content/series.json 에 추가하거나 표기를 맞추세요.`
+    );
+  }
+}
+
 function run() {
   if (!fs.existsSync(TOPICS_DIR)) {
     fs.mkdirSync(TOPICS_DIR, { recursive: true });
@@ -67,6 +93,7 @@ function run() {
   });
 
   const allowedTags = loadAllowedTags();
+  const knownSeries = loadKnownSeries();
 
   let imports = '';
   const allTopicsData = [];
@@ -137,6 +164,7 @@ function run() {
         }
 
         warnUnknownTags(allowedTags, `${catId}/${slug}`, metaContent);
+        warnUnknownSeries(knownSeries, `${catId}/${slug}`, metaContent);
 
         const topicImportName = `meta_${catId.replace(/-/g, '_')}_${slug.replace(/-/g, '_')}`;
         imports += `import ${topicImportName} from '@/app/(topics)/${catId}/${slug}/meta';\n`;

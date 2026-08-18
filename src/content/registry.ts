@@ -1,8 +1,14 @@
 import { allTopics, allCategories, type CategoryId } from './registry.generated';
 import { collectTags, filterTopicsByTag, type TagCount } from './tags';
+import {
+  findAdjacent,
+  getSeriesMembers,
+  type AdjacentTopics,
+  type SeriesInfo,
+} from './series';
 import type { CategoryEntry, TopicEntry } from './types';
 
-export type { CategoryId, CategoryEntry, TopicEntry, TagCount };
+export type { CategoryId, CategoryEntry, TopicEntry, TagCount, AdjacentTopics, SeriesInfo };
 
 /** status='published' 인 카테고리 목록. order 오름차순. */
 export function getCategories(): CategoryEntry[] {
@@ -40,6 +46,26 @@ export function getAllTags(): TagCount[] {
 /** 해당 태그가 붙은 노출 중인 주제. 카테고리를 넘나든다. */
 export function getTopicsByTag(tag: string): TopicEntry[] {
   return filterTopicsByTag(getTopics(), tag);
+}
+
+/** 라우트 경로로 주제를 찾는다. 예: '/math/honey-pots' */
+export function getTopicByHref(href: string): TopicEntry | undefined {
+  return allTopics.find(t => t.href === href);
+}
+
+/** 한 시리즈에 속한 노출 중인 주제. seriesOrder 오름차순. 카테고리를 넘나든다. */
+export function getSeries(key: string): TopicEntry[] {
+  return getSeriesMembers(getTopics(), key);
+}
+
+/**
+ * 주제 페이지 하단 내비게이션용. 이전/다음 주제와, 있다면 소속 시리즈.
+ * 알 수 없는 href 거나 draft 주제면 전부 비어 있는 객체를 돌려준다.
+ */
+export function getAdjacentTopics(href: string): AdjacentTopics {
+  const current = getTopicByHref(href);
+  if (!current) return {};
+  return findAdjacent(getTopics(), current);
 }
 
 /** 홈 대시보드 추천 슬롯용. order 순 상위 N개. */
