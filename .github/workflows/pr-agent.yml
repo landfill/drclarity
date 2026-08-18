@@ -42,6 +42,11 @@ jobs:
           OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
           config.model: "gemini/gemini-3.7-flash"
           config.fallback_models: '["gpt-5.6-luna"]'
+          # v0.42.0 의 MAX_TOKENS 표에 gemini-3.7-flash 가 없어서, 이 값이 없으면
+          # PR-Agent 가 요청을 보내기도 전에 모델을 거부한다(run 32098591756 에서 실측).
+          # 아래 max_model_tokens(기본 32000)가 프롬프트를 어차피 자르므로 정확한
+          # 컨텍스트 창 크기보다 "표에 없는 모델을 허용한다"는 신호로서 의미가 크다.
+          config.custom_model_max_tokens: "1048576"
           config.reasoning_effort: "medium"
           config.response_language: "ko-KR"
           github_action_config.pr_actions: '["opened", "reopened", "ready_for_review", "synchronize"]'
