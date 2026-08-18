@@ -1,5 +1,5 @@
 import { palette } from '@/styles/palette';
-import { gapAfter, positionIn, windowAround } from './nines';
+import { ninesOffset, offsetWindow, positionIn } from './nines';
 
 export const LINE_WIDTH = 520;
 export const LINE_HEIGHT = 160;
@@ -14,10 +14,11 @@ const AXIS_Y = 96;
 export function drawNumberLine(ctx: CanvasRenderingContext2D, digits: number): void {
   ctx.clearRect(0, 0, LINE_WIDTH, LINE_HEIGHT);
 
-  const win = windowAround(digits);
-  const nines = 1 - gapAfter(digits);
+  // 1 을 0 으로 둔 상대 좌표계에서 계산한다. 절대값으로 1 - gap 을 만들면
+  // 자릿수가 커질 때 눈금이 밀린다 (nines.ts 의 offsetWindow 주석 참고).
+  const win = offsetWindow(digits);
   const usable = LINE_WIDTH - PAD * 2;
-  const toX = (v: number) => PAD + positionIn(v, win) * usable;
+  const toX = (offset: number) => PAD + positionIn(offset, win) * usable;
 
   ctx.fillStyle = palette.surface;
   ctx.fillRect(0, 0, LINE_WIDTH, LINE_HEIGHT);
@@ -30,8 +31,8 @@ export function drawNumberLine(ctx: CanvasRenderingContext2D, digits: number): v
   ctx.lineTo(LINE_WIDTH - PAD * 0.5, AXIS_Y);
   ctx.stroke();
 
-  const ninesX = toX(nines);
-  const oneX = toX(1);
+  const ninesX = toX(ninesOffset(digits));
+  const oneX = toX(0);
 
   // 두 점 사이의 틈. 이 화면의 주인공이라 먼저 칠한다.
   ctx.fillStyle = 'rgba(255, 159, 67, 0.25)';

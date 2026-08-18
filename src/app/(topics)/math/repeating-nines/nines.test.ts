@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_DIGITS, gapAfter, gapString, ninesString, positionIn, windowAround } from './nines';
+import {
+  MAX_DIGITS,
+  gapAfter,
+  gapString,
+  ninesOffset,
+  ninesString,
+  offsetWindow,
+  positionIn,
+} from './nines';
 
 describe('ninesString', () => {
   it('자릿수만큼 9 를 붙인다', () => {
@@ -54,28 +62,50 @@ describe('gapString', () => {
   });
 });
 
-describe('windowAround', () => {
-  it('1 을 항상 포함한다', () => {
+describe('offsetWindow', () => {
+  it('1(오프셋 0)을 항상 포함한다', () => {
     for (let n = 1; n <= MAX_DIGITS; n += 1) {
-      const w = windowAround(n);
-      expect(w.min).toBeLessThan(1);
-      expect(w.max).toBeGreaterThan(1);
+      const w = offsetWindow(n);
+      expect(w.min).toBeLessThan(0);
+      expect(w.max).toBeGreaterThan(0);
     }
   });
 
   it('0.99…9 를 항상 포함한다 — 두 점이 다 보여야 틈이 보인다', () => {
     for (let n = 1; n <= MAX_DIGITS; n += 1) {
-      const w = windowAround(n);
-      const nines = 1 - gapAfter(n);
-      expect(nines).toBeGreaterThan(w.min);
-      expect(nines).toBeLessThan(w.max);
+      const w = offsetWindow(n);
+      expect(ninesOffset(n)).toBeGreaterThan(w.min);
+      expect(ninesOffset(n)).toBeLessThan(w.max);
     }
   });
 
   it('자릿수를 올리면 구간이 좁아진다 (확대)', () => {
-    const wide = windowAround(2);
-    const tight = windowAround(5);
+    const wide = offsetWindow(2);
+    const tight = offsetWindow(5);
     expect(tight.max - tight.min).toBeLessThan(wide.max - wide.min);
+  });
+
+  /*
+   * 회귀 방지. 이전 구현은 절대 좌표로 1 - gap 을 만들었는데, 1 근처에서 유효숫자가
+   * 깎여 digits=15 에서 눈금이 화면 폭의 2.3% 밀렸다(0.409 / 0.818). 하필 이 주제의
+   * 짝인 cs/floating-point 가 다루는 그 오차라, 화면이 자기 설명을 배신하고 있었다.
+   * 상대 좌표에서는 자릿수와 무관하게 위치가 고정된다.
+   */
+  it('눈금 위치가 자릿수와 무관하게 고정된다 — 부동소수점 상쇄 회귀 방지', () => {
+    for (let n = 1; n <= MAX_DIGITS; n += 1) {
+      const w = offsetWindow(n);
+      expect(positionIn(ninesOffset(n), w)).toBeCloseTo(0.4, 12);
+      expect(positionIn(0, w)).toBeCloseTo(0.8, 12);
+    }
+  });
+
+  it('절대 좌표로 계산하면 실제로 어긋난다 — 위 테스트가 지키는 것', () => {
+    // 이전 구현을 그대로 재현한다.
+    const gap = gapAfter(15);
+    const span = gap * 2.5;
+    const absWindow = { min: 1 - span * 0.8, max: 1 + span * 0.2 };
+    const drifted = positionIn(1 - gap, absWindow);
+    expect(Math.abs(drifted - 0.4)).toBeGreaterThan(0.005);
   });
 });
 

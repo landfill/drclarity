@@ -28,15 +28,26 @@ export function gapString(digits: number): string {
 }
 
 /**
- * 수직선에 보여줄 구간. 1 을 오른쪽 끝 가까이 두고, 차이가 화면 폭의 일정 비율을
- * 차지하도록 배율을 자릿수에 맞춰 키운다. 그래서 자릿수를 올려도 틈이 계속 보인다 —
- * 유한한 자릿수에서는 아무리 확대해도 틈이 남는다는 것이 이 화면의 요점이다.
+ * 1 을 0 으로 둔 **상대 좌표계**에서의 표시 구간.
+ *
+ * 절대 좌표(0.99…9, 1)로 계산하면 안 된다. digits 가 12 를 넘으면 1 근처에서
+ * 유효숫자가 깎여 눈금이 밀리고, 15 자리에서는 화면 폭의 2.3% 나 어긋난다(실측).
+ * 하필 이 주제의 짝인 cs/floating-point 가 다루는 바로 그 오차라, 그대로 두면
+ * 화면이 자기 설명을 배신한다. 1 - gap 을 만들지 않는 것이 핵심이다.
+ *
+ * 틈의 2.5배를 보여준다. 왼쪽에 0.99…9 이전 여백, 오른쪽에 1 이후 여백이 남는다.
+ * 배율을 자릿수에 맞춰 키우므로 자릿수를 올려도 틈이 계속 보인다 — 유한한
+ * 자릿수에서는 아무리 확대해도 틈이 남는다는 것이 이 화면의 요점이다.
  */
-export function windowAround(digits: number): { min: number; max: number } {
+export function offsetWindow(digits: number): { min: number; max: number } {
   const gap = gapAfter(digits);
-  // 틈의 2.5배를 보여준다. 왼쪽에 0.99…9 이전 여백, 오른쪽에 1 이후 여백이 남는다.
   const span = gap * 2.5;
-  return { min: 1 - span * 0.8, max: 1 + span * 0.2 };
+  return { min: -span * 0.8, max: span * 0.2 };
+}
+
+/** 1 기준 상대 오프셋. 0.99…9 는 -gap, 1 은 0 이다. */
+export function ninesOffset(digits: number): number {
+  return -gapAfter(digits);
 }
 
 /** 값을 구간 안의 0~1 위치로 옮긴다. 구간 밖이면 0 또는 1 로 잘린다. */
