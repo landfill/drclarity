@@ -1,5 +1,5 @@
 import { palette } from '@/styles/palette';
-import { ninesOffset, offsetWindow, positionIn } from './nines';
+import { ninesOffset, ninesString, offsetWindow, positionIn } from './nines';
 
 export const LINE_WIDTH = 520;
 export const LINE_HEIGHT = 160;
@@ -53,6 +53,8 @@ export function drawNumberLine(ctx: CanvasRenderingContext2D, digits: number): v
     ctx.fillText(label, x, above ? AXIS_Y - 30 : AXIS_Y + 30);
   };
 
-  tick(ninesX, palette.accent, '0.99…9', true);
+  // 실제로 만든 유한소수를 그대로 적는다. '0.99…9' 로 고정하면 digits=1 일 때
+  // 화면 아래 읽기값(0.9)과 어긋난다.
+  tick(ninesX, palette.accent, ninesString(digits), true);
   tick(oneX, palette.blue, '1', false);
 }

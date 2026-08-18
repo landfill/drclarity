@@ -81,20 +81,24 @@ export default function NextWordClient() {
 
   const draw = useCallback(
     (times: number) => {
-      // tally 는 후보 개수에 맞춰 따로 관리하는 파생 상태다. 길이가 어긋나면
-      // next[i] += 1 이 undefined + 1 = NaN 이 되고, 합계가 NaN 이면 화면에서 횟수가
-      // 통째로 사라진다 — 에러도 경고도 없이. 지금 경로에서는 어긋나지 않지만,
-      // 문맥을 추가하다 clearDraws 를 한 곳에서 빠뜨리면 바로 그 상태가 된다.
-      const next = Array.from({ length: probs.length }, (_, i) => tally[i] ?? 0);
-      let last = lastPick;
-      for (let i = 0; i < times; i += 1) {
-        last = sampleFrom(probs, Math.random());
-        next[last] += 1;
-      }
-      setTally(next);
-      setLastPick(last);
+      const picks: number[] = [];
+      for (let i = 0; i < times; i += 1) picks.push(sampleFrom(probs, Math.random()));
+      if (picks.length === 0) return;
+
+      // 클로저에 잡힌 tally 를 읽지 않고 함수형으로 갱신한다. 커밋 전에 draw 가
+      // 두 번 불리면(빠른 연속 클릭) 뒤엣것이 앞엣것을 덮어써 집계가 유실된다.
+      setTally(prev => {
+        // tally 는 후보 개수에 맞춰 따로 관리하는 파생 상태다. 길이가 어긋나면
+        // next[i] += 1 이 undefined + 1 = NaN 이 되고, 합계가 NaN 이면 화면에서
+        // 횟수가 통째로 사라진다 — 에러도 경고도 없이. 지금 경로에서는 어긋나지
+        // 않지만, 문맥을 추가하다 clearDraws 를 한 곳에서 빠뜨리면 그 상태가 된다.
+        const next = Array.from({ length: probs.length }, (_, i) => prev[i] ?? 0);
+        for (const pick of picks) next[pick] += 1;
+        return next;
+      });
+      setLastPick(picks[picks.length - 1]);
     },
-    [lastPick, probs, tally]
+    [probs]
   );
 
   return (
@@ -157,7 +161,12 @@ export default function NextWordClient() {
 
         <ul className={styles.bars}>
           {prompt.candidates.map((c, i) => (
-            <li key={c.word} className={styles.barRow}>
+            <li
+              key={c.word}
+              className={styles.barRow}
+              // 뽑힌 후보가 배경색으로만 구분되면 색을 구별하기 어려운 사용자에게 전달되지 않는다.
+              aria-current={lastPick === i ? 'true' : undefined}
+            >
               <span className={styles.word}>{c.word}</span>
               <span className={styles.track}>
                 <span
@@ -172,6 +181,11 @@ export default function NextWordClient() {
             </li>
           ))}
         </ul>
+
+        {/* 스크린 리더에 방금 결과를 알린다. 비어 있어도 자리를 유지해야 갱신이 읽힌다. */}
+        <p className={styles.pickedAnnounce} role="status" aria-live="polite">
+          {lastPick === null ? '' : `방금 뽑힌 단어: ${prompt.candidates[lastPick].word}`}
+        </p>
 
         <div className={styles.readouts}>
           <span>
