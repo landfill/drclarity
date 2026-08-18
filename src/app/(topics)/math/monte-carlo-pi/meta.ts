@@ -1,0 +1,11 @@
+import { TopicMeta } from '@/content/types';
+
+const meta: TopicMeta = {
+  title: '점을 뿌려서 π 구하기',
+  summary: '원의 넓이 공식을 쓰지 않고 π 를 구할 수 있을까요? 정사각형에 점을 마구 던지기만 하면 됩니다.',
+  order: 4,
+  difficulty: 1,
+  tags: ['확률', '증명', '넓이']
+};
+
+export default meta;
