@@ -1,0 +1,163 @@
+/*
+ * globals.css 가 모든 margin 을 지우고 TopicLayout 의 .container 에는 gap 이 없다.
+ * 최상위 블록은 각자 margin-bottom 을 들고 있어야 한다.
+ */
+.sectionTitle {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--fs-h2);
+  color: var(--color-text);
+}
+
+.stage {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.promptLine {
+  margin-top: var(--space-lg);
+  font-size: var(--fs-lead);
+  color: var(--color-text);
+}
+
+.promptText {
+  font-weight: 700;
+}
+
+/* 다음 단어가 들어갈 자리. 깜빡임 없이 자리만 표시한다(모션 정책). */
+.caret {
+  margin-left: 0.15em;
+  color: var(--color-accent);
+}
+
+.note {
+  margin-top: var(--space-2xs);
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
+  padding: 0;
+  list-style: none;
+}
+
+.barRow {
+  display: grid;
+  grid-template-columns: 7rem 1fr 4.5rem 3.5rem;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.word {
+  font-weight: 700;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.track {
+  height: 22px;
+  border-radius: var(--radius-sm);
+  background: var(--color-subtle);
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-sm);
+  background: var(--color-secondary);
+  /* 슬라이더를 움직일 때 막대가 뚝뚝 끊기지 않도록. */
+  transition: width 0.2s ease, background-color 0.2s ease;
+}
+
+/* 방금 뽑힌 후보. */
+.picked {
+  background: var(--color-accent);
+}
+
+.percent {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--color-text);
+}
+
+.count {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.readouts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  color: var(--color-text);
+}
+
+.dim {
+  color: var(--color-muted);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
+}
+
+.primaryButton,
+.secondaryButton {
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.primaryButton {
+  background: var(--color-secondary);
+  color: #fff;
+}
+
+.secondaryButton {
+  background: var(--color-bg);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.primaryButton:hover,
+.secondaryButton:hover {
+  opacity: 0.85;
+}
+
+@media (max-width: 768px) {
+  .stage {
+    padding: var(--space-md);
+  }
+
+  /* 좁은 화면에서 4열은 막대가 남지 않는다. 횟수를 접고 3열로 줄인다. */
+  .barRow {
+    grid-template-columns: 5rem 1fr 4rem;
+  }
+
+  .count {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill {
+    transition: none;
+  }
+}
