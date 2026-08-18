@@ -262,8 +262,20 @@ export interface TopicMeta {
   thumbnail?: string;
   /** 난이도 1(쉬움)~3(어려움). 카드에 점 3개로 표시. */
   difficulty?: 1 | 2 | 3;
-  /** 검색/분류용 자유 태그. 이번 범위에서 UI 노출은 없으나 메타데이터로 보존. */
+  /**
+   * 분류용 태그. 카드/주제 페이지에 배지로 노출되고 /tags/[tag] 인덱스를 만든다.
+   * 값은 src/content/tags.json 의 허용 목록에서 고른다 (수집기가 벗어난 값을 경고).
+   */
   tags?: string[];
+  /**
+   * 같은 시리즈로 묶일 주제들의 공통 키. 예: 'binary'
+   * 값은 src/content/series.json 의 사전에서 고른다 (수집기가 벗어난 값을 경고).
+   *
+   * 태그와 역할이 다르다 — 태그는 주제어(다대다), 시리즈는 읽는 순서(순서 있는 묶음)다.
+   */
+  series?: string;
+  /** 시리즈 내 순서. 오름차순. 생략하면 시리즈의 맨 뒤로 밀린다. */
+  seriesOrder?: number;
 }
 
 /** 카테고리 디렉터리의 category.ts 가 default export 하는 값. */
@@ -412,9 +424,25 @@ export function getTopics(): TopicEntry[];
 /** 단일 주제. 없으면 undefined. */
 export function getTopic(categoryId: string, slug: string): TopicEntry | undefined;
 
+/** 라우트 경로로 주제를 찾는다. 예: '/math/honey-pots' */
+export function getTopicByHref(href: string): TopicEntry | undefined;
+
+/** 한 시리즈에 속한 노출 중인 주제. seriesOrder 오름차순. 카테고리를 넘나든다. */
+export function getSeries(key: string): TopicEntry[];
+
+/** 주제 페이지 하단 내비게이션용. 이전/다음 주제와, 있다면 소속 시리즈. */
+export function getAdjacentTopics(href: string): AdjacentTopics;
+
 /** 홈 대시보드 추천 슬롯용. order 순 상위 N개. */
 export function getFeaturedTopics(limit?: number): TopicEntry[];
 ```
+
+**시리즈 판정 규칙** — 순수 함수는 `src/content/series.ts` 에 있고 레지스트리와 분리해 테스트한다 (`series.test.ts`).
+
+- 구성원이 **2개 미만인 시리즈는 UI에 렌더하지 않는다**. "1편 중 1편"과 갈 곳 없는 링크만 남기 때문이다. 후속편 `meta.ts` 가 들어오면 자동으로 켜진다.
+- 시리즈 **안에서는 전체 순서보다 `seriesOrder` 를 우선**한다.
+- 시리즈의 **양 끝에서는 전체 순서로 이어 붙인다.** 그러지 않으면 시리즈 마지막 편이 다시 막다른 길이 된다. 따라서 경계에서 `prev`/`next` 는 서로의 역함수가 아닐 수 있다 (의도된 동작).
+- 시리즈 키의 표시 이름은 `src/content/series.json` 사전에 둔다. 미등록 키는 키 자체를 label 로 쓰고, 수집기가 경고한다.
 
 ### 4.5 자동 반영 대상 (MUST)
 
@@ -524,13 +552,23 @@ export interface TopicLayoutProps {
   title: React.ReactNode;
   /** 대제목 아래 부제. */
   subtitle?: React.ReactNode;
-  /** 부제 아래 힌트 줄. --color-danger 로 렌더된다. */
-  hint?: React.ReactNode;
+  /** meta.tags. /tags/[tag] 로 가는 배지로 렌더된다. */
+  tags?: string[];
+  /** true 면 컨테이너 max-width 를 --index-max-w 로 확장. 2컬럼 페이지용. */
+  wide?: boolean;
+  /**
+   * 현재 주제의 라우트 경로. 예: '/math/honey-pots'
+   * 넘기면 children 뒤에 TopicFooterNav(§6.8)가 붙는다.
+   * 주제 페이지가 아닌 곳(/tags 등)에서는 생략한다.
+   */
+  topicHref?: string;
   children: React.ReactNode;
 }
 ```
 
-레거시의 `.hero` + `.container` 구조에 대응한다. RENEWAL_PLAN D6에 따라 **진행 상태바와 이전/다음 버튼은 포함하지 않는다 (MUST NOT).**
+레거시의 `.hero` + `.container` 구조에 대응한다.
+
+**진행 상태바는 포함하지 않는다 (MUST NOT).** 이전/다음 내비게이션은 RENEWAL_PLAN D6이 "구조가 자리잡은 뒤 추가"로 유보한 항목이며, 주제가 6개가 된 시점에 `topicHref` 슬롯으로 도입했다 (#12). D6의 제외 조항은 이 항목에 한해 해제된 것으로 본다.
 
 `Highlight` 는 레거시 `.highlight` 스팬(주황 배경 + 라운드)에 대응하는 작은 컴포넌트로 함께 만든다.
 
@@ -664,6 +702,24 @@ export interface TopicCardProps {
 - 우측 GNB 는 **카테고리** 목록 (`getCategories()`). 레거시는 개별 주제 3개를 나열했으나, 주제가 늘어나면 파탄나므로 카테고리 단위로 바꾼다.
 - 현재 경로가 해당 카테고리에 속하면 활성 스타일(주황 + 하단 밑줄)을 적용한다. `usePathname()` 사용 → `'use client'` 필요.
 - 모바일(≤768px)에서 GNB가 넘치지 않도록 처리한다. 가로 스크롤 또는 축약 중 택일 (MAY).
+
+### 6.8 `TopicFooterNav`
+
+```tsx
+export interface TopicFooterNavProps {
+  /** 현재 주제의 라우트 경로. 예: '/math/honey-pots' */
+  currentHref: string;
+  className?: string;
+}
+```
+
+주제 페이지 하단의 이전/다음 카드와 시리즈 스트립. 직접 쓰지 않고 `TopicLayout` 의 `topicHref` 를 통해 붙인다 (§6.1).
+
+- 판정은 전부 `getAdjacentTopics(href)` 에 위임한다 (§4.4). 이 컴포넌트는 렌더만 한다.
+- 이전/다음이 **둘 다 없으면 아무것도 렌더하지 않는다.** 주제가 하나뿐인 상태를 상정한 가드다.
+- 시리즈 스트립은 `series` 가 채워졌을 때만(= 구성원 2개 이상) 렌더한다. 구성원 전체를 번호와 함께 나열하고, 현재 편은 링크 대신 `aria-current="page"` 로 표시한다.
+- 한쪽(첫 주제의 prev, 마지막 주제의 next)이 비면 2열 그리드가 무너지지 않도록 빈 칸을 채운다. 1열이 되는 모바일에서는 빈 칸을 숨긴다.
+- `topicHref` 는 문자열 리터럴이라 디렉터리명과 어긋나도 타입이 잡아주지 못한다. 레지스트리에 없는 경로면 개발 모드에서만 `console.warn` 한다 (MUST) — 그러지 않으면 오타 시 내비게이션이 조용히 사라진다.
 
 ---
 

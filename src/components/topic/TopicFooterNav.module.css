@@ -1,0 +1,151 @@
+/*
+ * globals.css 가 모든 margin 을 0 으로 지우고 TopicLayout 의 .container 에는 gap 이 없다.
+ * 최상위 블록이라 자기 여백은 자기가 들고 있어야 한다.
+ */
+.nav {
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+/* --- 시리즈 스트립 --- */
+
+.series {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.seriesHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-xs);
+}
+
+.seriesLabel {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.seriesCount {
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.seriesDesc {
+  margin-top: var(--space-2xs);
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.seriesList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  margin-top: var(--space-sm);
+  padding: 0;
+  list-style: none;
+}
+
+.seriesItem {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  padding: var(--space-2xs) 0;
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a.seriesItem:hover,
+a.seriesItem:focus-visible {
+  color: var(--color-accent);
+}
+
+.seriesNum {
+  flex: none;
+  width: 1.6em;
+  height: 1.6em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--color-subtle);
+  color: var(--color-muted);
+  font-size: var(--fs-sm);
+  line-height: 1;
+}
+
+.seriesCurrent {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.seriesCurrent .seriesNum {
+  background: var(--color-accent);
+  color: var(--color-surface);
+}
+
+/* --- 이전/다음 --- */
+
+.pager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.card:hover,
+.card:focus-visible {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.next {
+  text-align: right;
+}
+
+.dir {
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.cardTitle {
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* 한쪽만 있을 때 그리드 칸을 유지하는 빈 칸. */
+.spacer {
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .pager {
+    grid-template-columns: 1fr;
+  }
+
+  /* 1열이 되면 빈 칸이 세로 공백으로 보인다. */
+  .spacer {
+    display: none;
+  }
+
+  .next {
+    text-align: left;
+  }
+}

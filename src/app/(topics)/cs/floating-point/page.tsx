@@ -15,6 +15,7 @@ export default function FloatingPointPage() {
     <TopicLayout
       wide
       tags={meta.tags}
+      topicHref="/cs/floating-point"
       title={<>왜 <Highlight>0.1 + 0.2</Highlight>는 0.3이 아닐까요?</>}
     >
       <SplitStage stage={<PizzaSlicer />}>

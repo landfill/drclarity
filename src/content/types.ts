@@ -17,6 +17,15 @@ export interface TopicMeta {
    * 값은 src/content/tags.json 의 허용 목록에서 고른다 (수집기가 벗어난 값을 경고).
    */
   tags?: string[];
+  /**
+   * 같은 시리즈로 묶일 주제들의 공통 키. 예: 'binary'
+   * 값은 src/content/series.json 의 사전에서 고른다 (수집기가 벗어난 값을 경고).
+   *
+   * 태그와 역할이 다르다 — 태그는 주제어(다대다), 시리즈는 읽는 순서(순서 있는 묶음)다.
+   */
+  series?: string;
+  /** 시리즈 내 순서. 오름차순. 생략하면 시리즈의 맨 뒤로 밀린다. */
+  seriesOrder?: number;
 }
 
 /** 카테고리 디렉터리의 category.ts 가 default export 하는 값. */

@@ -42,6 +42,7 @@ export default function TokenizerClient() {
     <TopicLayout
       wide
       tags={meta.tags}
+      topicHref="/ai/tokenizer"
       title={<>AI는 글자가 아니라 <Highlight>토큰</Highlight>을 본다</>}
       subtitle="글자도 단어도 아닌 중간 단위. 이 차이가 비용과 한도를 정합니다."
     >
