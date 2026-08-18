@@ -37,6 +37,14 @@ describe('glyphsOf', () => {
   it('전부 비면 빈 문자열', () => {
     expect(glyphsOf(undefined, '')).toBe('');
   });
+
+  it('보조 평면 문자를 반으로 쪼개지 않는다', () => {
+    // split('') 로 자르면 서로게이트 2개로 갈라져 length 가 2 가 된다.
+    const emoji = '🍯';
+    expect(emoji.length).toBe(2);
+    expect([...glyphsOf(emoji)]).toEqual([emoji]);
+    expect(glyphsOf(`${emoji}${emoji}가`)).toBe(`${emoji}가`);
+  });
 });
 
 /*
@@ -57,7 +65,10 @@ describe('opengraph-image 라우트 커버리지', () => {
   it.each(topicDirs())('%s/%s 가 자기 경로를 넘긴다', (cat, slug) => {
     const file = path.join(TOPICS_DIR, cat, slug, 'opengraph-image.tsx');
     const src = fs.readFileSync(file, 'utf8');
-    expect(src, `renderTopicOgImage('/${cat}/${slug}') 가 아닙니다`).toContain(`'/${cat}/${slug}'`);
+    // 경로 문자열의 포함만 보면 주석이나 다른 자리에 같은 문자열이 있어도 통과한다.
+    // 호출 전체를 맞춰야 인자가 실제로 자기 경로인지 확인된다.
+    const call = `renderTopicOgImage('/${cat}/${slug}')`;
+    expect(src, `${call} 호출이 없습니다`).toContain(call);
   });
 
   it.each(categoryDirs())('%s 카테고리에 opengraph-image.tsx 가 있다', cat => {

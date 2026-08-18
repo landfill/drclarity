@@ -42,13 +42,27 @@ function fetchFontSubset(family: string, weight: number, text: string): Promise<
     return fetch(src).then(r => r.arrayBuffer());
   })();
 
-  fontCache.set(key, task);
-  return task;
+  // 실패한 Promise 를 그대로 캐시에 두면 같은 키의 이후 요청이 재시도 없이 계속
+  // 실패한다. 워드마크처럼 여러 라우트가 공유하는 키에서 특히 문제가 된다 —
+  // Gemini/Google Fonts 쪽 일시적 503 하나가 나머지 이미지까지 끌고 내려간다.
+  // 캐시와 반환에 같은 Promise 를 쓰므로 처리되지 않은 rejection 은 생기지 않는다.
+  const guarded = task.catch(err => {
+    fontCache.delete(key);
+    throw err;
+  });
+  fontCache.set(key, guarded);
+  return guarded;
 }
 
-/** 이 이미지에 실제로 그려질 글자만 모은다. 중복은 없애고 첫 등장 순서를 유지한다. */
+/**
+ * 이 이미지에 실제로 그려질 글자만 모은다. 중복은 없애고 첫 등장 순서를 유지한다.
+ *
+ * split('') 이 아니라 전개 연산자를 쓴다. split('') 은 UTF-16 코드 유닛으로 잘라서
+ * 이모지 같은 보조 평면 문자의 서로게이트 페어를 반으로 쪼갠다. 그러면 Google Fonts 의
+ * text= 파라미터에 짝 잃은 서로게이트가 실려 나간다.
+ */
 export function glyphsOf(...parts: (string | undefined)[]): string {
-  return [...new Set(parts.filter(Boolean).join('').split(''))].join('');
+  return [...new Set(parts.filter(Boolean).join(''))].join('');
 }
 
 export interface OgCardProps {
@@ -201,9 +215,11 @@ export async function renderOgImage({
 export async function renderTopicOgImage(href: string) {
   const topic = getTopicByHref(href);
   if (!topic) {
-    // href 오타면 이미지가 조용히 워드마크만 남는다. 빌드 로그에 남겨 잡는다.
-    console.warn(`OG: 레지스트리에 없는 경로 '${href}'. opengraph-image.tsx 의 href 를 확인하세요.`);
-    return renderOgImage({ title: WORDMARK });
+    // 폰트 형식 검사와 같은 이유로 빌드를 실패시킨다. 경고만 남기고 기본 이미지를
+    // 돌려주면 빌드는 성공하는데 공유 카드만 조용히 틀린 채로 배포된다.
+    throw new Error(
+      `OG: 레지스트리에 없는 경로 '${href}'. opengraph-image.tsx 의 href 를 확인하거나 generate:registry 를 다시 돌리세요.`
+    );
   }
 
   return renderOgImage({
