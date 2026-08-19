@@ -143,7 +143,15 @@ export const hint = '아래에서 다른 꿀통을 눌러 확인해보세요.';
 **핵심 연결:** 32가지 생사 결과 중 25개를 …
 ```
 
+본문에 상태값이 들어가면 props로 넘깁니다. MDX 안에서 `{props.digits}`로 읽습니다.
+
+```tsx
+<Punchline digits={digits} maxDigits={MAX_DIGITS} />
+```
+
 한국어에서 한 가지 주의할 점이 있습니다. **닫는 `**` 앞이 괄호나 따옴표이고 뒤에 조사가 바로 붙으면** 마크다운 강조가 적용되지 않고 별표가 화면에 그대로 남습니다(`**1비트(bit)**의`). 이때는 `<strong>1비트(bit)</strong>의`처럼 태그를 씁니다. `npm test`가 이 패턴을 검출합니다.
+
+줄 첫머리의 `1.`은 순서 목록이 되므로, 번호로 시작하는 본문은 `1\.`로 이스케이프합니다.
 
 자세한 규약은 [`IMPLEMENTATION_SPEC.md` §4.6](./IMPLEMENTATION_SPEC.md)에 있습니다.
 

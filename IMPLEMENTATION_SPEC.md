@@ -474,6 +474,8 @@ export function getFeaturedTopics(limit?: number): TopicEntry[];
 | `SolutionStep.body` — 단계 본문 | 레이아웃 조립 (`TopicLayout`, `ExplanationBox`, `SolutionStepper` 배치) |
 | `SolutionStep.hint` · `formula` — MDX 의 named export | 상태와 콜백 (`onStepChange`, 보드 모드 계산) |
 | `ExplanationBox` 안의 문단·목록 | `TopicLayout` 의 `title` · `subtitle` — `<Highlight>` JSX 가 필요하고 두 줄뿐이다 |
+| `QuizGate` 의 지문 · 선택지 · 피드백 | 제목 **요소** (`<h2 className={styles.…}>`). 문구는 `title` export 로 넘기고 요소는 남긴다 |
+| 섹션 리드 문단, 결론 문단 | CSS 모듈 클래스. MDX 가 클래스를 알면 편집자가 CSS 를 알아야 한다 |
 
 #### 배선
 
@@ -500,7 +502,43 @@ export const HONEY_STEPS: SolutionStep[] = [
 ];
 ```
 
-- `hint` · `formula` 는 **export 한 파일에서만** import 한다. 없는 이름을 가져오면 번들러가 잡는다.
+#### named export 목록
+
+| 이름 | 타입 | 쓰임 |
+|---|---|---|
+| `hint` | 문자열 또는 JSX | 단계 힌트. 평문이면 문자열, 강조가 필요하면 `export const hint = <>…<strong>…</strong></>` |
+| `formula` | 문자열 또는 JSX | 수식 줄. 대개 문자열로 충분하다 |
+| `title` | 문자열 | 클래스가 붙은 제목의 문구. `<h2 className={styles.x}>{title}</h2>` 로 쓴다 |
+| `choices` | `{ id, label }[]` | `QuizGate` 선택지. 지문과 같은 파일에 둔다 |
+
+타입은 `src/types/mdx.d.ts` 가 선언한다. 이름을 추가할 때 함께 고친다.
+
+- 위 이름들은 **export 한 파일에서만** import 한다. 없는 이름을 가져오면 번들러가 잡는다.
+- 본문이 없고 제목만 있는 섹션은 MDX 파일을 만들지 않는다. `steps.tsx` 등 조립 파일에서 상수로 내보낸다.
+
+#### 동적 값은 props 로 넘긴다
+
+본문에 상태값이 박혀 있으면 MDX 에 props 로 전달한다. MDX 본문에서 `props.x` 로 읽는다.
+
+```tsx
+<div className={styles.punchline}>
+  <Punchline digits={digits} maxDigits={MAX_DIGITS} />
+</div>
+```
+
+```mdx
+차이는 <strong>10<sup>−{props.digits}</sup></strong> 입니다. 줄어들지만
+<strong> 0 이 되지는 않습니다.</strong> 9 를 {props.maxDigits}개까지 늘려도 마찬가지입니다.
+```
+
+#### 클래스가 붙은 문단은 래퍼를 `div` 로 바꾼다
+
+마크다운 문단은 `<p>` 가 된다. 원래 `<p className={styles.lead}>` 였던 자리를 그대로 두면 `<p><p>` 가 되어 유효하지 않은 HTML 이 나온다. 래퍼를 `<div>` 로 바꾸면 클래스의 `margin` · `color` 는 그대로 적용되고(색은 상속, 여백은 전역 리셋 때문에 자식 `p` 에 없다) 렌더 결과가 같다.
+
+```diff
+-<p className={styles.sectionLead}>9 를 하나씩 늘리면서 …</p>
++<div className={styles.sectionLead}><StageLead /></div>
+```
 - MDX 는 **빌드 타임에 JSX 로 컴파일**된다. 마크다운 파서는 런타임 번들에 들어가지 않으므로 `'use client'` 파일에서 import 해도 된다.
 - `pageExtensions` 는 확장하지 않는다 (MUST NOT). MDX 를 라우트로 쓰지 않으므로 `content.mdx` 가 페이지로 오인될 여지를 없앤다.
 - MDX 안에서 쓸 수 있는 컴포넌트는 `src/mdx-components.tsx` 에 올린 것뿐이다. **인라인 장식만 올린다** — 레이아웃 컴포넌트를 올리면 구조가 본문으로 새어 나간다.
@@ -520,6 +558,7 @@ CommonMark 의 right-flanking 규칙 때문에, 닫는 `**` **앞이 구두점�
 그 밖에 마크다운이 아니라 JSX 로 써야 하는 것:
 
 - 줄바꿈은 줄 끝 백슬래시(`\`)로 쓴다. 마크다운 hard break 가 `<br/>` 이 된다
+- **줄 첫머리의 `1.` · `2.` 는 순서 목록이 된다.** 본문이 "1. 원의 중심을 찾고" 처럼 번호로 시작하면 `1\.` 로 이스케이프한다
 - `<` 는 `\<` 로 이스케이프한다. MDX 가 JSX 시작으로 읽는다
 - `target` · `rel` 이 필요한 링크는 마크다운 링크 문법 대신 `<a>` 를 쓴다
 
