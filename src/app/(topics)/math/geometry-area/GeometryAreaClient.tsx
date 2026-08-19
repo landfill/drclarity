@@ -2,48 +2,13 @@
 import { useState, useCallback, useRef } from 'react';
 import { TopicLayout } from '@/components/layout/TopicLayout';
 import { InteractiveCanvas, InteractiveCanvasHandle } from '@/components/topic/InteractiveCanvas';
-import { SolutionStepper, SolutionStep } from '@/components/topic/SolutionStepper';
+import { SolutionStepper } from '@/components/topic/SolutionStepper';
 import { drawScene, SceneOptions } from './scene';
 import { useAnimationFrame } from '@/hooks/useAnimationFrame';
 import { palette } from '@/styles/palette';
 import meta from './meta';
+import { GEOMETRY_STEPS } from './steps';
 import styles from './GeometryAreaClient.module.css';
-
-
-const GEOMETRY_STEPS: SolutionStep[] = [
-  {
-    id: '0',
-    body: <>문제: 큰 사분원(R=6) 안에 두 개의 반원이 있습니다. 빨간색 영역의 넓이를 구해보세요.</>,
-    hint: <>첫 번째 단계는 <strong>&apos;원의 중심&apos;</strong>을 찾는 것입니다.</>
-  },
-  {
-    id: '1',
-    body: <>1. 원의 중심을 찾고 선을 그어야 합니다.<br/>두 원이 접할 때, <strong>중심을 이은 선은 반드시 접점을 지납니다.</strong></>,
-    hint: <>이 성질은 <strong>&apos;오뚜기&apos;</strong>처럼 두 원이 맞닿아 움직여도 항상 성립합니다.</>
-  },
-  {
-    id: '2',
-    body: <>2. 중심을 이으면 <strong>직각삼각형</strong>이 만들어집니다.<br/>변의 길이를 반지름(x)으로 표현해봅시다.</>,
-    hint: <>높이는 전체 높이(6)에서 x를 뺀 값입니다.</>
-  },
-  {
-    id: '3',
-    body: <>3. <strong>피타고라스 정리</strong>를 이용합니다.<br/>직각삼각형에서 가장 긴 변(빗변)의 제곱은 나머지 두 변의 제곱의 합과 같습니다.</>,
-    formula: <>공식: a² + b² = c² 적용 → 3² + (6-x)² = (3+x)²</>,
-    hint: <>높이(6-x)가 4, 빗변(3+x)이 5가 되면 등식이 성립합니다.</>
-  },
-  {
-    id: '4',
-    body: <>4. 이제 최종 면적을 계산할 수 있습니다.</>,
-    formula: <>원의 넓이 공식: πr², 식: P = 9π - 4.5π - 2π</>,
-    hint: <>큰 사분원 - (중간 반원 + 작은 반원)</>
-  },
-  {
-    id: '5',
-    body: <><strong>정답 도출! 9π - 6.5π = 2.5π</strong></>,
-    hint: <>복잡한 계산 없이 도형의 성질로 해결했습니다.</>
-  }
-];
 
 export default function GeometryAreaClient() {
   const [stepIndex, setStepIndex] = useState(0);
