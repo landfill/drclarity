@@ -63,6 +63,8 @@ src/app/
         └── <topic-slug>/
             ├── meta.ts              # 주제 메타데이터
             ├── page.tsx             # 공개 라우트
+            ├── content/             # 본문 MDX (유일하게 허용되는 하위 디렉터리)
+            ├── steps.tsx            # MDX를 SolutionStep[]으로 조립
             ├── *Client.tsx          # 선택적 클라이언트 경계
             ├── *.module.css         # 주제 전용 스타일
             └── *.test.ts            # 순수 로직 테스트
@@ -71,6 +73,7 @@ src/app/
 - `(topics)`는 URL 세그먼트를 만들지 않습니다.
 - 폴더는 라우트 구조를 정의하지만 `page.tsx`가 있는 세그먼트만 공개 페이지가 됩니다.
 - 주제 전용 컴포넌트와 로직은 해당 라우트에 함께 배치합니다.
+- 설명 문장은 컴포넌트가 아니라 `content/*.mdx`에 둡니다. 문구 수정에 TSX를 열지 않기 위한 규약이며 작성 규칙은 [`IMPLEMENTATION_SPEC.md` §4.6](./IMPLEMENTATION_SPEC.md)에 있습니다.
 - `page.tsx`는 Server Component를 기본으로 하며 상태, 이벤트, DOM·Canvas API가 필요한 최소 하위 트리만 Client Component로 만듭니다.
 
 ## 5. 콘텐츠 레지스트리
@@ -83,7 +86,7 @@ src/app/
 - `TopicMeta`: `title`, `summary`, `order`와 선택적 `status`, `thumbnail`, `difficulty`, `tags`
 - `CategoryEntry`, `TopicEntry`: 생성기가 `id`, `slug`, `href`, 공개 상태와 주제 목록을 결합한 값
 
-카테고리 ID와 주제 slug는 kebab-case여야 합니다. 한 주제 디렉터리에는 `meta.ts`와 `page.tsx`가 함께 있어야 하며 더 깊은 하위 디렉터리를 만들지 않습니다.
+카테고리 ID와 주제 slug는 kebab-case여야 합니다. 한 주제 디렉터리에는 `meta.ts`와 `page.tsx`가 함께 있어야 하며, 하위 디렉터리는 본문 MDX를 담는 `content/` 하나만 허용합니다. 생성기가 이를 검증하고 위반하면 빌드를 실패시킵니다.
 
 ### 5.2 생성 과정
 

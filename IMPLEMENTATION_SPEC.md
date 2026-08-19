@@ -79,6 +79,7 @@ rudd/
 │       └── floating-point/
 │           └── infographic.jpg             # ← public/pizza-infographic.jpg
 └── src/
+    ├── mdx-components.tsx                  # @next/mdx 필수 파일. MDX 전역 컴포넌트 매핑 (§4.6)
     ├── app/
     │   ├── layout.tsx                      # 루트 레이아웃: 폰트, SiteHeader, 전역 메타데이터
     │   ├── page.tsx                        # 홈 대시보드
@@ -94,7 +95,11 @@ rudd/
     │       │   │   ├── meta.ts
     │       │   │   ├── binary.ts           # 순수 로직 (테스트 대상)
     │       │   │   ├── binary.test.ts
-    │       │   │   ├── steps.tsx           # 풀이 단계 데이터
+    │       │   │   ├── content/            # 본문 MDX (§4.6) — 문구는 여기서만 고친다
+    │       │   │   │   ├── step-0.mdx … step-7.mdx
+    │       │   │   │   ├── problem.mdx
+    │       │   │   │   └── group-testing.mdx
+    │       │   │   ├── steps.tsx           # 풀이 단계 데이터 — MDX 를 SolutionStep[] 로 조립
     │       │   │   ├── BinaryEncodingBoard.tsx
     │       │   │   ├── HoneyPots.tsx        # 'use client' 진입점
     │       │   │   └── HoneyPots.module.css
@@ -139,6 +144,8 @@ rudd/
     │   └── useTypewriter.ts
     ├── lib/
     │   └── reducedMotion.ts
+    ├── types/
+    │   └── mdx.d.ts                        # .mdx 의 named export 타입 (§4.6)
     └── styles/
         └── palette.ts                      # 캔버스용 색상 상수 (globals.css와 동일 값)
 ```
@@ -148,6 +155,7 @@ rudd/
 - `(topics)` 는 라우트 그룹이므로 **URL에 나타나지 않는다.** `src/app/(topics)/math/honey-pots/page.tsx` → `/math/honey-pots`.
 - Next.js는 `page` / `layout` / `route` / `loading` / `error` / `not-found` / `template` / `default` 외의 파일명을 라우트로 취급하지 않는다. 따라서 `meta.ts`, `steps.tsx`, `scene.ts` 등을 라우트 디렉터리에 함께 두는 것은 안전하다.
 - 주제 전용 컴포넌트는 해당 주제 디렉터리 안에 둔다 (MUST). `src/components/` 로 올리는 것은 **2개 이상의 주제가 실제로 공유할 때만** 허용한다.
+- 주제 디렉터리 안에 허용되는 하위 디렉터리는 **`content/` 하나뿐이다 (MUST)**. 본문 MDX 전용이며(§4.6), 그 안에 다시 디렉터리를 두지 않는다. `scripts/generate-topic-registry.mjs` 가 이 규칙을 강제하고 위반하면 빌드가 실패한다. 라우트를 `카테고리/주제` 2단계로 묶어 두기 위한 제약이다.
 - 각 주제의 `page.tsx` 는 서버 컴포넌트로 유지하고, 인터랙션이 필요한 부분만 `'use client'` 컴포넌트로 분리한다 (SHOULD). 이렇게 하면 `meta.ts` 를 `generateMetadata` 에서 그대로 쓸 수 있다.
 
 ---
@@ -455,6 +463,68 @@ export function getFeaturedTopics(limit?: number): TopicEntry[];
 
 ---
 
+### 4.6 본문 MDX 규약 (MUST)
+
+주제의 **산문**은 `*Client.tsx` 가 아니라 주제 디렉터리의 `content/*.mdx` 에 둔다. 문구 수정에 개발자가 필요하지 않게 하려는 것이다 (#40).
+
+#### 대상
+
+| 옮긴다 | 남긴다 |
+|---|---|
+| `SolutionStep.body` — 단계 본문 | 레이아웃 조립 (`TopicLayout`, `ExplanationBox`, `SolutionStepper` 배치) |
+| `SolutionStep.hint` · `formula` — MDX 의 named export | 상태와 콜백 (`onStepChange`, 보드 모드 계산) |
+| `ExplanationBox` 안의 문단·목록 | `TopicLayout` 의 `title` · `subtitle` — `<Highlight>` JSX 가 필요하고 두 줄뿐이다 |
+
+#### 배선
+
+```
+math/honey-pots/
+├── content/
+│   ├── step-0.mdx        # 본문. hint 가 있으면 같은 파일에서 export
+│   └── problem.mdx
+├── steps.tsx             # MDX 를 SolutionStep[] 로 조립. 여기에 문장을 쓰지 않는다
+└── HoneyPotsClient.tsx   # 구조와 상태만
+```
+
+```mdx
+export const hint = '아래에서 다른 꿀통을 눌러 이름표와 개미 그룹이 함께 바뀌는지 확인해보세요.';
+
+**핵심 연결 — 결과를 이름표로 쓰기:** 32가지 생사 결과 중 25개를 …
+```
+
+```tsx
+import Step3, { hint as hint3 } from './content/step-3.mdx';
+
+export const HONEY_STEPS: SolutionStep[] = [
+  { id: '3', body: <Step3 />, hint: hint3 },
+];
+```
+
+- `hint` · `formula` 는 **export 한 파일에서만** import 한다. 없는 이름을 가져오면 번들러가 잡는다.
+- MDX 는 **빌드 타임에 JSX 로 컴파일**된다. 마크다운 파서는 런타임 번들에 들어가지 않으므로 `'use client'` 파일에서 import 해도 된다.
+- `pageExtensions` 는 확장하지 않는다 (MUST NOT). MDX 를 라우트로 쓰지 않으므로 `content.mdx` 가 페이지로 오인될 여지를 없앤다.
+- MDX 안에서 쓸 수 있는 컴포넌트는 `src/mdx-components.tsx` 에 올린 것뿐이다. **인라인 장식만 올린다** — 레이아웃 컴포넌트를 올리면 구조가 본문으로 새어 나간다.
+
+#### 한국어 강조의 함정 (MUST)
+
+CommonMark 의 right-flanking 규칙 때문에, 닫는 `**` **앞이 구두점이고 뒤에 조사가 바로 붙으면** 강조가 성립하지 않고 별표가 화면에 그대로 남는다. 빌드는 통과하므로 눈으로만 발견된다.
+
+| 쓰면 안 되는 것 | 화면 | 대신 |
+|---|---|---|
+| `**1비트(bit)**의` | `**1비트(bit)**의` | `<strong>1비트(bit)</strong>의` |
+| `**“문제”**로` | `**“문제”**로` | `<strong>“문제”</strong>로` |
+| `**단 한 번**만` | **단 한 번**만 | 그대로 둔다 (앞이 보통 글자) |
+
+`src/content/mdxContent.test.ts` 가 모든 `.mdx` 를 훑어 이 패턴을 검출한다. 규칙을 넓히려면 이 테스트를 함께 고친다.
+
+그 밖에 마크다운이 아니라 JSX 로 써야 하는 것:
+
+- 줄바꿈은 줄 끝 백슬래시(`\`)로 쓴다. 마크다운 hard break 가 `<br/>` 이 된다
+- `<` 는 `\<` 로 이스케이프한다. MDX 가 JSX 시작으로 읽는다
+- `target` · `rel` 이 필요한 링크는 마크다운 링크 문법 대신 `<a>` 를 쓴다
+
+---
+
 ## 5. 캔버스 및 애니메이션 생명주기 정책
 
 레거시의 가장 큰 구조적 결함이 이 영역이다 (결함 L4·L5·L7·L8). 아래 규칙을 어기면 화면 전환 시 rAF 루프가 살아남는다.
@@ -655,7 +725,11 @@ export interface ExplanationBoxProps {
 ```tsx
 export interface SolutionStep {
   id: string;
-  /** 단계 설명 본문. **JSX 로 작성한다 (MUST).** 레거시의 innerHTML 문자열을 그대로 옮기지 않는다. */
+  /**
+   * 단계 설명 본문. **JSX 로 작성한다 (MUST).** 레거시의 innerHTML 문자열을 그대로 옮기지 않는다.
+   * 본문 산문은 `content/step-*.mdx` 에 두고 `steps.tsx` 에서 조립한다 (§4.6). MDX 는
+   * 빌드 타임에 JSX 로 컴파일되므로 이 MUST 를 그대로 만족한다.
+   */
   body: React.ReactNode;
   /** 수식 강조 줄. 레거시 .math-formula 스타일로 렌더. */
   formula?: React.ReactNode;
@@ -680,7 +754,8 @@ export interface SolutionStepperProps {
 | `1 … n-2` | `다음 단계` + `처음으로` |
 | `n-1` (마지막) | `처음으로` 만 |
 
-- `body` 를 `dangerouslySetInnerHTML` 로 렌더하지 않는다 (MUST NOT). 레거시는 `innerHTML` 을 썼으나 React에서는 JSX로 표현한다.
+- `body` 를 `dangerouslySetInnerHTML` 로 렌더하지 않는다 (MUST NOT). 레거시는 `innerHTML` 을 썼으나 React에서는 JSX로 표현한다. MDX 도 마크다운 문자열을 런타임에 파싱하는 것이 아니라 빌드 타임에 JSX 로 컴파일하므로 이 금지에 걸리지 않는다.
+- 마크다운 본문은 단락이 `<p>` 로 감싸진다. `globals.css` 의 `* { margin: 0 }` 리셋 덕에 기존 fragment 본문과 시각적으로 동일하다 — 이 리셋을 걷어낼 때 함께 확인해야 한다.
 - 단계 텍스트 영역은 `min-height: 4rem` 을 유지한다 (레거시 `.step-text`).
 - 단계 전환 시 `aria-live="polite"` 로 변경을 알린다 (MUST).
 
@@ -1018,6 +1093,8 @@ export interface BinaryEncodingBoardProps {
 | 3 | 인코딩 — 개미에게 자릿값 16·8·4·2·1 을 배정하고, 꿀통 번호를 2진수로 쓴다. 각 개미는 **자기 자릿값의 비트가 1인 모든 통의 꿀을 섞어 마신다** | `encoding` (개미별 강조 인터랙션) |
 | 4 | 판독 — 1시간 뒤 죽은 개미의 자릿값을 더하면 가짜 꿀통 번호다. 직접 확인해 보세요 | `simulation` (사용자가 통을 골라 검증) |
 | 5 | 정답과 일반화 — 개미 n마리로 최대 `2ⁿ − 1` 통. 5마리면 31통까지 가능하다. 이것이 정보를 비트로 압축한다는 것의 의미다 | `simulation` |
+
+> **갱신 (#40)**: 실제 구현은 8단계이며, 본문은 `content/step-0.mdx` … `step-7.mdx` 에 있다. 이 표는 최초 이식 시점의 지시서로 남겨 둔다. 문구를 고칠 때는 표가 아니라 해당 MDX 파일을 편집한다 (§4.6).
 
 **작성 지침 (MUST)**: 본문 톤은 기존 두 페이지와 맞춘다 — 존댓말, 짧은 문단, 비유 우선, 정답을 먼저 던지지 않고 단계적으로 유도. 단계 4는 반드시 **사용자가 직접 조작해 확인하는 구간**이어야 한다. 읽기만 하는 페이지로 만들지 않는다.
 
