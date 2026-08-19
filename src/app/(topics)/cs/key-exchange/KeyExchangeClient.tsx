@@ -5,7 +5,7 @@ import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
-import { SolutionStepper, type SolutionStep } from '@/components/topic/SolutionStepper';
+import { SolutionStepper } from '@/components/topic/SolutionStepper';
 import {
   DH_PRESETS,
   bruteForceDiscreteLog,
@@ -26,64 +26,25 @@ import {
   toCssColor,
   type Rgb,
 } from './mixing';
+import { MIX_STEPS } from './steps';
+import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
+import QuizPossible from './content/quiz-possible.mdx';
+import QuizImpossible from './content/quiz-impossible.mdx';
+import QuizMet from './content/quiz-met.mdx';
+import NoteIntro from './content/note-intro.mdx';
+import StageLead, { title as stageTitle } from './content/stage-lead.mdx';
+import BeyondAnalogyIntro, {
+  title as beyondAnalogyTitle,
+} from './content/beyond-analogy-intro.mdx';
+import BeyondAnalogyOutro from './content/beyond-analogy-outro.mdx';
+import NotALock, { title as notALockTitle } from './content/not-a-lock.mdx';
+import Mitm, { title as mitmTitle } from './content/mitm.mdx';
+import MathLead, { title as mathTitle } from './content/math-lead.mdx';
+import MathPunchline from './content/math-punchline.mdx';
+import EavesExplain from './content/eaves-explain.mdx';
+import WhySafe, { title as whySafeTitle } from './content/why-safe.mdx';
 import meta from './meta';
 import styles from './KeyExchange.module.css';
-
-const MIX_STEPS: SolutionStep[] = [
-  {
-    id: 'public',
-    body: (
-      <>
-        <strong>공개 색을 정합니다.</strong> 앨리스와 밥이 &ldquo;이 색에서 시작하자&rdquo;고
-        큰 소리로 말합니다. <strong>도청자도 이 색을 압니다.</strong> 숨길 생각이 없습니다.
-      </>
-    ),
-    hint: '두 사람은 미리 만난 적이 없습니다. 오갈 수 있는 것은 도청자가 듣는 통로뿐입니다.',
-  },
-  {
-    id: 'secret',
-    body: (
-      <>
-        <strong>각자 비밀 색을 고릅니다.</strong> 위 선택기로 바꿔 볼 수 있습니다. 이 색은
-        자기 방을 <strong>한 번도 떠나지 않습니다</strong> — 상대에게도 보내지 않습니다.
-      </>
-    ),
-    hint: '도청자 칸에 비밀 색이 나타나지 않는 것을 확인하세요.',
-  },
-  {
-    id: 'send',
-    body: (
-      <>
-        <strong>공개 색에 자기 비밀 색을 섞어 보냅니다.</strong> 이 두 색은 통로를 지나므로{' '}
-        <strong>도청자가 그대로 봅니다</strong>. 그래도 상관없습니다.
-      </>
-    ),
-    formula: '앨리스 → 밥: 공개 + a          밥 → 앨리스: 공개 + b',
-  },
-  {
-    id: 'finish',
-    body: (
-      <>
-        <strong>받은 색에 자기 비밀 색을 한 번 더 섞습니다.</strong> 앨리스는 (공개 + b) 에 a
-        를, 밥은 (공개 + a) 에 b 를 섞습니다. 섞는 순서가 달라도{' '}
-        <Highlight>같은 색에 도달합니다</Highlight>.
-      </>
-    ),
-    formula: '(공개 + b) + a  =  (공개 + a) + b',
-    hint: '두 스와치의 색이 정확히 같습니다. 순서가 결과를 바꾸지 않는다는 것이 이 방식의 전부입니다.',
-  },
-  {
-    id: 'eaves',
-    body: (
-      <>
-        도청자는 <strong>공개 색</strong>과 <strong>오간 두 색</strong>을 가졌습니다. 비밀 색은
-        하나도 듣지 못했습니다. 두 사람만 아는 색이 <strong>한 번도 통로를 지나지 않은 채</strong>{' '}
-        만들어졌습니다.
-      </>
-    ),
-    hint: '여기까지가 비유입니다. 색으로는 실제로 되돌릴 수 있습니다 — 바로 아래에서 확인하세요.',
-  },
-];
 
 export default function KeyExchangeClient() {
   const [aliceSecretId, setAliceSecretId] = useState(SECRET_COLORS[0].id);
@@ -135,55 +96,27 @@ export default function KeyExchangeClient() {
       <QuizGate
         question={
           <>
-            <h2 className={styles.sectionTitle}>섞어보기 전에</h2>
-            <p>
-              앨리스와 밥은 <strong>한 번도 만난 적이 없습니다</strong>. 주고받는 말은 도청자가
-              하나도 빠짐없이 듣습니다. 이때 둘만 아는 비밀번호를 만들 수 있을까요?
-            </p>
+            <h2 className={styles.sectionTitle}>{quizTitle}</h2>
+            <QuizQuestion />
           </>
         }
-        choices={[
-          { id: 'impossible', label: '불가능하다 — 오간 것을 다 들었으면 도청자도 다 안다' },
-          { id: 'met', label: '미리 만나서 열쇠를 나눠 가졌을 때만 가능하다' },
-          { id: 'possible', label: '가능하다 — 만난 적이 없어도, 다 들려도 된다' },
-        ]}
+        choices={quizChoices}
         correctId="possible"
         feedback={{
-          possible: (
-            <p>
-              그렇습니다. 열쇠를 <strong>보내지 않고</strong> 만드는 방법이 있습니다. 지금
-              읽고 있는 이 페이지도 그렇게 시작했습니다. 아래에서 절차를 따라가 보세요.
-            </p>
-          ),
-          impossible: (
-            <p>
-              가장 자연스러운 직관입니다. 핵심은 <strong>비밀 자체는 한 번도 통로를 지나지
-              않는다</strong>는 것입니다. 오가는 것은 &ldquo;비밀을 섞은 결과&rdquo;뿐이고,
-              거기서 비밀을 되뽑는 것이 어렵습니다.
-            </p>
-          ),
-          met: (
-            <p>
-              1970년대까지 모두가 그렇게 생각했습니다. 그래서 은행은 열쇠를 사람이 들고
-              날랐습니다. 만난 적 없는 상대와도 열쇠를 만들 수 있다는 것이 이 주제의 요점입니다.
-            </p>
-          ),
+          possible: <QuizPossible />,
+          impossible: <QuizImpossible />,
+          met: <QuizMet />,
         }}
       >
         <ExplanationBox variant="note">
-          <p>
-            먼저 <strong>색 섞기</strong>로 절차를 봅니다. 색은 섞기는 쉬운데 되돌리기는
-            어려워 보이고, <strong>섞는 순서가 결과를 바꾸지 않습니다</strong>. 이 두 성질이
-            이 방식이 필요로 하는 전부입니다.
-          </p>
+          <NoteIntro />
         </ExplanationBox>
 
         <section className={styles.stageSection} aria-label="색 섞기">
-          <h2 className={styles.sectionTitle}>색으로 먼저 보기</h2>
-          <p className={styles.sectionLead}>
-            비밀 색을 바꿔 가며 단계를 넘겨 보세요. 가운데 <strong>도청자 칸</strong>에 무엇이
-            들어오고 무엇이 끝내 들어오지 않는지가 이 화면의 요점입니다.
-          </p>
+          <h2 className={styles.sectionTitle}>{stageTitle}</h2>
+          <div className={styles.sectionLead}>
+            <StageLead />
+          </div>
 
           <ParameterPanel params={colorParams} onChange={handleColorChange} />
 
@@ -238,11 +171,8 @@ export default function KeyExchangeClient() {
           </SolutionStepper>
         </section>
 
-        <ExplanationBox title="여기서 비유가 무너집니다">
-          <p>
-            색 섞기는 <strong>비유일 뿐입니다</strong>. 실제로는 도청자가 들은 세 색만으로
-            공유 색을 그대로 되만들 수 있습니다 — 두 개를 섞고 공개 색으로 나누면 됩니다.
-          </p>
+        <ExplanationBox title={beyondAnalogyTitle}>
+          <BeyondAnalogyIntro />
           <div className={styles.recoveryRow}>
             <Swatch label="두 사람의 색" color={aliceResult} emphasis />
             <span className={styles.equals} aria-hidden="true">
@@ -250,50 +180,17 @@ export default function KeyExchangeClient() {
             </span>
             <Swatch label="도청자가 되만든 색" color={recovered} emphasis />
           </div>
-          <p>
-            같은 색입니다. 그러니 색으로는 아무것도 지키지 못합니다. 필요한 것은{' '}
-            <strong>섞기는 쉬운데 되돌리기가 정말로 어려운 연산</strong>입니다. 아래가 그
-            연산입니다.
-          </p>
+          <BeyondAnalogyOutro />
         </ExplanationBox>
 
         <RealMath />
 
-        <ExplanationBox title="이건 자물쇠를 주는 것이 아닙니다">
-          <p>
-            &ldquo;자물쇠는 공개하고 열쇠는 감춘다&rdquo;는 말은 공개키 암호 <em>일반</em>의
-            비유입니다. 하지만 여기서 다룬 것은 자물쇠를 나눠 주는 방식이 아니라{' '}
-            <strong>둘이 같은 비밀번호에 도달하는 방식</strong>입니다. 이름은{' '}
-            <Highlight>디피–헬만 키 교환</Highlight> 입니다.
-          </p>
-          <p>
-            <strong>RSA 가 아닙니다.</strong> RSA 는 실제로 자물쇠(공개키)를 뿌려 두고 아무나
-            잠글 수 있게 한 뒤, 열쇠(개인키)를 가진 사람만 열게 합니다. 디피–헬만은 아무것도
-            잠그지 않습니다 — <strong>공유 비밀을 만들어 낼 뿐</strong>이고, 실제 암호화는 그
-            비밀을 열쇠로 삼는 다른 방식(AES 등)이 맡습니다.
-          </p>
-          <p>
-            둘은 경쟁 관계가 아니라 역할이 다릅니다. HTTPS 접속은 지금도 대개 디피–헬만
-            계열로 열쇠를 만들고, 그 뒤의 실제 통신은 그 열쇠로 암호화합니다.
-          </p>
+        <ExplanationBox title={notALockTitle}>
+          <NotALock />
         </ExplanationBox>
 
-        <ExplanationBox title="이것만으로는 부족합니다 — 중간자" collapsible>
-          <p>
-            디피–헬만은 <strong>엿듣기만</strong> 막습니다. 통로 가운데 앉은 사람이 듣기만
-            하지 않고 <strong>끼어들면</strong> 이야기가 달라집니다.
-          </p>
-          <p>
-            그가 앨리스에게는 밥인 척, 밥에게는 앨리스인 척하며 각각과 따로 키 교환을 하면,
-            양쪽 모두 &ldquo;상대와 비밀을 만들었다&rdquo;고 믿는 동안 실제로는 두 개의 비밀이
-            그를 거쳐 갑니다. 이 절차 어디에도 <strong>상대가 진짜인지 확인하는 단계가
-            없기</strong> 때문입니다.
-          </p>
-          <p>
-            그래서 실제 HTTPS 는 키 교환 앞에 <strong>인증서</strong>를 둡니다. 브라우저 주소창의
-            자물쇠 표시는 &ldquo;암호화되었다&rdquo;만이 아니라 &ldquo;상대가 자기가 말한
-            그 사람이다&rdquo;를 함께 뜻합니다.
-          </p>
+        <ExplanationBox title={mitmTitle} collapsible>
+          <Mitm />
         </ExplanationBox>
       </QuizGate>
     </TopicLayout>
@@ -370,11 +267,10 @@ function RealMath() {
 
   return (
     <section className={styles.mathSection} aria-label="실제 연산">
-      <h2 className={styles.sectionTitle}>실제로는 이렇게 합니다</h2>
-      <p className={styles.sectionLead}>
-        색 대신 <strong>거듭제곱의 나머지</strong>를 씁니다. 섞기는 곱셈 몇 번이면 끝나는데,
-        되돌리려면 후보를 하나씩 훑는 수밖에 없습니다.
-      </p>
+      <h2 className={styles.sectionTitle}>{mathTitle}</h2>
+      <div className={styles.sectionLead}>
+        <MathLead />
+      </div>
 
       <ParameterPanel params={params} onChange={handleChange} />
 
@@ -408,20 +304,18 @@ function RealMath() {
         </div>
       </div>
 
-      <p className={styles.punchline}>
-        두 사람이 같은 수 <Highlight>{shared}</Highlight> 에 도달했습니다. 이 수는{' '}
-        <strong>한 번도 통로를 지나지 않았습니다</strong>.
-      </p>
+      <div className={styles.punchline}>
+        <MathPunchline shared={shared} />
+      </div>
 
       <div className={styles.eavesPanel}>
         <h3 className={styles.partyTitle}>도청자가 가진 것</h3>
         <p className={styles.mathLine}>
           p = {p}, g = {g}, 오간 두 수 {sentByAlice} 와 {sentByBob}. 비밀 a 와 b 는 못 들었습니다.
         </p>
-        <p className={styles.mathLine}>
-          {g}<sup>x</sup> mod {p} = {sentByAlice} 를 만족하는 x 를 찾으면 앨리스의 비밀입니다.
-          되돌리는 공식은 알려져 있지 않아, x 를 1 부터 하나씩 넣어 보는 수밖에 없습니다.
-        </p>
+        <div className={styles.mathLine}>
+          <EavesExplain g={g} p={p} sent={sentByAlice} />
+        </div>
 
         <button type="button" className={styles.attackButton} onClick={runAttack}>
           도청자가 풀어보게 하기
@@ -436,21 +330,8 @@ function RealMath() {
         </p>
       </div>
 
-      <ExplanationBox title="그런데 왜 안전할까">
-        <p>
-          여기 쓴 소수는 세 자리입니다. 도청자가 몇백 번이면 끝냅니다. 안전성은 계산이
-          어려워서가 아니라 <strong>훑어야 할 후보의 개수</strong>에서 나옵니다.
-        </p>
-        <p>
-          실제 프로토콜은 <strong>2048비트</strong> 소수를 씁니다. 십진법으로 617자리쯤 되는
-          수입니다. 무차별 대입보다 훨씬 나은 방법들이 알려져 있지만, 그것들로도 지금 지구에
-          있는 모든 컴퓨터를 붙여 우주 나이만큼 돌려야 하는 규모가 남습니다.
-        </p>
-        <p>
-          반대 방향은 여전히 쉽습니다. <strong>제곱 반복</strong>을 쓰면 2048비트 지수도
-          곱셈 3천 번 남짓이면 끝납니다 — 지수가 두 배가 되어도 계산은 한 번만 더 늘어납니다.
-          이 <strong>비대칭</strong>이 공개키 암호가 서 있는 자리입니다.
-        </p>
+      <ExplanationBox title={whySafeTitle}>
+        <WhySafe />
       </ExplanationBox>
     </section>
   );
