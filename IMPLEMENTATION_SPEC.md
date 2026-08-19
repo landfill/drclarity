@@ -477,7 +477,7 @@ export function getFeaturedTopics(limit?: number): TopicEntry[];
 
 #### 배선
 
-```
+```text
 math/honey-pots/
 ├── content/
 │   ├── step-0.mdx        # 본문. hint 가 있으면 같은 파일에서 export
