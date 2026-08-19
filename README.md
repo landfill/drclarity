@@ -48,6 +48,7 @@ src/
 │   │       └── <topic-slug>/
 │   │           ├── meta.ts
 │   │           ├── page.tsx
+│   │           ├── content/          # 본문 MDX — 문구는 여기서만 고친다
 │   │           └── *Client.tsx       # 인터랙션이 있을 때 선택
 │   ├── layout.tsx
 │   ├── page.tsx
@@ -122,7 +123,31 @@ export default function TopicPage() {
 
 `page.tsx`는 기본적으로 Server Component로 유지합니다. 상태, 이벤트, 브라우저 API가 필요한 인터랙션만 `'use client'`가 있는 `*Client.tsx`로 분리해 불러옵니다. 주제 전용 로직, 테스트, CSS Module은 같은 디렉터리에 함께 둘 수 있습니다.
 
-### 4. 레지스트리 생성하고 검증하기
+### 4. 본문은 `content/*.mdx`에 쓰기
+
+설명 문장은 컴포넌트에 JSX로 박지 않고 주제 디렉터리의 `content/` 안에 마크다운으로 둡니다. 오탈자 하나를 고치려고 TSX를 열지 않아도 됩니다.
+
+```text
+src/app/(topics)/math/honey-pots/
+├── content/
+│   ├── step-0.mdx     # 풀이 단계 본문
+│   └── problem.mdx    # 설명 상자 본문
+└── steps.tsx          # MDX를 SolutionStep[]으로 조립
+```
+
+단계별 힌트처럼 본문에 딸린 짧은 문구는 같은 파일에서 내보냅니다.
+
+```mdx
+export const hint = '아래에서 다른 꿀통을 눌러 확인해보세요.';
+
+**핵심 연결:** 32가지 생사 결과 중 25개를 …
+```
+
+한국어에서 한 가지 주의할 점이 있습니다. **닫는 `**` 앞이 괄호나 따옴표이고 뒤에 조사가 바로 붙으면** 마크다운 강조가 적용되지 않고 별표가 화면에 그대로 남습니다(`**1비트(bit)**의`). 이때는 `<strong>1비트(bit)</strong>의`처럼 태그를 씁니다. `npm test`가 이 패턴을 검출합니다.
+
+자세한 규약은 [`IMPLEMENTATION_SPEC.md` §4.6](./IMPLEMENTATION_SPEC.md)에 있습니다.
+
+### 5. 레지스트리 생성하고 검증하기
 
 ```bash
 npm run generate:registry
