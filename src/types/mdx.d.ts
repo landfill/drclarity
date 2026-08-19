@@ -22,6 +22,11 @@ declare module '*.mdx' {
    * `*Client.tsx` 에 남기고, 문구만 여기서 넘긴다.
    */
   export const title: string;
+  /**
+   * 문자열이어야 하는 본문. 타이핑 애니메이션처럼 컴포넌트가 `string` 을 요구해
+   * 마크다운으로 컴파일할 수 없는 자리에 쓴다. 강조·링크는 넣지 않는다.
+   */
+  export const explanation: string;
   /** `QuizGate` 의 선택지. 본문(문제 지문)과 같은 파일에 둔다. */
   export const choices: { id: string; label: ReactNode }[];
 }

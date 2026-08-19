@@ -509,6 +509,7 @@ export const HONEY_STEPS: SolutionStep[] = [
 | `hint` | 문자열 또는 JSX | 단계 힌트. 평문이면 문자열, 강조가 필요하면 `export const hint = <>…<strong>…</strong></>` |
 | `formula` | 문자열 또는 JSX | 수식 줄. 대개 문자열로 충분하다 |
 | `title` | 문자열 | 클래스가 붙은 제목의 문구. `<h2 className={styles.x}>{title}</h2>` 로 쓴다 |
+| `explanation` | 문자열 | 마크다운으로 컴파일할 수 없는 본문. `useTypewriter` 처럼 컴포넌트가 `string` 을 요구하는 자리에 쓴다 (`cs/floating-point`). 이때 MDX 파일은 본문 없이 export 만 갖는다 |
 | `choices` | `{ id, label }[]` | `QuizGate` 선택지. 지문과 같은 파일에 둔다 |
 
 타입은 `src/types/mdx.d.ts` 가 선언한다. 이름을 추가할 때 함께 고친다.
