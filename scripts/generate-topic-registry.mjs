@@ -11,6 +11,9 @@ const REGISTRY_OUT = path.join(process.cwd(), 'src/content/registry.generated.ts
 const TAGS_DICT = path.join(process.cwd(), 'src/content/tags.json');
 const SERIES_DICT = path.join(process.cwd(), 'src/content/series.json');
 
+/** 주제 디렉터리 안에서 유일하게 허용하는 하위 디렉터리 — 본문 MDX 전용 (#40). */
+const CONTENT_DIR = 'content';
+
 function isKebabCase(str) {
   return /^[a-z0-9-]+$/.test(str);
 }
@@ -133,9 +136,28 @@ function run() {
       const subdirs = fs
         .readdirSync(topicPath)
         .filter((d) => fs.statSync(path.join(topicPath, d)).isDirectory());
-      if (subdirs.length > 0) {
-        console.error(`${catId}/${slug}: 주제 디렉터리는 2단계까지만 지원합니다.`);
+      // 라우트는 `카테고리/주제` 2단계로 고정한다. 유일한 예외가 본문 MDX 를 모아 두는
+      // `content/` 이며(#40), 여기에는 page 파일이 없으므로 라우트가 생기지 않는다.
+      const unexpectedSubdirs = subdirs.filter((d) => d !== CONTENT_DIR);
+      if (unexpectedSubdirs.length > 0) {
+        console.error(
+          `${catId}/${slug}: 주제 디렉터리는 2단계까지만 지원합니다. ` +
+            `허용되는 하위 디렉터리는 '${CONTENT_DIR}/' 하나입니다 (발견: ${unexpectedSubdirs.join(', ')}).`
+        );
         process.exit(1);
+      }
+      if (subdirs.includes(CONTENT_DIR)) {
+        const contentPath = path.join(topicPath, CONTENT_DIR);
+        const nested = fs
+          .readdirSync(contentPath)
+          .filter((d) => fs.statSync(path.join(contentPath, d)).isDirectory());
+        if (nested.length > 0) {
+          console.error(
+            `${catId}/${slug}/${CONTENT_DIR}: 본문 디렉터리 안에는 하위 디렉터리를 두지 않습니다 ` +
+              `(발견: ${nested.join(', ')}).`
+          );
+          process.exit(1);
+        }
       }
 
       const hasMeta = fs.existsSync(path.join(topicPath, 'meta.ts'));
