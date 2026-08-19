@@ -6,6 +6,12 @@ import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
 import { applyTemperature, entropyBits, sampleFrom, PROMPTS } from './softmax';
+import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
+import QuizVary from './content/quiz-vary.mdx';
+import QuizSame from './content/quiz-same.mdx';
+import NoteLogit from './content/note-logit.mdx';
+import Entropy, { title as entropyTitle } from './content/entropy.mdx';
+import About, { title as aboutTitle } from './content/about.mdx';
 import meta from './meta';
 import styles from './NextWord.module.css';
 
@@ -112,42 +118,20 @@ export default function NextWordClient() {
       <QuizGate
         question={
           <>
-            <h2 className={styles.sectionTitle}>만져보기 전에</h2>
-            <p>
-              완전히 <strong>똑같은 문장</strong>을 <strong>똑같은 모델</strong>에 두 번 넣으면
-              어떻게 될까요?
-            </p>
+            <h2 className={styles.sectionTitle}>{quizTitle}</h2>
+            <QuizQuestion />
           </>
         }
-        choices={[
-          { id: 'same', label: '설정이 같으면 항상 같은 답이 나온다' },
-          { id: 'vary', label: '설정이 같아도 다른 답이 나올 수 있다' },
-        ]}
+        choices={quizChoices}
         correctId="vary"
         feedback={{
-          vary: (
-            <p>
-              그렇습니다. 다만 <strong>왜</strong>가 중요합니다. 모델이 내놓는 것은 단어 하나가
-              아니라 후보 전체에 걸친 <strong>확률 분포</strong>이고, 실제 단어는 거기서 뽑습니다.
-              아래에서 그 분포를 직접 기울여 보세요.
-            </p>
-          ),
-          same: (
-            <p>
-              계산기나 함수를 떠올리면 자연스러운 답입니다. 하지만 모델의 출력은 단어가 아니라
-              <strong> 후보마다의 확률</strong>이고, 그 다음에 <strong>뽑는 단계</strong>가 한 번 더
-              있습니다. 그 단계가 무작위라서 같은 입력에도 결과가 갈립니다.
-            </p>
-          ),
+          vary: <QuizVary />,
+          same: <QuizSame />,
         }}
       >
 
       <ExplanationBox variant="note">
-        <p>
-          모델은 <strong>logit</strong>이라는 점수를 후보마다 내놓습니다. 이 점수를 확률로 바꾸는
-          단계에서 <strong>temperature</strong>가 개입합니다. 낮추면 점수 차이가 벌어져
-          1등이 독식하고, 올리면 차이가 눌려 <Highlight>분포가 평평해집니다</Highlight>.
-        </p>
+        <NoteLogit />
       </ExplanationBox>
 
       <section className={styles.stage} aria-label="확률 분포">
@@ -216,28 +200,12 @@ export default function NextWordClient() {
         </div>
       </section>
 
-      <ExplanationBox title="엔트로피가 말해주는 것">
-        <p>
-          엔트로피는 분포가 얼마나 퍼져 있는지를 <strong>비트</strong>로 잰 값입니다.
-          0 비트면 답이 하나로 정해진 상태, {maxBits.toFixed(2)} 비트면 후보
-          {' '}{prompt.candidates.length}개가 완전히 균등한 상태입니다.
-        </p>
-        <p>
-          <code>1 + 1 =</code> 문맥을 골라 보세요. temperature 를 한참 올려야 비로소
-          다른 답이 섞이기 시작합니다. 반대로 이야기 문맥은 낮은 temperature 에서도
-          여러 갈래가 살아 있습니다. <strong>같은 설정이라도 문맥에 따라 흔들림의 폭이 다릅니다.</strong>
-        </p>
+      <ExplanationBox title={entropyTitle}>
+        <Entropy maxBits={maxBits.toFixed(2)} candidateCount={prompt.candidates.length} />
       </ExplanationBox>
 
-      <ExplanationBox title="이 화면에 대해" collapsible>
-        <p>
-          여기 쓰인 후보와 점수는 <strong>실제 모델을 호출해 얻은 값이 아니라</strong> 설명을 위해
-          손으로 정한 예시입니다. temperature 가 확률을 바꾸는 방식은 실제와 같지만,
-          숫자 자체를 특정 모델의 출력으로 읽어서는 안 됩니다.
-        </p>
-        <p>
-          실제 모델은 후보가 수만 개입니다. 여기서는 상위 몇 개만 남겼습니다.
-        </p>
+      <ExplanationBox title={aboutTitle} collapsible>
+        <About />
       </ExplanationBox>
       </QuizGate>
     </TopicLayout>
