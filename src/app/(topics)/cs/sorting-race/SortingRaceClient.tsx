@@ -17,6 +17,8 @@ import {
   type SortCounters,
   type SortGenerator,
 } from './sorting';
+import NoteRules from './content/note-rules.mdx';
+import WhyDifference, { title as whyTitle } from './content/why-difference.mdx';
 import meta from './meta';
 import styles from './SortingRace.module.css';
 
@@ -251,14 +253,7 @@ export default function SortingRaceClient() {
       subtitle="O(n²)와 O(n log n)의 차이를 말이 아니라 속도로 봅니다."
     >
       <ExplanationBox variant="note">
-        <p>
-          <strong>규칙:</strong> 세 알고리즘이 <strong>똑같은 배열</strong>을 받아 동시에 출발합니다.
-          한 프레임에 진행하는 스텝 수도 셋이 같습니다. 그래서 먼저 끝난다는 것은
-          <strong> 해야 할 일이 적었다</strong>는 뜻입니다.
-        </p>
-        <p>
-          막대 하나가 값 하나입니다. 주황색은 지금 비교하거나 옮기는 자리, 초록색은 정렬이 끝난 상태입니다.
-        </p>
+        <NoteRules />
       </ExplanationBox>
 
       <section className={styles.controlSection} aria-label="입력 설정">
@@ -321,28 +316,8 @@ export default function SortingRaceClient() {
         {announcement}
       </p>
 
-      <ExplanationBox title="왜 이런 차이가 날까?" variant="note" collapsible defaultOpen={false}>
-        <p>
-          <strong>버블 정렬</strong>은 이웃한 두 값을 비교해 자리를 바꾸는 일을 반복합니다. 값 하나를
-          제자리로 보내려면 배열을 한 번 훑어야 하므로, 원소가 n개면 대략 n번을 n번 반복합니다. n이 두 배가
-          되면 일은 네 배가 됩니다.
-        </p>
-        <p>
-          <strong>병합 정렬</strong>은 배열을 절반씩 쪼개 정렬한 뒤 합칩니다. 쪼개는 깊이가 log n이고 각
-          깊이에서 n개를 훑으므로 n log n입니다. 입력이 어떻게 생겼든 하는 일이 거의 같습니다.
-        </p>
-        <p>
-          <strong>퀵 정렬</strong>은 기준값(피벗) 하나를 잡아 작은 쪽과 큰 쪽으로 가릅니다. 반씩 잘 갈리면
-          병합 정렬과 같은 n log n이지만, 한쪽으로만 쏠리면 버블과 다를 바 없어집니다.
-          <strong> 역순</strong> 패턴에서 그 장면을 볼 수 있습니다.
-        </p>
-        <p>
-          <small>
-            여기 구현은 버블에 <strong>조기 종료</strong>(교환 없는 훑기가 나오면 중단)를, 퀵에
-            <strong> 맨 뒤 원소 피벗</strong>(Lomuto 분할)을 씁니다. 실제 라이브러리는 보통 피벗을
-            무작위나 중앙값으로 골라 이 최악을 피합니다.
-          </small>
-        </p>
+      <ExplanationBox title={whyTitle} variant="note" collapsible defaultOpen={false}>
+        <WhyDifference />
       </ExplanationBox>
     </TopicLayout>
   );
