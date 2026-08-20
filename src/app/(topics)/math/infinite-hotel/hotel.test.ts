@@ -116,6 +116,13 @@ describe('freedRooms', () => {
     expect(() => freedRooms({ kind: 'shift', k: -1 }, UP_TO)).toThrow(RangeError);
   });
 
+  it('NaN 인 규칙도 거부한다 — 만실을 두고 전 객실이 비었다고 답하면 안 된다', () => {
+    // NaN 과의 비교는 언제나 거짓이라 `map(room) < room` 검사를 그냥 통과한다.
+    // 그대로 두면 도착 방이 하나도 안 잡혀 1..upTo 전체가 빈 방으로 나온다.
+    expect(() => freedRooms({ kind: 'shift', k: NaN }, UP_TO)).toThrow(RangeError);
+    expect(respectsFloor({ kind: 'shift', k: NaN }, UP_TO)).toBe(false);
+  });
+
   it('빈 방은 새 손님이 정확히 채운다 — 남거나 모자라지 않는다', () => {
     const freed = freedRooms({ kind: 'double' }, UP_TO);
     const takenAfterBoarding = new Set<number>([
@@ -138,6 +145,28 @@ describe('respectsFloor', () => {
 
   it('뒤로 당기는 규칙은 걸린다', () => {
     expect(respectsFloor({ kind: 'shift', k: -1 }, UP_TO)).toBe(false);
+  });
+});
+
+describe('훑을 구간 검증', () => {
+  // 무한을 다루는 주제라고 해서 무한을 세려 들면 안 된다. Infinity 를 그대로
+  // 받으면 루프가 끝나지 않아 브라우저 탭이 통째로 멈춘다.
+  const windowed: [string, (upTo: number) => unknown][] = [
+    ['freedRooms', upTo => freedRooms({ kind: 'double' }, upTo)],
+    ['isInjectiveOn', upTo => isInjectiveOn({ kind: 'double' }, upTo)],
+    ['respectsFloor', upTo => respectsFloor({ kind: 'double' }, upTo)],
+    ['guestMoves', upTo => guestMoves({ kind: 'double' }, upTo)],
+    ['isMapInjectiveOn', upTo => isMapInjectiveOn(room => room, upTo)],
+  ];
+
+  it.each(windowed)('%s 는 Infinity 를 거부한다', (_name, call) => {
+    expect(() => call(Number.POSITIVE_INFINITY)).toThrow(RangeError);
+  });
+
+  it.each(windowed)('%s 는 정수가 아니거나 음수인 구간을 거부한다', (_name, call) => {
+    expect(() => call(2.5)).toThrow(RangeError);
+    expect(() => call(-1)).toThrow(RangeError);
+    expect(() => call(NaN)).toThrow(RangeError);
   });
 });
 
