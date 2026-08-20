@@ -115,11 +115,11 @@ export default function InfiniteHotelClient() {
 
               <dl className={styles.readouts}>
                 <div className={styles.readout}>
-                  <dt>지금 방송</dt>
+                  <dt>지금 규칙</dt>
                   <dd className={styles.mono}>{ruleLabel(rule)}</dd>
                 </div>
                 <div className={styles.readout}>
-                  <dt>방송이 비운 방</dt>
+                  <dt>규칙이 비운 방</dt>
                   <dd className={`${styles.mono} ${styles.freed}`}>
                     {freed.length > 0 ? freed.join(', ') : '없음'}
                   </dd>
