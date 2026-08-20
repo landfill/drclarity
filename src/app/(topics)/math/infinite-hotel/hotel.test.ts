@@ -110,6 +110,12 @@ describe('freedRooms', () => {
     expect(wide.slice(0, narrow.length)).toEqual(narrow);
   });
 
+  it('방 번호를 줄이는 규칙은 거부한다 — 조용히 틀린 답을 내지 않는다', () => {
+    // k = -1 을 그냥 계산하면 40 번 방이 빈다고 답한다. 실제로는 41 번 방 손님이
+    // 그리로 내려오므로, 그 값을 입실할 방으로 쓰면 두 손님이 한 방에서 만난다.
+    expect(() => freedRooms({ kind: 'shift', k: -1 }, UP_TO)).toThrow(RangeError);
+  });
+
   it('빈 방은 새 손님이 정확히 채운다 — 남거나 모자라지 않는다', () => {
     const freed = freedRooms({ kind: 'double' }, UP_TO);
     const takenAfterBoarding = new Set<number>([

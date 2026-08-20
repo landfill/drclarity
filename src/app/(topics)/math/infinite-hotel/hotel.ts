@@ -67,13 +67,41 @@ export function isInjectiveOn(rule: Rule, upTo: number): boolean {
 }
 
 /**
+ * `1..upTo` 에서 규칙이 방 번호를 줄이지 않는가. `freedRooms` 가 유한 구간만
+ * 훑고도 정확할 수 있는 근거이며, 동시에 "규칙이 호텔 밖(0 번 이하)으로
+ * 손님을 내보내지 않는다"는 확인이기도 하다.
+ */
+export function respectsFloor(rule: Rule, upTo: number): boolean {
+  const map = ruleToMap(rule);
+  for (let room = 1; room <= upTo; room += 1) {
+    if (map(room) < room) return false;
+  }
+  return true;
+}
+
+/**
  * 규칙을 적용한 뒤 `1..upTo` 안에서 비는 방을 오름차순으로 돌려준다.
  *
- * `1..upTo` 밖의 손님은 세지 않아도 된다. 이 파일의 규칙은 모두 방 번호를
- * 줄이지 않으므로(`map(n) >= n`), `upTo` 보다 큰 방의 손님이 `upTo` 이하로
- * 되돌아오는 일이 없다. `respectsFloor` 가 이 전제를 검사한다.
+ * `1..upTo` 밖의 손님은 세지 않는다. 방 번호를 줄이지 않는 규칙(`map(n) >= n`)
+ * 이라면 `upTo` 보다 큰 방의 손님이 `upTo` 이하로 되돌아올 수 없기 때문이다.
+ *
+ * 그 전제를 여기서 **강제한다.** `Rule` 타입은 음수 `k` 를 막지 못하는데,
+ * 전제가 깨진 규칙을 그냥 계산하면 예외 없이 조용히 틀린 답이 나온다 —
+ * `{ kind: 'shift', k: -1 }` 은 40 번 방이 빈다고 답하지만 실제로는 41 번 방
+ * 손님이 그리로 내려온다. 그 값을 입실할 방으로 쓰면 두 손님이 한 방에서 만난다.
+ * 화면은 이런 규칙을 만들지 않지만, 나중에 누가 넣었을 때 조용히 틀리는 것보다
+ * 그 자리에서 멈추는 편이 낫다.
+ *
+ * @throws {RangeError} 규칙이 `1..upTo` 안에서 방 번호를 줄일 때
  */
 export function freedRooms(rule: Rule, upTo: number): number[] {
+  if (!respectsFloor(rule, upTo)) {
+    throw new RangeError(
+      `방 번호를 줄이는 규칙(${ruleLabel(rule)})으로는 빈 방을 셀 수 없다. ` +
+        '손님을 뒤로 보내는 규칙은 이 호텔이 다루는 대상이 아니다.'
+    );
+  }
+
   const map = ruleToMap(rule);
   const taken = new Set<number>();
 
@@ -87,19 +115,6 @@ export function freedRooms(rule: Rule, upTo: number): number[] {
     if (!taken.has(room)) freed.push(room);
   }
   return freed;
-}
-
-/**
- * `1..upTo` 에서 규칙이 방 번호를 줄이지 않는가. `freedRooms` 가 유한 구간만
- * 훑고도 정확할 수 있는 근거이며, 동시에 "규칙이 호텔 밖(0 번 이하)으로
- * 손님을 내보내지 않는다"는 확인이기도 하다.
- */
-export function respectsFloor(rule: Rule, upTo: number): boolean {
-  const map = ruleToMap(rule);
-  for (let room = 1; room <= upTo; room += 1) {
-    if (map(room) < room) return false;
-  }
-  return true;
 }
 
 /** 한 손님의 이동. `from` 이 손님을 식별한다 — 이동 전 방 번호다. */
