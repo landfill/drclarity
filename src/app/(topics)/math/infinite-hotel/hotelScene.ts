@@ -119,7 +119,7 @@ export function sceneForStep(stepId: HotelStepId, progress: number): HotelScene 
         progress: eased,
         arrivals: [],
         arrivalProgress: 0,
-        waitingLabel: '버스에서 손님이 끝없이 내립니다',
+        waitingLabel: '새 손님이 끝없이 도착합니다',
         waitingCount: 3,
         emptyHighlight: settled ? freedRooms(DOUBLE, VISIBLE_ROOMS) : [],
       };
