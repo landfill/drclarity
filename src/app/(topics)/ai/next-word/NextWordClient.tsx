@@ -113,7 +113,7 @@ export default function NextWordClient() {
       tags={meta.tags}
       topicHref="/ai/next-word"
       title={<>다음 단어는 <Highlight>정해져 있지 않다</Highlight></>}
-      subtitle="모델은 단어를 고르는 대신 후보마다 확률을 매깁니다. 그 저울을 직접 기울여 봅니다."
+      subtitle="모델은 단어를 고르는 대신 후보마다 확률을 매깁니다. temperature 를 움직여 분포의 모양을 직접 바꿔 봅니다."
     >
       <QuizGate
         question={

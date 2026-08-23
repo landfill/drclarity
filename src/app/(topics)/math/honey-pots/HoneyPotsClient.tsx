@@ -70,7 +70,7 @@ export default function HoneyPotsClient() {
               width={1408}
               height={768}
             />
-            <figcaption>25개의 꿀통 중 딱 하나만 가짜입니다.</figcaption>
+            <figcaption>25개의 꿀통 중 딱 하나에만 독이 든 &apos;가짜 꿀&apos;이 들어 있습니다.</figcaption>
           </figure>
         <BinaryEncodingBoard
           mode={getBoardMode()}
