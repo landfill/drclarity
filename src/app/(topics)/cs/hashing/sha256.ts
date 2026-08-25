@@ -62,7 +62,7 @@ function pad(bytes: Uint8Array): Uint8Array {
 
   // 길이는 64비트 빅엔디언이다. 2^53 을 넘는 입력은 이 화면에 올 수 없으므로
   // 상위 32비트는 나눗셈으로 구해도 정밀도 문제가 없다.
-  const view = new DataView(out.buffer);
+  const view = new DataView(out.buffer, out.byteOffset, out.byteLength);
   view.setUint32(paddedLength - 8, Math.floor(bitLength / 0x100000000), false);
   view.setUint32(paddedLength - 4, bitLength >>> 0, false);
   return out;
@@ -119,7 +119,7 @@ export function sha256Bytes(input: Uint8Array): Uint8Array {
   }
 
   const digest = new Uint8Array(32);
-  const out = new DataView(digest.buffer);
+  const out = new DataView(digest.buffer, digest.byteOffset, digest.byteLength);
   for (let i = 0; i < 8; i += 1) {
     out.setUint32(i * 4, state[i], false);
   }
