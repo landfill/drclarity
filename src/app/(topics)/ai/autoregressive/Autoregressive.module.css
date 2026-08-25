@@ -1,0 +1,260 @@
+/*
+ * globals.css 가 모든 margin 을 지우고 TopicLayout 의 .container 에는 gap 이 없다.
+ * 최상위 블록은 각자 margin-bottom 을 들고 있어야 한다.
+ */
+.sectionTitle {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--fs-h2);
+  color: var(--color-text);
+}
+
+.stage {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+/* 마크다운 문단이 <p> 로 들어오므로 래퍼는 div 다 (§4.6). */
+.sectionLead {
+  margin-bottom: var(--space-md);
+  color: var(--color-muted);
+}
+
+.sectionLead :global(p + p) {
+  margin-top: var(--space-xs);
+}
+
+.card {
+  margin-top: var(--space-md);
+}
+
+/* AnimationCard 의 .stage 가 flex 라서 폭을 주지 않으면 내용 크기까지 쪼그라든다. */
+.loop {
+  flex: 1 1 100%;
+  width: 100%;
+  text-align: left;
+}
+
+.roundLabel {
+  margin-bottom: var(--space-xs);
+}
+
+.roundCount {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.roundOf {
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.stripLabel {
+  margin-bottom: var(--space-2xs);
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+/* --- 입력 스트립 --- */
+
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+  margin: 0;
+  padding: var(--space-sm);
+  list-style: none;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* '전체를 읽는다' 단계. 입력 전체가 한 번에 읽힌다는 것을 테두리로 보인다. */
+.stripReading {
+  border-color: var(--color-blue);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-blue) 15%, transparent);
+}
+
+.emptyStrip {
+  margin: 0;
+  padding: var(--space-sm);
+  color: var(--color-muted);
+  font-size: var(--fs-sm);
+  background: var(--color-bg);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.token {
+  display: inline-flex;
+  gap: var(--space-2xs);
+  align-items: baseline;
+  padding: var(--space-2xs) var(--space-xs);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  white-space: pre-wrap;
+}
+
+.tokenText {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--fs-sm);
+}
+
+.tokenIndex {
+  color: var(--color-muted);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 내가 넣은 조각과 모델이 쓴 조각. 색만이 아니라 스트립 안의 순번으로도 갈린다. */
+.prompted {
+  background: color-mix(in srgb, var(--color-blue-soft) 30%, var(--color-surface));
+}
+
+.generated {
+  background: color-mix(in srgb, var(--color-dough) 70%, var(--color-surface));
+}
+
+/* 방금 붙은 조각. 색이 비슷해도 테두리로 알아볼 수 있게 한다. */
+.fresh {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 35%, var(--color-surface));
+  font-weight: 700;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- 네 단계 --- */
+
+.stages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-xs);
+  margin: var(--space-md) 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: stage;
+}
+
+.stageItem {
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.stageItem::before {
+  counter-increment: stage;
+  content: counter(stage);
+  display: inline-block;
+  margin-right: var(--space-2xs);
+  color: var(--color-muted);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 지금 밝은 단계. 색만으로 구분하지 않도록 테두리와 굵기를 함께 쓴다. */
+.stageActive {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));
+}
+
+.stageActive .stageName {
+  font-weight: 700;
+}
+
+/* 종료 바퀴가 밟지 않는 단계. */
+.stageUnreachable {
+  opacity: 0.45;
+}
+
+.stageName {
+  display: block;
+  color: var(--color-text);
+}
+
+.stageHint {
+  display: block;
+  margin-top: var(--space-2xs);
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.verdict {
+  margin-top: var(--space-md);
+  min-height: 1.6em; /* 비었을 때도 자리를 지켜 레이아웃이 튀지 않게. */
+  color: var(--color-text);
+}
+
+.footnote {
+  margin-top: var(--space-xs);
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.primaryButton,
+.secondaryButton {
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.primaryButton {
+  background: var(--color-secondary);
+  color: #fff;
+}
+
+.secondaryButton {
+  background: var(--color-bg);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.primaryButton:hover,
+.secondaryButton:hover {
+  opacity: 0.85;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+@media (max-width: 768px) {
+  .stage {
+    padding: var(--space-md);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .strip,
+  .stageItem {
+    transition: none;
+  }
+}
