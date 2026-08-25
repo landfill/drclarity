@@ -132,6 +132,14 @@ describe('seriesMeta', () => {
   it('사전에 없으면 키 자체를 label 로 쓴다', () => {
     expect(seriesMeta('unknown-key')).toEqual({ label: 'unknown-key' });
   });
+
+  it('사전의 모든 시리즈가 빈 label 없이 채워져 있다', () => {
+    const keys = Object.keys(SERIES_DICT);
+    expect(keys.length).toBeGreaterThan(0);
+    for (const key of keys) {
+      expect(SERIES_DICT[key].label.trim()).not.toBe('');
+    }
+  });
 });
 
 describe('findAdjacent — 시리즈 없음', () => {

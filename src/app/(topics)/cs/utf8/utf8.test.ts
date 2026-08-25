@@ -8,6 +8,7 @@ import {
   cutAt,
   encodeCodePoint,
   encodeUtf8,
+  graphemeLength,
   lengthFromLeadByte,
   toBinary8,
   toHex,
@@ -218,5 +219,58 @@ describe('encodeCodePoint — 길이가 바뀌는 경계', () => {
         ...reference.encode(String.fromCodePoint(codePoint)),
       ]);
     }
+  });
+});
+
+describe('옮길 수 없는 값', () => {
+  /** UTF-8 로 옮길 수 없는 것들. 그대로 인코딩하면 UTF-8 이 아닌 바이트 열이 나온다. */
+  const replacement = [...reference.encode('�')];
+
+  it('짝을 잃은 서로게이트는 U+FFFD 가 된다 — TextEncoder 와 같다', () => {
+    for (const lone of ['\uD800', '\uDBFF', '\uDC00', '\uDFFF']) {
+      const chars = encodeUtf8(lone);
+      expect(chars[0].bytes).toEqual(replacement);
+      expect(chars[0].bytes).toEqual([...reference.encode(lone)]);
+      expect(chars[0].codePoint).toBe(0xfffd);
+    }
+  });
+
+  it('짝이 맞은 서로게이트 쌍은 원래 글자 그대로다', () => {
+    // '😀' 은 😀 를 UTF-16 두 조각으로 적은 것이다.
+    const chars = encodeUtf8('😀');
+    expect(chars).toHaveLength(1);
+    expect(chars[0].codePoint).toBe(0x1f600);
+    expect(chars[0].bytes).toEqual([...reference.encode('😀')]);
+  });
+
+  it('섞여 있어도 성한 글자는 그대로 두고 깨진 조각만 바꾼다', () => {
+    const text = `가\uD800나`;
+    expect(encodeUtf8(text).flatMap(item => item.bytes)).toEqual([...reference.encode(text)]);
+  });
+
+  it('범위 밖 코드 포인트도 U+FFFD 로 바꾼다', () => {
+    for (const bad of [-1, 0x110000, 0xd800, 0xdfff, 1.5, Number.NaN]) {
+      expect(encodeCodePoint(bad)).toEqual(replacement);
+    }
+  });
+});
+
+describe('graphemeLength — 사람이 세는 글자 수', () => {
+  it('보통 글자는 코드 포인트 수와 같다', () => {
+    for (const text of ['abc', '안녕하세요', '가 A 1']) {
+      expect(graphemeLength(text)).toBe(charLength(text));
+    }
+  });
+
+  it('여러 코드 포인트로 이루어진 이모지는 하나로 센다', () => {
+    // Intl.Segmenter 가 없는 환경에서는 코드 포인트 수로 물러나므로 그때는 건너뛴다.
+    if (typeof Intl.Segmenter !== 'function') return;
+    expect(charLength('👨‍👩‍👧‍👦')).toBeGreaterThan(1);
+    expect(graphemeLength('👨‍👩‍👧‍👦')).toBe(1);
+    expect(graphemeLength('❤️')).toBe(1);
+  });
+
+  it('빈 문자열은 0 이다', () => {
+    expect(graphemeLength('')).toBe(0);
   });
 });

@@ -8,10 +8,10 @@ import { QuizGate } from '@/components/topic/QuizGate';
 import {
   MAX_INPUT_CHARS,
   SAMPLE_PAIRS,
-  charLength,
   clampInput,
   cutAt,
   encodeUtf8,
+  graphemeLength,
   toHex,
 } from './utf8';
 import { ByteBoard } from './ByteBoard';
@@ -37,6 +37,12 @@ export default function Utf8Client() {
 
   const chars = useMemo(() => encodeUtf8(input), [input]);
   const totalBytes = chars.reduce((sum, item) => sum + item.bytes.length, 0);
+  /**
+   * 사람이 세는 글자 수. 보드의 칸 수(코드 포인트)와 다를 수 있다 — `👨‍👩‍👧‍👦` 는 눈에
+   * 하나지만 칸으로는 일곱이다. 화면이 "글자" 라고 부르는 자리에는 이 값을 쓴다.
+   */
+  const glyphCount = graphemeLength(input);
+  const splitsIntoPieces = glyphCount !== chars.length;
 
   /** 자르기 슬라이더. 입력이 바뀌면 한도를 전체 길이 안으로 당긴다. */
   const [rawLimit, setRawLimit] = useState<number | null>(null);
@@ -146,7 +152,7 @@ export default function Utf8Client() {
           <dl className={styles.stats} role="status" aria-live="polite">
             <div className={styles.stat}>
               <dt>글자</dt>
-              <dd className={styles.mono}>{charLength(input)}</dd>
+              <dd className={styles.mono}>{glyphCount}</dd>
             </div>
             <div className={styles.stat}>
               <dt>바이트</dt>
@@ -155,7 +161,7 @@ export default function Utf8Client() {
             <div className={styles.stat}>
               <dt>글자당 평균</dt>
               <dd className={styles.mono}>
-                {charLength(input) > 0 ? (totalBytes / charLength(input)).toFixed(1) : '—'}
+                {glyphCount > 0 ? (totalBytes / glyphCount).toFixed(1) : '—'}
               </dd>
             </div>
           </dl>
@@ -172,18 +178,38 @@ export default function Utf8Client() {
 
           <ByteBoard chars={chars} showBinary={showBinary} />
 
+          {/*
+            글자 수와 칸 수가 갈리는 입력에서만 뜬다. 보통은 같으므로 평소에는 보이지
+            않고, 어긋나는 순간에만 그 이유를 말한다.
+          */}
+          {splitsIntoPieces && (
+            <p className={styles.pieceNote}>
+              눈에 보이는 글자는 <strong>{glyphCount}개</strong>인데 칸은{' '}
+              <strong>{chars.length}개</strong>입니다. 글자 하나가 여러 조각으로 이루어질 수
+              있기 때문입니다 — 아래 ‘깨짐의 다른 원인들’ 에서 다룹니다.
+            </p>
+          )}
+
+          {/*
+            괄호 안은 예시다. '3바이트 = 한글' 처럼 정의로 읽히면 안 된다 — 위 보드에서
+            이모지를 잇는 표시도 3바이트다. 바이트 수는 종류가 아니라 글자마다 정해진다.
+          */}
           <ul className={styles.legend} aria-label="칸 색의 뜻">
             <li>
-              <span className={`${styles.swatch} ${styles.size1}`} aria-hidden="true" />1바이트 (영문·숫자)
+              <span className={`${styles.swatch} ${styles.size1}`} aria-hidden="true" />
+              1바이트 · 예) A 1
             </li>
             <li>
-              <span className={`${styles.swatch} ${styles.size2}`} aria-hidden="true" />2바이트
+              <span className={`${styles.swatch} ${styles.size2}`} aria-hidden="true" />
+              2바이트 · 예) é
             </li>
             <li>
-              <span className={`${styles.swatch} ${styles.size3}`} aria-hidden="true" />3바이트 (한글)
+              <span className={`${styles.swatch} ${styles.size3}`} aria-hidden="true" />
+              3바이트 · 예) 가
             </li>
             <li>
-              <span className={`${styles.swatch} ${styles.size4}`} aria-hidden="true" />4바이트 (이모지)
+              <span className={`${styles.swatch} ${styles.size4}`} aria-hidden="true" />
+              4바이트 · 예) 😀
             </li>
           </ul>
         </section>

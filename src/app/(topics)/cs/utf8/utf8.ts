@@ -17,14 +17,38 @@ export interface EncodedChar {
 /** 화면에서 다룰 입력 길이. 코드 포인트 기준. */
 export const MAX_INPUT_CHARS = 40;
 
+/** 글자가 되지 못한 자리를 대신하는 유니코드 문자 U+FFFD (`�`). */
+export const REPLACEMENT_CODE_POINT = 0xfffd;
+
+/**
+ * UTF-8 로 옮길 수 있는 코드 포인트인가.
+ *
+ * 서로게이트 구간(U+D800~U+DFFF)은 UTF-16 이 큰 글자를 두 조각으로 나눠 담을 때 쓰는
+ * 자리표이지 그 자체로 글자가 아니다. 짝을 잃고 혼자 남은 조각이 여기 들어온다.
+ */
+function isEncodable(codePoint: number): boolean {
+  return (
+    Number.isInteger(codePoint) &&
+    codePoint >= 0 &&
+    codePoint <= 0x10ffff &&
+    !(codePoint >= 0xd800 && codePoint <= 0xdfff)
+  );
+}
+
 /**
  * 코드 포인트 하나를 UTF-8 바이트로 만든다.
  *
  * 첫 바이트의 앞머리가 그 글자가 몇 바이트인지 알려주고(`0` / `110` / `1110` / `11110`),
  * 이어지는 바이트는 전부 `10` 으로 시작한다. 이 규칙이 있어서 바이트 열 한가운데를
  * 봐도 글자의 시작을 찾을 수 있다 — 그리고 잘못 자르면 왜 깨지는지도 여기서 나온다.
+ *
+ * 옮길 수 없는 값은 `U+FFFD` 로 바꾼다. 그대로 인코딩하면 UTF-8 이 아닌 바이트 열이
+ * 나오는데, 인코딩을 설명하는 화면이 잘못된 인코딩을 보여주면 안 된다. `TextEncoder`
+ * 도 같은 규칙을 따르므로 두 결과가 계속 일치한다.
  */
-export function encodeCodePoint(codePoint: number): number[] {
+export function encodeCodePoint(input: number): number[] {
+  const codePoint = isEncodable(input) ? input : REPLACEMENT_CODE_POINT;
+
   if (codePoint <= 0x7f) {
     return [codePoint];
   }
@@ -55,8 +79,14 @@ export function encodeCodePoint(codePoint: number): number[] {
  */
 export function encodeUtf8(text: string): EncodedChar[] {
   return [...text].map(char => {
-    const codePoint = char.codePointAt(0) ?? 0;
-    return { char, codePoint, bytes: encodeCodePoint(codePoint) };
+    const raw = char.codePointAt(0) ?? 0;
+    // 짝을 잃은 서로게이트는 글자가 아니다. 화면에도 바이트에도 U+FFFD 로 나타낸다.
+    const codePoint = isEncodable(raw) ? raw : REPLACEMENT_CODE_POINT;
+    return {
+      char: codePoint === raw ? char : String.fromCodePoint(REPLACEMENT_CODE_POINT),
+      codePoint,
+      bytes: encodeCodePoint(codePoint),
+    };
   });
 }
 
@@ -65,9 +95,24 @@ export function utf8Length(text: string): number {
   return encodeUtf8(text).reduce((sum, item) => sum + item.bytes.length, 0);
 }
 
-/** 코드 포인트 기준 글자 수. `String.length` 와 다를 수 있다. */
+/** 코드 포인트 기준 개수. `String.length` 와 다를 수 있다. 화면의 칸 수가 이 값이다. */
 export function charLength(text: string): number {
   return [...text].length;
+}
+
+/**
+ * 사람이 세는 글자 수.
+ *
+ * 코드 포인트와 다를 수 있다 — `👨‍👩‍👧‍👦` 는 눈에 하나지만 코드 포인트로는 일곱이고,
+ * `❤️` 도 둘이다. 화면이 "글자" 라고 부르는 것은 이 값이어야 한다.
+ *
+ * `Intl.Segmenter` 가 없는 환경에서는 코드 포인트 수로 물러난다. 그 경우 두 값이 같아져
+ * 아래의 안내 문구가 뜨지 않을 뿐, 화면이 틀린 값을 말하지는 않는다.
+ */
+export function graphemeLength(text: string): number {
+  const segmenter = typeof Intl !== 'undefined' ? Intl.Segmenter : undefined;
+  if (typeof segmenter !== 'function') return charLength(text);
+  return [...new segmenter('ko', { granularity: 'grapheme' }).segment(text)].length;
 }
 
 /** 입력이 화면을 넘지 않게 코드 포인트 단위로 자른다. */

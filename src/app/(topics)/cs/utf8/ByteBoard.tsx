@@ -54,11 +54,15 @@ export function ByteBoard({ chars, showBinary }: ByteBoardProps) {
             ))}
           </ul>
 
-          {/* 보이는 것과 읽히는 것이 겹치지 않도록 설명은 하나로 모은다. */}
+          {/*
+            보이는 것과 읽히는 것이 겹치지 않도록 설명은 하나로 모은다.
+            화면이 이진수를 보여줄 때는 여기서도 이진수를 읽어야 한다 — 앞머리 규칙은
+            이진수로만 보이므로, 16진수만 읽으면 그 절을 확인할 방법이 없다.
+          */}
           <span className={styles.srOnly}>
-            {`${index + 1}번째 글자 ${item.char}, ${item.bytes.length}바이트, 16진수 ${item.bytes
-              .map(toHex)
-              .join(' ')}`}
+            {`${index + 1}번째 칸 ${item.char}, ${item.bytes.length}바이트, ${
+              showBinary ? '이진수' : '16진수'
+            } ${item.bytes.map(showBinary ? toBinary8 : toHex).join(' ')}`}
           </span>
         </li>
       ))}
