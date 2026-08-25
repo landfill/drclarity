@@ -1,0 +1,246 @@
+/*
+ * globals.css 가 모든 margin 을 지우고 TopicLayout 의 .container 에는 gap 이 없다.
+ * 최상위 블록은 각자 margin-bottom 을 들고 있어야 한다 (`cs/utf8` 과 같은 이유).
+ */
+.sectionTitle {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--fs-h2);
+  color: var(--color-text);
+}
+
+.stage {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+/* 마크다운 문단이 <p> 로 들어오므로 래퍼는 div 다 (§4.6). */
+.sectionLead {
+  margin-bottom: var(--space-md);
+  color: var(--color-muted);
+}
+
+.sectionLead :global(p + p) {
+  margin-top: var(--space-xs);
+}
+
+.sectionNote {
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-muted);
+}
+
+.sectionNote :global(p + p) {
+  margin-top: var(--space-xs);
+}
+
+/* --- 입력 --- */
+
+.inputLabel {
+  display: block;
+  margin-bottom: var(--space-2xs);
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.input {
+  width: 100%;
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--fs-body);
+}
+
+/*
+ * 두 입력을 나란히 둔다. 위아래로 쌓으면 두 해시를 한눈에 견줄 수 없어
+ * 이 주제의 핵심(같은 자리끼리 다르다)이 전달되지 않는다.
+ */
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.side {
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .pair {
+    grid-template-columns: 1fr;
+  }
+}
+
+.samples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+}
+
+.samplesLabel {
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.sampleButton {
+  padding: var(--space-2xs) var(--space-xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+
+.sampleButton:hover {
+  border-color: var(--color-secondary);
+}
+
+/* --- 해시 표시 --- */
+
+/*
+ * 64자를 한 덩어리 문자열로 두면 어디가 다른지 눈으로 찾을 수 없다.
+ * 자리를 칸으로 끊고 줄바꿈을 허용해 좁은 화면에서도 두 해시의 같은 자리가 맞물린다.
+ */
+.hash {
+  display: block;
+  margin-top: var(--space-sm);
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: var(--color-subtle);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+.digit {
+  color: var(--color-ink);
+}
+
+.digitDiff {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+/* --- 수치 --- */
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  margin-top: var(--space-md);
+}
+
+.stat dt {
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.stat dd {
+  font-size: var(--fs-lead);
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.strong {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+/* 분모는 값이 아니라 눈금이다. 같은 크기로 두면 분자와 경쟁한다. */
+.of {
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.verdict {
+  margin-top: var(--space-md);
+}
+
+.muted {
+  color: var(--color-muted);
+}
+
+/* --- 저장소 · 표 --- */
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.caption {
+  margin-bottom: var(--space-xs);
+  color: var(--color-muted);
+  font-size: var(--fs-sm);
+  text-align: left;
+}
+
+.table th,
+.table td {
+  padding: var(--space-2xs) var(--space-xs);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.table th {
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+.hitRow {
+  background: var(--color-note-bg);
+}
+
+.hit {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+.storeNote {
+  margin-top: var(--space-md);
+}
+
+/* --- 로그인 --- */
+
+.login {
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.loginResult {
+  margin-top: var(--space-sm);
+  min-height: 1.5em;
+}
+
+.ok {
+  color: var(--color-success);
+  font-weight: 500;
+}
+
+.no {
+  color: var(--color-danger);
+}

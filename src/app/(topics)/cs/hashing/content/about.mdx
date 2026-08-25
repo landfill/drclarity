@@ -1,0 +1,18 @@
+export const title = '조금 더 — 암호화와 다르다, 그리고 충돌';
+
+**해시는 암호화가 아닙니다.** 암호화는 열쇠로 되돌리기 위해 하는 것이고
+(<Link href="/cs/key-exchange">공개키 암호</Link> 편이 그 열쇠를 어떻게 나눠 갖는지 다룹니다),
+해시는 되돌리지 않기 위해 하는 것입니다. 목적이 반대입니다.
+
+**들어갈 값은 무한한데 나올 값은 유한합니다.** 그러니 서로 다른 두 입력이 같은 해시를
+내는 일이 원리상 반드시 있습니다. 이것을 <strong>충돌(collision)</strong>이라고 합니다.
+"2<sup>256</sup>가지나 되는데 설마" 싶겠지만, 이 설마가 얼마나 빨리 무너지는지는
+<Link href="/math/birthday-problem">생일 문제</Link>가 이미 보여 주었습니다 — 겹치기까지
+필요한 수는 전체의 절반이 아니라 <strong>제곱근</strong> 근처입니다.
+
+**진짜 비밀번호 저장에는 SHA-256 을 쓰지 않습니다.** 너무 빠르기 때문입니다. 빠르다는 것은
+공격자도 초당 수십억 번 시도할 수 있다는 뜻이라, 일부러 느리게 만든 계산
+(<span>bcrypt</span> · <span>scrypt</span> · <span>Argon2</span>)을 씁니다. 소금은 이미 그 안에 들어 있습니다.
+SHA-256 은 파일이 바뀌지 않았는지 확인하는 것처럼 속도가 필요한 자리에서 쓰입니다.
+
+<p><small>참고: <a href="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf" target="_blank" rel="noreferrer">FIPS 180-4 (SHA 규격)</a> · <a href="https://pages.nist.gov/800-63-3/sp800-63b.html" target="_blank" rel="noreferrer">NIST SP 800-63B (비밀번호 저장 지침)</a></small></p>
