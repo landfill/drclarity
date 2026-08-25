@@ -121,7 +121,7 @@ export default function AutoregressiveClient() {
   }, [cursor, end]);
 
   const stageAlt = `${stepIndex + 1}번째 바퀴, ${STAGE_INFO[stage].label} 단계. 입력은 조각 ${context.length}개입니다.${
-    isFinalStep ? ' 모델이 여기서 끝을 골라 더 붙이지 않습니다.' : ''
+    isFinalStep && stage === 'pick' ? ' 모델이 여기서 끝을 골라 더 붙이지 않습니다.' : ''
   }`;
 
   return (
@@ -252,13 +252,14 @@ export default function AutoregressiveClient() {
               </ol>
 
               <p className={styles.verdict} role="status" aria-live="polite">
-                {isFinalStep
-                  ? '모델이 “여기서 끝”을 골랐습니다. 더 붙이지 않습니다.'
-                  : stage === 'pick'
-                    ? `이번 바퀴에 고른 조각: ${step.emitted}`
-                    : stage === 'append'
-                      ? `입력이 조각 ${context.length}개로 늘었습니다.`
-                      : `입력은 지금 조각 ${context.length}개입니다.`}
+                {/* 마지막 바퀴도 고르기 전까지는 아직 고르지 않았다. 결과를 미리 말하지 않는다. */}
+                {stage === 'pick'
+                  ? isFinalStep
+                    ? '모델이 “여기서 끝”을 골랐습니다. 더 붙이지 않습니다.'
+                    : `이번 바퀴에 고른 조각: ${step.emitted}`
+                  : stage === 'append'
+                    ? `입력이 조각 ${context.length}개로 늘었습니다.`
+                    : `입력은 지금 조각 ${context.length}개입니다.`}
               </p>
             </div>
           </AnimationCard>
