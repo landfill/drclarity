@@ -52,7 +52,7 @@ export function TimelineRow({ label, prompt, phases, scale, muted = false }: Tim
   const alt =
     decodeCount === 0
       ? `${label}: 읽기만 하고 쓰지 않습니다.`
-      : `${label}: 전체 시간의 ${waitPercent}퍼센트를 질문을 읽는 데 쓰고, 나머지에 글자 ${decodeCount}개를 씁니다.`;
+      : `${label}: 전체 시간의 ${waitPercent}퍼센트를 질문을 읽는 데 쓰고, 나머지에 토큰 ${decodeCount}개를 씁니다.`;
 
   return (
     <div className={`${styles.row} ${muted ? styles.rowMuted : ''}`.trim()}>

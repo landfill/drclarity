@@ -50,6 +50,19 @@ function toTokenCount(value: number): number {
 }
 
 /**
+ * 토큰당 단가로 쓸 수 있는 값만 통과시키고, 아니면 기본값으로 되돌린다.
+ *
+ * 0 이나 음수를 그대로 쓰면 폭이 0 이하인 구간과 뒤로 가는 `start` 가 나온다. 그러면
+ * "구간이 겹치지도 벌어지지도 않는다"는 이 모듈의 계약이 깨지고, 화면에서는 막대가
+ * 사라지거나 반대로 뻗는다. 던지지 않고 되돌리는 것은 이 값이 렌더 도중에 읽히기
+ * 때문이다 — 잘못된 단가 하나로 페이지 전체가 죽는 편이 더 나쁘다.
+ */
+function toRate(value: number | undefined, fallback: number): number {
+  if (value === undefined) return fallback;
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+/**
  * 입력 · 출력 토큰 수로 타임라인을 만든다.
  *
  * 구간들은 겹치지 않고 빈틈 없이 이어진다. 입력이 0 이면 프리필 블록이 없고,
@@ -60,8 +73,8 @@ export function buildTimeline(
   outputTokens: number,
   opts: TimelineOptions = {}
 ): Phase[] {
-  const prefillPerToken = opts.prefillPerToken ?? DEFAULT_PREFILL_PER_TOKEN;
-  const decodePerToken = opts.decodePerToken ?? DEFAULT_DECODE_PER_TOKEN;
+  const prefillPerToken = toRate(opts.prefillPerToken, DEFAULT_PREFILL_PER_TOKEN);
+  const decodePerToken = toRate(opts.decodePerToken, DEFAULT_DECODE_PER_TOKEN);
   const input = toTokenCount(inputTokens);
   const output = toTokenCount(outputTokens);
 

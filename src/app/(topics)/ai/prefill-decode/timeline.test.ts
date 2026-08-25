@@ -155,3 +155,31 @@ describe('PRESETS', () => {
     expect(findPreset(CUSTOM_PRESET_ID)).toBeUndefined();
   });
 });
+
+describe('토큰당 단가 검증', () => {
+  /** 폭이 0 이하가 되면 구간이 겹치거나 뒤로 가서 이 모듈의 계약이 깨진다. */
+  const brokenRates = [0, -1, Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
+
+  it('쓸 수 없는 단가는 기본값으로 되돌린다', () => {
+    const expected = buildTimeline(4, 3);
+    for (const rate of brokenRates) {
+      expect(buildTimeline(4, 3, { prefillPerToken: rate })).toEqual(expected);
+      expect(buildTimeline(4, 3, { decodePerToken: rate })).toEqual(expected);
+    }
+  });
+
+  it('되돌린 뒤에도 구간이 겹치지 않고 폭이 양수다', () => {
+    for (const rate of brokenRates) {
+      const phases = buildTimeline(6, 4, { prefillPerToken: rate, decodePerToken: rate });
+      expect(isContiguous(phases)).toBe(true);
+      expect(phases.every(p => p.width > 0)).toBe(true);
+      expect(phases.every(p => p.start >= 0)).toBe(true);
+    }
+  });
+
+  it('쓸 수 있는 단가는 그대로 쓴다 — 정수가 아니어도 된다', () => {
+    const phases = buildTimeline(2, 1, { prefillPerToken: 0.5, decodePerToken: 2.5 });
+    expect(phases[0].width).toBe(1);
+    expect(phases[1].width).toBe(2.5);
+  });
+});

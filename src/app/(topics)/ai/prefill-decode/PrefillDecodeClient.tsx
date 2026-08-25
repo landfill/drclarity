@@ -211,7 +211,7 @@ export default function PrefillDecodeClient() {
             </li>
             <li>
               <span className={`${styles.swatch} ${styles.swatchDecode}`} aria-hidden="true" />
-              디코드 — 줄 하나가 글자 하나
+              디코드 — 줄 하나가 토큰 하나
             </li>
             <li>
               <span className={`${styles.swatch} ${styles.swatchMarker}`} aria-hidden="true" />
