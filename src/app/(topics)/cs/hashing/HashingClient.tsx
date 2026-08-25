@@ -103,7 +103,7 @@ export default function HashingClient() {
           비밀번호는 <Highlight>저장되지 않는다</Highlight>
         </>
       }
-      subtitle="잊어버렸다고 하면 알려주지 않고 새로 만들라고 합니다. 사이트도 모르기 때문입니다."
+      subtitle="잊어버렸다고 하면 알려주지 않고 새로 만들라고 합니다. 사이트에 남아 있지 않기 때문입니다."
     >
       <QuizGate
         question={
@@ -204,8 +204,8 @@ export default function HashingClient() {
             ) : (
               <>
                 입력은 {left.length === right.length ? '길이도 같은데' : '조금 다른데'} 결과는{' '}
-                <strong>{((diffBits / HASH_BITS) * 100).toFixed(0)}%</strong>가 다릅니다. 아무렇게나
-                고쳐도 이 값은 50% 근처를 벗어나지 않습니다.
+                <strong>{((diffBits / HASH_BITS) * 100).toFixed(0)}%</strong>가 다릅니다. 아무 데나
+                고쳐 보세요 — 값은 쌍마다 흔들리지만 <strong>평균은 늘 절반</strong>입니다.
               </>
             )}
           </p>
@@ -293,7 +293,7 @@ export default function HashingClient() {
                 </span>
               ) : accepted ? (
                 <span className={styles.ok}>
-                  통과 — 계산 결과가 저장된 값과 같습니다. 서버는 여전히 비밀번호를 모릅니다.
+                  통과 — 계산 결과가 저장된 값과 같습니다. 대조가 끝나면 넣은 값은 버려집니다.
                 </span>
               ) : (
                 <span className={styles.no}>
