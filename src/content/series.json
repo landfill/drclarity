@@ -2,7 +2,7 @@
   "_comment": "시리즈 사전. meta.ts의 series는 이 목록의 키 중에서 고른다. 새 시리즈가 필요하면 여기에 먼저 추가할 것. scripts/generate-topic-registry.mjs가 수집 시점에 검증(경고)한다. 소속 주제가 2개 미만인 시리즈는 UI에 렌더되지 않는다.",
   "series": {
     "binary": {
-      "label": "이진법 3부작",
+      "label": "이진법 시리즈",
       "description": "같은 원리가 전혀 다른 문제로 반복된다."
     },
     "infinite-decimal": {

@@ -123,11 +123,22 @@ describe('findSeries', () => {
 
 describe('seriesMeta', () => {
   it('사전에 있으면 등록된 label 을 쓴다', () => {
-    expect(seriesMeta('binary').label).toBe('이진법 3부작');
+    // 문구를 여기에 박지 않는다. 시리즈 이름은 콘텐츠라 바뀔 수 있고, 이 테스트가
+    // 확인할 것은 '사전 값을 그대로 돌려주는가' 이지 그 값이 무엇인가가 아니다.
+    expect(seriesMeta('binary')).toEqual(SERIES_DICT.binary);
+    expect(seriesMeta('binary').label).toBe(SERIES_DICT.binary.label);
   });
 
   it('사전에 없으면 키 자체를 label 로 쓴다', () => {
     expect(seriesMeta('unknown-key')).toEqual({ label: 'unknown-key' });
+  });
+
+  it('사전의 모든 시리즈가 빈 label 없이 채워져 있다', () => {
+    const keys = Object.keys(SERIES_DICT);
+    expect(keys.length).toBeGreaterThan(0);
+    for (const key of keys) {
+      expect(SERIES_DICT[key].label.trim()).not.toBe('');
+    }
   });
 });
 
