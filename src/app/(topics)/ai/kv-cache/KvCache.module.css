@@ -1,0 +1,230 @@
+/*
+ * globals.css 가 모든 margin 을 지우고 TopicLayout 의 .container 에는 gap 이 없다.
+ * 최상위 블록은 각자 margin-bottom 을 들고 있어야 한다.
+ */
+.sectionTitle {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--fs-h2);
+  color: var(--color-text);
+}
+
+.stage {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+/* 마크다운 문단이 <p> 로 들어오므로 래퍼는 div 다 (§4.6). */
+.sectionLead {
+  margin-bottom: var(--space-md);
+  color: var(--color-muted);
+}
+
+.sectionLead :global(p + p) {
+  margin-top: var(--space-xs);
+}
+
+.card {
+  margin-top: var(--space-md);
+}
+
+/*
+ * AnimationCard 의 .stage 가 flex 라서, 폭을 주지 않으면 격자가 내용 크기까지
+ * 쪼그라든다. 프레임이 가로를 다 쓰고 그 안에서 격자가 가운데 정렬되게 한다.
+ */
+.gridFrame {
+  display: grid;
+  grid-template-columns: auto minmax(0, auto);
+  grid-template-rows: auto auto;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2xs);
+  flex: 1 1 100%;
+  width: 100%;
+}
+
+.axisTop {
+  grid-row: 1;
+  grid-column: 2;
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.axisLeft {
+  grid-row: 2;
+  grid-column: 1;
+  writing-mode: vertical-rl;
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+/*
+ * 격자가 최소 칸 크기 아래로 눌리면 무엇이 칠해졌는지 알 수 없다.
+ * 좁은 화면에서는 줄이는 대신 가로로 밀어서 본다.
+ */
+.gridScroll {
+  grid-row: 2;
+  grid-column: 2;
+  overflow-x: auto;
+  padding-bottom: var(--space-2xs);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--kv-size), 1fr);
+  gap: 2px;
+  /* 칸이 정사각이어야 삼각형이 삼각형으로 보인다. */
+  width: calc(var(--kv-size) * 2.25rem);
+}
+
+.cell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: var(--color-subtle);
+  transition: background-color 0.18s ease;
+}
+
+/* 새로 계산한 칸. 이 칸의 개수가 곧 계산량이다. */
+.computed {
+  background: var(--color-accent);
+}
+
+/* 적어둔 값을 다시 읽은 칸. 계산이 아니라 메모리다. */
+.reused {
+  background: var(--color-muted-2);
+}
+
+/* 보지 않는 칸 — 미래를 보는 상삼각과 아직 쓰지 않은 행. */
+.empty {
+  background: var(--color-subtle);
+  opacity: 0.55;
+}
+
+/* 지금 쓰는 중인 행. 색만으로 구분하지 않도록 테두리로도 짚는다. */
+.cell[data-current='true'] {
+  outline: 2px solid var(--color-blue);
+  outline-offset: -2px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+}
+
+.swatch {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 3px;
+}
+
+.readouts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.readout {
+  min-width: 7rem;
+}
+
+.readout dt {
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.readout dd {
+  margin: 0;
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-lead);
+  color: var(--color-text);
+}
+
+.strong {
+  font-weight: 700;
+}
+
+.farsight {
+  margin-top: var(--space-md);
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.primaryButton,
+.secondaryButton {
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.primaryButton {
+  background: var(--color-secondary);
+  color: #fff;
+}
+
+.secondaryButton {
+  background: var(--color-bg);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.primaryButton:hover,
+.secondaryButton:hover {
+  opacity: 0.85;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+@media (max-width: 768px) {
+  .stage {
+    padding: var(--space-md);
+  }
+
+  /* 좁은 화면에서는 칸을 줄이고, 그래도 넘치면 .gridScroll 이 가로로 민다. */
+  .grid {
+    width: calc(var(--kv-size) * 1.6rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell {
+    transition: none;
+  }
+}
