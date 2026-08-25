@@ -106,12 +106,34 @@ describe('sampleGrid', () => {
   });
 
   it('칸 한가운데 색으로 칸 전체를 칠한다 — 칸 안의 경계는 남지 않는다', () => {
-    // 8칸이면 칸 하나가 0.125 다. 가로 경계(0.72)는 5번 행(0.625~0.75) 한가운데를
-    // 지나지 않으므로, 그 행은 통째로 경계 위쪽 색이 된다.
-    const grid = sampleGrid(8);
-    const rowAtBoundary = Math.floor(GROUND_Y * 8);
-    const centerY = (rowAtBoundary + 0.5) / 8;
-    expect(grid[rowAtBoundary * 8]).toEqual(colorAt(0.5 / 8, centerY));
+    // 해의 곡선이 지나는 칸을 잡는다. 칸 안에서 두 색으로 갈리지만 한가운데 색 하나로 굳는다.
+    const size = 8;
+    const grid = sampleGrid(size);
+    const col = Math.floor((SUN.x + SUN.r) * size);
+    const row = Math.floor(SUN.y * size);
+    expect(grid[row * size + col]).toEqual(colorAt((col + 0.5) / size, (row + 0.5) / size));
+  });
+
+  it('가로 경계는 모든 해상도에서 정확히 칸 경계에 놓인다 — 본문이 그렇다고 가르친다', () => {
+    for (const size of GRID_SIZES) {
+      // 격자가 실제로 그리는 경계 = 한가운데가 GROUND_Y 이상인 첫 행의 위쪽 변.
+      const firstGroundRow = Array.from({ length: size }, (_, row) => row).find(
+        row => (row + 0.5) / size >= GROUND_Y
+      )!;
+      expect(firstGroundRow / size).toBe(GROUND_Y);
+    }
+  });
+
+  it('가로 경계가 칸 경계에서 어긋나면 확대했을 때 격자와 도형이 갈린다 — 0.72 를 쓰면 생기던 일', () => {
+    const size = 8;
+    const drifted = 0.72;
+    const firstGroundRow = Array.from({ length: size }, (_, row) => row).find(
+      row => (row + 0.5) / size >= drifted
+    )!;
+    // 격자는 0.75 에 그리는데 도형은 0.72 에 그린다. 64배(화면 높이 0.0156)에서는
+    // 그 차이 0.03 이 화면 두 개 분량이라 비트맵만 단색이 된다.
+    expect(firstGroundRow / size).not.toBe(drifted);
+    expect(Math.abs(firstGroundRow / size - drifted)).toBeGreaterThan(viewportFor(64, 0.5, drifted).size);
   });
 
   it('칸을 늘리면 잃는 정보가 줄어든다 — 경계가 지나는 칸의 비율이 낮아진다', () => {
