@@ -23,7 +23,20 @@ describe('시나리오', () => {
     const mentions = [...SCRIPT.slice(1), FINAL_QUESTION].filter(turn =>
       turn.text.includes(USER_NAME)
     );
-    expect(mentions.map(turn => turn.id)).toEqual(['t2']);
+    expect(mentions).toEqual([]);
+  });
+
+  it('첫 메시지가 밀려난 창에는 이름이 한 글자도 남지 않는다 — 화면의 답과 모델이 보는 것이 어긋나면 안 된다', () => {
+    const all = [...SCRIPT, FINAL_QUESTION];
+    for (const limit of WINDOW_SIZES) {
+      for (let count = MIN_TURNS; count <= MAX_TURNS; count += 1) {
+        const state = fitToWindow([...SCRIPT.slice(0, count), FINAL_QUESTION], limit);
+        if (state.remembersName) continue;
+        const leaked = state.turns.filter(turn => turn.inWindow && turn.text.includes(USER_NAME));
+        expect(leaked.map(turn => turn.id)).toEqual([]);
+      }
+    }
+    expect(all.length).toBeGreaterThan(0);
   });
 
   it('사용자와 모델이 번갈아 말한다', () => {
@@ -45,7 +58,7 @@ describe('tokenCount', () => {
    */
   it('시나리오의 토큰 수가 고정되어 있다', () => {
     expect(SCRIPT.map(turn => tokenCount(turn.text))).toEqual([
-      61, 59, 31, 68, 58, 63, 44, 64, 45, 62, 31, 62,
+      61, 51, 31, 68, 58, 63, 44, 64, 45, 62, 31, 62,
     ]);
     expect(tokenCount(FINAL_QUESTION.text)).toBe(29);
   });
