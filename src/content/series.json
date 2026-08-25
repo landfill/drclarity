@@ -8,6 +8,10 @@
     "infinite-decimal": {
       "label": "무한소수 2부작",
       "description": "끝없이 이어지는 소수를 어떻게 다루는가 — 수학의 답과 컴퓨터의 답은 다릅니다."
+    },
+    "llm-inference": {
+      "label": "AI 에게 말을 걸면 생기는 일",
+      "description": "질문을 넣고 답이 나오기까지, 안에서 무슨 일이 순서대로 일어나는가."
     }
   }
 }
