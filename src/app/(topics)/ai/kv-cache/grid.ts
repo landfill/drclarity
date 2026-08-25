@@ -22,6 +22,7 @@ export type CellState = 'computed' | 'reused' | 'empty';
 export const MIN_LENGTH = 4;
 export const MAX_LENGTH = 16;
 
+/** 개수로 쓸 수 있게 정수·비음수로 자른다. 슬라이더 값이 범위를 벗어나도 격자가 깨지지 않게. */
 function toCount(value: number, max: number): number {
   if (!Number.isFinite(value)) return 0;
   return Math.max(0, Math.min(max, Math.floor(value)));
