@@ -1,0 +1,166 @@
+/*
+ * globals.css 가 모든 margin 을 지우고 TopicLayout 의 .container 에는 gap 이 없다.
+ * 최상위 블록은 각자 margin-bottom 을 들고 있어야 한다.
+ */
+.sectionTitle {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--fs-h2);
+  color: var(--color-text);
+}
+
+.stage {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+/* 마크다운 문단이 <p> 로 들어오므로 래퍼는 div 다 (§4.6). */
+.sectionLead {
+  margin-bottom: var(--space-md);
+  color: var(--color-muted);
+}
+
+.sectionLead :global(p + p) {
+  margin-top: var(--space-xs);
+}
+
+.sectionNote {
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-muted);
+}
+
+.sectionNote :global(p + p) {
+  margin-top: var(--space-xs);
+}
+
+/* --- 캔버스 --- */
+
+/* 그림을 눌러 초점을 옮길 수 있다는 것이 커서로 먼저 전달되어야 한다. */
+.canvasWrap {
+  display: flex;
+  justify-content: center;
+  cursor: crosshair;
+}
+
+/*
+ * 두 그림은 반드시 나란히 둔다. 위아래로 쌓으면 같은 자리를 견줄 수 없어
+ * 이 섹션이 하려는 일 자체가 성립하지 않는다.
+ */
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+  align-items: start;
+}
+
+.compareItem {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2xs);
+}
+
+.compareCaption {
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+/* 좁은 화면에서도 나란히 유지한다. 쌓으면 비교가 불가능해지므로 대신 캔버스를 줄인다. */
+@media (max-width: 768px) {
+  .compare {
+    gap: var(--space-xs);
+  }
+
+  .compareCaption {
+    font-size: 0.8rem;
+  }
+}
+
+/* --- 초점 바로가기 --- */
+
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
+}
+
+.presetsLabel {
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.presetButton {
+  padding: var(--space-2xs) var(--space-xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+
+.presetButton:hover {
+  border-color: var(--color-secondary);
+}
+
+/* --- 수치 --- */
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  margin-top: var(--space-md);
+}
+
+.stat dt {
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.stat dd {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  font-size: var(--fs-lead);
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.strong {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+/* 색 값 옆의 견본. 숫자만으로는 어느 색인지 읽히지 않는다. */
+.swatch {
+  width: 1em;
+  height: 1em;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+}
+
+.verdict {
+  margin-top: var(--space-md);
+}
+
+/*
+ * 캔버스에 테두리를 두른다.
+ *
+ * 구름의 흰색이 카드 배경과 같은 값이라, 테두리가 없으면 그림의 흰 부분이 배경과
+ * 이어져 "그림이 저기서 잘렸다" 로 읽힌다. 격자 쪽은 격자선이 경계를 대신하지만
+ * 도형 쪽에는 그것도 없어서 도형 그림만 작아 보이는 착시가 생긴다.
+ */
+.canvasWrap canvas,
+.compareItem canvas {
+  border: 1px solid var(--color-border);
+}
