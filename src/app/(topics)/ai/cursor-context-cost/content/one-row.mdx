@@ -3,7 +3,8 @@ export const title = '대시보드의 한 행은 무엇인가';
 한 사용자의 Usage 자료에서 가장 큰 행은 이랬습니다. 새 입력 101,586 ·
 캐시 읽기 4,087,130 · 출력 19,542, 그리고 Total 이 <strong>4,208,258</strong>.
 
-Total 이 정확히 앞의 세 값을 더한 것입니다. 우연이 아니라 정의가 그렇습니다 —
+이 자료에는 캐시 쓰기 열이 없어서 세 값뿐이고, Total 이 정확히 그 셋을 더한 것입니다.
+우연이 아니라 정의가 그렇습니다 —
 Cursor SDK 문서는 `totalTokens` 를 `inputTokens + outputTokens + cacheReadTokens +
 cacheWriteTokens` 로 정의합니다. 즉 이 칸은 <strong>한 번에 들어간 문맥의 크기가 아니라
 청구 항목의 합</strong>입니다. 그래서 이 420만은 420만짜리 문맥도, 사용자의 월간

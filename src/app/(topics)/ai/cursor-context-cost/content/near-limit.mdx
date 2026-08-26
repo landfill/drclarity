@@ -12,9 +12,11 @@ Cursor 문서는 이렇게 설명합니다 — 창이 거의 차면 오래된 �
 **새 채팅이 자동으로 열리지는 않습니다.** 문서가 말하는 것은 같은 대화 안에서 자리를
 만드는 일입니다. 새 채팅은 한도 처리가 아니라 사용자가 작업 경계를 새로 잡는 선택입니다.
 
-요약이 일어난 호출에서 캐시 읽기가 0 이 되는 것은 이 시뮬레이션이 그렇게 정한
-것입니다. 앞부분이 그대로일 때만 재사용된다는 프리픽스 캐시의 정의를 따르면 요약으로
-접두부가 바뀐 순간 재사용할 것이 없어지기 때문인데, Cursor 가 실제로 어떻게 처리하는지는
-공개돼 있지 않습니다.
+요약이 일어난 호출에서 캐시 읽기가 0 이 되는 것은 **이 시뮬레이션이 고른 보수적인
+값**입니다. 정의에서 따라 나오는 결과가 아닙니다 — 프리픽스 캐시는 경계에서 뒤로 되짚어
+가며 일치하는 접두부를 찾으므로, 대화가 요약돼도 그 앞의 도구 정의나 시스템 지시 부분은
+남아 있을 수 있습니다. 실제로 얼마가 남는지는 공개돼 있지 않아 0 으로 뒀습니다.
+
+<p><small>참고(2026-08-26 확인): <a href="https://platform.claude.com/docs/en/build-with-claude/prompt-caching" target="_blank" rel="noreferrer">Anthropic — Prompt caching</a> (접두부 계층과 되짚기)</small></p>
 
 <p><small>참고(2026-08-26 확인): <a href="https://cursor.com/docs/agent/prompting" target="_blank" rel="noreferrer">Cursor 문서 — Prompting agents</a></small></p>

@@ -9,9 +9,10 @@ import {
   buildScenario,
   costBreakdown,
   estimateUsageCost,
-  maxActiveContext,
+  maxWindowUse,
   totalTokens,
   totalUsage,
+  windowUse,
   type Rates,
 } from './usage';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
@@ -21,6 +22,8 @@ import QuizNone from './content/quiz-none.mdx';
 import NoteSim from './content/note-sim.mdx';
 import StageLead, { title as stageTitle } from './content/stage-lead.mdx';
 import StageNote from './content/stage-note.mdx';
+import PeakNote from './content/peak-note.mdx';
+import ReceiptNote from './content/receipt-note.mdx';
 import ThreeLayers, { title as layersTitle } from './content/three-layers.mdx';
 import OneRow, { title as oneRowTitle } from './content/one-row.mdx';
 import NearLimit, { title as nearLimitTitle } from './content/near-limit.mdx';
@@ -40,6 +43,7 @@ const WINDOW_SIZES = [200_000, 400_000, 1_000_000] as const;
  * 구조와, 캐시 읽기가 싸도 양이 많으면 총액을 끌어올린다는 관계다.
  */
 const RATE_INPUT = 1;
+const RATE_CACHE_WRITE = 1.25;
 const RATE_OUTPUT = 5;
 const CACHE_READ_RATIOS = ['0.1', '0.25', '0.5', '1'] as const;
 
@@ -52,18 +56,31 @@ const DEFAULTS = {
   cacheReadRatio: '0.1',
 };
 
+/** 큰 토큰 수를 화면용 축약형으로 바꾼다. `82500` → `82.5K`, `4208258` → `4.21M`. */
 function formatTokens(value: number): string {
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(2)}M`;
   if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
   return String(value);
 }
 
-/** 0 으로 나누지 않고 폭을 구한다. 합이 0 인 막대는 그냥 비어 있어야 한다. */
+/**
+ * 막대 한 구간의 폭. 분모는 늘 창 한도라서 모든 막대가 같은 자로 읽힌다.
+ *
+ * 0 으로 나누지 않는다 — 한도가 0 인 막대는 계산 대신 그냥 비어 있어야 한다.
+ */
 function percent(part: number, whole: number): string {
   if (whole <= 0) return '0%';
   return `${(part / whole) * 100}%`;
 }
 
+/**
+ * 한 사용자 요청을 호출 단위로 펼쳐 보는 화면.
+ *
+ * 세 블록이 위에서 아래로 **한도 판정 → 호출별 문맥 → 요청 누계** 순서다. 누계를 먼저
+ * 보이면 읽는 사람이 그것을 한도와 견주게 되므로, 한도와 비교할 수 있는 값을 맨 위에 둔다.
+ *
+ * 문구는 `content/*.mdx` 에 두고 여기서는 상태에 따라 달라지는 짧은 문장만 만든다.
+ */
 export default function CursorContextCostClient() {
   const [calls, setCalls] = useState(DEFAULTS.calls);
   const [startContext, setStartContext] = useState(DEFAULTS.startContext);
@@ -77,7 +94,7 @@ export default function CursorContextCostClient() {
     [calls, startContext, growth, outputPerCall, windowLimit]
   );
 
-  const peak = maxActiveContext(scenario);
+  const peak = maxWindowUse(scenario);
   const totals = totalUsage(scenario);
   const grandTotal = totalTokens(totals);
   const summarizedCount = scenario.filter(call => call.summarized).length;
@@ -85,6 +102,7 @@ export default function CursorContextCostClient() {
   const rates: Rates = useMemo(
     () => ({
       input: RATE_INPUT,
+      cacheWrite: RATE_CACHE_WRITE,
       cacheRead: RATE_INPUT * Number(cacheReadRatio),
       output: RATE_OUTPUT,
     }),
@@ -94,8 +112,8 @@ export default function CursorContextCostClient() {
   const cost = estimateUsageCost(scenario, rates);
   const costParts = costBreakdown(scenario, rates);
 
-  /** 가장 큰 호출의 막대. 한도와 비교되는 것은 이 하나뿐이다. */
-  const peakCall = scenario.find(call => call.activeContext === peak);
+  /** 창에서 가장 큰 자리를 차지한 호출. 한도와 비교되는 것은 이 하나뿐이다. */
+  const peakCall = scenario.find(call => windowUse(call) === peak);
 
   const params: ParameterDefinition[] = useMemo(
     () => [
@@ -160,6 +178,7 @@ export default function CursorContextCostClient() {
     [calls, cacheReadRatio, growth, outputPerCall, startContext, windowLimit]
   );
 
+  /** ParameterPanel 은 id 로 값을 돌려주므로 여기서 각 상태로 흩어 놓는다. */
   const handleChange = useCallback((id: string, value: number | boolean | string) => {
     if (id === 'calls') setCalls(Math.round(Number(value)));
     if (id === 'startContext') setStartContext(Number(value));
@@ -169,6 +188,7 @@ export default function CursorContextCostClient() {
     if (id === 'cacheReadRatio') setCacheReadRatio(String(value));
   }, []);
 
+  /** 초기화. 여섯 컨트롤이 한꺼번에 기본값으로 돌아가야 화면이 다시 읽힌다. */
   const handleReset = useCallback(() => {
     setCalls(DEFAULTS.calls);
     setStartContext(DEFAULTS.startContext);
@@ -180,6 +200,7 @@ export default function CursorContextCostClient() {
 
   const receiptRows: { key: string; label: string; tokens: number; cost: number }[] = [
     { key: 'input', label: '새 입력', tokens: totals.input, cost: costParts.input },
+    { key: 'cacheWrite', label: '캐시 쓰기', tokens: totals.cacheWrite, cost: costParts.cacheWrite },
     { key: 'cacheRead', label: '캐시 읽기', tokens: totals.cacheRead, cost: costParts.cacheRead },
     { key: 'output', label: '출력', tokens: totals.output, cost: costParts.output },
   ];
@@ -226,7 +247,7 @@ export default function CursorContextCostClient() {
           {/* 한도와 비교할 값을 맨 위에 둔다. 누계를 먼저 보이면 그것이 한도와 견주어진다. */}
           <div className={styles.block}>
             <div className={styles.blockHead}>
-              <span className={styles.blockTitle}>가장 큰 호출의 활성 컨텍스트</span>
+              <span className={styles.blockTitle}>한 호출이 창에서 차지한 가장 큰 자리</span>
               <span className={styles.mono}>
                 <strong>{formatTokens(peak)}</strong> / {formatTokens(windowLimit)}
               </span>
@@ -237,21 +258,28 @@ export default function CursorContextCostClient() {
               aria-valuenow={peak}
               aria-valuemin={0}
               aria-valuemax={windowLimit}
-              aria-label="가장 큰 호출의 활성 컨텍스트가 창을 차지하는 정도"
+              aria-label="한 호출이 창을 차지하는 가장 큰 정도"
             >
               <div
                 className={styles.segCache}
                 style={{ width: percent(peakCall?.cacheRead ?? 0, windowLimit) }}
               />
               <div
+                className={styles.segWrite}
+                style={{ width: percent(peakCall?.cacheWrite ?? 0, windowLimit) }}
+              />
+              <div
                 className={styles.segInput}
                 style={{ width: percent(peakCall?.input ?? 0, windowLimit) }}
               />
+              <div
+                className={styles.segOutput}
+                style={{ width: percent(peakCall?.output ?? 0, windowLimit) }}
+              />
             </div>
-            <p className={styles.hint}>
-              창 한도와 비교할 수 있는 값은 이것 하나입니다. 아래 누계는 항목을 더한
-              값이라 한 번에 모델에 들어간 양이 아닙니다.
-            </p>
+            <div className={styles.hint}>
+              <PeakNote />
+            </div>
           </div>
 
           <div className={styles.block}>
@@ -268,19 +296,27 @@ export default function CursorContextCostClient() {
                   <div
                     className={`${styles.track} ${styles.callTrack}`}
                     role="img"
-                    aria-label={`${call.index + 1}번째 호출 — 활성 컨텍스트 ${formatTokens(call.activeContext)}, 그중 캐시 재사용 ${formatTokens(call.cacheRead)}, 새 입력 ${formatTokens(call.input)}`}
+                    aria-label={`${call.index + 1}번째 호출 — 입력 문맥 ${formatTokens(call.activeContext)}, 그중 캐시 재사용 ${formatTokens(call.cacheRead)}, 캐시에 올림 ${formatTokens(call.cacheWrite ?? 0)}, 새 입력 ${formatTokens(call.input)}, 출력 ${formatTokens(call.output)}`}
                   >
                     <div
                       className={styles.segCache}
                       style={{ width: percent(call.cacheRead, windowLimit) }}
                     />
                     <div
+                      className={styles.segWrite}
+                      style={{ width: percent(call.cacheWrite ?? 0, windowLimit) }}
+                    />
+                    <div
                       className={styles.segInput}
                       style={{ width: percent(call.input, windowLimit) }}
                     />
+                    <div
+                      className={styles.segOutput}
+                      style={{ width: percent(call.output, windowLimit) }}
+                    />
                   </div>
                   <span className={`${styles.callValue} ${styles.mono}`}>
-                    {formatTokens(call.activeContext)}
+                    {formatTokens(windowUse(call))}
                   </span>
                 </li>
               ))}
@@ -291,8 +327,16 @@ export default function CursorContextCostClient() {
                 캐시에서 재사용
               </span>
               <span className={styles.legendItem}>
+                <span className={`${styles.swatch} ${styles.segWrite}`} aria-hidden="true" />
+                이번에 캐시에 올림
+              </span>
+              <span className={styles.legendItem}>
                 <span className={`${styles.swatch} ${styles.segInput}`} aria-hidden="true" />
-                이번에 새로 처리
+                캐시 경계 뒤라 새로 처리
+              </span>
+              <span className={styles.legendItem}>
+                <span className={`${styles.swatch} ${styles.segOutput}`} aria-hidden="true" />
+                출력
               </span>
               <span className={styles.legendItem}>막대의 전체 폭이 창 한도입니다.</span>
             </div>
@@ -328,12 +372,9 @@ export default function CursorContextCostClient() {
                 </tr>
               </tfoot>
             </table>
-            <p className={styles.hint}>
-              예시 비용은 <strong>입력 100만 토큰을 1.00</strong>으로 둔 상대값입니다 (출력{' '}
-              {RATE_OUTPUT.toFixed(2)}). 실제 요율이 아니라 항목마다 단가가 다르다는 것을
-              보기 위한 값입니다. 캐시 쓰기는 세지 않았습니다 — 모델에 따라 별도 항목으로
-              청구되기도 하지만, 여기서 세면 새 입력과 같은 토큰을 두 번 세게 됩니다.
-            </p>
+            <div className={styles.hint}>
+              <ReceiptNote />
+            </div>
           </div>
 
           <div className={styles.verdict} role="status" aria-live="polite">
