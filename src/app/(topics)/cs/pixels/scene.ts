@@ -143,7 +143,9 @@ export function visibleCells(view: Viewport, gridSize: number) {
 /**
  * 격자로 저장할 때 드는 자리. 칸 하나에 빨강·초록·파랑 한 바이트씩이다.
  *
- * 실제 파일은 압축을 거치므로 이보다 작지만, 압축 전의 크기가 곧 담긴 정보의 양이다.
+ * 실제 파일은 압축을 거치므로 이보다 작다. 얼마나 줄어드는지는 그림에 따라 다르다 —
+ * 단색 격자와 난수 격자는 압축 전 크기가 같아도 줄어드는 정도가 전혀 다르다.
+ * 이 값은 담긴 정보의 양이 아니라 **줄이지 않고 늘어놓았을 때 드는 자리**다.
  */
 export function rawBytes(gridSize: number): number {
   return gridSize * gridSize * 3;

@@ -133,10 +133,15 @@ export default function PixelsClient() {
     (event: MouseEvent<HTMLDivElement>) => {
       const canvas = (event.target as HTMLElement).closest('canvas');
       if (!canvas) return;
+      // getBoundingClientRect 는 테두리까지 포함한다. 그림이 그려지는 것은 그 안쪽
+      // content box 이므로, 테두리 두께(clientLeft/Top)를 빼고 clientWidth/Height 로
+      // 나눈다. 그러지 않으면 고른 칸이 가장자리에서 한 칸씩 밀린다.
       const rect = canvas.getBoundingClientRect();
+      const ratio = (offset: number, border: number, size: number) =>
+        size > 0 ? Math.min(1, Math.max(0, (offset - border) / size)) : 0;
       setFocus({
-        x: view.x + ((event.clientX - rect.left) / rect.width) * view.size,
-        y: view.y + ((event.clientY - rect.top) / rect.height) * view.size,
+        x: view.x + ratio(event.clientX - rect.left, canvas.clientLeft, canvas.clientWidth) * view.size,
+        y: view.y + ratio(event.clientY - rect.top, canvas.clientTop, canvas.clientHeight) * view.size,
       });
     },
     [view]
@@ -275,7 +280,8 @@ export default function PixelsClient() {
             ) : (
               <>
                 지금 <strong>{Math.round(zoom)}배</strong>입니다. 왼쪽은 칸이 드러났고 오른쪽은
-                그대로 매끈합니다. 배율을 더 올려도 오른쪽은 바뀌지 않습니다.
+                그대로 매끈합니다. 배율을 더 올리면 오른쪽도 그만큼 크게 다시 그려지는데,
+                매끈한 것은 그대로입니다.
               </>
             )}
           </p>
