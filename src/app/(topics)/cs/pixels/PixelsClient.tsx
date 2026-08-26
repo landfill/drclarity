@@ -61,11 +61,20 @@ export default function PixelsClient() {
   const bounds = useMemo(() => visibleCells(view, gridSize), [view, gridSize]);
   const visibleCount = (bounds.colEnd - bounds.colStart) * (bounds.rowEnd - bounds.rowStart);
 
-  /** 초점이 놓인 칸의 색. 화면의 한 칸이 결국 숫자 셋이라는 것을 보여준다. */
+  /**
+   * 초점이 놓인 칸의 색. 화면의 한 칸이 결국 숫자 셋이라는 것을 보여준다.
+   *
+   * 화면 **가운데**가 아니다. `view` 는 초점을 그림 안쪽으로 당겨 놓은 것이고, 1배에서는
+   * 초점과 무관하게 늘 그림 전체를 보여준다. 그러니 이 값을 "가운데 칸" 이라고 부르면
+   * 1배에서 가장자리를 찍는 순간 라벨이 거짓이 된다 — 라벨을 '고른 칸' 으로 맞춘다.
+   *
+   * 상·하한을 둘 다 조인다. 지금은 클릭이 캔버스 안으로 제한되어 음수가 나올 수 없지만,
+   * 한쪽만 조여 두면 왜 한쪽만인지 다음 사람이 다시 따져야 한다.
+   */
   const focusHex = useMemo(() => {
-    const col = Math.min(gridSize - 1, Math.floor(focus.x * gridSize));
-    const row = Math.min(gridSize - 1, Math.floor(focus.y * gridSize));
-    return rgbToHex(cells[row * gridSize + col]);
+    const clampIndex = (value: number) =>
+      Math.max(0, Math.min(gridSize - 1, Math.floor(value * gridSize)));
+    return rgbToHex(cells[clampIndex(focus.y) * gridSize + clampIndex(focus.x)]);
   }, [cells, focus, gridSize]);
 
   const drawBitmap = useCallback(
@@ -206,7 +215,7 @@ export default function PixelsClient() {
               <dd className={styles.mono}>{(gridSize * gridSize).toLocaleString()}</dd>
             </div>
             <div className={styles.stat}>
-              <dt>가운데 칸의 색</dt>
+              <dt>고른 칸의 색</dt>
               <dd className={styles.mono}>
                 <span className={styles.swatch} style={{ background: focusHex }} aria-hidden="true" />
                 {focusHex}
