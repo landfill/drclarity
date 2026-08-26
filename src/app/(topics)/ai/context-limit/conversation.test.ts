@@ -27,16 +27,19 @@ describe('시나리오', () => {
   });
 
   it('첫 메시지가 밀려난 창에는 이름이 한 글자도 남지 않는다 — 화면의 답과 모델이 보는 것이 어긋나면 안 된다', () => {
-    const all = [...SCRIPT, FINAL_QUESTION];
+    let checked = 0;
     for (const limit of WINDOW_SIZES) {
       for (let count = MIN_TURNS; count <= MAX_TURNS; count += 1) {
         const state = fitToWindow([...SCRIPT.slice(0, count), FINAL_QUESTION], limit);
         if (state.remembersName) continue;
+        checked += 1;
         const leaked = state.turns.filter(turn => turn.inWindow && turn.text.includes(USER_NAME));
         expect(leaked.map(turn => turn.id)).toEqual([]);
       }
     }
-    expect(all.length).toBeGreaterThan(0);
+    // 이름이 밀려나는 조합이 하나도 없으면 위 단언은 한 번도 실행되지 않는다.
+    // 화면 설정이 바뀌어 그렇게 되면 이 테스트가 조용히 공허해지므로 여기서 막는다.
+    expect(checked).toBeGreaterThan(0);
   });
 
   it('사용자와 모델이 번갈아 말한다', () => {
