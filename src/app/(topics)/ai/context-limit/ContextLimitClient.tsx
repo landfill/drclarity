@@ -119,7 +119,7 @@ export default function ContextLimitClient() {
           */}
           <div className={styles.meter}>
             <div className={styles.meterHead}>
-              <span>모델에게 실제로 전달되는 양</span>
+              <span>모델에게 건네지는 몫</span>
               <span className={styles.mono}>
                 <strong>{state.used}</strong> / {state.limit}토큰
               </span>
