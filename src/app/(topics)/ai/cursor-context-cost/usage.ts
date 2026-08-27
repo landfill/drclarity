@@ -135,54 +135,114 @@ export function costBreakdown(calls: CallUsage[], rates: Rates): UsageTotals {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
- * 시뮬레이션
- *
- * 아래는 Cursor 를 재현하는 것이 아니다. 대시보드의 수치가 왜 그런 모양이 되는지를
- * 배우기 위해 관계만 남긴 모형이며, 실제 Cursor 의 내부 동작·청구 규칙과 다르다.
+ * 화면 하나: Cursor 채팅창의 Context Usage
  * ───────────────────────────────────────────────────────────────────────── */
 
-/** 시뮬레이션 안에서 한 호출이 하는 일. 화면의 라벨로만 쓰인다. */
-export const CALL_LABELS = [
-  '요청 분석',
-  '파일 검색',
-  '구현 계획',
-  '코드 수정',
-  '테스트 실행',
-  '오류 재수정',
-  '추가 파일 확인',
-  '재검증',
-  '정리',
-  '마무리 답',
-  '후속 확인',
-  '최종 점검',
-] as const;
+/**
+ * 컨텍스트 링을 열면 나오는 범주들.
+ *
+ * 실제 화면의 항목과 순서를 그대로 따른다. 값은 어느 채팅의 한 순간을 옮긴 예시이며,
+ * 설정과 열어 둔 파일에 따라 사람마다 다르다.
+ */
+export interface ContextBreakdown {
+  systemPrompt: number;
+  toolDefinitions: number;
+  rules: number;
+  skills: number;
+  mcp: number;
+  subagents: number;
+  /** 지금까지 주고받은 말과 도구 결과. 유일하게 계속 자라는 항목이다. */
+  conversation: number;
+}
 
-export interface ScenarioCall extends CallUsage {
-  /** 0-based 호출 순서. */
-  index: number;
-  label: string;
-  /** 이 호출 직전에 대화가 요약돼 자리를 만들었는가. */
-  summarized: boolean;
+/** 화면에 그릴 순서와 이름. Cursor 패널의 표기를 그대로 옮겼다. */
+export const CONTEXT_ROWS = [
+  { key: 'systemPrompt', label: 'System prompt' },
+  { key: 'toolDefinitions', label: 'Tool definitions' },
+  { key: 'rules', label: 'Rules' },
+  { key: 'skills', label: 'Skills' },
+  { key: 'mcp', label: 'MCP & dynamic tools' },
+  { key: 'subagents', label: 'Subagent definitions' },
+  { key: 'conversation', label: 'Conversation' },
+] as const satisfies readonly { key: keyof ContextBreakdown; label: string }[];
+
+/**
+ * 실제 화면에서 옮긴 값.
+ *
+ * 합이 155,160 이라 패널의 `~155.2K / 200K` · `78% Full` 과 맞는다.
+ * `usage.test.ts` 가 이 일치를 못 박는다 — 값을 손대면 본문의 숫자와 조용히 어긋난다.
+ */
+export const SAMPLE_CONTEXT: ContextBreakdown = {
+  systemPrompt: 760,
+  toolDefinitions: 13_700,
+  rules: 4_800,
+  skills: 6_200,
+  mcp: 2_700,
+  subagents: 1_400,
+  conversation: 125_600,
+};
+
+/** 화면의 창 크기. 스크린샷의 채팅이 쓰던 값이며 모델과 플랜에 따라 다르다. */
+export const WINDOW_LIMIT = 200_000;
+
+/**
+ * 대화 슬라이더의 범위.
+ *
+ * `step` 이 `SAMPLE_CONTEXT.conversation` 을 격자 위에 올려 두어야 한다. 그러지 않으면
+ * 슬라이더를 한 번 건드린 뒤 기본값으로 못 돌아가고, 본문이 적어 둔 155.2K·629,940 이
+ * 도달할 수 없는 값이 된다. `usage.test.ts` 가 이것을 못 박는다.
+ *
+ * `max` 는 고정 오버헤드를 더해도 창을 넘지 않는 선에서 잡았다 — 실제 Cursor 의 링은
+ * 요약 때문에 100% 를 넘지 않으므로, 넘는 상태를 보여주면 지어낸 화면이 된다.
+ */
+export const CONVERSATION_RANGE = { min: 5_000, max: 170_000, step: 100 } as const;
+
+/** 링에 찬 전체. 범주를 그대로 더한 값이다. */
+export function contextTotal(breakdown: ContextBreakdown): number {
+  return CONTEXT_ROWS.reduce((sum, row) => sum + breakdown[row.key], 0);
 }
 
 /**
- * 시나리오 입력.
+ * 대화를 뺀 나머지.
  *
- * 전제 조건: 모든 값은 음이 아닌 유한한 수이고 `calls` 는 정수, `windowLimit` 은 양수다.
- * 이 값들은 화면의 파라미터 패널이 범위를 강제하므로 여기서 다시 검증하지 않는다.
+ * 이 글이 겨눈 값이다 — **한 글자도 쓰기 전에 이미 차 있는 몫**이고, 대화와 달리
+ * 사용자가 설정으로 줄일 수 있다.
  */
-export interface ScenarioParams {
-  /** 한 요청 안에서 일어나는 모델 호출 수. 0 이상의 정수. */
-  calls: number;
-  /** 첫 호출의 활성 컨텍스트. 시스템 지시·도구·규칙·지금까지의 대화가 모두 여기 들어 있다. */
-  startContext: number;
-  /** 호출마다 새로 붙는 도구 결과·편집 결과. */
-  growth: number;
-  /** 호출마다 생기는 출력. */
-  outputPerCall: number;
-  /** 모델의 컨텍스트 창. */
-  windowLimit: number;
+export function fixedOverhead(breakdown: ContextBreakdown): number {
+  return contextTotal(breakdown) - breakdown.conversation;
 }
+
+/**
+ * 링의 퍼센트 표기.
+ *
+ * 반올림한다 — 155,160 / 200,000 은 77.58% 인데 실제 패널은 `78% Full` 로 적는다.
+ * 내림이면 77% 가 되어 화면과 어긋난다.
+ */
+export function fillPercent(breakdown: ContextBreakdown, limit = WINDOW_LIMIT): number {
+  if (limit <= 0) return 0;
+  return Math.round((contextTotal(breakdown) / limit) * 100);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * 화면 둘: Usage 대시보드의 한 행
+ *
+ * 아래는 Cursor 를 재현하는 것이 아니다. 채팅창의 문맥이 어떻게 대시보드의 숫자가
+ * 되는지를 보기 위해 관계만 남긴 모형이며, 실제 내부 동작·청구 규칙과 다르다.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+/**
+ * 호출마다 새로 붙는 도구 결과·편집 결과.
+ *
+ * 파일을 읽고 고치고 테스트를 돌리면 그 결과가 문맥에 쌓인다. 고정값으로 둔 예시이며,
+ * 실제로는 그 요청이 무엇을 건드리느냐에 따라 크게 달라진다.
+ */
+export const GROWTH_PER_CALL = 4_000;
+
+/** 호출마다 생기는 출력. 스크린샷의 한 행(출력 6,350 / 호출 다섯 번쯤)에서 잡은 크기다. */
+export const OUTPUT_PER_CALL = 1_300;
+
+/** 사용자가 이번에 보낸 메시지. 방금 붙은 것이라 캐시 경계 뒤에 있다. */
+export const NEW_MESSAGE = 2_000;
 
 /**
  * 요약이 일어난 뒤 남는 문맥의 비율.
@@ -192,6 +252,43 @@ export interface ScenarioParams {
  * 보여주기 위해 이 시뮬레이션이 고른 값**이며 Cursor 의 실제 동작이 아니다.
  */
 export const SUMMARY_RATIO = 0.6;
+
+export interface ScenarioCall extends CallUsage {
+  /** 0-based 호출 순서. */
+  index: number;
+  /** 이 호출 직전에 대화가 요약돼 자리를 만들었는가. */
+  summarized: boolean;
+}
+
+export interface ScenarioParams {
+  /** 채팅창 링에 찬 문맥. 첫 호출이 그대로 안고 출발한다. */
+  context: number;
+  /**
+   * 한 요청 안에서 일어나는 모델 호출 수.
+   *
+   * 0 이상의 정수. 파라미터 패널이 범위를 강제하므로 여기서 다시 검증하지 않는다.
+   */
+  calls: number;
+  /**
+   * 아래 셋은 화면이 조작하지 않는다 — 컨트롤을 셋 이하로 줄이려고 예시 상수로 고정했다.
+   * 인자로 남겨 둔 것은 모형이 다른 값에서도 맞는지 테스트가 확인할 수 있어야 하기 때문이다.
+   */
+  growth?: number;
+  outputPerCall?: number;
+  windowLimit?: number;
+  /**
+   * 시작 문맥이 이미 캐시에 올라가 있는가.
+   *
+   * 기본값이 `true` 인 이유가 이 주제의 발견 하나다. 실제 Usage 한 행에 **Cache Write 가
+   * 0** 으로 찍히는 것은, 그 요청이 채팅의 첫 요청이 아니어서 앞선 턴들이 이미 문맥을
+   * 캐시에 올려 뒀기 때문이다. 캐시는 같은 대화의 다음 메시지로 이어진다.
+   *
+   * `false` 면 차가운 시작 — 채팅의 첫 요청이라 문맥 전체를 새로 처리하고 캐시에 올린다.
+   */
+  cachedFromEarlier?: boolean;
+  /** 사용자가 이번에 보낸 메시지. 이어지는 요청에서 첫 호출의 새 입력이 된다. */
+  newMessage?: number;
+}
 
 /**
  * 한 사용자 요청을 호출 목록으로 펼친다.
@@ -211,17 +308,27 @@ export const SUMMARY_RATIO = 0.6;
  * 도구·시스템 지시 부분은 남아 있을 수 있다.
  */
 export function buildScenario(params: ScenarioParams): ScenarioCall[] {
-  const { calls, startContext, growth, outputPerCall, windowLimit } = params;
+  const {
+    context,
+    calls,
+    growth = GROWTH_PER_CALL,
+    outputPerCall = OUTPUT_PER_CALL,
+    windowLimit = WINDOW_LIMIT,
+    cachedFromEarlier = true,
+    newMessage = NEW_MESSAGE,
+  } = params;
   const summarizedSize = Math.round(windowLimit * SUMMARY_RATIO);
 
   const out: ScenarioCall[] = [];
   /** 캐시 경계 앞에 있고 이미 캐시에 올라간 부분. */
-  let cached = 0;
+  let cached = cachedFromEarlier ? context : 0;
   /** 캐시 경계 뒤에 있어 아직 캐시에 올라가지 못한 부분. */
   let pending = 0;
 
   for (let index = 0; index < calls; index += 1) {
-    const fresh = index === 0 ? startContext : outputPerCall + growth;
+    // 이어지는 요청이면 첫 호출에 새로 붙는 것은 사용자의 이번 메시지뿐이다.
+    const firstFresh = cachedFromEarlier ? newMessage : context;
+    const fresh = index === 0 ? firstFresh : outputPerCall + growth;
     const wanted = cached + pending + fresh;
     // 창 한도는 입력만이 아니라 그 호출이 만들 출력까지 함께 받아야 한다.
     const overflows = wanted + outputPerCall > windowLimit;
@@ -233,7 +340,6 @@ export function buildScenario(params: ScenarioParams): ScenarioCall[] {
 
     out.push({
       index,
-      label: CALL_LABELS[index % CALL_LABELS.length],
       activeContext,
       input,
       cacheWrite,
