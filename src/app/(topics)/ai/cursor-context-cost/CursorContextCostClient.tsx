@@ -6,13 +6,18 @@ import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
 import {
+  CONTEXT_ROWS,
+  SAMPLE_CONTEXT,
+  WINDOW_LIMIT,
   buildScenario,
+  contextTotal,
   costBreakdown,
   estimateUsageCost,
-  maxWindowUse,
+  fillPercent,
+  fixedOverhead,
   totalTokens,
   totalUsage,
-  windowUse,
+  type ContextBreakdown,
   type Rates,
 } from './usage';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
@@ -21,19 +26,14 @@ import QuizSum from './content/quiz-sum.mdx';
 import QuizNone from './content/quiz-none.mdx';
 import NoteSim from './content/note-sim.mdx';
 import StageLead, { title as stageTitle } from './content/stage-lead.mdx';
+import PanelANote from './content/panel-a-note.mdx';
+import PanelBNote from './content/panel-b-note.mdx';
 import StageNote from './content/stage-note.mdx';
-import PeakNote from './content/peak-note.mdx';
-import ReceiptNote from './content/receipt-note.mdx';
-import ThreeLayers, { title as layersTitle } from './content/three-layers.mdx';
-import OneRow, { title as oneRowTitle } from './content/one-row.mdx';
-import NearLimit, { title as nearLimitTitle } from './content/near-limit.mdx';
 import Cost, { title as costTitle } from './content/cost.mdx';
-import About, { title as aboutTitle } from './content/about.mdx';
+import Efficient, { title as efficientTitle } from './content/efficient.mdx';
+import OneRow, { title as oneRowTitle } from './content/one-row.mdx';
 import meta from './meta';
 import styles from './CursorContextCost.module.css';
-
-/** 창 크기. 특정 모델의 값이 아니라 자릿수 감각을 주기 위한 선택지다. */
-const WINDOW_SIZES = [200_000, 400_000, 1_000_000] as const;
 
 /**
  * 예시 단가. 100만 토큰당이고, 입력을 1.00 으로 둔 상대값이다.
@@ -42,23 +42,35 @@ const WINDOW_SIZES = [200_000, 400_000, 1_000_000] as const;
  * 틀린 값이 된다. 여기서 보여주려는 것은 금액이 아니라 **항목마다 단가가 다르다**는
  * 구조와, 캐시 읽기가 싸도 양이 많으면 총액을 끌어올린다는 관계다.
  */
-const RATE_INPUT = 1;
-const RATE_CACHE_WRITE = 1.25;
-const RATE_OUTPUT = 5;
-const CACHE_READ_RATIOS = ['0.1', '0.25', '0.5', '1'] as const;
+const RATES: Rates = { input: 1, cacheWrite: 1.25, cacheRead: 0.1, output: 5 };
 
-const DEFAULTS = {
-  calls: 5,
-  startContext: 80_000,
-  growth: 10_000,
-  outputPerCall: 2_000,
-  windowLimit: 200_000,
-  cacheReadRatio: '0.1',
+/** 안 쓰는 설정을 껐을 때 사라지는 범주. 사용자가 직접 줄일 수 있는 몫이다. */
+const OPTIONAL_KEYS = ['skills', 'mcp', 'subagents'] as const;
+
+/**
+ * 첫 화면.
+ *
+ * 호출 수 기본값이 4 인 것은 임의가 아니다. 이 문맥에서 호출 넷이면 캐시 읽기가
+ * 629,940 으로, 실제 Usage 자료의 `Cache Read 647,221` 바로 옆에 선다. 화면을 열자마자
+ * 오른쪽 표가 스크린샷과 같은 자릿수를 보여야 두 화면이 이어진 것으로 읽힌다.
+ */
+const DEFAULTS = { conversation: SAMPLE_CONTEXT.conversation, calls: 4, trimmed: false };
+
+/** 범주별 색. CSS 모듈의 클래스 이름과 짝을 이룬다. */
+const ROW_CLASS: Record<keyof ContextBreakdown, string> = {
+  systemPrompt: styles.catSystem,
+  toolDefinitions: styles.catTools,
+  rules: styles.catRules,
+  skills: styles.catSkills,
+  mcp: styles.catMcp,
+  subagents: styles.catSubagents,
+  conversation: styles.catConversation,
 };
 
-/** 큰 토큰 수를 화면용 축약형으로 바꾼다. `82500` → `82.5K`, `4208258` → `4.21M`. */
+/** 큰 토큰 수를 화면용 축약형으로 바꾼다. `13700` → `13.7K`, `674091` → `674.1K`. */
 function formatTokens(value: number): string {
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(2)}M`;
+  if (value >= 10_000) return `${(value / 1_000).toFixed(1)}K`;
   if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
   return String(value);
 }
@@ -74,135 +86,86 @@ function percent(part: number, whole: number): string {
 }
 
 /**
- * 한 사용자 요청을 호출 단위로 펼쳐 보는 화면.
+ * 채팅창의 숫자가 대시보드의 숫자가 되는 과정을 두 화면으로 보는 페이지.
  *
- * 세 블록이 위에서 아래로 **한도 판정 → 호출별 문맥 → 요청 누계** 순서다. 누계를 먼저
- * 보이면 읽는 사람이 그것을 한도와 견주게 되므로, 한도와 비교할 수 있는 값을 맨 위에 둔다.
+ * 화면을 지어내지 않는다. 왼쪽은 Cursor 의 Context Usage 패널, 오른쪽은 Usage
+ * 대시보드의 한 행이고, 둘 다 실제 화면의 구성과 값을 옮긴 것이다. 사용자가 자기
+ * 화면에서 본 적 있는 것만 놓아야 무엇을 움직여야 무엇이 달라지는지가 읽힌다.
  *
  * 문구는 `content/*.mdx` 에 두고 여기서는 상태에 따라 달라지는 짧은 문장만 만든다.
  */
 export default function CursorContextCostClient() {
+  const [conversation, setConversation] = useState(DEFAULTS.conversation);
   const [calls, setCalls] = useState(DEFAULTS.calls);
-  const [startContext, setStartContext] = useState(DEFAULTS.startContext);
-  const [growth, setGrowth] = useState(DEFAULTS.growth);
-  const [outputPerCall, setOutputPerCall] = useState(DEFAULTS.outputPerCall);
-  const [windowLimit, setWindowLimit] = useState<number>(DEFAULTS.windowLimit);
-  const [cacheReadRatio, setCacheReadRatio] = useState(DEFAULTS.cacheReadRatio);
+  const [trimmed, setTrimmed] = useState(DEFAULTS.trimmed);
 
-  const scenario = useMemo(
-    () => buildScenario({ calls, startContext, growth, outputPerCall, windowLimit }),
-    [calls, startContext, growth, outputPerCall, windowLimit]
-  );
+  const breakdown: ContextBreakdown = useMemo(() => {
+    const base = { ...SAMPLE_CONTEXT, conversation };
+    if (!trimmed) return base;
+    return OPTIONAL_KEYS.reduce((acc, key) => ({ ...acc, [key]: 0 }), base);
+  }, [conversation, trimmed]);
 
-  const peak = maxWindowUse(scenario);
+  const context = contextTotal(breakdown);
+  const overhead = fixedOverhead(breakdown);
+  const percentFull = fillPercent(breakdown);
+  const over = context > WINDOW_LIMIT;
+
+  const scenario = useMemo(() => buildScenario({ context, calls }), [context, calls]);
   const totals = totalUsage(scenario);
   const grandTotal = totalTokens(totals);
-  const summarizedCount = scenario.filter(call => call.summarized).length;
-
-  const rates: Rates = useMemo(
-    () => ({
-      input: RATE_INPUT,
-      cacheWrite: RATE_CACHE_WRITE,
-      cacheRead: RATE_INPUT * Number(cacheReadRatio),
-      output: RATE_OUTPUT,
-    }),
-    [cacheReadRatio]
-  );
-
-  const cost = estimateUsageCost(scenario, rates);
-  const costParts = costBreakdown(scenario, rates);
-
-  /** 창에서 가장 큰 자리를 차지한 호출. 한도와 비교되는 것은 이 하나뿐이다. */
-  const peakCall = scenario.find(call => windowUse(call) === peak);
+  const cost = estimateUsageCost(scenario, RATES);
+  const costParts = costBreakdown(scenario, RATES);
 
   const params: ParameterDefinition[] = useMemo(
     () => [
       {
         kind: 'range',
+        id: 'conversation',
+        label: '대화 (Conversation)',
+        min: 5_000,
+        max: 180_000,
+        step: 5_000,
+        value: conversation,
+        format: formatTokens,
+      },
+      {
+        kind: 'range',
         id: 'calls',
-        label: '한 요청 안의 내부 호출 수',
+        label: '이 요청이 만든 내부 호출 수',
         min: 1,
-        max: 12,
+        max: 10,
         step: 1,
         value: calls,
         format: value => `${Math.round(value)}번`,
       },
       {
-        kind: 'range',
-        id: 'startContext',
-        label: '첫 호출의 활성 컨텍스트',
-        min: 20_000,
-        max: 160_000,
-        step: 10_000,
-        value: startContext,
-        format: formatTokens,
-      },
-      {
-        kind: 'range',
-        id: 'growth',
-        label: '호출마다 새로 붙는 결과',
-        min: 0,
-        max: 40_000,
-        step: 5_000,
-        value: growth,
-        format: formatTokens,
-      },
-      {
-        kind: 'range',
-        id: 'outputPerCall',
-        label: '호출마다 생기는 출력',
-        min: 0,
-        max: 8_000,
-        step: 1_000,
-        value: outputPerCall,
-        format: formatTokens,
-      },
-      {
-        kind: 'select',
-        id: 'windowLimit',
-        label: '컨텍스트 창',
-        value: String(windowLimit),
-        options: WINDOW_SIZES.map(size => ({ value: String(size), label: formatTokens(size) })),
-      },
-      {
-        kind: 'select',
-        id: 'cacheReadRatio',
-        label: '캐시 읽기 단가 (입력 대비)',
-        value: cacheReadRatio,
-        options: CACHE_READ_RATIOS.map(ratio => ({
-          value: ratio,
-          label: ratio === '1' ? '입력과 같음' : `입력의 ${ratio}배`,
-        })),
+        kind: 'toggle',
+        id: 'trimmed',
+        label: '안 쓰는 Skills · MCP · 서브에이전트 끄기',
+        value: trimmed,
       },
     ],
-    [calls, cacheReadRatio, growth, outputPerCall, startContext, windowLimit]
+    [calls, conversation, trimmed]
   );
 
-  /** ParameterPanel 은 id 로 값을 돌려주므로 여기서 각 상태로 흩어 놓는다. */
   const handleChange = useCallback((id: string, value: number | boolean | string) => {
+    if (id === 'conversation') setConversation(Number(value));
     if (id === 'calls') setCalls(Math.round(Number(value)));
-    if (id === 'startContext') setStartContext(Number(value));
-    if (id === 'growth') setGrowth(Number(value));
-    if (id === 'outputPerCall') setOutputPerCall(Number(value));
-    if (id === 'windowLimit') setWindowLimit(Number(value));
-    if (id === 'cacheReadRatio') setCacheReadRatio(String(value));
+    if (id === 'trimmed') setTrimmed(Boolean(value));
   }, []);
 
-  /** 초기화. 여섯 컨트롤이 한꺼번에 기본값으로 돌아가야 화면이 다시 읽힌다. */
+  /** 초기화. 세 컨트롤이 한꺼번에 기본값으로 돌아가야 화면이 다시 읽힌다. */
   const handleReset = useCallback(() => {
+    setConversation(DEFAULTS.conversation);
     setCalls(DEFAULTS.calls);
-    setStartContext(DEFAULTS.startContext);
-    setGrowth(DEFAULTS.growth);
-    setOutputPerCall(DEFAULTS.outputPerCall);
-    setWindowLimit(DEFAULTS.windowLimit);
-    setCacheReadRatio(DEFAULTS.cacheReadRatio);
+    setTrimmed(DEFAULTS.trimmed);
   }, []);
 
-  const receiptRows: { key: string; label: string; tokens: number; cost: number }[] = [
-    { key: 'input', label: '새 입력', tokens: totals.input, cost: costParts.input },
-    { key: 'cacheWrite', label: '캐시 쓰기', tokens: totals.cacheWrite, cost: costParts.cacheWrite },
-    { key: 'cacheRead', label: '캐시 읽기', tokens: totals.cacheRead, cost: costParts.cacheRead },
-    { key: 'output', label: '출력', tokens: totals.output, cost: costParts.output },
+  const receiptRows = [
+    { key: 'cacheRead', label: 'Cache Read', tokens: totals.cacheRead, cost: costParts.cacheRead },
+    { key: 'cacheWrite', label: 'Cache Write', tokens: totals.cacheWrite, cost: costParts.cacheWrite },
+    { key: 'input', label: 'Input', tokens: totals.input, cost: costParts.input },
+    { key: 'output', label: 'Output', tokens: totals.output, cost: costParts.output },
   ];
 
   return (
@@ -212,10 +175,10 @@ export default function CursorContextCostClient() {
       topicHref="/ai/cursor-context-cost"
       title={
         <>
-          Cursor의 <Highlight>82.5K</Highlight>는 무엇을 뜻하나
+          Cursor의 <Highlight>155.2K</Highlight>는 무엇을 뜻하나
         </>
       }
-      subtitle="채팅창의 숫자, 캐시 읽기, 대시보드의 누계는 서로 다른 것을 셉니다. 어느 수가 어느 질문에 답하는지부터 가려 봅니다."
+      subtitle="채팅창의 컨텍스트와 대시보드의 토큰 사용량은 서로 다른 것을 셉니다. 둘을 잇고 나면 어디를 줄여야 하는지가 보입니다."
     >
       <QuizGate
         question={
@@ -226,17 +189,13 @@ export default function CursorContextCostClient() {
         }
         choices={quizChoices}
         correctId="same"
-        feedback={{
-          same: <QuizSame />,
-          sum: <QuizSum />,
-          none: <QuizNone />,
-        }}
+        feedback={{ same: <QuizSame />, sum: <QuizSum />, none: <QuizNone /> }}
       >
         <ExplanationBox variant="note">
           <NoteSim />
         </ExplanationBox>
 
-        <section className={styles.stage} aria-label="한 요청을 호출 단위로 펼쳐 보기">
+        <section className={styles.stage} aria-label="채팅창과 대시보드를 나란히 보기">
           <h2 className={styles.sectionTitle}>{stageTitle}</h2>
           <div className={styles.sectionLead}>
             <StageLead />
@@ -244,166 +203,107 @@ export default function CursorContextCostClient() {
 
           <ParameterPanel params={params} onChange={handleChange} onReset={handleReset} />
 
-          {/* 한도와 비교할 값을 맨 위에 둔다. 누계를 먼저 보이면 그것이 한도와 견주어진다. */}
-          <div className={styles.block}>
-            <div className={styles.blockHead}>
-              <span className={styles.blockTitle}>한 호출이 창에서 차지한 가장 큰 자리</span>
-              <span className={styles.mono}>
-                <strong>{formatTokens(peak)}</strong> / {formatTokens(windowLimit)}
-              </span>
-            </div>
-            <div
-              className={styles.track}
-              role="meter"
-              aria-valuenow={peak}
-              aria-valuemin={0}
-              aria-valuemax={windowLimit}
-              aria-label="한 호출이 창을 차지하는 가장 큰 정도"
-            >
-              <div
-                className={styles.segCache}
-                style={{ width: percent(peakCall?.cacheRead ?? 0, windowLimit) }}
-              />
-              <div
-                className={styles.segWrite}
-                style={{ width: percent(peakCall?.cacheWrite ?? 0, windowLimit) }}
-              />
-              <div
-                className={styles.segInput}
-                style={{ width: percent(peakCall?.input ?? 0, windowLimit) }}
-              />
-              <div
-                className={styles.segOutput}
-                style={{ width: percent(peakCall?.output ?? 0, windowLimit) }}
-              />
-            </div>
-            <div className={styles.hint}>
-              <PeakNote />
-            </div>
-          </div>
+          <div className={styles.screens}>
+            {/* 화면 하나 — 채팅창의 Context Usage 패널 */}
+            <div className={styles.screen}>
+              <div className={styles.screenHead}>
+                <span className={styles.screenTitle}>Context Usage</span>
+                <span className={styles.screenWhere}>채팅 입력칸의 링</span>
+              </div>
 
-          <div className={styles.block}>
-            <div className={styles.blockHead}>
-              <span className={styles.blockTitle}>호출마다 실린 문맥</span>
-            </div>
-            <ol className={styles.calls} aria-label="내부 모델 호출">
-              {scenario.map(call => (
-                <li key={call.index} className={styles.call}>
-                  <span className={styles.callLabel}>
-                    <span className={styles.callIndex}>{call.index + 1}</span> {call.label}
-                    {call.summarized && <span className={styles.summarizedTag}>요약</span>}
-                  </span>
+              <div className={styles.ringHead}>
+                <strong className={over ? styles.overflowText : undefined}>
+                  {percentFull}% Full
+                </strong>
+                <span className={styles.mono}>
+                  ~{formatTokens(context)} / {formatTokens(WINDOW_LIMIT)} Tokens
+                </span>
+              </div>
+
+              <div
+                className={styles.track}
+                role="meter"
+                aria-valuenow={Math.min(context, WINDOW_LIMIT)}
+                aria-valuemin={0}
+                aria-valuemax={WINDOW_LIMIT}
+                aria-label="컨텍스트 창이 찬 정도"
+              >
+                {CONTEXT_ROWS.map(row => (
                   <div
-                    className={`${styles.track} ${styles.callTrack}`}
-                    role="img"
-                    aria-label={`${call.index + 1}번째 호출 — 입력 문맥 ${formatTokens(call.activeContext)}, 그중 캐시 재사용 ${formatTokens(call.cacheRead)}, 캐시에 올림 ${formatTokens(call.cacheWrite ?? 0)}, 새 입력 ${formatTokens(call.input)}, 출력 ${formatTokens(call.output)}`}
-                  >
-                    <div
-                      className={styles.segCache}
-                      style={{ width: percent(call.cacheRead, windowLimit) }}
-                    />
-                    <div
-                      className={styles.segWrite}
-                      style={{ width: percent(call.cacheWrite ?? 0, windowLimit) }}
-                    />
-                    <div
-                      className={styles.segInput}
-                      style={{ width: percent(call.input, windowLimit) }}
-                    />
-                    <div
-                      className={styles.segOutput}
-                      style={{ width: percent(call.output, windowLimit) }}
-                    />
-                  </div>
-                  <span className={`${styles.callValue} ${styles.mono}`}>
-                    {formatTokens(windowUse(call))}
-                  </span>
-                </li>
-              ))}
-            </ol>
-            <div className={styles.legend}>
-              <span className={styles.legendItem}>
-                <span className={`${styles.swatch} ${styles.segCache}`} aria-hidden="true" />
-                캐시에서 재사용
-              </span>
-              <span className={styles.legendItem}>
-                <span className={`${styles.swatch} ${styles.segWrite}`} aria-hidden="true" />
-                이번에 캐시에 올림
-              </span>
-              <span className={styles.legendItem}>
-                <span className={`${styles.swatch} ${styles.segInput}`} aria-hidden="true" />
-                캐시 경계 뒤라 새로 처리
-              </span>
-              <span className={styles.legendItem}>
-                <span className={`${styles.swatch} ${styles.segOutput}`} aria-hidden="true" />
-                출력
-              </span>
-              <span className={styles.legendItem}>막대의 전체 폭이 창 한도입니다.</span>
-            </div>
-          </div>
-
-          <div className={styles.block}>
-            <div className={styles.blockHead}>
-              <span className={styles.blockTitle}>이 요청 한 줄의 사용량</span>
-              <span className={styles.mono}>호출 {scenario.length}번 합계</span>
-            </div>
-            <table className={styles.receipt}>
-              <thead>
-                <tr>
-                  <th scope="col">항목</th>
-                  <th scope="col">토큰</th>
-                  <th scope="col">예시 비용</th>
-                </tr>
-              </thead>
-              <tbody>
-                {receiptRows.map(row => (
-                  <tr key={row.key}>
-                    <th scope="row">{row.label}</th>
-                    <td className={styles.mono}>{row.tokens.toLocaleString('ko-KR')}</td>
-                    <td className={styles.mono}>{row.cost.toFixed(3)}</td>
-                  </tr>
+                    key={row.key}
+                    className={ROW_CLASS[row.key]}
+                    style={{ width: percent(breakdown[row.key], WINDOW_LIMIT) }}
+                  />
                 ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <th scope="row">Total</th>
-                  <td className={styles.mono}>{grandTotal.toLocaleString('ko-KR')}</td>
-                  <td className={styles.mono}>{cost.toFixed(3)}</td>
-                </tr>
-              </tfoot>
-            </table>
-            <div className={styles.hint}>
-              <ReceiptNote />
-            </div>
-          </div>
+              </div>
 
-          <div className={styles.verdict} role="status" aria-live="polite">
-            <div className={`${styles.verdictCell} ${styles.verdictLimit}`}>
-              <span className={styles.verdictLabel}>한도를 넘겼나</span>
-              <span className={`${styles.verdictValue} ${styles.mono}`}>
-                {formatTokens(peak)} / {formatTokens(windowLimit)}
-              </span>
-              <span className={styles.verdictWhy}>
-                {summarizedCount === 0 ? (
-                  <>모든 호출이 창 안에 들어갑니다.</>
-                ) : (
-                  <>
-                    호출 <strong>{summarizedCount}번</strong>에서 창이 찰 뻔해 대화를 요약하고
-                    같은 요청을 이어갔습니다.
-                  </>
-                )}
-              </span>
+              <ul className={styles.cats} aria-label="컨텍스트 범주">
+                {CONTEXT_ROWS.map(row => (
+                  <li
+                    key={row.key}
+                    className={`${styles.cat} ${breakdown[row.key] === 0 ? styles.catOff : ''}`}
+                  >
+                    <span className={`${styles.swatch} ${ROW_CLASS[row.key]}`} aria-hidden="true" />
+                    <span className={styles.catLabel}>{row.label}</span>
+                    <span className={`${styles.catValue} ${styles.mono}`}>
+                      {formatTokens(breakdown[row.key])}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              <p className={styles.screenFoot} role="status" aria-live="polite">
+                대화를 뺀 <strong>{formatTokens(overhead)}</strong>는 한 글자도 쓰기 전에 이미
+                차 있습니다 — 전체의 {Math.round((overhead / context) * 100)}%.
+              </p>
+
+              <div className={styles.screenNote}>
+                <PanelANote />
+              </div>
             </div>
-            <div className={`${styles.verdictCell} ${styles.verdictTotal}`}>
-              <span className={styles.verdictLabel}>대시보드에 찍히는 누계</span>
-              <span className={`${styles.verdictValue} ${styles.mono}`}>
-                {formatTokens(grandTotal)}
-              </span>
-              <span className={styles.verdictWhy}>
-                창의 <strong>{(grandTotal / windowLimit).toFixed(1)}배</strong>. 호출{' '}
-                {scenario.length}번의 항목을 더한 값이라, 한 번에 모델에 들어간 양이 아니라
-                한도와 견줄 대상이 아닙니다.
-              </span>
+
+            {/* 화면 둘 — 대시보드 한 행 */}
+            <div className={styles.screen}>
+              <div className={styles.screenHead}>
+                <span className={styles.screenTitle}>Usage — 이 요청 한 행</span>
+                <span className={styles.screenWhere}>대시보드</span>
+              </div>
+
+              <table className={styles.receipt}>
+                <thead>
+                  <tr>
+                    <th scope="col">항목</th>
+                    <th scope="col">Tokens</th>
+                    <th scope="col">Cost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {receiptRows.map(row => (
+                    <tr key={row.key}>
+                      <th scope="row">{row.label}</th>
+                      <td className={styles.mono}>{row.tokens.toLocaleString('ko-KR')}</td>
+                      <td className={styles.mono}>{row.cost.toFixed(3)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th scope="row">Total</th>
+                    <td className={styles.mono}>{grandTotal.toLocaleString('ko-KR')}</td>
+                    <td className={styles.mono}>{cost.toFixed(3)}</td>
+                  </tr>
+                </tfoot>
+              </table>
+
+              <p className={styles.screenFoot} role="status" aria-live="polite">
+                문맥 <strong>{formatTokens(context)}</strong>를 호출 {calls}번이 나눠 쓰면서
+                Cache Read 가 <strong>{formatTokens(totals.cacheRead)}</strong>까지 쌓였습니다 —
+                이 행의 {Math.round((totals.cacheRead / grandTotal) * 100)}%.
+              </p>
+
+              <div className={styles.screenNote}>
+                <PanelBNote />
+              </div>
             </div>
           </div>
 
@@ -412,24 +312,16 @@ export default function CursorContextCostClient() {
           </div>
         </section>
 
-        <ExplanationBox title={layersTitle}>
-          <ThreeLayers />
-        </ExplanationBox>
-
         <ExplanationBox title={oneRowTitle}>
           <OneRow />
-        </ExplanationBox>
-
-        <ExplanationBox title={nearLimitTitle}>
-          <NearLimit />
         </ExplanationBox>
 
         <ExplanationBox title={costTitle}>
           <Cost />
         </ExplanationBox>
 
-        <ExplanationBox title={aboutTitle} collapsible>
-          <About />
+        <ExplanationBox title={efficientTitle}>
+          <Efficient />
         </ExplanationBox>
       </QuizGate>
     </TopicLayout>

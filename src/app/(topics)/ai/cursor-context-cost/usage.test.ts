@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  CONTEXT_ROWS,
+  SAMPLE_CONTEXT,
   SUMMARY_RATIO,
+  contextTotal,
+  fillPercent,
+  fixedOverhead,
   TOKENS_PER_RATE_UNIT,
   buildScenario,
   costBreakdown,
@@ -145,12 +150,14 @@ describe('estimateUsageCost', () => {
 });
 
 describe('buildScenario', () => {
+  /** 차가운 시작 — 채팅의 첫 요청이라 캐시에 아무것도 없다. */
   const base = {
     calls: 5,
-    startContext: 80_000,
+    context: 80_000,
     growth: 10_000,
     outputPerCall: 2_000,
     windowLimit: 200_000,
+    cachedFromEarlier: false,
   };
 
   it('호출마다 활성 컨텍스트가 세 입력 항목으로 정확히 나뉜다', () => {
@@ -166,7 +173,7 @@ describe('buildScenario', () => {
     // 창에 실린 재료는 첫 문맥 + 호출마다 붙은 (출력 + 새 결과) 뿐이고,
     // 각 조각이 `input` 으로 잡히는 것은 딱 한 번이다. 그 뒤로는 캐시에 올라가
     // `cacheWrite` 가 되고, 다시 `cacheRead` 로 재사용된다 — 역할이 바뀔 뿐이다.
-    const material = base.startContext + (base.calls - 1) * (base.outputPerCall + base.growth);
+    const material = base.context + (base.calls - 1) * (base.outputPerCall + base.growth);
     expect(totalUsage(calls).input).toBe(material);
   });
 
@@ -174,29 +181,30 @@ describe('buildScenario', () => {
     const [first, second] = buildScenario(base);
     expect(first.cacheRead).toBe(0);
     expect(first.cacheWrite).toBe(0);
-    expect(first.input).toBe(base.startContext);
+    expect(first.input).toBe(base.context);
     // 첫 호출의 재료는 두 번째 호출에서 경계 앞으로 넘어가 캐시에 올라간다.
-    expect(second.cacheWrite).toBe(base.startContext);
+    expect(second.cacheWrite).toBe(base.context);
     expect(second.input).toBe(base.outputPerCall + base.growth);
   });
 
   it('세 번째 호출부터 앞의 재료가 재사용된다', () => {
     const [, , third] = buildScenario(base);
-    expect(third.cacheRead).toBe(base.startContext);
+    expect(third.cacheRead).toBe(base.context);
   });
 
   it('어떤 호출도 출력까지 더해 창 한도를 넘지 않는다', () => {
     // 파라미터 패널이 허용하는 조합을 훑는다.
     for (const calls of [1, 5, 12]) {
-      for (const startContext of [20_000, 80_000, 160_000]) {
+      for (const context of [20_000, 80_000, 160_000]) {
         for (const growth of [0, 10_000, 40_000]) {
           for (const outputPerCall of [0, 6_000, 8_000]) {
             const scenario = buildScenario({
               calls,
-              startContext,
+              context,
               growth,
               outputPerCall,
               windowLimit: 200_000,
+              cachedFromEarlier: false,
             });
             expect(maxWindowUse(scenario)).toBeLessThanOrEqual(200_000);
           }
@@ -209,10 +217,11 @@ describe('buildScenario', () => {
     // 리뷰가 짚은 반례 — 입력 196K 는 창 안이지만 출력 6K 를 더하면 202K 다.
     const calls = buildScenario({
       calls: 12,
-      startContext: 20_000,
+      context: 20_000,
       growth: 10_000,
       outputPerCall: 6_000,
       windowLimit: 200_000,
+      cachedFromEarlier: false,
     });
     expect(calls[11].summarized).toBe(true);
     expect(maxWindowUse(calls)).toBeLessThanOrEqual(200_000);
@@ -229,17 +238,18 @@ describe('buildScenario', () => {
     // 본문이 "호출이 여러 번 있었다는 뜻" 이라고 단정하지 않는 근거.
     const [single] = buildScenario({
       calls: 1,
-      startContext: 160_000,
+      context: 160_000,
       growth: 0,
       outputPerCall: 8_000,
       windowLimit: 200_000,
+      cachedFromEarlier: false,
     });
     expect(windowUse(single)).toBeLessThanOrEqual(200_000);
     expect(totalTokens(totalUsage([single]))).toBeGreaterThan(160_000);
   });
 
   it('한도를 넘길 상황이면 요약해 자리를 만들고 대화가 이어진다', () => {
-    const calls = buildScenario({ ...base, calls: 12, startContext: 160_000, growth: 40_000 });
+    const calls = buildScenario({ ...base, calls: 12, context: 160_000, growth: 40_000 });
     const summarized = calls.filter(call => call.summarized);
 
     expect(summarized.length).toBeGreaterThan(0);
@@ -261,10 +271,11 @@ describe('buildScenario', () => {
     // Cursor 포럼의 설명 예시 — 문맥 20K 짜리 첫 메시지에 호출이 10번 더 붙으면 약 180K.
     const flat = buildScenario({
       calls: 11,
-      startContext: 20_000,
+      context: 20_000,
       growth: 0,
       outputPerCall: 0,
       windowLimit: 200_000,
+      cachedFromEarlier: false,
     });
     expect(maxActiveContext(flat)).toBe(20_000);
     expect(totalUsage(flat).cacheRead).toBe(180_000);
@@ -274,17 +285,19 @@ describe('buildScenario', () => {
     // 본문이 "호출 수보다 빠르게" 를 무조건으로 쓰지 않는 근거.
     const six = buildScenario({
       calls: 6,
-      startContext: 20_000,
+      context: 20_000,
       growth: 0,
       outputPerCall: 0,
       windowLimit: 200_000,
+      cachedFromEarlier: false,
     });
     const eleven = buildScenario({
       calls: 11,
-      startContext: 20_000,
+      context: 20_000,
       growth: 0,
       outputPerCall: 0,
       windowLimit: 200_000,
+      cachedFromEarlier: false,
     });
     expect(totalUsage(six).cacheRead).toBe(20_000 * 4);
     expect(totalUsage(eleven).cacheRead).toBe(20_000 * 9);
@@ -297,5 +310,76 @@ describe('buildScenario', () => {
 
   it('호출 수가 0 이면 빈 목록이다', () => {
     expect(buildScenario({ ...base, calls: 0 })).toEqual([]);
+  });
+});
+
+describe('ContextBreakdown', () => {
+  it('스크린샷의 합계·퍼센트와 맞는다', () => {
+    // 실제 Cursor 패널 표기 — `~155.2K / 200K Tokens`, `78% Full`.
+    // 값을 손대면 본문의 숫자와 조용히 어긋나므로 여기서 못 박는다.
+    expect(contextTotal(SAMPLE_CONTEXT)).toBe(155_160);
+    expect(fillPercent(SAMPLE_CONTEXT)).toBe(78);
+  });
+
+  it('대화를 뺀 고정 오버헤드가 3만 토큰 가까이 된다', () => {
+    // 한 글자도 쓰기 전에 이미 차 있는 몫. 이 글이 겨눈 값이다.
+    expect(fixedOverhead(SAMPLE_CONTEXT)).toBe(29_560);
+  });
+
+  it('범주를 다 더하면 전체가 된다', () => {
+    const sum = CONTEXT_ROWS.reduce((acc, row) => acc + SAMPLE_CONTEXT[row.key], 0);
+    expect(sum).toBe(contextTotal(SAMPLE_CONTEXT));
+  });
+
+  it('창이 0 이면 퍼센트를 0 으로 둔다', () => {
+    expect(fillPercent(SAMPLE_CONTEXT, 0)).toBe(0);
+  });
+});
+
+describe('두 화면 잇기', () => {
+  it('문맥 155.2K 짜리 채팅의 요청 하나가 대시보드의 자릿수를 만든다', () => {
+    // 실제 Usage 한 행 — Cache Read 647,221 · Cache Write 0 · Input 20,520 · Output 6,350.
+    // 같은 세션의 자료가 아니므로 값이 같아질 이유는 없다. 확인하는 것은 **자릿수**다.
+    const calls = buildScenario({ context: contextTotal(SAMPLE_CONTEXT), calls: 5 });
+    const totals = totalUsage(calls);
+
+    expect(totals.cacheRead).toBeGreaterThan(400_000);
+    expect(totals.cacheRead).toBeLessThan(1_000_000);
+    // 캐시 읽기가 한 행을 압도한다 — 실제 자료에서도 96% 였다.
+    expect(totals.cacheRead / totalTokens(totals)).toBeGreaterThan(0.9);
+  });
+
+  it('실제 한 행의 Total 이 네 항목의 합이다', () => {
+    const row = { cacheRead: 647_221, cacheWrite: 0, input: 20_520, output: 6_350 };
+    expect(totalTokens(row)).toBe(674_091);
+  });
+});
+
+describe('캐시가 요청 사이로 이어진다', () => {
+  const context = contextTotal(SAMPLE_CONTEXT);
+
+  it('이어지는 요청이면 첫 호출부터 문맥을 재사용한다', () => {
+    const [first] = buildScenario({ context, calls: 3 });
+    expect(first.cacheRead).toBe(context);
+    expect(first.cacheWrite).toBe(0);
+    // 새로 처리하는 것은 사용자가 방금 보낸 메시지뿐이다.
+    expect(first.input).toBe(2_000);
+  });
+
+  it('그래서 실제 한 행처럼 캐시 쓰기가 0 에 가깝게 나온다', () => {
+    // 스크린샷의 한 행 — Cache Write 0 · Input 20,520 · Cache Read 96%.
+    const warm = totalUsage(buildScenario({ context, calls: 5 }));
+    const cold = totalUsage(buildScenario({ context, calls: 5, cachedFromEarlier: false }));
+
+    expect(warm.cacheWrite).toBeLessThan(cold.cacheWrite / 5);
+    expect(warm.input).toBeLessThan(cold.input / 5);
+    expect(warm.cacheRead).toBeGreaterThan(cold.cacheRead);
+  });
+
+  it('차가운 시작이면 문맥 전체를 새로 처리하고 캐시에 올린다', () => {
+    const [first, second] = buildScenario({ context, calls: 3, cachedFromEarlier: false });
+    expect(first.cacheRead).toBe(0);
+    expect(first.input).toBe(context);
+    expect(second.cacheWrite).toBe(context);
   });
 });

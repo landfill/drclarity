@@ -6,24 +6,22 @@ Cursor 의 가격표는 모델마다 네 칸을 따로 둡니다 — `Input`, `C
 
 <strong>요청 비용</strong>은 그 요청에서 일어난 모든 호출에 대해 다음 넷을 더한 값입니다.
 
-- 새 입력 × 입력 단가
-- 캐시 쓰기 × 캐시 쓰기 단가
-- 캐시 읽기 × 캐시 읽기 단가
-- 출력 × 출력 단가
-
-캐시 쓰기를 따로 청구하지 않는 모델에서는 그 항이 빠질 뿐 식의 모양은 같습니다.
+- Cache Read × 캐시 읽기 단가
+- Cache Write × 캐시 쓰기 단가
+- Input × 입력 단가
+- Output × 출력 단가
 
 앞의 세 항목이 **입력을 겹치지 않게 나눈 조각**이라는 점이 중요합니다. Anthropic 문서는
-`입력 전체 = 캐시 읽기 + 캐시 쓰기 + 새 입력` 로 정의합니다. 그래서 같은 토큰이 한 호출
-안에서 두 항목에 동시에 잡히지 않습니다.
+`입력 전체 = 캐시 읽기 + 캐시 쓰기 + 새 입력` 로 정의합니다. 같은 토큰이 한 호출 안에서
+두 항목에 동시에 잡히지 않습니다.
 
-위 화면의 <strong>캐시 읽기 단가</strong>를 입력의 1/10 로 둔 채 <strong>내부 호출 수</strong>만
-늘려 보세요. 단가는 그대로인데 캐시 읽기가 총액에서 차지하는 비율이 함께 올라갑니다.
-**싸다는 것과 적다는 것은 다릅니다** — 호출마다 그때까지의 문맥을 통째로 다시 실으므로
-읽는 양 자체가 크게 쌓입니다.
+여기서 실무적인 결론이 하나 나옵니다. **싸다는 것과 적다는 것은 다릅니다.** 위 화면의
+`Cost` 열을 보세요 — 기본값에서 캐시 읽기는 토큰의 95% 인데 비용에서는 절반 남짓입니다.
+단가가 입력의 1/10 이라 그렇습니다. 그래도 여전히 가장 큰 항목입니다. 양이 그만큼 많기
+때문입니다.
 
 실제 청구액은 이 식만으로 나오지 않습니다. 플랜에 포함된 사용량, Auto 라우팅이 고른
 모델, 서드파티 모델에 붙는 추가 요율 같은 규칙이 그 위에 얹힙니다. 이 식은 **대시보드의
 항목을 읽는 방법**이지 청구서를 재현하는 계산기가 아닙니다.
 
-<p><small>참고(2026-08-26 확인): <a href="https://cursor.com/docs/models-and-pricing" target="_blank" rel="noreferrer">Cursor 문서 — Models &amp; Pricing</a> · <a href="https://platform.claude.com/docs/en/build-with-claude/prompt-caching" target="_blank" rel="noreferrer">Anthropic — Prompt caching</a> (입력 항목의 분해)</small></p>
+<p><small>참고(2026-08-26 확인): <a href="https://cursor.com/docs/models-and-pricing" target="_blank" rel="noreferrer">Cursor 문서 — Models &amp; Pricing</a></small></p>
