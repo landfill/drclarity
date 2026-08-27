@@ -6,6 +6,7 @@ import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
 import {
   CONTEXT_ROWS,
+  CONVERSATION_RANGE,
   SAMPLE_CONTEXT,
   WINDOW_LIMIT,
   buildScenario,
@@ -112,6 +113,8 @@ export default function CursorContextCostClient() {
   const scenario = useMemo(() => buildScenario({ context, calls }), [context, calls]);
   const totals = totalUsage(scenario);
   const grandTotal = totalTokens(totals);
+  /** 요약이 걸린 호출 수. 걸리면 두 화면을 잇는 설명이 달라져야 한다. */
+  const summarizedCount = scenario.filter(call => call.summarized).length;
   const cost = estimateUsageCost(scenario, RATES);
   const costParts = costBreakdown(scenario, RATES);
 
@@ -172,9 +175,9 @@ export default function CursorContextCostClient() {
               <span className={styles.controlLabel}>대화</span>
               <input
                 type="range"
-                min={5_000}
-                max={170_000}
-                step={5_000}
+                min={CONVERSATION_RANGE.min}
+                max={CONVERSATION_RANGE.max}
+                step={CONVERSATION_RANGE.step}
                 value={conversation}
                 onChange={event => setConversation(event.currentTarget.valueAsNumber)}
                 className={styles.slider}
@@ -279,7 +282,11 @@ export default function CursorContextCostClient() {
             <div className={styles.screen}>
               <div className={styles.screenHead}>
                 <span className={styles.screenTitle}>Usage — 이 요청 한 행</span>
-                <span className={styles.screenWhere}>대시보드</span>
+                {summarizedCount > 0 ? (
+                  <span className={styles.summarizedTag}>요약 {summarizedCount}회</span>
+                ) : (
+                  <span className={styles.screenWhere}>대시보드</span>
+                )}
               </div>
 
               <table className={styles.receipt}>
@@ -309,9 +316,20 @@ export default function CursorContextCostClient() {
               </table>
 
               <p className={styles.screenFoot} role="status" aria-live="polite">
-                문맥 <strong>{formatTokens(context)}</strong>를 호출 {calls}번이 나눠 쓰면서
-                Cache Read 가 <strong>{formatTokens(totals.cacheRead)}</strong>까지 쌓였습니다 —
-                이 행의 {Math.round((totals.cacheRead / grandTotal) * 100)}%.
+                {summarizedCount > 0 ? (
+                  <>
+                    링이 거의 차서 호출 <strong>{summarizedCount}번</strong>에서 대화가
+                    요약됐습니다. 요약은 접두부를 바꾸므로 그 호출은 캐시를 다시 채웁니다 —
+                    자리는 생기지만 <strong>Cache Read 가 오히려 줄어듭니다.</strong>
+                  </>
+                ) : (
+                  <>
+                    같은 문맥 <strong>{formatTokens(context)}</strong>가 호출 {calls}번에 걸쳐
+                    다시 실리면서 Cache Read 가{' '}
+                    <strong>{formatTokens(totals.cacheRead)}</strong>까지 쌓였습니다 — 이 행의{' '}
+                    {Math.round((totals.cacheRead / grandTotal) * 100)}%.
+                  </>
+                )}
               </p>
 
               <div className={styles.screenNote}>

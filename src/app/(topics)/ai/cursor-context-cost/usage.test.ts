@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   CONTEXT_ROWS,
+  CONVERSATION_RANGE,
+  WINDOW_LIMIT,
   SAMPLE_CONTEXT,
   SUMMARY_RATIO,
   contextTotal,
@@ -381,5 +383,71 @@ describe('캐시가 요청 사이로 이어진다', () => {
     expect(first.cacheRead).toBe(0);
     expect(first.input).toBe(context);
     expect(second.cacheWrite).toBe(context);
+  });
+});
+
+/**
+ * 화면 기본값 회귀.
+ *
+ * 본문이 이 수치들을 글로 적고 있다 — 629,940 · 665,640 · 10,300 · 588,740.
+ * 넓은 자릿수만 보는 테스트는 값이 조용히 어긋나는 것을 잡지 못하므로 정확값으로 못 박는다.
+ */
+describe('화면 기본값', () => {
+  const context = contextTotal(SAMPLE_CONTEXT);
+  /** 안 쓰는 설정을 껐을 때 사라지는 범주. 클라이언트의 OPTIONAL_KEYS 와 같아야 한다. */
+  const trimmed = { ...SAMPLE_CONTEXT, skills: 0, mcp: 0, subagents: 0 };
+
+  it('호출 4번이 실제 자료 옆에 선다', () => {
+    const totals = totalUsage(buildScenario({ context, calls: 4 }));
+    expect(totals.cacheRead).toBe(629_940);
+    expect(totalTokens(totals)).toBe(665_640);
+  });
+
+  it('안 쓰는 설정을 끄면 10,300 이 사라진다', () => {
+    expect(contextTotal(SAMPLE_CONTEXT) - contextTotal(trimmed)).toBe(10_300);
+    expect(fillPercent(trimmed)).toBe(72);
+  });
+
+  it('그만큼 캐시 읽기도 줄어든다', () => {
+    const totals = totalUsage(buildScenario({ context: contextTotal(trimmed), calls: 4 }));
+    expect(totals.cacheRead).toBe(588_740);
+  });
+
+  it('대화 슬라이더 최대치에서 링은 100% 를 넘지 않는다', () => {
+    // 슬라이더 상한 170,000. 이보다 크면 링이 105% 같은 지어낸 상태를 표시한다.
+    const maxed = { ...SAMPLE_CONTEXT, conversation: 170_000 };
+    expect(contextTotal(maxed)).toBe(199_560);
+    expect(fillPercent(maxed)).toBe(100);
+  });
+
+  it('최대치에서는 요약이 걸리고, 화면이 그것을 드러내야 한다', () => {
+    // 왼쪽 링은 199,560 을 보여주는데 오른쪽이 조용히 요약해 버리면 잇는 설명이 거짓이 된다.
+    const calls = buildScenario({ context: 199_560, calls: 4 });
+    expect(calls[0].summarized).toBe(true);
+    expect(calls.some(call => call.summarized)).toBe(true);
+  });
+
+  it('호출을 계속 늘리면 캐시 읽기가 정체한다', () => {
+    // 본문이 "호출 수만큼 쌓인다" 를 무조건으로 쓰지 않는 근거.
+    // 문맥이 창에 닿으면 요약이 걸려 그 호출의 재사용이 0 이 된다.
+    const at8 = totalUsage(buildScenario({ context, calls: 8 })).cacheRead;
+    const at10 = totalUsage(buildScenario({ context, calls: 10 })).cacheRead;
+    expect(at10).toBe(at8);
+  });
+});
+
+describe('대화 슬라이더 범위', () => {
+  it('기본 대화 길이가 슬라이더 격자 위에 있다', () => {
+    // 격자에서 벗어나면 슬라이더를 한 번 건드린 뒤 기본값으로 돌아갈 수 없다.
+    const { min, step } = CONVERSATION_RANGE;
+    expect((SAMPLE_CONTEXT.conversation - min) % step).toBe(0);
+    expect(SAMPLE_CONTEXT.conversation).toBeGreaterThanOrEqual(min);
+    expect(SAMPLE_CONTEXT.conversation).toBeLessThanOrEqual(CONVERSATION_RANGE.max);
+  });
+
+  it('최대치도 격자 위에 있고 창을 넘지 않는다', () => {
+    const { min, max, step } = CONVERSATION_RANGE;
+    expect((max - min) % step).toBe(0);
+    expect(fixedOverhead(SAMPLE_CONTEXT) + max).toBeLessThanOrEqual(WINDOW_LIMIT);
   });
 });

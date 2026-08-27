@@ -151,6 +151,16 @@
   color: var(--color-muted);
 }
 
+/* 요약이 걸린 것은 배지로 드러낸다. 숫자만 줄면 왜 줄었는지 알 길이 없다. */
+.summarizedTag {
+  padding: 0 var(--space-2xs);
+  border-radius: var(--radius-sm);
+  background: var(--color-note-bg);
+  color: var(--color-warm);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+}
+
 .screenFoot {
   margin-top: var(--space-sm);
   font-size: var(--fs-sm);

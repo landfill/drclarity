@@ -185,6 +185,18 @@ export const SAMPLE_CONTEXT: ContextBreakdown = {
 /** 화면의 창 크기. 스크린샷의 채팅이 쓰던 값이며 모델과 플랜에 따라 다르다. */
 export const WINDOW_LIMIT = 200_000;
 
+/**
+ * 대화 슬라이더의 범위.
+ *
+ * `step` 이 `SAMPLE_CONTEXT.conversation` 을 격자 위에 올려 두어야 한다. 그러지 않으면
+ * 슬라이더를 한 번 건드린 뒤 기본값으로 못 돌아가고, 본문이 적어 둔 155.2K·629,940 이
+ * 도달할 수 없는 값이 된다. `usage.test.ts` 가 이것을 못 박는다.
+ *
+ * `max` 는 고정 오버헤드를 더해도 창을 넘지 않는 선에서 잡았다 — 실제 Cursor 의 링은
+ * 요약 때문에 100% 를 넘지 않으므로, 넘는 상태를 보여주면 지어낸 화면이 된다.
+ */
+export const CONVERSATION_RANGE = { min: 5_000, max: 170_000, step: 100 } as const;
+
 /** 링에 찬 전체. 범주를 그대로 더한 값이다. */
 export function contextTotal(breakdown: ContextBreakdown): number {
   return CONTEXT_ROWS.reduce((sum, row) => sum + breakdown[row.key], 0);
