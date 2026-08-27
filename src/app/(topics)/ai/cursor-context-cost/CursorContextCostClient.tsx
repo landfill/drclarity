@@ -3,7 +3,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
-import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
 import {
   CONTEXT_ROWS,
@@ -116,44 +115,6 @@ export default function CursorContextCostClient() {
   const cost = estimateUsageCost(scenario, RATES);
   const costParts = costBreakdown(scenario, RATES);
 
-  const params: ParameterDefinition[] = useMemo(
-    () => [
-      {
-        kind: 'range',
-        id: 'conversation',
-        label: '대화 (Conversation)',
-        min: 5_000,
-        max: 180_000,
-        step: 5_000,
-        value: conversation,
-        format: formatTokens,
-      },
-      {
-        kind: 'range',
-        id: 'calls',
-        label: '이 요청이 만든 내부 호출 수',
-        min: 1,
-        max: 10,
-        step: 1,
-        value: calls,
-        format: value => `${Math.round(value)}번`,
-      },
-      {
-        kind: 'toggle',
-        id: 'trimmed',
-        label: '안 쓰는 Skills · MCP · 서브에이전트 끄기',
-        value: trimmed,
-      },
-    ],
-    [calls, conversation, trimmed]
-  );
-
-  const handleChange = useCallback((id: string, value: number | boolean | string) => {
-    if (id === 'conversation') setConversation(Number(value));
-    if (id === 'calls') setCalls(Math.round(Number(value)));
-    if (id === 'trimmed') setTrimmed(Boolean(value));
-  }, []);
-
   /** 초기화. 세 컨트롤이 한꺼번에 기본값으로 돌아가야 화면이 다시 읽힌다. */
   const handleReset = useCallback(() => {
     setConversation(DEFAULTS.conversation);
@@ -201,7 +162,59 @@ export default function CursorContextCostClient() {
             <StageLead />
           </div>
 
-          <ParameterPanel params={params} onChange={handleChange} onReset={handleReset} />
+          {/*
+            공용 ParameterPanel 대신 한 줄짜리 컨트롤을 쓴다.
+            이 주제의 요점은 두 화면을 **동시에** 보는 것인데, 세로로 긴 패널이
+            둘을 한 화면 밖으로 밀어낸다. 컨트롤은 얇을수록 좋다.
+          */}
+          <div className={styles.controls}>
+            <label className={styles.control}>
+              <span className={styles.controlLabel}>대화</span>
+              <input
+                type="range"
+                min={5_000}
+                max={180_000}
+                step={5_000}
+                value={conversation}
+                onChange={event => setConversation(event.currentTarget.valueAsNumber)}
+                className={styles.slider}
+                aria-label="대화 길이"
+                aria-valuetext={`${formatTokens(conversation)} 토큰`}
+              />
+              <output className={`${styles.controlValue} ${styles.mono}`}>
+                {formatTokens(conversation)}
+              </output>
+            </label>
+
+            <label className={styles.control}>
+              <span className={styles.controlLabel}>내부 호출</span>
+              <input
+                type="range"
+                min={1}
+                max={10}
+                step={1}
+                value={calls}
+                onChange={event => setCalls(event.currentTarget.valueAsNumber)}
+                className={styles.slider}
+                aria-label="이 요청이 만든 내부 호출 수"
+                aria-valuetext={`${calls}번`}
+              />
+              <output className={`${styles.controlValue} ${styles.mono}`}>{calls}번</output>
+            </label>
+
+            <label className={styles.toggle}>
+              <input
+                type="checkbox"
+                checked={trimmed}
+                onChange={event => setTrimmed(event.currentTarget.checked)}
+              />
+              <span>안 쓰는 Skills · MCP · 서브에이전트 끄기</span>
+            </label>
+
+            <button type="button" className={styles.resetButton} onClick={handleReset}>
+              초기화
+            </button>
+          </div>
 
           <div className={styles.screens}>
             {/* 화면 하나 — 채팅창의 Context Usage 패널 */}
