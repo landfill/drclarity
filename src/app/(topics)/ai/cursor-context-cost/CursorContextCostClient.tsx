@@ -173,7 +173,7 @@ export default function CursorContextCostClient() {
               <input
                 type="range"
                 min={5_000}
-                max={180_000}
+                max={170_000}
                 step={5_000}
                 value={conversation}
                 onChange={event => setConversation(event.currentTarget.valueAsNumber)}
