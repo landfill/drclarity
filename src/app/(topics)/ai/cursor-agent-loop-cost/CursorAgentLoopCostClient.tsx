@@ -260,6 +260,16 @@ export default function CursorAgentLoopCostClient() {
                   <span className={`${styles.swatch} ${styles.segInput}`} aria-hidden="true" />
                   Input
                 </li>
+                {/*
+                  요약 색은 요약이 실제로 걸렸을 때만 내놓는다. 늘 띄우면 대부분의 상태에서
+                  화면에 없는 색을 설명하게 되고, 걸린 순간에 눈이 가야 할 곳도 흐려진다.
+                */}
+                {summary.summarizedCount > 0 && (
+                  <li className={styles.legendItem}>
+                    <span className={`${styles.swatch} ${styles.segSummary}`} aria-hidden="true" />
+                    요약 — 캐시를 다시 채우는 호출
+                  </li>
+                )}
               </ul>
 
               <p className={styles.screenFoot} role="status" aria-live="polite">

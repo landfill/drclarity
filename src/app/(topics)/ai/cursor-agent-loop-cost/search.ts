@@ -122,6 +122,14 @@ export interface RunSummary {
   summarizedCount: number;
   /** 가장 큰 호출 하나의 입력 문맥. 창 한도와 비교할 수 있는 유일한 값이다. */
   peakContext: number;
+  /**
+   * 호출당 평균 입력 문맥.
+   *
+   * 앞 편의 어림 `문맥 × 호출 수` 에서 **왼쪽 항에 들어가야 할 값**이다. 앞 편은 이것을
+   * 상수로 두었지만 탐색 중에는 호출마다 자라므로, 두 요청을 비교할 때 호출 수만큼이나
+   * 이 값이 벌어진다. `Total = averageContext × calls + 출력 총합` 이 정확히 성립한다.
+   */
+  averageContext: number;
 }
 
 export function summarizeRun(params: SearchParams, rates: Rates = EXAMPLE_RATES): RunSummary {
@@ -141,6 +149,8 @@ export function summarizeRun(params: SearchParams, rates: Rates = EXAMPLE_RATES)
     costPerMillion: tokens > 0 ? cost / (tokens / 1_000_000) : 0,
     summarizedCount: run.filter(call => call.summarized).length,
     peakContext: maxActiveContext(run),
+    averageContext:
+      run.length > 0 ? run.reduce((sum, call) => sum + call.activeContext, 0) / run.length : 0,
   };
 }
 

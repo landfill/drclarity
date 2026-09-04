@@ -51,10 +51,9 @@ describe('무엇이 그 행을 비싸게 만들었나', () => {
   it('한 행은 호출당 문맥을 전부 더한 것에 출력을 더한 값이다', () => {
     // superlinear.mdx 가 적어 둔 관계 — Total = 호출당 평균 문맥 × 호출 수 + 출력 총합.
     // 앞 편의 어림(`문맥 × 호출 수`)에서 왼쪽 항이 상수가 아니라는 것이 이 항등식이다.
-    const run = buildSearchRun({ calls: OUTLIER_CALLS });
-    const contextSum = run.reduce((sum, call) => sum + call.activeContext, 0);
-    expect(contextSum + outlier.totals.output).toBe(outlier.tokens);
-    expect(contextSum / OUTLIER_CALLS).toBe(116_100);
+    expect(outlier.averageContext * OUTLIER_CALLS + outlier.totals.output).toBe(outlier.tokens);
+    expect(outlier.averageContext).toBe(116_100);
+    expect(summarizeRun({ calls: 8 }).averageContext).toBe(55_300);
   });
 
   it('호출이 5배인데 토큰은 10배가 넘는다', () => {
@@ -140,6 +139,20 @@ describe('요약이 걸리는 지점', () => {
     expect(summarizeRun({ calls: CALLS_RANGE.max }).summarizedCount).toBeGreaterThan(0);
   });
 
+  it('ceiling.mdx 가 적어 둔 두 지점의 문맥이 맞다', () => {
+    // 기본값 40번의 190,200 과, 요약 직전인 42번의 197,800 은 서로 다른 값이다.
+    expect(summarizeRun({ calls: 40 }).peakContext).toBe(190_200);
+    expect(summarizeRun({ calls: 42 }).peakContext).toBe(197_800);
+  });
+
+  it('요약이 반복돼도 문맥은 창의 4분의 3 언저리에 머문다', () => {
+    // "창만 한 문맥" 이 아니다. 요약이 12만까지 눌러 주고 다시 19.6만까지 자란다.
+    const long = summarizeRun({ calls: 200 });
+    expect(Math.round(long.averageContext)).toBe(148_954);
+    expect(long.averageContext / WINDOW_LIMIT).toBeGreaterThan(0.7);
+    expect(long.averageContext / WINDOW_LIMIT).toBeLessThan(0.8);
+  });
+
   it('요약이 걸린 호출은 창을 넘지 않는다', () => {
     for (const call of buildSearchRun({ calls: CALLS_RANGE.max })) {
       expect(call.activeContext + call.output).toBeLessThanOrEqual(WINDOW_LIMIT);
@@ -182,6 +195,15 @@ describe('상수', () => {
     expect((RESULT_PER_CALL - RESULT_RANGE.min) % RESULT_RANGE.step).toBe(0);
     expect(RESULT_PER_CALL).toBeGreaterThanOrEqual(RESULT_RANGE.min);
     expect(RESULT_PER_CALL).toBeLessThanOrEqual(RESULT_RANGE.max);
+  });
+
+  it('슬라이더가 갈 수 있는 어느 자리에서도 비용이 0 이 아니다', () => {
+    // 화면이 비용의 비(比)를 보여주므로 분모가 0 이 될 수 있으면 안 된다.
+    // 방어 코드 대신 여기서 못 박는다 — `CALLS_RANGE.min` 을 0 으로 내리면 이 테스트가 잡는다.
+    for (const calls of [CALLS_RANGE.min, 1, OUTLIER_CALLS, CALLS_RANGE.max]) {
+      expect(summarizeRun({ calls }).cost).toBeGreaterThan(0);
+      expect(summarizeRun({ calls: effectiveCalls(calls, true) }).cost).toBeGreaterThan(0);
+    }
   });
 
   it('기본 호출 수도 슬라이더 범위 안에 있다', () => {
