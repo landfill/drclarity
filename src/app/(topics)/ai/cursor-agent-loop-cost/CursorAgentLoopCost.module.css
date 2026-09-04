@@ -186,10 +186,16 @@
   opacity: 0.3;
 }
 
+/*
+ * 이름은 한 줄로 둔다. 접히면 그 칸만 키가 커져 사다리의 다섯 줄이 어긋나 보이고,
+ * 막대의 길이를 위아래로 견주는 일이 어려워진다.
+ */
+
 .rungLabel {
   flex-shrink: 0;
-  width: 6.5em;
+  width: 8em;
   color: var(--color-text);
+  white-space: nowrap;
 }
 
 .rungTrack {
@@ -213,7 +219,7 @@
 .rung[data-tier='folder'] .rungBar { background: var(--color-success); }
 .rung[data-tier='repo'] .rungBar { background: var(--color-accent); }
 .rung[data-tier='git'] .rungBar { background: var(--color-warm); }
-.rung[data-tier='outside'] .rungBar { background: var(--color-danger); }
+.rung[data-tier='opened'] .rungBar { background: var(--color-danger); }
 
 .rungValue {
   flex-shrink: 0;
@@ -225,17 +231,63 @@
 
 /* --- 컨트롤 한 줄 --- */
 
+/*
+ * 어구 하나가 한 줄이다.
+ *
+ * 한 줄에 몰아 놓으면 넷이 한 덩어리로 보여 **건너뛰는 영역**이 된다. 이 화면은 하나를
+ * 켤 때마다 오른쪽 두 화면이 어떻게 달라지는지를 보라는 것이므로, 켜고 끌 자리가
+ * 하나씩 눈에 들어와야 한다.
+ */
 .controls {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2xs) var(--space-sm);
+  flex-direction: column;
+  gap: var(--space-2xs);
   margin-top: var(--space-md);
   padding: var(--space-xs) var(--space-sm);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-bg);
   font-size: var(--fs-sm);
+}
+
+.controlsHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding-bottom: var(--space-2xs);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.controlLabel {
+  color: var(--color-muted);
+  font-weight: 700;
+}
+
+/*
+ * 이름 칸의 폭을 고정해 네 줄의 손잡이가 세로로 맞는다. 맞지 않으면 줄마다 눌러야 할
+ * 자리가 옮겨 다녀서, 하나씩 켜 보는 동안 눈이 그 자리를 다시 찾아야 한다.
+ */
+.controlRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: 1.9rem;
+}
+
+.rowLabel {
+  flex: 0 0 6.5rem;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+/* 그 줄을 켜면 프롬프트에 붙는 어구. 지금 무엇을 적고 있는지가 줄 안에서 끝난다. */
+.rowPhrase {
+  color: var(--color-muted);
+}
+
+.rowOn .rowPhrase {
+  color: var(--color-text);
 }
 
 .toggle {
@@ -250,28 +302,23 @@
   accent-color: var(--color-accent);
 }
 
-/* 프롬프트에 적는 것이 아니라 상황이다. 어구 넷과 섞이지 않게 선으로 끊는다. */
-.situation {
-  padding-left: var(--space-sm);
-  border-left: 1px solid var(--color-border);
-  color: var(--color-muted);
+/* 프롬프트에 적는 것이 아니라 상황이다. 어구 셋과 섞이지 않게 선으로 끊는다. */
+.situationRow {
+  margin-top: var(--space-2xs);
+  padding-top: var(--space-2xs);
+  border-top: 1px solid var(--color-border);
 }
 
 /* --- 범위 세밀도 --- */
 
 /*
  * 셋 중 하나라 체크박스가 아니라 라디오다. 세 값이 **한 축 위에 있다**는 것이 보여야
- * 하므로 따로 떼지 않고 붙여 둔다 — 안 적음 → 폴더 → 파일·함수로 좁아지는 축이다.
+ * 하므로 따로 떼지 않고 붙여 둔다 — 안 적음 → 폴더 → 파일로 좁아지는 축이다.
  */
 .segment {
   display: flex;
   align-items: center;
   gap: var(--space-2xs);
-}
-
-.segmentLabel {
-  color: var(--color-muted);
-  white-space: nowrap;
 }
 
 .segmentOption {
@@ -305,7 +352,6 @@
 }
 
 .resetButton {
-  margin-left: auto;
   padding: 2px var(--space-xs);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -501,11 +547,41 @@
     grid-template-columns: 1fr;
   }
 
-  .slider {
-    width: 6rem;
+  /* 이름 칸의 폭을 고정할 여유가 없다. 위아래로 접되 줄의 경계는 남긴다. */
+  .controlRow {
+    flex-wrap: wrap;
   }
 
-  .resetButton {
-    margin-left: 0;
+  .rowLabel {
+    flex: 0 0 100%;
+  }
+
+  .rowPhrase {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  /*
+   * 이름·값의 고정폭만 16.5em 이라 320px 화면에서는 막대가 설 자리가 없다. 막대를
+   * 아래 줄로 내린다 — 다섯 칸이 모두 같은 폭의 자를 쓰므로 길이를 위아래로 견주는
+   * 일은 그대로 되고, 넘치는 것만 없어진다.
+   */
+  .rung {
+    flex-wrap: wrap;
+  }
+
+  .rungLabel {
+    flex: 1 1 auto;
+    width: auto;
+  }
+
+  .rungValue {
+    width: auto;
+  }
+
+  .rungTrack {
+    order: 3;
+    flex: 0 0 100%;
   }
 }

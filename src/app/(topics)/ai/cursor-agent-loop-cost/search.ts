@@ -74,8 +74,19 @@ export const SCOPE_TIERS = [
   { id: 'folder', label: '그 폴더', calls: 5, resultPerCall: 1_400 },
   { id: 'repo', label: '프로젝트 전체', calls: 10, resultPerCall: 2_000 },
   { id: 'git', label: '지난 변경 기록', calls: 9, resultPerCall: 2_400 },
-  { id: 'outside', label: '프로젝트 밖', calls: 14, resultPerCall: 3_000 },
+  { id: 'opened', label: '열어 둔 다른 폴더', calls: 14, resultPerCall: 3_000 },
 ] as const satisfies readonly ScopeTier[];
+
+/**
+ * 맨 위 칸이 **사용자가 정한 것**이라는 데 주의한다.
+ *
+ * 에이전트가 프로젝트를 제멋대로 벗어나는 것이 아니다. 뒤질 수 있는 자리는 열어 준
+ * 폴더까지이고, 그 경계를 그은 것은 사람이다. 그래서 이 칸의 이름이 "프로젝트 밖" 이
+ * 아니라 `열어 둔 다른 폴더` 다 — 안 쓰는 폴더를 같이 열어 두었으면 그것도 후보가 된다.
+ *
+ * 프롬프트 밖에 손잡이가 하나 더 있다는 뜻이기도 하다. 이 화면은 프롬프트만 다루지만,
+ * 열어 두는 범위를 줄이면 같은 자리에서 같은 일을 한다.
+ */
 
 /**
  * 칸은 **포개져 있다.** 넓은 칸을 훑으면 그 안의 좁은 칸도 함께 훑는다 — 프로젝트
@@ -101,6 +112,25 @@ export const SCOPE_START_TIER: Record<ScopeChoice, number> = {
   file: 0,
 };
 
+/**
+ * 탐색이 올라갈 수 있는 마지막 칸.
+ *
+ * **짚어 준 자리가 있으면 에이전트는 거기서 한 칸만 넓힌다.** 폴더를 짚었는데 없으면
+ * 프로젝트 전체까지 보고 없다고 답한다 — 짚어 준 말이 "이 근처" 라는 기준이 되기
+ * 때문이다. 아무것도 안 짚으면 그 기준이 없어서 **열어 준 데까지** 갈 수 있다.
+ *
+ * `none` 의 상한이 맨 위 칸인 것은 에이전트가 한계를 모르기 때문이 아니라, 그 위에
+ * 칸이 없기 때문이다. 마지막 칸은 사람이 열어 둔 만큼이다 (`SCOPE_TIERS` 참고).
+ *
+ * 그래서 범위를 짚는 것은 시작 칸만 내리는 것이 아니라 **끝 칸도 함께 내린다.**
+ * 좁게 짚을수록 싸지는 이유가 이것이고, `search.test.ts` 가 못 박는다.
+ */
+export const SCOPE_CAP_TIER: Record<ScopeChoice, number> = {
+  none: SCOPE_TIERS.length - 1,
+  folder: SCOPE_START_TIER.folder + 1,
+  file: SCOPE_START_TIER.file + 1,
+};
+
 /** 컨트롤에 붙는 이름. */
 export const SCOPE_LABELS: Record<ScopeChoice, string> = {
   none: '안 적음',
@@ -117,15 +147,15 @@ export const SCOPE_CHOICES: readonly ScopeChoice[] = ['none', 'folder', 'file'];
 /**
  * 프롬프트에 적을 수 있는 것들.
  *
- * 넷을 **따로 켤 수 있게** 둔 것이 이 모형의 핵심이다. 누적 단계로 묶으면 "범위만 적은
+ * 셋을 **따로 켤 수 있게** 둔 것이 이 모형의 핵심이다. 누적 단계로 묶으면 "범위만 적은
  * 경우" 와 "멈추라고만 적은 경우" 를 갈라 볼 수 없고, 그러면 **둘을 같이 적어야 한다**는
  * 이 글의 결론을 화면으로 보일 수 없다.
  *
  * 특히 `scope` 와 `stopCondition` 은 자주 같은 것으로 오해되지만 하는 일이 다르다.
- * 앞은 **어디서 시작할지**, 뒤는 **어디서 끝낼지** 를 정한다.
+ * 앞은 **탐색을 어느 자리로 데려갈지**, 뒤는 **한 칸이라도 넓히게 둘지** 를 정한다.
  */
 export interface PromptOptions {
-  /** 어디를 볼지 얼마나 좁게 적었는가. 시작 칸을 정한다. */
+  /** 어디를 볼지 얼마나 좁게 적었는가. **시작 칸과 끝 칸을 함께** 내린다. */
   scope: ScopeChoice;
   /** 못 찾으면 멈추라고 적었는가. **범위를 넓히는 일 자체가 일어나지 않는다.** */
   stopCondition: boolean;
@@ -232,19 +262,22 @@ export type Outcome =
  * **어디서 시작하고 어디서 멈추는가**가 전부다.
  *
  * - 시작: 범위를 짚은 만큼 아래 칸에서. 안 짚었으면 프로젝트 전체부터.
- * - 상한: 멈추라고 적었으면 시작한 칸, **아니면 맨 위 칸까지.**
+ * - 상한: 멈추라고 적었으면 시작한 칸, 아니면 `SCOPE_CAP_TIER` 까지.
  *
- * 두 번째 줄이 이 글이 겨눈 자리다. 범위를 적어 두어도 못 찾으면 그 위로 올라간다.
- * 확인된 사례가 그랬다 — 프로젝트에 없자 지난 변경 기록을 뒤지고, 거기에도 없자
- * 프로젝트 밖까지 나갔다. 그래서 **범위를 좁히는 것만으로는 아무것도 막지 못한다.** 좁게 시작한 만큼
- * 좁은 칸의 탐색값을 더 낼 뿐이라, 오히려 비싸질 수도 있다.
+ * 두 줄이 같은 방향을 가리킨다. 범위를 짚으면 **시작 칸과 끝 칸이 같이 내려가므로**
+ * 좁게 짚을수록 싸진다. 아무것도 안 짚었을 때만 탐색이 열어 둔 데까지 번진다 —
+ * 확인된 사례가 그랬다. 프로젝트에 없자 지난 변경 기록을 뒤지고, 거기에도 없자
+ * 함께 열어 둔 다른 폴더까지 갔다.
  *
- * 반대 방향의 위험도 같은 식에서 나온다. 좁게 짚고 거기서 멈추라고 하면 **그 밖에 있는
+ * 다만 범위만으로는 **한 칸 넓히는 것까지 막지 못한다.** 그 한 칸은 위 칸이라 짚은
+ * 칸보다 크다. 멈추라고 적어야 그 한 칸이 없어진다.
+ *
+ * 반대 방향의 위험은 같은 식에서 나온다. 좁게 짚고 거기서 멈추라고 하면 **그 밖에 있는
  * 것은 못 찾는다.** 값은 가장 싸지만 답이 틀린다.
  */
 export function planSearch(options: PromptOptions, exists: boolean): SearchStep[] {
   const from = SCOPE_START_TIER[options.scope];
-  const cap = options.stopCondition ? from : SCOPE_TIERS.length - 1;
+  const cap = options.stopCondition ? from : SCOPE_CAP_TIER[options.scope];
   // 칸이 포개져 있으므로, 시작 칸이 이미 넓으면 첫 훑기에서 찾는다.
   const findTier = Math.max(from, FOUND_AT_TIER);
   const to = exists && findTier <= cap ? findTier : cap;
@@ -265,7 +298,7 @@ export function planSearch(options: PromptOptions, exists: boolean): SearchStep[
 export function outcomeOf(options: PromptOptions, exists: boolean): Outcome {
   if (!exists) return 'absent';
   const from = SCOPE_START_TIER[options.scope];
-  const cap = options.stopCondition ? from : SCOPE_TIERS.length - 1;
+  const cap = options.stopCondition ? from : SCOPE_CAP_TIER[options.scope];
   return Math.max(from, FOUND_AT_TIER) <= cap ? 'found' : 'missed';
 }
 
