@@ -5,6 +5,10 @@
       "label": "이진법 시리즈",
       "description": "같은 원리가 전혀 다른 문제로 반복된다."
     },
+    "cursor-cost": {
+      "label": "Cursor 사용량 읽기",
+      "description": "대시보드의 숫자가 어디서 왔는지, 그리고 무엇이 그 숫자를 키우는지."
+    },
     "infinite-decimal": {
       "label": "무한소수 2부작",
       "description": "끝없이 이어지는 소수를 어떻게 다루는가 — 수학의 답과 컴퓨터의 답은 다릅니다."
