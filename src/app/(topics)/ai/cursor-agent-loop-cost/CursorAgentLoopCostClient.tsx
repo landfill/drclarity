@@ -23,9 +23,9 @@ import {
 } from './search';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizAsk from './content/quiz-ask.mdx';
-import QuizWindow from './content/quiz-window.mdx';
-import QuizModel from './content/quiz-model.mdx';
-import QuizCalls from './content/quiz-calls.mdx';
+import QuizScope from './content/quiz-scope.mdx';
+import QuizStop from './content/quiz-stop.mdx';
+import QuizBoth from './content/quiz-both.mdx';
 import NoteSim from './content/note-sim.mdx';
 import StageLead, { title as stageTitle } from './content/stage-lead.mdx';
 import PanelANote from './content/panel-a-note.mdx';
@@ -201,8 +201,8 @@ export default function CursorAgentLoopCostClient() {
           </>
         }
         choices={quizChoices}
-        correctId="calls"
-        feedback={{ window: <QuizWindow />, model: <QuizModel />, calls: <QuizCalls /> }}
+        correctId="scope"
+        feedback={{ scope: <QuizScope />, stop: <QuizStop />, both: <QuizBoth /> }}
       >
         <ExplanationBox variant="note">
           <NoteSim />

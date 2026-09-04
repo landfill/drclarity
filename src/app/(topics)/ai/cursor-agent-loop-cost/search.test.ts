@@ -202,6 +202,21 @@ describe('예시 표', () => {
     expect(bareAbsent.callCount).toBe(33);
   });
 
+  it('퀴즈가 내놓은 세 문장의 값이 맞다', () => {
+    // quiz.mdx 의 선택지와 quiz-*.mdx 의 피드백이 이 셋 위에 서 있다.
+    expect(bareAbsent.tokens).toBe(3_327_100); // 그대로
+    expect(absent({ scope: 'folder' }).tokens).toBe(4_016_100); // 범위를 붙이면 는다
+    expect(absent({ stopCondition: true }).tokens).toBe(581_500); // 중단 조건을 붙이면 준다
+    expect(absent({ stopCondition: true }).callCount).toBe(10);
+  });
+
+  it('범위를 붙이는 쪽이 아무것도 안 붙인 것보다 비싸다 — 퀴즈의 정답', () => {
+    expect(absent({ scope: 'folder' }).cost).toBeGreaterThan(bareAbsent.cost);
+    expect(absent({ stopCondition: true }).cost).toBeLessThan(bareAbsent.cost);
+    // 둘의 방향이 다르다는 것이 이 문제의 전부다.
+    expect(absent({ scope: 'folder' }).reachedTier).toBe(bareAbsent.reachedTier);
+  });
+
   it('나머지 넷은 23만에서 59만 사이다', () => {
     for (const request of DAY_REQUESTS.filter(r => r.id !== OUTLIER_ID)) {
       const { tokens } = summarizeRequest(request);
