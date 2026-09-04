@@ -219,7 +219,7 @@
 .rung[data-tier='folder'] .rungBar { background: var(--color-success); }
 .rung[data-tier='repo'] .rungBar { background: var(--color-accent); }
 .rung[data-tier='git'] .rungBar { background: var(--color-warm); }
-.rung[data-tier='outside'] .rungBar { background: var(--color-danger); }
+.rung[data-tier='opened'] .rungBar { background: var(--color-danger); }
 
 .rungValue {
   flex-shrink: 0;
@@ -558,5 +558,30 @@
 
   .rowPhrase {
     flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  /*
+   * 이름·값의 고정폭만 16.5em 이라 320px 화면에서는 막대가 설 자리가 없다. 막대를
+   * 아래 줄로 내린다 — 다섯 칸이 모두 같은 폭의 자를 쓰므로 길이를 위아래로 견주는
+   * 일은 그대로 되고, 넘치는 것만 없어진다.
+   */
+  .rung {
+    flex-wrap: wrap;
+  }
+
+  .rungLabel {
+    flex: 1 1 auto;
+    width: auto;
+  }
+
+  .rungValue {
+    width: auto;
+  }
+
+  .rungTrack {
+    order: 3;
+    flex: 0 0 100%;
   }
 }

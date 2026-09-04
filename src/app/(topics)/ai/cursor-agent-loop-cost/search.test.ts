@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   buildScenario,
@@ -169,6 +170,31 @@ describe('중단 조건이 값을 한다', () => {
 });
 
 describe('싼 것과 맞는 것은 다르다', () => {
+  it('답이 틀리는 것은 좁게 짚고 멈춘 조합 하나뿐이다', () => {
+    // 부제와 instruction.mdx 가 값 위험과 정확도 위험을 갈라 적는 근거다.
+    // 아무것도 안 적은 프롬프트는 비싸지만 **틀리지는 않는다** — 한때 둘을 한 문장에
+    // 묶어 두었고, 그 문장이 모형과 어긋났다.
+    const missed: PromptOptions[] = [];
+    for (const scope of SCOPE_CHOICES) {
+      for (const stopCondition of [false, true]) {
+        for (const outputShaped of [false, true]) {
+          for (const exists of [false, true]) {
+            const options = prompt({ scope, stopCondition, outputShaped });
+            if (outcomeOf(options, exists) === 'missed') missed.push(options);
+          }
+        }
+      }
+    }
+    expect(missed.length).toBeGreaterThan(0);
+    for (const options of missed) {
+      expect(options.scope).toBe('file');
+      expect(options.stopCondition).toBe(true);
+    }
+    for (const exists of [false, true]) {
+      expect(outcomeOf(BARE_PROMPT, exists)).not.toBe('missed');
+    }
+  });
+
   it('없으면 어떤 프롬프트든 답은 없음이다', () => {
     for (const scope of SCOPE_CHOICES) {
       expect(outcomeOf(prompt({ scope, stopCondition: true }), false)).toBe('absent');
@@ -202,6 +228,15 @@ describe('프롬프트를 고치는 보람이 있는 것은 없을 때다', () =
 
   it('같은 프롬프트라도 없을 때가 훨씬 비싸다', () => {
     expect(bareAbsent.cost / present().cost).toBeGreaterThan(4);
+  });
+
+  it('잘 적으면 있으나 없으나 끝값이 같다', () => {
+    // missing.mdx 가 "끝값이 같습니다" 라고 적는 근거. 두 끝을 다른 설정으로 재면
+    // 2.5배와 29배가 같은 비교인 것처럼 읽히는데, 실제로는 아니었다.
+    const patch = { scope: 'folder', stopCondition: true, outputShaped: true } as const;
+    expect(absent(patch).cost).toBeCloseTo(present(patch).cost, 10);
+    expect(bareAbsent.cost / absent(patch).cost).toBeCloseTo(10.9, 1);
+    expect(present().cost / present(patch).cost).toBeCloseTo(2.5, 1);
   });
 });
 
@@ -358,6 +393,59 @@ describe('상수', () => {
     const laid = (tier: (typeof SCOPE_TIERS)[number]) => tier.calls * tier.resultPerCall;
     for (let i = 1; i < SCOPE_TIERS.length; i += 1) {
       expect(laid(SCOPE_TIERS[i])).toBeGreaterThan(laid(SCOPE_TIERS[i - 1]));
+    }
+  });
+
+  it('돌려줄 형태는 탐색 계획을 바꾸지 않는다', () => {
+    // 이 옵션이 줄이는 것은 **한 번의 결과 크기**뿐이다. 칸이나 호출 수까지 바꾸면
+    // "탐색을 짧게 만들지 못하는 상황일수록 값이 커진다" 는 본문이 거짓이 된다.
+    for (const scope of SCOPE_CHOICES) {
+      for (const stopCondition of [false, true]) {
+        for (const exists of [false, true]) {
+          const plain = summarizeRun(prompt({ scope, stopCondition }), exists);
+          const shaped = summarizeRun(
+            prompt({ scope, stopCondition, outputShaped: true }),
+            exists
+          );
+          expect(shaped.callCount).toBe(plain.callCount);
+          expect(shaped.outcome).toBe(plain.outcome);
+          expect(shaped.steps.map(step => step.tierIndex)).toEqual(
+            plain.steps.map(step => step.tierIndex)
+          );
+          expect(shaped.cost).toBeLessThan(plain.cost);
+        }
+      }
+    }
+  });
+
+  it('어느 조합에서도 도달한 칸과 판정이 어긋나지 않는다', () => {
+    // planSearch 와 outcomeOf 는 같은 규칙을 두 번 적은 것이라 갈라질 수 있다.
+    for (const scope of SCOPE_CHOICES) {
+      for (const stopCondition of [false, true]) {
+        for (const outputShaped of [false, true]) {
+          for (const exists of [false, true]) {
+            const options = prompt({ scope, stopCondition, outputShaped });
+            const run = summarizeRun(options, exists);
+            expect(run.callCount).toBeGreaterThan(0);
+            expect(run.outcome).toBe(outcomeOf(options, exists));
+            const last = planSearch(options, exists).at(-1);
+            expect(run.reachedTier).toBe(last?.tierIndex);
+            // 찾았다면 그 칸이 찾는 것을 담는 칸이고, 못 찾았으면 그 위는 안 봤다.
+            if (run.outcome === 'found') {
+              expect(run.reachedTier).toBe(Math.max(SCOPE_START_TIER[scope], FOUND_AT_TIER));
+            }
+          }
+        }
+      }
+    }
+  });
+
+  it('칸마다 막대 색이 있다', () => {
+    // 칸의 id 를 바꾸면서 CSS 선택자만 남으면 그 칸이 조용히 색을 잃는다.
+    // `outside` → `opened` 로 바꿨을 때 실제로 그랬다.
+    const css = readFileSync(new URL('./CursorAgentLoopCost.module.css', import.meta.url), 'utf8');
+    for (const tier of SCOPE_TIERS) {
+      expect(css).toContain(`.rung[data-tier='${tier.id}']`);
     }
   });
 
