@@ -41,38 +41,39 @@ const present = (patch?: Partial<PromptOptions>) => summarizeRun(prompt(patch), 
 const bareAbsent = absent();
 
 describe('프롬프트 문장', () => {
-  it('아무것도 안 적으면 두 마디뿐이다', () => {
-    expect(promptText(BARE_PROMPT)).toBe('이거 찾아봐.');
+  it('찾을 대상은 손잡이가 아니라 기본값이다', () => {
+    // "이거 찾아봐" 라고 말하는 사람은 없다. 찾아 달라고 하는 이상 대상은 적혀 있다.
+    expect(promptText(BARE_PROMPT)).toBe('RETRY_LIMIT 상수를 찾아봐.');
     expect(promptParts(BARE_PROMPT).every(part => part.base)).toBe(true);
   });
 
-  it('적어 넣은 어구만 강조 대상이 된다', () => {
-    const parts = promptParts(prompt({ targetNamed: true, stopCondition: true }));
+  it('더 적어 넣은 어구만 강조 대상이 된다', () => {
+    const parts = promptParts(prompt({ stopCondition: true }));
     expect(parts.filter(part => !part.base).map(part => part.text)).toEqual([
-      'RETRY_LIMIT 상수를',
       '없으면 없다고만 답해. 더 찾지 마.',
     ]);
   });
 
   it('범위는 세밀도에 따라 다른 어구가 된다', () => {
-    expect(promptText(prompt({ scope: 'folder' }))).toBe('src/config 안에서 이거 찾아봐.');
+    expect(promptText(prompt({ scope: 'folder' }))).toBe(
+      'src/config 안에서 RETRY_LIMIT 상수를 찾아봐.'
+    );
     expect(promptText(prompt({ scope: 'file' }))).toBe(
-      'src/config/retry.ts 의 상수 정의에서 이거 찾아봐.'
+      'src/config/retry.ts 의 상수 정의에서 RETRY_LIMIT 상수를 찾아봐.'
     );
   });
 
   it('전부 적으면 한 문장으로 읽힌다', () => {
-    expect(
-      promptText({ targetNamed: true, scope: 'file', stopCondition: true, outputShaped: true })
-    ).toBe(
+    expect(promptText({ scope: 'file', stopCondition: true, outputShaped: true })).toBe(
       'src/config/retry.ts 의 상수 정의에서 RETRY_LIMIT 상수를 찾아봐. ' +
         '없으면 없다고만 답해. 더 찾지 마. 찾으면 경로와 줄 번호만.'
     );
   });
 
-  it('대상을 적으면 앞의 말을 대신한다 — 문장이 길어지기만 하지 않는다', () => {
-    expect(promptText(prompt({ targetNamed: true }))).not.toContain('이거');
-    expect(promptParts(prompt({ targetNamed: true })).filter(p => p.slot === 'what')).toHaveLength(1);
+  it('어느 조합에서도 대상은 한 번만 나온다', () => {
+    for (const scope of SCOPE_CHOICES) {
+      expect(promptParts(prompt({ scope })).filter(p => p.slot === 'what')).toHaveLength(1);
+    }
   });
 });
 
@@ -96,15 +97,15 @@ describe('범위만 좁히면 아무것도 막지 못한다', () => {
   it('멈추라고 안 적으면 어느 범위에서 시작하든 맨 위 칸까지 올라간다', () => {
     const last = SCOPE_TIERS.length - 1;
     for (const scope of SCOPE_CHOICES) {
-      expect(absent({ targetNamed: true, scope }).reachedTier).toBe(last);
+      expect(absent({ scope }).reachedTier).toBe(last);
     }
   });
 
   it('좁게 짚을수록 오히려 비싸진다', () => {
     // 좁은 칸의 탐색값을 더 내고, 못 찾은 뒤에는 어차피 위로 올라가기 때문이다.
-    const none = absent({ targetNamed: true, scope: 'none' });
-    const folder = absent({ targetNamed: true, scope: 'folder' });
-    const file = absent({ targetNamed: true, scope: 'file' });
+    const none = absent({ scope: 'none' });
+    const folder = absent({ scope: 'folder' });
+    const file = absent({ scope: 'file' });
     expect(folder.cost).toBeGreaterThan(none.cost);
     expect(file.cost).toBeGreaterThan(folder.cost);
   });
@@ -113,32 +114,31 @@ describe('범위만 좁히면 아무것도 막지 못한다', () => {
 describe('중단 조건이 값을 한다', () => {
   it('멈추라고 적으면 시작한 칸에서 끝난다', () => {
     for (const scope of SCOPE_CHOICES) {
-      const run = absent({ targetNamed: true, scope, stopCondition: true });
+      const run = absent({ scope, stopCondition: true });
       expect(run.reachedTier).toBe(SCOPE_START_TIER[scope]);
       expect(run.steps).toHaveLength(1);
     }
   });
 
   it('범위 없이 중단 조건만 적어도 크게 준다', () => {
-    const only = absent({ targetNamed: true, stopCondition: true });
-    expect(absent({ targetNamed: true }).cost / only.cost).toBeGreaterThan(4);
+    expect(bareAbsent.cost / absent({ stopCondition: true }).cost).toBeGreaterThan(4);
   });
 
   it('둘을 같이 적으면 훨씬 더 준다 — 이 글의 결론', () => {
     // 범위만 적으면 손해였고, 중단만 적으면 4배였다. 같이 적으면 좁힐수록 값이 떨어진다.
-    const stopOnly = absent({ targetNamed: true, stopCondition: true });
-    const withFolder = absent({ targetNamed: true, scope: 'folder', stopCondition: true });
-    const withFile = absent({ targetNamed: true, scope: 'file', stopCondition: true });
+    const stopOnly = absent({ stopCondition: true });
+    const withFolder = absent({ scope: 'folder', stopCondition: true });
+    const withFile = absent({ scope: 'file', stopCondition: true });
     expect(withFolder.cost).toBeLessThan(stopOnly.cost);
     expect(withFile.cost).toBeLessThan(withFolder.cost);
-    expect(withFile.callCount).toBe(1);
+    expect(withFile.callCount).toBe(2);
   });
 
-  it('아무것도 안 적은 것과 다 적은 것의 차이는 예순 배가 넘는다', () => {
-    const best = absent({ targetNamed: true, scope: 'file', stopCondition: true, outputShaped: true });
-    expect(bareAbsent.cost / best.cost).toBeGreaterThan(60);
+  it('대상만 적은 것과 다 적은 것의 차이는 스물다섯 배가 넘는다', () => {
+    const best = absent({ scope: 'file', stopCondition: true, outputShaped: true });
+    expect(bareAbsent.cost / best.cost).toBeGreaterThan(25);
     expect(bareAbsent.callCount).toBe(33);
-    expect(best.callCount).toBe(1);
+    expect(best.callCount).toBe(2);
   });
 });
 
@@ -151,15 +151,15 @@ describe('싼 것과 맞는 것은 다르다', () => {
 
   it('너무 좁게 짚고 멈추라고 하면 있는 것도 못 찾는다', () => {
     // 가장 싼 조합이 가장 좋은 조합은 아니다.
-    const tooNarrow = present({ targetNamed: true, scope: 'file', stopCondition: true });
+    const tooNarrow = present({ scope: 'file', stopCondition: true });
     expect(tooNarrow.outcome).toBe('missed');
-    expect(tooNarrow.cost).toBeLessThan(present({ targetNamed: true, scope: 'folder', stopCondition: true }).cost);
+    expect(tooNarrow.cost).toBeLessThan(present({ scope: 'folder', stopCondition: true }).cost);
   });
 
   it('찾는 것을 담는 칸까지 열어 두면 찾는다', () => {
-    expect(present({ targetNamed: true, scope: 'folder', stopCondition: true }).outcome).toBe('found');
+    expect(present({ scope: 'folder', stopCondition: true }).outcome).toBe('found');
     // 칸은 포개져 있다 — 레포를 훑으면 그 안의 작업 폴더도 훑은 것이다.
-    expect(present({ targetNamed: true, scope: 'none', stopCondition: true }).outcome).toBe('found');
+    expect(present({ scope: 'none', stopCondition: true }).outcome).toBe('found');
   });
 
   it('찾을 수 있으면 찾은 칸에서 멈춘다', () => {
@@ -170,9 +170,8 @@ describe('싼 것과 맞는 것은 다르다', () => {
 
 describe('프롬프트가 값을 하는 것은 없을 때다', () => {
   it('있을 때는 프롬프트를 고쳐도 차이가 작다', () => {
-    const worst = present();
-    const good = present({ targetNamed: true, scope: 'folder', stopCondition: true, outputShaped: true });
-    expect(worst.cost / good.cost).toBeLessThan(5);
+    const good = present({ scope: 'folder', stopCondition: true, outputShaped: true });
+    expect(present().cost / good.cost).toBeLessThan(3);
   });
 
   it('같은 프롬프트라도 없을 때가 훨씬 비싸다', () => {
@@ -203,10 +202,10 @@ describe('예시 표', () => {
     expect(bareAbsent.callCount).toBe(33);
   });
 
-  it('나머지 넷은 13만에서 59만 사이다', () => {
+  it('나머지 넷은 23만에서 59만 사이다', () => {
     for (const request of DAY_REQUESTS.filter(r => r.id !== OUTLIER_ID)) {
       const { tokens } = summarizeRequest(request);
-      expect(tokens).toBeGreaterThan(130_000);
+      expect(tokens).toBeGreaterThan(230_000);
       expect(tokens).toBeLessThan(590_000);
     }
   });
@@ -252,7 +251,7 @@ describe('비용 회계', () => {
 
   it('앞 편의 buildScenario 와 같은 규칙 위에 있다', () => {
     // 칸이 하나뿐이면 호출마다 붙는 결과가 상수가 되어 두 구현이 같은 답을 내야 한다.
-    const steps = planSearch(prompt({ targetNamed: true, scope: 'folder', stopCondition: true }), false);
+    const steps = planSearch(prompt({ scope: 'folder', stopCondition: true }), false);
     expect(steps).toHaveLength(1);
     // 이 편에만 있는 `tierIndex` 를 빼고, 앞 편이 내는 항목만 남겨 견준다.
     const usageOnly = (call: CallUsage) => ({
@@ -309,7 +308,7 @@ describe('상수', () => {
 
   it('어느 칸도 0 회로 접히지 않는다', () => {
     for (const scope of SCOPE_CHOICES) {
-      for (const step of planSearch(prompt({ scope, targetNamed: true, outputShaped: true }), false)) {
+      for (const step of planSearch(prompt({ scope, outputShaped: true }), false)) {
         expect(step.calls).toBeGreaterThan(0);
         expect(step.resultPerCall).toBeGreaterThan(0);
       }

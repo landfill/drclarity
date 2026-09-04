@@ -65,10 +65,7 @@ function clauseEffect(options: PromptOptions): string {
   if (scoped) {
     return '좁은 칸에서 시작합니다. 그런데 못 찾으면 거기서 위로 올라갑니다.';
   }
-  if (options.targetNamed) {
-    return '탐색어가 정해져 칸마다 헛짚는 호출이 줍니다. 범위는 그대로입니다.';
-  }
-  return '무엇을 찾는지도, 어디를 볼지도, 언제 그만둘지도 적혀 있지 않습니다.';
+  return '어디를 볼지도, 언제 그만둘지도 적혀 있지 않습니다. 찾을 것만 적혀 있습니다.';
 }
 
 /** 탐색이 어떻게 끝났는지. 싼 것과 맞는 것은 다르다. */
@@ -159,10 +156,10 @@ export default function CursorAgentLoopCostClient() {
       topicHref="/ai/cursor-agent-loop-cost"
       title={
         <>
-          <Highlight>&lsquo;찾아봐&rsquo;</Highlight>는 왜 비싼가
+          <Highlight>&lsquo;이것 좀 찾아봐&rsquo;</Highlight>가 왜 위험한가
         </>
       }
-      subtitle="범위를 적지 않으면 에이전트가 범위를 스스로 넓힙니다. 넓힌 칸에서 긁어온 것이 문맥에 남고, 남은 것이 호출마다 통째로 다시 실립니다."
+      subtitle="범위를 적지 않으면 에이전트가 범위를 스스로 넓힙니다. 작업 폴더 밖까지 나가고, 비용이 서른 배가 되고, 그러고도 답이 틀릴 수 있습니다."
     >
       <QuizGate
         question={
@@ -241,16 +238,7 @@ export default function CursorAgentLoopCostClient() {
             없어 그 결론을 화면으로 보일 수 없다.
           */}
           <div className={styles.controls}>
-            <span className={styles.controlLabel}>적어 넣기</span>
-
-            <label className={styles.toggle}>
-              <input
-                type="checkbox"
-                checked={prompt.targetNamed}
-                onChange={event => setClause('targetNamed', event.currentTarget.checked)}
-              />
-              <span>무엇을</span>
-            </label>
+            <span className={styles.controlLabel}>더 적어 넣기</span>
 
             <span className={styles.segment} role="group" aria-label="어디를 볼지 얼마나 좁게 적는가">
               <span className={styles.segmentLabel}>어디서</span>

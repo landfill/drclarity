@@ -122,8 +122,6 @@ export const SCOPE_CHOICES: readonly ScopeChoice[] = ['none', 'folder', 'file'];
  * 앞은 **어디서 시작할지**, 뒤는 **어디서 끝낼지** 를 정한다.
  */
 export interface PromptOptions {
-  /** 무엇을 찾는지 적었는가. 헛짚는 탐색이 줄어 칸마다의 호출 수가 준다. */
-  targetNamed: boolean;
   /** 어디를 볼지 얼마나 좁게 적었는가. 시작 칸을 정한다. */
   scope: ScopeChoice;
   /** 못 찾으면 멈추라고 적었는가. **범위를 넓히는 일 자체가 일어나지 않는다.** */
@@ -132,21 +130,20 @@ export interface PromptOptions {
   outputShaped: boolean;
 }
 
-/** 아무것도 적지 않은 프롬프트. 화면의 첫 상태이고 확인된 사례가 그랬다. */
+/**
+ * 찾을 대상 말고는 아무것도 적지 않은 프롬프트.
+ *
+ * **무엇을 찾는지는 손잡이가 아니다.** "이거 찾아봐" 라고 말하는 사람은 없다 — 찾아 달라고
+ * 하는 이상 이름이든 문구든 대상은 적혀 있다. 그래서 대상은 기본값으로 두고, 그 위에
+ * 무엇을 **더** 적느냐만 손잡이로 내놓는다.
+ *
+ * 화면의 첫 상태이고, 확인된 사례가 그랬다.
+ */
 export const BARE_PROMPT: PromptOptions = {
-  targetNamed: false,
   scope: 'none',
   stopCondition: false,
   outputShaped: false,
 };
-
-/**
- * 탐색어를 적었을 때 칸마다의 호출 수에 곱하는 값.
- *
- * 절반으로 둔 것은 예시다. 무엇을 찾는지 정해지면 헛짚는 탐색이 줄어든다는 방향만 참이고,
- * 실제로 얼마나 주는지는 재 본 적이 없다. `Math.ceil` 로 올림해 어느 칸도 0 회가 되지 않게 한다.
- */
-export const TARGET_NAMED_CALL_FACTOR = 0.5;
 
 /** 돌려줄 형태를 적었을 때 한 번의 결과에 곱하는 값. 역시 방향만 참인 예시 값이다. */
 export const OUTPUT_SHAPED_RESULT_FACTOR = 0.4;
@@ -178,11 +175,7 @@ export function promptParts(options: PromptOptions): PromptPart[] {
     parts.push({ slot: 'where', text: 'src/config/retry.ts 의 상수 정의에서', base: false });
   }
 
-  parts.push(
-    options.targetNamed
-      ? { slot: 'what', text: 'RETRY_LIMIT 상수를', base: false }
-      : { slot: 'what', text: '이거', base: true }
-  );
+  parts.push({ slot: 'what', text: 'RETRY_LIMIT 상수를', base: true });
   parts.push({ slot: 'verb', text: '찾아봐.', base: true });
 
   if (options.stopCondition) {
@@ -252,9 +245,7 @@ export function planSearch(options: PromptOptions, exists: boolean): SearchStep[
   const steps: SearchStep[] = [];
   for (let index = from; index <= to; index += 1) {
     const tier = SCOPE_TIERS[index];
-    const calls = options.targetNamed
-      ? Math.ceil(tier.calls * TARGET_NAMED_CALL_FACTOR)
-      : tier.calls;
+    const calls = tier.calls;
     const resultPerCall = options.outputShaped
       ? Math.round(tier.resultPerCall * OUTPUT_SHAPED_RESULT_FACTOR)
       : tier.resultPerCall;
@@ -430,13 +421,13 @@ export const DAY_REQUESTS = [
   {
     id: 'r1',
     at: '10:04',
-    options: { targetNamed: true, scope: 'folder', stopCondition: true, outputShaped: true },
+    options: { scope: 'folder', stopCondition: true, outputShaped: true },
     exists: true,
   },
   {
     id: 'r2',
     at: '10:21',
-    options: { targetNamed: true, scope: 'none', stopCondition: false, outputShaped: false },
+    options: { scope: 'file', stopCondition: false, outputShaped: false },
     exists: true,
   },
   {
@@ -448,7 +439,7 @@ export const DAY_REQUESTS = [
   {
     id: 'r4',
     at: '11:02',
-    options: { targetNamed: true, scope: 'folder', stopCondition: true, outputShaped: false },
+    options: { scope: 'folder', stopCondition: true, outputShaped: false },
     exists: false,
   },
   {
