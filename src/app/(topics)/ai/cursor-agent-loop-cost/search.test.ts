@@ -175,7 +175,7 @@ describe('싼 것과 맞는 것은 다르다', () => {
   });
 });
 
-describe('프롬프트가 값을 하는 것은 없을 때다', () => {
+describe('프롬프트를 고치는 보람이 있는 것은 없을 때다', () => {
   it('있을 때는 프롬프트를 고쳐도 차이가 작다', () => {
     const good = present({ scope: 'folder', stopCondition: true, outputShaped: true });
     expect(present().cost / good.cost).toBeLessThan(3);
@@ -321,11 +321,13 @@ describe('상수', () => {
     }
   });
 
-  it('위 칸일수록 호출도 늘고 한 번의 결과도 커진다', () => {
+  it('위 칸일수록 그 칸이 문맥에 얹는 양이 커진다', () => {
+    // 글이 기대는 불변식은 이것 하나다. 호출 수와 한 번의 결과가 각각 단조로 커지지는
+    // 않는다 — `git` 은 `repo` 보다 호출이 적고 한 덩어리가 크다.
+    const laid = (tier: (typeof SCOPE_TIERS)[number]) => tier.calls * tier.resultPerCall;
     for (let i = 1; i < SCOPE_TIERS.length; i += 1) {
-      expect(SCOPE_TIERS[i].resultPerCall).toBeGreaterThan(SCOPE_TIERS[i - 1].resultPerCall);
+      expect(laid(SCOPE_TIERS[i])).toBeGreaterThan(laid(SCOPE_TIERS[i - 1]));
     }
-    expect(SCOPE_TIERS[SCOPE_TIERS.length - 1].calls).toBeGreaterThan(SCOPE_TIERS[0].calls);
   });
 
   it('어느 칸도 0 회로 접히지 않는다', () => {
