@@ -43,7 +43,7 @@ const bareAbsent = absent();
 describe('프롬프트 문장', () => {
   it('찾을 대상은 손잡이가 아니라 기본값이다', () => {
     // "이거 찾아봐" 라고 말하는 사람은 없다. 찾아 달라고 하는 이상 대상은 적혀 있다.
-    expect(promptText(BARE_PROMPT)).toBe('RETRY_LIMIT 상수를 찾아봐.');
+    expect(promptText(BARE_PROMPT)).toBe('무료배송 기준 금액 찾아봐.');
     expect(promptParts(BARE_PROMPT).every(part => part.base)).toBe(true);
   });
 
@@ -56,17 +56,17 @@ describe('프롬프트 문장', () => {
 
   it('범위는 세밀도에 따라 다른 어구가 된다', () => {
     expect(promptText(prompt({ scope: 'folder' }))).toBe(
-      'src/config 안에서 RETRY_LIMIT 상수를 찾아봐.'
+      '장바구니 폴더에서 무료배송 기준 금액 찾아봐.'
     );
     expect(promptText(prompt({ scope: 'file' }))).toBe(
-      'src/config/retry.ts 의 상수 정의에서 RETRY_LIMIT 상수를 찾아봐.'
+      '장바구니 폴더의 가격계산 파일에서 무료배송 기준 금액 찾아봐.'
     );
   });
 
   it('전부 적으면 한 문장으로 읽힌다', () => {
     expect(promptText({ scope: 'file', stopCondition: true, outputShaped: true })).toBe(
-      'src/config/retry.ts 의 상수 정의에서 RETRY_LIMIT 상수를 찾아봐. ' +
-        '없으면 없다고만 답해. 더 찾지 마. 찾으면 경로와 줄 번호만.'
+      '장바구니 폴더의 가격계산 파일에서 무료배송 기준 금액 찾아봐. ' +
+        '없으면 없다고만 답해. 더 찾지 마. 찾으면 어느 파일 몇째 줄인지만 알려줘.'
     );
   });
 

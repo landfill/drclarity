@@ -54,7 +54,7 @@ export const EXAMPLE_RATES: Rates = { input: 1, cacheWrite: 1.25, cacheRead: 0.1
  * 에이전트가 못 찾았을 때 한 칸씩 올라가는 범위.
  *
  * 위로 갈수록 뒤질 것이 많아 **호출도 늘고 한 번의 결과도 커진다.** 값은 이 시뮬레이션이
- * 고른 예시이며, 실제로는 레포의 크기와 도구에 따라 크게 달라진다. 남기려는 것은 특정
+ * 고른 예시이며, 실제로는 프로젝트의 크기와 도구에 따라 크게 달라진다. 남기려는 것은 특정
  * 숫자가 아니라 **위 칸일수록 둘 다 커진다**는 관계다.
  */
 export interface ScopeTier {
@@ -67,16 +67,16 @@ export interface ScopeTier {
 }
 
 export const SCOPE_TIERS = [
-  { id: 'file', label: '지목한 파일', calls: 2, resultPerCall: 1_000 },
-  { id: 'folder', label: '작업 폴더', calls: 5, resultPerCall: 1_400 },
-  { id: 'repo', label: '레포 전체', calls: 10, resultPerCall: 2_000 },
-  { id: 'git', label: 'git 이력', calls: 9, resultPerCall: 2_400 },
-  { id: 'outside', label: '작업 폴더 밖', calls: 14, resultPerCall: 3_000 },
+  { id: 'file', label: '짚어 준 파일', calls: 2, resultPerCall: 1_000 },
+  { id: 'folder', label: '그 폴더', calls: 5, resultPerCall: 1_400 },
+  { id: 'repo', label: '프로젝트 전체', calls: 10, resultPerCall: 2_000 },
+  { id: 'git', label: '지난 변경 기록', calls: 9, resultPerCall: 2_400 },
+  { id: 'outside', label: '프로젝트 밖', calls: 14, resultPerCall: 3_000 },
 ] as const satisfies readonly ScopeTier[];
 
 /**
- * 칸은 **포개져 있다.** 넓은 칸을 훑으면 그 안의 좁은 칸도 함께 훑는다 — 레포를 뒤지면
- * 작업 폴더도 뒤진 것이다. 그래서 시작 칸이 찾는 것이 있는 칸보다 넓으면 첫 훑기에서 찾는다.
+ * 칸은 **포개져 있다.** 넓은 칸을 훑으면 그 안의 좁은 칸도 함께 훑는다 — 프로젝트
+ * 전체를 뒤지면 그 안의 폴더도 뒤진 것이다. 그래서 시작 칸이 찾는 것이 있는 칸보다 넓으면 첫 훑기에서 찾는다.
  */
 
 /** 찾는 것이 있을 때 그것이 놓여 있는 칸. */
@@ -88,9 +88,9 @@ export type ScopeChoice = 'none' | 'folder' | 'file';
 /**
  * 범위를 어떻게 적었느냐에 따라 탐색이 시작되는 칸.
  *
- * `none` 이 **레포 전체**인 것이 요점이다. 어디를 볼지 모르는 에이전트가 파일 하나부터
- * 열어 볼 이유가 없다 — 레포를 통째로 훑는 것이 그 상황의 기본 수다. 짚어 주는 만큼
- * 시작 칸이 내려간다.
+ * `none` 이 **프로젝트 전체**인 것이 요점이다. 어디를 볼지 모르는 에이전트가 파일
+ * 하나부터 열어 볼 이유가 없다 — 프로젝트를 통째로 훑는 것이 그 상황의 기본 수다.
+ * 짚어 주는 만큼 시작 칸이 내려간다.
  */
 export const SCOPE_START_TIER: Record<ScopeChoice, number> = {
   none: 2,
@@ -102,7 +102,7 @@ export const SCOPE_START_TIER: Record<ScopeChoice, number> = {
 export const SCOPE_LABELS: Record<ScopeChoice, string> = {
   none: '안 적음',
   folder: '폴더',
-  file: '파일·함수',
+  file: '파일',
 };
 
 export const SCOPE_CHOICES: readonly ScopeChoice[] = ['none', 'folder', 'file'];
@@ -137,6 +137,10 @@ export interface PromptOptions {
  * 하는 이상 이름이든 문구든 대상은 적혀 있다. 그래서 대상은 기본값으로 두고, 그 위에
  * 무엇을 **더** 적느냐만 손잡이로 내놓는다.
  *
+ * 예시를 개발 용어로 두지 않은 것도 같은 이유다. 이 글이 겨눈 독자는 코드를 직접 쓰지
+ * 않고 에이전트에게 시키는 쪽이라, `RETRY_LIMIT 상수` 같은 말보다 **무료배송 기준
+ * 금액**이 자기 화면에서 본 적 있는 말이다.
+ *
  * 화면의 첫 상태이고, 확인된 사례가 그랬다.
  */
 export const BARE_PROMPT: PromptOptions = {
@@ -170,19 +174,19 @@ export function promptParts(options: PromptOptions): PromptPart[] {
   const parts: PromptPart[] = [];
 
   if (options.scope === 'folder') {
-    parts.push({ slot: 'where', text: 'src/config 안에서', base: false });
+    parts.push({ slot: 'where', text: '장바구니 폴더에서', base: false });
   } else if (options.scope === 'file') {
-    parts.push({ slot: 'where', text: 'src/config/retry.ts 의 상수 정의에서', base: false });
+    parts.push({ slot: 'where', text: '장바구니 폴더의 가격계산 파일에서', base: false });
   }
 
-  parts.push({ slot: 'what', text: 'RETRY_LIMIT 상수를', base: true });
+  parts.push({ slot: 'what', text: '무료배송 기준 금액', base: true });
   parts.push({ slot: 'verb', text: '찾아봐.', base: true });
 
   if (options.stopCondition) {
     parts.push({ slot: 'stop', text: '없으면 없다고만 답해. 더 찾지 마.', base: false });
   }
   if (options.outputShaped) {
-    parts.push({ slot: 'shape', text: '찾으면 경로와 줄 번호만.', base: false });
+    parts.push({ slot: 'shape', text: '찾으면 어느 파일 몇째 줄인지만 알려줘.', base: false });
   }
 
   return parts;
@@ -224,12 +228,12 @@ export type Outcome =
  *
  * **어디서 시작하고 어디서 멈추는가**가 전부다.
  *
- * - 시작: 범위를 짚은 만큼 아래 칸에서. 안 짚었으면 레포 전체부터.
+ * - 시작: 범위를 짚은 만큼 아래 칸에서. 안 짚었으면 프로젝트 전체부터.
  * - 상한: 멈추라고 적었으면 시작한 칸, **아니면 맨 위 칸까지.**
  *
  * 두 번째 줄이 이 글이 겨눈 자리다. 범위를 적어 두어도 못 찾으면 그 위로 올라간다.
- * 확인된 사례가 그랬다 — 레포에 없자 git 이력을 뒤지고, 거기에도 없자 작업 폴더 밖까지
- * 나갔다. 그래서 **범위를 좁히는 것만으로는 아무것도 막지 못한다.** 좁게 시작한 만큼
+ * 확인된 사례가 그랬다 — 프로젝트에 없자 지난 변경 기록을 뒤지고, 거기에도 없자
+ * 프로젝트 밖까지 나갔다. 그래서 **범위를 좁히는 것만으로는 아무것도 막지 못한다.** 좁게 시작한 만큼
  * 좁은 칸의 탐색값을 더 낼 뿐이라, 오히려 비싸질 수도 있다.
  *
  * 반대 방향의 위험도 같은 식에서 나온다. 좁게 짚고 거기서 멈추라고 하면 **그 밖에 있는

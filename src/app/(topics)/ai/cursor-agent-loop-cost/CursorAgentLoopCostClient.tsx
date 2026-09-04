@@ -159,7 +159,7 @@ export default function CursorAgentLoopCostClient() {
           <Highlight>&lsquo;이것 좀 찾아봐&rsquo;</Highlight>가 왜 위험한가
         </>
       }
-      subtitle="범위를 적지 않으면 에이전트가 범위를 스스로 넓힙니다. 작업 폴더 밖까지 나가고, 비용이 서른 배가 되고, 그러고도 답이 틀릴 수 있습니다."
+      subtitle="범위를 적지 않으면 에이전트가 범위를 스스로 넓힙니다. 프로젝트 밖까지 나가고, 비용이 서른 배가 되고, 그러고도 답이 틀릴 수 있습니다."
     >
       <QuizGate
         question={
@@ -422,7 +422,7 @@ export default function CursorAgentLoopCostClient() {
                   </>
                 ) : (
                   <>
-                    아무것도 안 적었을 때가 <strong>{bare.cost.toFixed(3)}</strong> 입니다.
+                    더 적은 것이 없을 때가 <strong>{bare.cost.toFixed(3)}</strong> 입니다.
                     지금은 <strong>{summary.cost.toFixed(3)}</strong> —{' '}
                     <strong>{(bare.cost / summary.cost).toFixed(1)}배</strong> 차이.
                   </>
