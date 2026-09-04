@@ -74,47 +74,71 @@ export const SCOPE_TIERS = [
   { id: 'outside', label: '작업 폴더 밖', calls: 14, resultPerCall: 3_000 },
 ] as const satisfies readonly ScopeTier[];
 
-/** 찾는 것이 있을 때 그것이 있는 칸. 거기서 탐색이 끝난다. */
+/**
+ * 칸은 **포개져 있다.** 넓은 칸을 훑으면 그 안의 좁은 칸도 함께 훑는다 — 레포를 뒤지면
+ * 작업 폴더도 뒤진 것이다. 그래서 시작 칸이 찾는 것이 있는 칸보다 넓으면 첫 훑기에서 찾는다.
+ */
+
+/** 찾는 것이 있을 때 그것이 놓여 있는 칸. */
 export const FOUND_AT_TIER = 1;
 
-/** 범위를 안 적었을 때 탐색이 시작되는 칸. */
-export const DEFAULT_START_TIER = 0;
+/** 프롬프트가 짚어 줄 수 있는 범위의 세밀도. */
+export type ScopeChoice = 'none' | 'folder' | 'file';
 
-/** 범위를 적었을 때 탐색이 시작되는 칸. 아래 칸을 건너뛴다. */
-export const GIVEN_SCOPE_TIER = 1;
+/**
+ * 범위를 어떻게 적었느냐에 따라 탐색이 시작되는 칸.
+ *
+ * `none` 이 **레포 전체**인 것이 요점이다. 어디를 볼지 모르는 에이전트가 파일 하나부터
+ * 열어 볼 이유가 없다 — 레포를 통째로 훑는 것이 그 상황의 기본 수다. 짚어 주는 만큼
+ * 시작 칸이 내려간다.
+ */
+export const SCOPE_START_TIER: Record<ScopeChoice, number> = {
+  none: 2,
+  folder: 1,
+  file: 0,
+};
+
+/** 컨트롤에 붙는 이름. */
+export const SCOPE_LABELS: Record<ScopeChoice, string> = {
+  none: '안 적음',
+  folder: '폴더',
+  file: '파일·함수',
+};
+
+export const SCOPE_CHOICES: readonly ScopeChoice[] = ['none', 'folder', 'file'];
 
 /* ─────────────────────────────────────────────────────────────────────────
  * 프롬프트 사다리
  * ───────────────────────────────────────────────────────────────────────── */
 
 /**
- * 프롬프트에 어구가 하나씩 붙을 때 켜지는 것들.
+ * 프롬프트에 적을 수 있는 것들.
  *
- * 네 어구가 서로 다른 일을 한다는 것이 이 글의 뼈대다. 하나가 나머지를 대신하지 않는다 —
- * 특히 `scopeGiven` 과 `stopCondition` 은 자주 같은 것으로 오해되지만, 못 찾았을 때
- * 무엇이 일어나는지가 완전히 다르다.
+ * 넷을 **따로 켤 수 있게** 둔 것이 이 모형의 핵심이다. 누적 단계로 묶으면 "범위만 적은
+ * 경우" 와 "멈추라고만 적은 경우" 를 갈라 볼 수 없고, 그러면 **둘을 같이 적어야 한다**는
+ * 이 글의 결론을 화면으로 보일 수 없다.
+ *
+ * 특히 `scope` 와 `stopCondition` 은 자주 같은 것으로 오해되지만 하는 일이 다르다.
+ * 앞은 **어디서 시작할지**, 뒤는 **어디서 끝낼지** 를 정한다.
  */
-export interface PromptLevel {
-  level: number;
+export interface PromptOptions {
   /** 무엇을 찾는지 적었는가. 헛짚는 탐색이 줄어 칸마다의 호출 수가 준다. */
   targetNamed: boolean;
-  /** 어디를 볼지 적었는가. 아래 칸을 건너뛰고 지정한 칸에서 시작한다. */
-  scopeGiven: boolean;
+  /** 어디를 볼지 얼마나 좁게 적었는가. 시작 칸을 정한다. */
+  scope: ScopeChoice;
   /** 못 찾으면 멈추라고 적었는가. **범위를 넓히는 일 자체가 일어나지 않는다.** */
   stopCondition: boolean;
   /** 무엇을 돌려줄지 적었는가. 결과가 통째로 문맥에 들어오지 않는다. */
   outputShaped: boolean;
 }
 
-export const PROMPT_LEVELS = [
-  { level: 0, targetNamed: false, scopeGiven: false, stopCondition: false, outputShaped: false },
-  { level: 1, targetNamed: true, scopeGiven: false, stopCondition: false, outputShaped: false },
-  { level: 2, targetNamed: true, scopeGiven: true, stopCondition: false, outputShaped: false },
-  { level: 3, targetNamed: true, scopeGiven: true, stopCondition: true, outputShaped: false },
-  { level: 4, targetNamed: true, scopeGiven: true, stopCondition: true, outputShaped: true },
-] as const satisfies readonly PromptLevel[];
-
-export const MAX_PROMPT_LEVEL = PROMPT_LEVELS.length - 1;
+/** 아무것도 적지 않은 프롬프트. 화면의 첫 상태이고 확인된 사례가 그랬다. */
+export const BARE_PROMPT: PromptOptions = {
+  targetNamed: false,
+  scope: 'none',
+  stopCondition: false,
+  outputShaped: false,
+};
 
 /**
  * 탐색어를 적었을 때 칸마다의 호출 수에 곱하는 값.
@@ -130,46 +154,50 @@ export const OUTPUT_SHAPED_RESULT_FACTOR = 0.4;
 /**
  * 프롬프트 문장의 조각.
  *
- * 같은 `slot` 을 가진 조각이 여럿이면 **현재 단계 이하에서 가장 늦게 붙은 것**만 남는다.
- * `이거` 가 `RETRY_LIMIT 상수를` 로 갈리는 자리가 그렇다. 화면은 `addedAt` 이 현재 단계와
- * 같은 조각을 강조해, 방금 무엇이 붙었는지 보여준다.
+ * `base` 인 조각은 아무것도 안 적어도 있는 말이고, 나머지는 어느 옵션을 켜서 붙은 것이다.
+ * 화면은 후자를 강조해 **내가 무엇을 더 적었는지** 보여준다.
  */
 export interface PromptPart {
   slot: string;
-  addedAt: number;
   text: string;
+  base: boolean;
 }
 
-/** 문장에서의 자리 순서. 조각이 붙는 순서와 읽는 순서가 다르므로 따로 둔다. */
-const SLOT_ORDER = ['where', 'what', 'verb', 'stop', 'shape'] as const;
-
-const PROMPT_PARTS: readonly PromptPart[] = [
-  { slot: 'what', addedAt: 0, text: '이거' },
-  { slot: 'verb', addedAt: 0, text: '찾아봐.' },
-  { slot: 'what', addedAt: 1, text: 'RETRY_LIMIT 상수를' },
-  { slot: 'where', addedAt: 2, text: 'src/config 안에서' },
-  { slot: 'stop', addedAt: 3, text: '없으면 없다고만 답해.' },
-  { slot: 'shape', addedAt: 4, text: '찾으면 파일 경로와 줄 번호만.' },
-];
-
 /**
- * 그 단계에서 화면에 보이는 프롬프트 문장.
+ * 그 설정에서 화면에 보이는 프롬프트 문장.
  *
- * 조각을 이어 붙이면 그대로 한 문장이 된다. 단계를 올리는 것이 **문장에 어구를 더하는
- * 일**이라는 것이 눈에 보여야 하므로, 단계마다 다른 문장을 따로 적어 두지 않고 한 벌의
- * 조각에서 만든다 — 그래야 어느 어구가 어느 단계에 붙었는지가 데이터로 남는다.
+ * 조각을 이어 붙이면 그대로 한 문장이 된다. 설정마다 다른 문장을 따로 적어 두지 않고
+ * 한 벌의 규칙에서 만든다 — 그래야 어느 어구가 어느 옵션에서 왔는지가 데이터로 남는다.
  */
-export function promptParts(level: number): PromptPart[] {
-  return SLOT_ORDER.flatMap(slot => {
-    const candidates = PROMPT_PARTS.filter(part => part.slot === slot && part.addedAt <= level);
-    if (candidates.length === 0) return [];
-    return [candidates.reduce((latest, part) => (part.addedAt > latest.addedAt ? part : latest))];
-  });
+export function promptParts(options: PromptOptions): PromptPart[] {
+  const parts: PromptPart[] = [];
+
+  if (options.scope === 'folder') {
+    parts.push({ slot: 'where', text: 'src/config 안에서', base: false });
+  } else if (options.scope === 'file') {
+    parts.push({ slot: 'where', text: 'src/config/retry.ts 의 상수 정의에서', base: false });
+  }
+
+  parts.push(
+    options.targetNamed
+      ? { slot: 'what', text: 'RETRY_LIMIT 상수를', base: false }
+      : { slot: 'what', text: '이거', base: true }
+  );
+  parts.push({ slot: 'verb', text: '찾아봐.', base: true });
+
+  if (options.stopCondition) {
+    parts.push({ slot: 'stop', text: '없으면 없다고만 답해. 더 찾지 마.', base: false });
+  }
+  if (options.outputShaped) {
+    parts.push({ slot: 'shape', text: '찾으면 경로와 줄 번호만.', base: false });
+  }
+
+  return parts;
 }
 
 /** 문장 전체를 한 줄로. 테스트와 `aria-label` 이 쓴다. */
-export function promptText(level: number): string {
-  return promptParts(level)
+export function promptText(options: PromptOptions): string {
+  return promptParts(options)
     .map(part => part.text)
     .join(' ');
 }
@@ -189,39 +217,58 @@ export interface SearchStep {
   contextAdded: number;
 }
 
+/** 이 탐색이 어떻게 끝났는가. 비용만으로는 좋은 프롬프트인지 알 수 없다. */
+export type Outcome =
+  /** 찾았다. */
+  | 'found'
+  /** 없어서 못 찾았다. 맞는 답이다. */
+  | 'absent'
+  /** **있는데 못 찾았다.** 범위를 너무 좁게 짚고 거기서 멈추라고 했다. */
+  | 'missed';
+
 /**
  * 프롬프트가 만들어 내는 탐색 범위.
  *
  * **어디서 시작하고 어디서 멈추는가**가 전부다.
  *
- * - 시작: 범위를 적었으면 그 칸, 아니면 맨 아래 칸.
- * - 멈춤: 찾으면 찾은 칸. 못 찾으면 — 멈추라고 적었으면 시작한 칸, **아니면 맨 위 칸까지.**
+ * - 시작: 범위를 짚은 만큼 아래 칸에서. 안 짚었으면 레포 전체부터.
+ * - 상한: 멈추라고 적었으면 시작한 칸, **아니면 맨 위 칸까지.**
  *
- * 마지막 줄이 이 글이 겨눈 자리다. 범위를 적어 두어도 못 찾으면 그 위로 올라간다.
- * 실제로 확인된 사례가 그랬다 — 레포에 없자 git 이력을 뒤지고, 거기에도 없자 작업 폴더
- * 밖까지 나갔다. **범위를 좁히는 것과 멈추라고 적는 것은 다른 일이다.**
+ * 두 번째 줄이 이 글이 겨눈 자리다. 범위를 적어 두어도 못 찾으면 그 위로 올라간다.
+ * 확인된 사례가 그랬다 — 레포에 없자 git 이력을 뒤지고, 거기에도 없자 작업 폴더 밖까지
+ * 나갔다. 그래서 **범위를 좁히는 것만으로는 아무것도 막지 못한다.** 좁게 시작한 만큼
+ * 좁은 칸의 탐색값을 더 낼 뿐이라, 오히려 비싸질 수도 있다.
+ *
+ * 반대 방향의 위험도 같은 식에서 나온다. 좁게 짚고 거기서 멈추라고 하면 **그 밖에 있는
+ * 것은 못 찾는다.** 값은 가장 싸지만 답이 틀린다.
  */
-export function planSearch(prompt: PromptLevel, found: boolean): SearchStep[] {
-  const from = prompt.scopeGiven ? GIVEN_SCOPE_TIER : DEFAULT_START_TIER;
-  const last = SCOPE_TIERS.length - 1;
-
-  let to: number;
-  if (found) to = Math.max(from, FOUND_AT_TIER);
-  else if (prompt.stopCondition) to = from;
-  else to = last;
+export function planSearch(options: PromptOptions, exists: boolean): SearchStep[] {
+  const from = SCOPE_START_TIER[options.scope];
+  const cap = options.stopCondition ? from : SCOPE_TIERS.length - 1;
+  // 칸이 포개져 있으므로, 시작 칸이 이미 넓으면 첫 훑기에서 찾는다.
+  const findTier = Math.max(from, FOUND_AT_TIER);
+  const to = exists && findTier <= cap ? findTier : cap;
 
   const steps: SearchStep[] = [];
   for (let index = from; index <= to; index += 1) {
     const tier = SCOPE_TIERS[index];
-    const calls = prompt.targetNamed
+    const calls = options.targetNamed
       ? Math.ceil(tier.calls * TARGET_NAMED_CALL_FACTOR)
       : tier.calls;
-    const resultPerCall = prompt.outputShaped
+    const resultPerCall = options.outputShaped
       ? Math.round(tier.resultPerCall * OUTPUT_SHAPED_RESULT_FACTOR)
       : tier.resultPerCall;
     steps.push({ tier, tierIndex: index, calls, resultPerCall, contextAdded: calls * resultPerCall });
   }
   return steps;
+}
+
+/** 그 탐색이 어떻게 끝났는지. `planSearch` 와 같은 규칙에서 나온다. */
+export function outcomeOf(options: PromptOptions, exists: boolean): Outcome {
+  if (!exists) return 'absent';
+  const from = SCOPE_START_TIER[options.scope];
+  const cap = options.stopCondition ? from : SCOPE_TIERS.length - 1;
+  return Math.max(from, FOUND_AT_TIER) <= cap ? 'found' : 'missed';
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -299,6 +346,8 @@ export interface RunSummary {
   steps: SearchStep[];
   calls: RunCall[];
   callCount: number;
+  /** 어떻게 끝났는가. 싼 것과 맞는 것은 다르다. */
+  outcome: Outcome;
   /** 탐색이 올라간 마지막 칸. 프롬프트가 무엇을 막았는지 한눈에 보이는 값이다. */
   reachedTier: number;
   /** 탐색 결과가 문맥에 얹은 총량. */
@@ -322,11 +371,11 @@ export interface RunSummary {
 }
 
 export function summarizeRun(
-  prompt: PromptLevel,
-  found: boolean,
+  options: PromptOptions,
+  exists: boolean,
   rates: Rates = EXAMPLE_RATES
 ): RunSummary {
-  const steps = planSearch(prompt, found);
+  const steps = planSearch(options, exists);
   const calls = buildRun(steps);
   const totals = totalUsage(calls);
   const tokens = totalTokens(totals);
@@ -336,6 +385,7 @@ export function summarizeRun(
     steps,
     calls,
     callCount: calls.length,
+    outcome: outcomeOf(options, exists),
     reachedTier: steps.length > 0 ? steps[steps.length - 1].tierIndex : 0,
     contextFromSearch: steps.reduce((sum, step) => sum + step.contextAdded, 0),
     totals,
@@ -373,16 +423,41 @@ export function estimateCallCount(output: number, outputPerCall = OUTPUT_PER_CAL
  * 실제 사용 기록이 아니라 **위 모형이 만들어 낸 값**이다. 손으로 적은 표가 아니므로 네
  * 항목의 합이 `Total` 과 어긋날 수 없고, 화면의 시뮬레이션과도 같은 규칙 위에 있다.
  *
- * 프롬프트 단계와 찾는 것의 유무는 여기 적혀 있지만 **대시보드에는 없다.** 이 글이
- * 되짚어 보려는 것이 그것이다.
+ * 프롬프트와 찾는 것의 유무는 여기 적혀 있지만 **대시보드에는 없다.** 이 글이 되짚어
+ * 보려는 것이 그것이다.
  */
 export const DAY_REQUESTS = [
-  { id: 'r1', at: '10:04', level: 4, found: true },
-  { id: 'r2', at: '10:21', level: 1, found: true },
-  { id: 'r3', at: '10:35', level: 0, found: false },
-  { id: 'r4', at: '11:02', level: 3, found: false },
-  { id: 'r5', at: '11:20', level: 0, found: true },
-] as const satisfies readonly { id: string; at: string; level: number; found: boolean }[];
+  {
+    id: 'r1',
+    at: '10:04',
+    options: { targetNamed: true, scope: 'folder', stopCondition: true, outputShaped: true },
+    exists: true,
+  },
+  {
+    id: 'r2',
+    at: '10:21',
+    options: { targetNamed: true, scope: 'none', stopCondition: false, outputShaped: false },
+    exists: true,
+  },
+  {
+    id: 'r3',
+    at: '10:35',
+    options: BARE_PROMPT,
+    exists: false,
+  },
+  {
+    id: 'r4',
+    at: '11:02',
+    options: { targetNamed: true, scope: 'folder', stopCondition: true, outputShaped: false },
+    exists: false,
+  },
+  {
+    id: 'r5',
+    at: '11:20',
+    options: BARE_PROMPT,
+    exists: true,
+  },
+] as const satisfies readonly { id: string; at: string; options: PromptOptions; exists: boolean }[];
 
 /** 다섯 건 중 눈에 띄는 한 건. 퀴즈가 가리키는 행이다. */
 export const OUTLIER_ID = 'r3';
@@ -399,6 +474,9 @@ export const TIER_CONTEXT_SCALE = SCOPE_TIERS.reduce(
 );
 
 /** 예시 표의 한 행을 모형에서 뽑는다. */
-export function summarizeRequest(request: { level: number; found: boolean }): RunSummary {
-  return summarizeRun(PROMPT_LEVELS[request.level], request.found);
+export function summarizeRequest(request: {
+  options: PromptOptions;
+  exists: boolean;
+}): RunSummary {
+  return summarizeRun(request.options, request.exists);
 }

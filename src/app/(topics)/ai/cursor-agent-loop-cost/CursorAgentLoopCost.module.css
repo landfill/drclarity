@@ -216,29 +216,6 @@
   font-size: var(--fs-sm);
 }
 
-.control {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-.controlLabel {
-  color: var(--color-muted);
-  white-space: nowrap;
-}
-
-.slider {
-  width: 7rem;
-  accent-color: var(--color-accent);
-}
-
-.controlValue {
-  min-width: 3.5rem;
-  color: var(--color-text);
-  font-weight: 700;
-  text-align: right;
-}
-
 .toggle {
   display: flex;
   align-items: center;
@@ -249,6 +226,60 @@
 
 .toggle input {
   accent-color: var(--color-accent);
+}
+
+/* 프롬프트에 적는 것이 아니라 상황이다. 어구 넷과 섞이지 않게 선으로 끊는다. */
+.situation {
+  padding-left: var(--space-sm);
+  border-left: 1px solid var(--color-border);
+  color: var(--color-muted);
+}
+
+/* --- 범위 세밀도 --- */
+
+/*
+ * 셋 중 하나라 체크박스가 아니라 라디오다. 세 값이 **한 축 위에 있다**는 것이 보여야
+ * 하므로 따로 떼지 않고 붙여 둔다 — 안 적음 → 폴더 → 파일·함수로 좁아지는 축이다.
+ */
+.segment {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+}
+
+.segmentLabel {
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.segmentOption {
+  padding: 1px var(--space-2xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-muted);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* 라디오 자체는 숨긴다. 칸이 눌린 것으로 충분하고, 셋이 나란히 있어야 축으로 읽힌다. */
+.segmentOption input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.segmentOn {
+  border-color: var(--color-accent);
+  background: var(--color-note-bg);
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+/* 키보드 포커스는 라디오가 숨겨져도 보여야 한다. */
+.segmentOption:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
 }
 
 .resetButton {
@@ -306,6 +337,27 @@
 .screenWhere {
   font-size: var(--fs-sm);
   color: var(--color-muted);
+}
+
+/* 탐색이 어떻게 끝났는지. 싼 것과 맞는 것은 다르므로 값 옆에 늘 붙여 둔다. */
+.outcomeTag {
+  padding: 0 var(--space-2xs);
+  border-radius: var(--radius-sm);
+  background: var(--color-subtle);
+  color: var(--color-muted);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+}
+
+/* 있는데 못 찾은 경우. 가장 싼 조합이 가장 좋은 조합은 아니라는 것을 색으로 세운다. */
+.outcomeMissed {
+  padding: 0 var(--space-2xs);
+  border-radius: var(--radius-sm);
+  background: var(--color-note-bg);
+  color: var(--color-danger);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .summarizedTag {
