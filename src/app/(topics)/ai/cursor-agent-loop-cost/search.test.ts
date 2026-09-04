@@ -63,6 +63,13 @@ describe('프롬프트 문장', () => {
     );
   });
 
+  it('퀴즈 카드에 세우는 한 줄이 곧 아무것도 더 안 적은 프롬프트다', () => {
+    // quiz.mdx 의 선택지가 전부 이 한 줄에 무엇을 붙이느냐를 묻는다.
+    expect(promptText(BARE_PROMPT)).toBe('무료배송 기준 금액 찾아봐.');
+    expect(promptText(prompt({ scope: 'folder' }))).toContain(promptText(BARE_PROMPT));
+    expect(promptText(prompt({ stopCondition: true }))).toContain(promptText(BARE_PROMPT));
+  });
+
   it('전부 적으면 한 문장으로 읽힌다', () => {
     expect(promptText({ scope: 'file', stopCondition: true, outputShaped: true })).toBe(
       '장바구니 폴더의 가격계산 파일에서 무료배송 기준 금액 찾아봐. ' +

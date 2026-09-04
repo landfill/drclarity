@@ -23,6 +23,7 @@ import {
 } from './search';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizAsk from './content/quiz-ask.mdx';
+import QuizBaseline from './content/quiz-baseline.mdx';
 import QuizScope from './content/quiz-scope.mdx';
 import QuizStop from './content/quiz-stop.mdx';
 import QuizBoth from './content/quiz-both.mdx';
@@ -131,6 +132,9 @@ export default function CursorAgentLoopCostClient() {
     []
   );
 
+  /** 퀴즈가 가리키는 튀는 행. 카드에 그 행의 수를 붙여 비교 대상을 못 박는다. */
+  const outlier = day.find(row => row.id === OUTLIER_ID);
+
   const handleReset = useCallback(() => {
     setPrompt(DEFAULTS.prompt);
     setExists(DEFAULTS.exists);
@@ -197,6 +201,29 @@ export default function CursorAgentLoopCostClient() {
 
             <div className={styles.ask}>
               <QuizAsk />
+            </div>
+
+            {/*
+              선택지가 전부 "이 한 줄에 무엇을 붙이면" 을 묻는다. 그러니 비교 대상이
+              본문에 섞여 있으면 안 된다 — 아래 스테이지와 같은 카드로 세워 두고,
+              견줄 수 있게 그 행의 Total 을 붙여 둔다.
+            */}
+            {outlier && (
+              <div className={`${styles.promptCard} ${styles.promptCardQuoted}`}>
+                <div className={styles.promptHead}>
+                  <p className={styles.prompt}>{promptText(BARE_PROMPT)}</p>
+                  <span className={`${styles.promptTag} ${styles.mono}`}>
+                    Total {outlier.tokens.toLocaleString('ko-KR')}
+                  </span>
+                </div>
+                <p className={styles.promptEffect}>
+                  호출 {outlier.callCount}번 · 끝내 못 찾음
+                </p>
+              </div>
+            )}
+
+            <div className={styles.ask}>
+              <QuizBaseline />
             </div>
           </>
         }
