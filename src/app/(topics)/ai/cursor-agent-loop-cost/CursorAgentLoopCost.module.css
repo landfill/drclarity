@@ -97,6 +97,110 @@
   color: var(--color-text);
 }
 
+/* --- 프롬프트 카드 --- */
+
+/*
+ * 이 화면의 원인은 프롬프트 하나뿐이다. 그래서 컨트롤보다 위, 두 패널보다 앞에 두고
+ * 본문보다 큰 글자를 준다 — 사용자가 슬라이더가 아니라 **문장**을 보고 있어야 한다.
+ */
+.promptCard {
+  margin-top: var(--space-md);
+  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.prompt {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--fs-body);
+  line-height: 1.7;
+  color: var(--color-text);
+}
+
+/* 조각 사이의 띄어쓰기는 마진으로 준다. JSX 사이의 공백은 렌더에서 사라진다. */
+.promptPart,
+.promptAdded {
+  margin-right: 0.4em;
+}
+
+/* 방금 붙은 어구. 무엇이 더해졌는지가 이 화면의 전부라 강조를 아끼지 않는다. */
+.promptAdded {
+  padding: 1px 4px;
+  border-radius: var(--radius-sm);
+  background: var(--color-note-bg);
+  color: var(--color-warm);
+  font-weight: 700;
+}
+
+.promptEffect {
+  margin-top: var(--space-xs);
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+/* --- 범위 사다리 --- */
+
+/*
+ * 아래에서 위로 올라가는 것이 사다리이지만 화면은 위에서 아래로 읽는다. 그래서 순서를
+ * 뒤집지 않고 위가 좁은 칸, 아래가 넓은 칸이다 — 내려갈수록 넓어지는 것이 눈에 남는다.
+ */
+.ladder {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-sm);
+}
+
+.rung {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-2xs) 0;
+}
+
+/* 도달하지 않은 칸은 지우지 않고 흐린다. 사라지면 무엇이 꺼졌는지 볼 대상이 없어진다. */
+.rungOff {
+  opacity: 0.3;
+}
+
+.rungLabel {
+  flex-shrink: 0;
+  width: 6.5em;
+  color: var(--color-text);
+}
+
+.rungTrack {
+  flex: 1;
+  min-width: 0;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--color-subtle);
+  overflow: hidden;
+}
+
+.rungBar {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+
+/* 위 칸일수록 짙게. 같은 사다리를 오르고 있다는 것이 보이도록 색상은 하나로 둔다. */
+.rung[data-tier='file'] .rungBar { background: var(--color-blue-soft); }
+.rung[data-tier='folder'] .rungBar { background: var(--color-success); }
+.rung[data-tier='repo'] .rungBar { background: var(--color-accent); }
+.rung[data-tier='git'] .rungBar { background: var(--color-warm); }
+.rung[data-tier='outside'] .rungBar { background: var(--color-danger); }
+
+.rungValue {
+  flex-shrink: 0;
+  width: 8.5em;
+  color: var(--color-muted);
+  text-align: right;
+  white-space: nowrap;
+}
+
 /* --- 컨트롤 한 줄 --- */
 
 .controls {
@@ -277,35 +381,6 @@
 
 .segInput {
   background: var(--color-warm);
-}
-
-/* 요약이 걸린 호출. 캐시가 아니라 통째로 새 입력이 되는 자리라 색을 따로 준다. */
-.segSummary {
-  background: var(--color-danger);
-}
-
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2xs) var(--space-sm);
-  margin-top: var(--space-xs);
-  padding: 0;
-  list-style: none;
-  font-size: var(--fs-sm);
-  color: var(--color-muted);
-}
-
-.legendItem {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2xs);
-}
-
-.swatch {
-  flex-shrink: 0;
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
 }
 
 /* --- 대시보드 한 행 --- */
