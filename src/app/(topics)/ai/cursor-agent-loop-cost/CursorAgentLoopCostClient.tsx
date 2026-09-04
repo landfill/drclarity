@@ -64,7 +64,7 @@ function clauseEffect(options: PromptOptions): string {
     return '올라가는 일이 없어집니다. 다만 어디서 시작할지는 에이전트가 정합니다.';
   }
   if (scoped) {
-    return '좁은 칸에서 시작합니다. 그런데 못 찾으면 거기서 위로 올라갑니다.';
+    return '좁은 칸에서 시작합니다. 다만 거기 없으면 한 칸 넓혀 봅니다.';
   }
   return '어디를 볼지도, 언제 그만둘지도 적혀 있지 않습니다. 찾을 것만 적혀 있습니다.';
 }
@@ -108,18 +108,16 @@ export default function CursorAgentLoopCostClient() {
   const bare = useMemo(() => summarizeRun(BARE_PROMPT, exists), [exists]);
 
   /**
-   * 지금 프롬프트에서 범위만 뺀 것.
+   * 그 줄을 켜면 프롬프트에 붙는 어구.
    *
-   * "범위를 짚은 것이 값을 했는가" 를 보려면 **다른 어구는 그대로 두고** 범위만 견줘야
-   * 한다. 아무것도 안 적은 것과 비교하면 대상을 적은 효과까지 섞여 들어와, 범위가
-   * 손해였다는 사실이 가려진다.
+   * 손으로 적어 두면 `promptParts` 와 조용히 어긋난다. 컨트롤에 적힌 말과 위 카드의
+   * 문장이 다르면 이 화면이 보이려는 인과가 끊기므로, 같은 함수에서 뽑는다.
    */
-  const withoutScope = useMemo(
-    () => summarizeRun({ ...prompt, scope: 'none' }, exists),
-    [prompt, exists]
-  );
+  const phraseOf = useCallback((patch: Partial<PromptOptions>, slot: string) => {
+    return promptParts({ ...BARE_PROMPT, ...patch }).find(part => part.slot === slot)?.text ?? '';
+  }, []);
 
-  /** 어구 하나를 켜고 끄는 손잡이. 넷이 서로 독립이라는 것이 이 화면의 전제다. */
+  /** 어구 하나를 켜고 끄는 손잡이. 셋이 서로 독립이라는 것이 이 화면의 전제다. */
   const setClause = useCallback(
     <K extends keyof PromptOptions>(key: K, value: PromptOptions[K]) =>
       setPrompt(current => ({ ...current, [key]: value })),
@@ -163,7 +161,7 @@ export default function CursorAgentLoopCostClient() {
           <Highlight>&lsquo;이것 좀 찾아봐&rsquo;</Highlight>가 왜 위험한가
         </>
       }
-      subtitle="범위를 적지 않으면 에이전트가 범위를 스스로 넓힙니다. 프로젝트 밖까지 나가고, 비용이 서른 배가 되고, 그러고도 답이 틀릴 수 있습니다."
+      subtitle="범위를 적지 않으면 에이전트는 열어 준 폴더 전부를 후보로 봅니다. 비용이 서른 배가 되고, 그러고도 답이 틀릴 수 있습니다."
     >
       <QuizGate
         question={
@@ -228,7 +226,7 @@ export default function CursorAgentLoopCostClient() {
           </>
         }
         choices={quizChoices}
-        correctId="scope"
+        correctId="stop"
         feedback={{ scope: <QuizScope />, stop: <QuizStop />, both: <QuizBoth /> }}
       >
         <ExplanationBox variant="note">
@@ -260,62 +258,85 @@ export default function CursorAgentLoopCostClient() {
           </div>
 
           {/*
-            누적 슬라이더가 아니라 독립 토글이다. 이 화면의 결론이 "범위와 중단 조건을
-            **같이** 적어야 한다" 인데, 누적으로 묶으면 둘 중 하나만 켠 상태를 만들 수
-            없어 그 결론을 화면으로 보일 수 없다.
+            누적 슬라이더가 아니라 독립 토글이고, 한 줄에 하나씩 세운다. 이 화면의
+            결론이 "범위와 중단 조건을 **같이** 적어야 한다" 인데, 누적으로 묶으면 둘 중
+            하나만 켠 상태를 만들 수 없어 그 결론을 화면으로 보일 수 없다. 손잡이를 한 줄에
+            몰아 놓으면 한 덩어리로 보여 건너뛰게 되므로 줄을 나눈다.
           */}
           <div className={styles.controls}>
-            <span className={styles.controlLabel}>더 적어 넣기</span>
+            <div className={styles.controlsHead}>
+              <span className={styles.controlLabel}>프롬프트에 더 적어 넣기</span>
+              <button type="button" className={styles.resetButton} onClick={handleReset}>
+                초기화
+              </button>
+            </div>
 
-            <span className={styles.segment} role="group" aria-label="어디를 볼지 얼마나 좁게 적는가">
-              <span className={styles.segmentLabel}>어디서</span>
-              {SCOPE_CHOICES.map(choice => (
-                <label
-                  key={choice}
-                  className={`${styles.segmentOption} ${prompt.scope === choice ? styles.segmentOn : ''}`}
-                >
-                  <input
-                    type="radio"
-                    name="scope"
-                    value={choice}
-                    checked={prompt.scope === choice}
-                    onChange={() => setClause('scope', choice as ScopeChoice)}
-                  />
-                  {SCOPE_LABELS[choice]}
-                </label>
-              ))}
-            </span>
+            <div className={`${styles.controlRow} ${prompt.scope !== 'none' ? styles.rowOn : ''}`}>
+              <span className={styles.rowLabel}>어디서</span>
+              <span className={styles.segment} role="group" aria-label="어디를 볼지 얼마나 좁게 적는가">
+                {SCOPE_CHOICES.map(choice => (
+                  <label
+                    key={choice}
+                    className={`${styles.segmentOption} ${prompt.scope === choice ? styles.segmentOn : ''}`}
+                  >
+                    <input
+                      type="radio"
+                      name="scope"
+                      value={choice}
+                      checked={prompt.scope === choice}
+                      onChange={() => setClause('scope', choice as ScopeChoice)}
+                    />
+                    {SCOPE_LABELS[choice]}
+                  </label>
+                ))}
+              </span>
+              <span className={styles.rowPhrase}>
+                {prompt.scope === 'none'
+                  ? '앞에 아무것도 안 붙습니다'
+                  : `「${phraseOf({ scope: prompt.scope }, 'where')}」`}
+              </span>
+            </div>
 
-            <label className={styles.toggle}>
-              <input
-                type="checkbox"
-                checked={prompt.stopCondition}
-                onChange={event => setClause('stopCondition', event.currentTarget.checked)}
-              />
-              <span>언제 그만둘지</span>
-            </label>
+            <div className={`${styles.controlRow} ${prompt.stopCondition ? styles.rowOn : ''}`}>
+              <span className={styles.rowLabel}>언제 그만둘지</span>
+              <label className={styles.toggle}>
+                <input
+                  type="checkbox"
+                  checked={prompt.stopCondition}
+                  onChange={event => setClause('stopCondition', event.currentTarget.checked)}
+                />
+                <span className={styles.rowPhrase}>
+                  「{phraseOf({ stopCondition: true }, 'stop')}」
+                </span>
+              </label>
+            </div>
 
-            <label className={styles.toggle}>
-              <input
-                type="checkbox"
-                checked={prompt.outputShaped}
-                onChange={event => setClause('outputShaped', event.currentTarget.checked)}
-              />
-              <span>무엇을 돌려줄지</span>
-            </label>
+            <div className={`${styles.controlRow} ${prompt.outputShaped ? styles.rowOn : ''}`}>
+              <span className={styles.rowLabel}>무엇을 돌려줄지</span>
+              <label className={styles.toggle}>
+                <input
+                  type="checkbox"
+                  checked={prompt.outputShaped}
+                  onChange={event => setClause('outputShaped', event.currentTarget.checked)}
+                />
+                <span className={styles.rowPhrase}>
+                  「{phraseOf({ outputShaped: true }, 'shape')}」
+                </span>
+              </label>
+            </div>
 
-            <label className={`${styles.toggle} ${styles.situation}`}>
-              <input
-                type="checkbox"
-                checked={exists}
-                onChange={event => setExists(event.currentTarget.checked)}
-              />
-              <span>찾는 것이 실제로 있다</span>
-            </label>
-
-            <button type="button" className={styles.resetButton} onClick={handleReset}>
-              초기화
-            </button>
+            {/* 프롬프트에 적는 것이 아니라 상황이다. 위 셋과 섞이면 손잡이로 읽힌다. */}
+            <div className={`${styles.controlRow} ${styles.situationRow} ${exists ? styles.rowOn : ''}`}>
+              <span className={styles.rowLabel}>상황</span>
+              <label className={styles.toggle}>
+                <input
+                  type="checkbox"
+                  checked={exists}
+                  onChange={event => setExists(event.currentTarget.checked)}
+                />
+                <span className={styles.rowPhrase}>찾는 것이 실제로 있다</span>
+              </label>
+            </div>
           </div>
 
           <div className={styles.screens}>
@@ -434,14 +455,7 @@ export default function CursorAgentLoopCostClient() {
               </table>
 
               <p className={styles.screenFoot} role="status" aria-live="polite">
-                {prompt.scope !== 'none' && summary.cost > withoutScope.cost ? (
-                  <>
-                    범위를 짚었는데 <strong>더 비쌉니다</strong> — 안 짚었으면{' '}
-                    <strong>{withoutScope.cost.toFixed(3)}</strong>인데 지금은{' '}
-                    <strong>{summary.cost.toFixed(3)}</strong>입니다. 좁게 시작한 만큼 좁은
-                    칸의 탐색값을 더 냈고, 못 찾은 뒤에는 어차피 위로 올라갔습니다.
-                  </>
-                ) : summary.cost === bare.cost ? (
+                {summary.cost === bare.cost ? (
                   <>
                     시작 문맥 <strong>{formatTokens(START_CONTEXT)}</strong>와 탐색이 남긴{' '}
                     <strong>{formatTokens(summary.contextFromSearch)}</strong>가 호출마다 다시

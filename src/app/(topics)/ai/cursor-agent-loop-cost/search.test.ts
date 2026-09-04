@@ -13,6 +13,7 @@ import {
   OUTLIER_ID,
   SCOPE_CHOICES,
   SCOPE_LABELS,
+  SCOPE_CAP_TIER,
   SCOPE_START_TIER,
   SCOPE_TIERS,
   START_CONTEXT,
@@ -28,7 +29,7 @@ import {
   type ScopeChoice,
 } from './search';
 
-/** 어구를 조합해 프롬프트 하나를 만든다. 넷이 독립이라는 것을 테스트에서도 그대로 쓴다. */
+/** 어구를 조합해 프롬프트 하나를 만든다. 셋이 독립이라는 것을 테스트에서도 그대로 쓴다. */
 const prompt = (patch: Partial<PromptOptions> = {}): PromptOptions => ({
   ...BARE_PROMPT,
   ...patch,
@@ -100,21 +101,39 @@ describe('범위를 어디까지 짚느냐가 시작 칸을 정한다', () => {
   });
 });
 
-describe('범위만 좁히면 아무것도 막지 못한다', () => {
-  it('멈추라고 안 적으면 어느 범위에서 시작하든 맨 위 칸까지 올라간다', () => {
-    const last = SCOPE_TIERS.length - 1;
-    for (const scope of SCOPE_CHOICES) {
-      expect(absent({ scope }).reachedTier).toBe(last);
-    }
-  });
-
-  it('좁게 짚을수록 오히려 비싸진다', () => {
-    // 좁은 칸의 탐색값을 더 내고, 못 찾은 뒤에는 어차피 위로 올라가기 때문이다.
+describe('범위를 짚으면 싸지지만, 한 칸 넓히는 것까지 막지는 못한다', () => {
+  it('좁게 짚을수록 싸진다', () => {
+    // 짚어 준 만큼 시작 칸과 끝 칸이 함께 내려간다.
     const none = absent({ scope: 'none' });
     const folder = absent({ scope: 'folder' });
     const file = absent({ scope: 'file' });
-    expect(folder.cost).toBeGreaterThan(none.cost);
-    expect(file.cost).toBeGreaterThan(folder.cost);
+    expect(folder.cost).toBeLessThan(none.cost);
+    expect(file.cost).toBeLessThan(folder.cost);
+  });
+
+  it('아무것도 안 짚으면 열어 둔 데까지 번진다', () => {
+    // 맨 위 칸은 에이전트가 벗어난 자리가 아니라 사람이 열어 준 자리다.
+    // instruction.mdx 의 "마지막 칸은 열어 준 폴더까지" 가 이 이름 위에 선다.
+    expect(SCOPE_TIERS[absent().reachedTier].id).toBe('opened');
+    expect(SCOPE_TIERS[SCOPE_TIERS.length - 1].label).toBe('열어 둔 다른 폴더');
+    expect(SCOPE_CAP_TIER.none).toBe(SCOPE_TIERS.length - 1);
+  });
+
+  it('짚어 두어도 못 찾으면 한 칸 넓힌다', () => {
+    // 이 한 칸이 남아 있는 것이 "범위만으로는 반쪽" 인 이유다.
+    for (const scope of ['folder', 'file'] as const) {
+      expect(absent({ scope }).reachedTier).toBe(SCOPE_START_TIER[scope] + 1);
+      expect(SCOPE_CAP_TIER[scope]).toBeLessThan(SCOPE_CAP_TIER.none);
+    }
+  });
+
+  it('넓힌 한 칸이 짚은 칸보다 크다', () => {
+    // 그래서 범위만 적으면 도달한 칸의 값이 시작 칸의 값을 넘는다.
+    for (const scope of ['folder', 'file'] as const) {
+      const steps = absent({ scope }).steps;
+      expect(steps).toHaveLength(2);
+      expect(steps[1].contextAdded).toBeGreaterThan(steps[0].contextAdded);
+    }
   });
 });
 
@@ -132,7 +151,7 @@ describe('중단 조건이 값을 한다', () => {
   });
 
   it('둘을 같이 적으면 훨씬 더 준다 — 이 글의 결론', () => {
-    // 범위만 적으면 손해였고, 중단만 적으면 4배였다. 같이 적으면 좁힐수록 값이 떨어진다.
+    // 한 마디만 적으면 3배에서 7배였다. 같이 적으면 좁힐수록 값이 더 떨어진다.
     const stopOnly = absent({ stopCondition: true });
     const withFolder = absent({ scope: 'folder', stopCondition: true });
     const withFile = absent({ scope: 'file', stopCondition: true });
@@ -212,16 +231,28 @@ describe('예시 표', () => {
   it('퀴즈가 내놓은 세 문장의 값이 맞다', () => {
     // quiz.mdx 의 선택지와 quiz-*.mdx 의 피드백이 이 셋 위에 서 있다.
     expect(bareAbsent.tokens).toBe(3_327_100); // 그대로
-    expect(absent({ scope: 'folder' }).tokens).toBe(4_016_100); // 범위를 붙이면 는다
-    expect(absent({ stopCondition: true }).tokens).toBe(581_500); // 중단 조건을 붙이면 준다
+    expect(absent({ scope: 'folder' }).tokens).toBe(960_000); // 범위를 붙이면 준다
+    expect(absent({ stopCondition: true }).tokens).toBe(581_500); // 중단 조건은 더 준다
+    expect(absent({ scope: 'folder', stopCondition: true }).tokens).toBe(243_500); // 같이 적으면
     expect(absent({ stopCondition: true }).callCount).toBe(10);
   });
 
-  it('범위를 붙이는 쪽이 아무것도 안 붙인 것보다 비싸다 — 퀴즈의 정답', () => {
-    expect(absent({ scope: 'folder' }).cost).toBeGreaterThan(bareAbsent.cost);
-    expect(absent({ stopCondition: true }).cost).toBeLessThan(bareAbsent.cost);
-    // 둘의 방향이 다르다는 것이 이 문제의 전부다.
-    expect(absent({ scope: 'folder' }).reachedTier).toBe(bareAbsent.reachedTier);
+  it('중단 조건 쪽이 범위 쪽보다 더 크게 줄인다 — 퀴즈의 정답', () => {
+    const scopeOnly = absent({ scope: 'folder' });
+    const stopOnly = absent({ stopCondition: true });
+    // 어느 쪽을 붙여도 줄기는 한다. 문제가 물은 것은 **더 크게 줄이는 쪽**이다.
+    expect(scopeOnly.cost).toBeLessThan(bareAbsent.cost);
+    expect(stopOnly.cost).toBeLessThan(scopeOnly.cost);
+  });
+
+  it('본문이 적어 둔 배수가 맞다', () => {
+    // clauses.mdx · instruction.mdx 의 "2.8배 · 4.3배 · 10배 · 28배" 가 이 위에 선다.
+    const ratio = (patch: Partial<PromptOptions>) => bareAbsent.cost / absent(patch).cost;
+    expect(ratio({ scope: 'folder' })).toBeCloseTo(2.8, 1);
+    expect(ratio({ scope: 'file' })).toBeCloseTo(7.0, 1);
+    expect(ratio({ stopCondition: true })).toBeCloseTo(4.3, 1);
+    expect(ratio({ scope: 'folder', stopCondition: true })).toBeCloseTo(10.0, 1);
+    expect(ratio({ scope: 'file', stopCondition: true })).toBeCloseTo(28.5, 1);
   });
 
   it('나머지 넷은 23만에서 59만 사이다', () => {
