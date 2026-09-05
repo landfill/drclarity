@@ -105,8 +105,11 @@ button, summary  {
 
 @media (max-width: 600px)  {
   :root  {
-    --header-h: 88px;
+    --header-h: 106px;
     --fs-body: .9375rem;
+    --fs-sm: .875rem;
+    --fs-hero: 1.75rem;
+    --fs-h2: 1.125rem;
     --space-xl: 2.5rem;
     --space-lg: 1.25rem;
   }

@@ -336,7 +336,7 @@
 
 @media(max-width:600px)  {
   .container  {
-    padding: calc(var(--header-h) + 20px) 20px 12px;
+    padding: calc(var(--header-h) + 32px) 20px 12px;
   }
 
   .hero  {
@@ -346,15 +346,15 @@
   }
 
   .title  {
-    font-size: 1.875rem;
+    font-size: 2.125rem;
   }
 
   .featureArt  {
-    height: 160px;
+    height: 200px;
   }
 
   .featureArt svg  {
-    height: 145px;
+    height: 175px;
   }
 
   .learningPath  {

@@ -70,20 +70,20 @@
 
 @media(max-width:600px)  {
   .container  {
-    padding: calc(var(--header-h) + 14px) 18px 20px;
+    padding: calc(var(--header-h) + 20px) 18px 20px;
   }
 
   .breadcrumb  {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
   }
 
   .hero  {
-    margin-bottom: 14px;
-    padding-bottom: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 22px;
   }
 
   .title  {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     max-width: 100%;
   }
 
