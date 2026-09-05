@@ -84,9 +84,10 @@ export default function ContextLimitClient() {
           AI 는 왜 긴 대화에서 <Highlight>앞을 잊나</Highlight>
         </>
       }
-      subtitle="잊은 것이 아닙니다. 한 번에 볼 수 있는 양이 정해져 있어서, 넘친 부분은 애초에 전달되지 않습니다."
+      subtitle="대화 기록에 남은 이름이 이번 입력에도 있을까요? 대화를 늘리고 입력 창을 넓혀 확인합니다."
     >
       <QuizGate
+        labels={{ skip: '바로 실험하기' }}
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -111,7 +112,19 @@ export default function ContextLimitClient() {
             <StageLead />
           </div>
 
-          <ParameterPanel params={params} onChange={handleChange} onReset={handleReset} />
+          <div className={styles.experimentButtons} role="group" aria-label="대화와 입력 창 비교">
+            <button type="button" aria-pressed={turnCount === DEFAULT_TURNS && windowSize === DEFAULT_WINDOW} onClick={handleReset}>1. 짧은 대화</button>
+            <button type="button" aria-pressed={turnCount === MAX_TURNS && windowSize === DEFAULT_WINDOW} onClick={() => { setTurnCount(MAX_TURNS); setWindowSize(DEFAULT_WINDOW); }}>2. 긴 대화</button>
+            <button type="button" aria-pressed={turnCount === MAX_TURNS && windowSize === 800} onClick={() => { setTurnCount(MAX_TURNS); setWindowSize(800); }}>3. 창 넓히기</button>
+          </div>
+          <details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleChange} onReset={handleReset} /></details>
+          <ol className={styles.messageMap} aria-label="메시지가 입력에 남는지 한눈에 보기">
+            {state.turns.map((turn, index) => <li key={turn.id} data-kept={turn.inWindow}>
+              <strong>{index === 0 ? '이름' : turn.id === FINAL_QUESTION.id ? '질문' : index + 1}</strong>
+              <small>{turn.inWindow ? '입력 안' : '입력 밖'}</small>
+            </li>)}
+          </ol>
+          <p className={styles.observation} role="status">이름을 알려준 첫 메시지: <strong>{state.remembersName ? '입력 안에 있음 → 이름을 답할 근거가 있음' : '입력 밖으로 빠짐 → 이름을 답할 근거가 없음'}</strong></p>
 
           {/*
             게이지를 대화 위에 둔다. 아래에 두면 메시지가 흐려지는 것을 보고 나서야
@@ -146,6 +159,7 @@ export default function ContextLimitClient() {
             </p>
           </div>
 
+          <details className={styles.chatDetails}><summary>메시지 원문 확인하기</summary>
           <ol className={styles.chat} aria-label="대화">
             {state.turns.map(turn => (
               <li
@@ -169,6 +183,7 @@ export default function ContextLimitClient() {
               </li>
             ))}
           </ol>
+          </details>
 
           {/*
             답이 갈리는 자리. 위 대화와 떼어 놓고 색을 달리해서, 이것이 대화의 일부가
@@ -179,7 +194,7 @@ export default function ContextLimitClient() {
             role="status"
             aria-live="polite"
           >
-            <span className={styles.answerLabel}>AI 의 답</span>
+            <span className={styles.answerLabel}>모형의 답 예시</span>
             {state.remembersName ? (
               <p>
                 “{USER_NAME}님이라고 하셨습니다.”
@@ -189,10 +204,9 @@ export default function ContextLimitClient() {
               </p>
             ) : (
               <p>
-                “죄송하지만 이름을 알려주신 적이 없습니다.”
+                “지금 받은 대화에서는 이름을 확인할 수 없어요.”
                 <span className={styles.answerWhy}>
-                  이름을 밝힌 첫 메시지가 창 밖으로 밀려났습니다. 모델은 그런 말이 있었다는
-                  것조차 모릅니다 — 그래서 “기억이 안 난다” 가 아니라 “들은 적 없다” 고 답합니다.
+                  화면의 기록에는 남아 있어도 이번 입력에는 포함되지 않았습니다.
                 </span>
               </p>
             )}
@@ -203,11 +217,11 @@ export default function ContextLimitClient() {
           </div>
         </section>
 
-        <ExplanationBox title={notMemoryTitle}>
+        <ExplanationBox title={notMemoryTitle} collapsible>
           <NotMemory />
         </ExplanationBox>
 
-        <ExplanationBox title={biggerTitle}>
+        <ExplanationBox title={biggerTitle} collapsible>
           <WhyNotBigger />
         </ExplanationBox>
 
