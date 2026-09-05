@@ -8,6 +8,7 @@ import {
   CONTEXT_ROWS,
   CONVERSATION_RANGE,
   SAMPLE_CONTEXT,
+  NEW_MESSAGE,
   WINDOW_LIMIT,
   buildScenario,
   contextTotal,
@@ -171,7 +172,7 @@ export default function CursorContextCostClient() {
             <button type="button" aria-pressed={calls === 4} onClick={() => setCalls(4)}>2. 네 번 호출</button>
           </div>
           <ol className={styles.flow} aria-label="문맥이 사용량으로 쌓이는 과정">
-            <li>① 시작 입력 <strong>{formatTokens(context)}토큰</strong></li>
+            <li>① 요청 전 문맥 <strong>{formatTokens(context)}토큰</strong></li>
             <li>② 모델 호출 <strong>{calls}번</strong></li>
             <li>③ 입력·출력 누계 <strong>{formatTokens(grandTotal)}토큰</strong></li>
           </ol>
@@ -236,7 +237,7 @@ export default function CursorContextCostClient() {
             {/* 화면 하나 — 채팅창의 Context Usage 패널 */}
             <div className={styles.screen}>
               <div className={styles.screenHead}>
-                <span className={styles.screenTitle}>① 한 번에 담는 문맥</span>
+                <span className={styles.screenTitle}>① 요청 전 문맥</span>
                 <span className={styles.screenWhere}>채팅 입력칸의 링</span>
               </div>
 
@@ -301,6 +302,11 @@ export default function CursorContextCostClient() {
                 )}
               </div>
 
+              <p className={styles.screenFoot}>
+                {scenario[0]?.summarized
+                  ? `첫 호출은 새 메시지 ${formatTokens(NEW_MESSAGE)}토큰을 더한 뒤, 한도에 맞춰 ${formatTokens(scenario[0].activeContext)}토큰으로 요약했습니다.`
+                  : `첫 호출 입력: 문맥 ${formatTokens(context)} + 이번 메시지 ${formatTokens(NEW_MESSAGE)} = ${formatTokens(scenario[0]?.activeContext ?? 0)}토큰.`}
+              </p>
               <ol className={styles.callBars} aria-label="호출마다 사용한 입력">
                 {scenario.map((call, index) => <li key={index}>
                   <span>{index + 1}회</span><span className={styles.callTrack}><span style={{ width: percent(call.activeContext, WINDOW_LIMIT) }} /></span><small>{formatTokens(call.activeContext)}{call.summarized ? ' · 요약' : ''}</small>
