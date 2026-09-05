@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { getCategory, getTopicByHref } from '@/content/registry';
 import { TagList } from '@/components/topic/TagList';
 import { TopicFooterNav } from '@/components/topic/TopicFooterNav';
 import styles from './TopicLayout.module.css';
@@ -26,8 +28,11 @@ export function TopicLayout({
   topicHref,
   children,
 }: TopicLayoutProps) {
+  const topic = topicHref ? getTopicByHref(topicHref) : undefined;
+  const category = topic ? getCategory(topic.categoryId) : undefined;
   return (
-    <div className={`${styles.container} ${wide ? styles.wide : ''}`.trim()}>
+    <main id="main-content" tabIndex={-1} className={`${styles.container} ${wide ? styles.wide : ''}`.trim()}>
+      <nav className={styles.breadcrumb} aria-label="이동 경로"><Link href="/">홈</Link><span aria-hidden="true">/</span>{category ? <Link href={category.href}>{category.label}</Link> : <span>주제 둘러보기</span>}</nav>
       <header className={styles.hero}>
         <h1 className={styles.title}>{title}</h1>
         {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
@@ -35,7 +40,7 @@ export function TopicLayout({
       </header>
       {children}
       {topicHref && <TopicFooterNav currentHref={topicHref} />}
-    </div>
+    </main>
   );
 }
 

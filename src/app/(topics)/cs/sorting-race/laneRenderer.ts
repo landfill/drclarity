@@ -37,7 +37,7 @@ export function drawLane(ctx: CanvasRenderingContext2D, options: LaneRenderOptio
     if (done) {
       ctx.fillStyle = palette.success;
     } else if (activeSet.has(index)) {
-      ctx.fillStyle = palette.accent;
+      ctx.fillStyle = palette['chart-warm'];
     } else {
       ctx.fillStyle = palette['blue-soft'];
     }

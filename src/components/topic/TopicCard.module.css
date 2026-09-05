@@ -1,89 +1,175 @@
-.card {
-  /* 그리드 행 안에서 카드 높이가 늘어나도 태그가 항상 바닥에 정렬되도록 세로 flex. */
+.card  {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  height: 100%;
   background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
   text-decoration: none;
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
-  color: var(--color-text);
+  transition: border-color .18s, box-shadow .18s;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  }
+.card:hover  {
+  border-color: #9DAF9A;
+  box-shadow: 0 6px 18px rgba(27,49,35,.06);
 }
 
-.thumbWrapper {
+.card:focus-visible  {
+  outline-offset: 4px;
+}
+
+.cardTop  {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px 0;
+}
+
+.topicKind  {
+  color: var(--color-muted);
+  font-size: .75rem;
+  letter-spacing: .035em;
+}
+
+.openArrow  {
+  color: var(--color-muted);
+  font-size: 1.05rem;
+}
+
+.card:hover .openArrow  {
+  color: var(--color-accent);
+}
+
+.motif  {
+  padding: 12px 20px 4px;
+  height: 72px;
+  color: #526D45;
+}
+
+.motif svg  {
+  width: 80px;
+  height: 58px;
+}
+
+.card[data-category="cs"] .motif  {
+  color: #436F8D;
+}
+
+.card[data-category="ai"] .motif  {
+  color: #8C6651;
+}
+
+.thumbWrapper  {
   position: relative;
-  /* flex 자식이 되면 aspect-ratio 가 눌릴 수 있어 축소를 막는다. */
   flex-shrink: 0;
   width: 100%;
   aspect-ratio: 16/9;
-  max-height: var(--media-max-h);
+  max-height: 190px;
+  margin-top: 12px;
   background: var(--color-subtle);
 }
 
-@media (max-width: 768px) {
-  .thumbWrapper {
-    max-height: var(--media-max-h-mobile);
-  }
-}
-
-.thumb {
+.thumb  {
   object-fit: cover;
 }
 
-.content {
+.content  {
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: var(--space-lg);
+  padding: 14px 20px 20px;
+  min-width: 0;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: var(--space-xs);
+.header  {
+  margin-bottom: 9px;
 }
 
-.title {
-  font-size: var(--fs-lead);
-  font-weight: 700;
-  margin: 0;
+.title  {
+  font-size: 1.02rem;
+  font-weight: 650;
   color: var(--color-ink);
+  line-height: 1.55;
 }
 
-.difficulty {
+.summary  {
+  font-size: .875rem;
+  line-height: 1.8;
+  color: var(--color-muted);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.cardFoot  {
+  margin-top: auto;
+  padding-top: 22px;
   display: flex;
-  gap: 4px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--color-muted-2);
+.tags  {
+  min-width: 0;
 }
 
-.dot.filled {
+.difficulty  {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 3px;
+  align-items: flex-end;
+}
+
+.dot  {
+  width: 4px;
+  height: 7px;
+  border-radius: 1px;
+  background: var(--color-border);
+}
+
+.dot:nth-child(2)  {
+  height: 10px;
+}
+
+.dot:nth-child(3)  {
+  height: 13px;
+}
+
+.dot.filled  {
   background: var(--color-accent);
 }
 
-.summary {
-  font-size: 0.95rem;
-  color: var(--color-muted);
-  line-height: 1.5;
-  margin: 0;
+@media(max-width:600px)  {
+  .cardTop  {
+    padding: 16px 18px 0;
+  }
+
+  .motif  {
+    height: 64px;
+    padding: 4px 18px 0;
+  }
+
+  .motif svg  {
+    width: 76px;
+    height: 54px;
+  }
+
+  .content  {
+    padding: 12px 18px 18px;
+  }
+
+  .title  {
+    font-size: 1.05rem;
+  }
+
 }
 
-.tags {
-  /* auto 로 바닥에 밀되, 여유 공간이 없을 때를 위해 최소 간격은 padding 으로 확보. */
-  margin-top: auto;
-  padding-top: var(--space-sm);
+@media(prefers-reduced-motion:reduce)  {
+  .card  {
+    transition: none;
+  }
+
 }

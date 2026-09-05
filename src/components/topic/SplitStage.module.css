@@ -2,8 +2,9 @@
   margin-top: var(--space-md);
   scroll-margin-top: calc(var(--header-h) + var(--space-md));
   background: var(--color-surface);
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: none;
   padding: var(--space-md);
   text-align: center;
 }

@@ -18,7 +18,8 @@ export function CategoryIndex({ categoryId }: CategoryIndexProps) {
   const topics = category.topics;
 
   return (
-    <TopicLayout 
+    <TopicLayout
+      wide
       title={category.label}
       subtitle={category.description}
     >
@@ -27,11 +28,11 @@ export function CategoryIndex({ categoryId }: CategoryIndexProps) {
           <p>이 카테고리는 아직 준비 중입니다.</p>
         </div>
       ) : (
-        <div className={styles.grid}>
+        <><p className={styles.count}>직접 해보는 이야기 <strong>{topics.length}</strong></p><div className={styles.grid}>
           {topics.map(topic => (
             <TopicCard key={topic.href} topic={topic} />
           ))}
-        </div>
+        </div></>
       )}
     </TopicLayout>
   );

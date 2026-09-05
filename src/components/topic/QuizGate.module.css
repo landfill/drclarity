@@ -5,10 +5,10 @@
   flex-direction: column;
   gap: var(--space-md);
   margin-bottom: var(--space-md);
-  padding: var(--space-md);
+  padding: clamp(18px, 3vw, 32px);
   background: var(--color-surface);
-  border-radius: var(--radius-md);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
 }
 
 .question {
@@ -40,10 +40,10 @@
   gap: var(--space-sm);
   align-items: center;
   min-height: 2.75rem;
-  padding: var(--space-sm) var(--space-md);
+  padding: .9rem 1rem;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: border-color 160ms ease, background-color 160ms ease;
 }
@@ -57,13 +57,13 @@
 }
 
 .choice:has(.radio:focus-visible) {
-  outline: 3px solid var(--color-blue-soft);
+  outline: 2px solid var(--color-ink);
   outline-offset: 3px;
 }
 
 .choice:has(.radio:checked) {
-  border-color: var(--color-blue);
-  background: color-mix(in srgb, var(--color-blue-soft) 12%, var(--color-surface));
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 7%, var(--color-surface));
 }
 
 .correct {
@@ -79,7 +79,7 @@
 .radio {
   width: 1.15rem;
   height: 1.15rem;
-  accent-color: var(--color-blue);
+  accent-color: var(--color-accent);
   flex-shrink: 0;
 }
 
@@ -133,7 +133,7 @@
 
 .submitButton:focus-visible,
 .skipButton:focus-visible {
-  outline: 3px solid var(--color-blue-soft);
+  outline: 2px solid var(--color-ink);
   outline-offset: 3px;
 }
 
@@ -172,3 +172,9 @@
   flex-direction: column;
   gap: var(--space-xs);
 }
+
+.question { line-height: 1.85; }
+.question h2 { margin-bottom: .75rem; }
+.actions { padding-top: .35rem; }
+.revealed { padding-top: 1rem; border-top: 1px solid var(--color-border); margin-top: .5rem; }
+@media(prefers-reduced-motion:reduce) { .choice, .submitButton, .skipButton { transition: none; } }

@@ -3,10 +3,10 @@
   flex-direction: column;
   gap: var(--space-md);
   padding: var(--space-md);
-  background: var(--color-surface);
+  background: #F8FAF6;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 12px 28px color-mix(in srgb, var(--color-text) 8%, transparent);
+  box-shadow: none;
 }
 
 .toolbar {
@@ -37,18 +37,18 @@
 .rangeInput:focus-visible,
 .toggleInput:focus-visible,
 .selectInput:focus-visible {
-  outline: 3px solid var(--color-blue-soft);
+  outline: 2px solid var(--color-ink);
   outline-offset: 3px;
 }
 
 .parameterGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: 1.25rem;
 }
 
 .parameterRow {
-  --range-thumb-size: calc(var(--space-md) + var(--space-xs));
+  --range-thumb-size: 20px;
 
   display: flex;
   flex-direction: column;
@@ -90,7 +90,7 @@
 }
 
 .rangeInput::-webkit-slider-runnable-track {
-  height: 0.45rem;
+  height: 6px;
   background: var(--color-subtle);
   border-radius: 999px;
 }
@@ -99,16 +99,16 @@
   box-sizing: border-box;
   width: var(--range-thumb-size);
   height: var(--range-thumb-size);
-  margin-top: -0.525rem;
+  margin-top: -7px;
   appearance: none;
   background: var(--color-accent);
-  border: 3px solid var(--color-surface);
+  border: 2px solid var(--color-surface);
   border-radius: 50%;
-  box-shadow: 0 0 0 1px var(--color-border);
+  box-shadow: none;
 }
 
 .rangeInput::-moz-range-track {
-  height: 0.45rem;
+  height: 6px;
   background: var(--color-subtle);
   border-radius: 999px;
 }
@@ -118,9 +118,9 @@
   width: var(--range-thumb-size);
   height: var(--range-thumb-size);
   background: var(--color-accent);
-  border: 3px solid var(--color-surface);
+  border: 2px solid var(--color-surface);
   border-radius: 50%;
-  box-shadow: 0 0 0 1px var(--color-border);
+  box-shadow: none;
 }
 
 .marks {

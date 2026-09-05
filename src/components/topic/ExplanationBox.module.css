@@ -1,85 +1,62 @@
-.section {
-  margin-bottom: var(--space-md);
+.section  {
+  margin-bottom: 20px;
 }
 
-.title {
-  font-size: 1.5rem;
-  margin-bottom: var(--space-sm);
-  color: var(--color-secondary);
+.title  {
+  margin-bottom: 12px;
+  font-size: 1.2rem;
+  color: var(--color-ink);
 }
 
-.plain {
-  background: var(--color-surface);
-  padding: var(--space-md);
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+.plain  {
+  padding: 20px 0;
   text-align: left;
 }
 
-.note {
+.note  {
+  padding: 14px 18px;
+  border-left: 2px solid var(--color-note-border);
   background: var(--color-note-bg);
-  border-left: 5px solid var(--color-note-border);
-  padding: 1rem;
-  border-radius: 4px;
+  border-radius: 0 6px 6px 0;
   text-align: left;
 }
 
-.details {
-  margin-bottom: var(--space-md);
+.details  {
+  margin-bottom: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border);
 }
 
-.summary {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--color-secondary);
-  cursor: pointer;
-  margin-bottom: 0;
+.summary  {
   min-height: 44px;
-  padding: var(--space-xs) 0;
-  line-height: 1.2;
-}
-
-.plain :global(p),
-.note :global(p) {
-  margin-bottom: var(--space-sm);
-  font-size: 1rem;
-  line-height: 1.55;
+  padding: 12px 0;
+  font-size: .95rem;
+  font-weight: 600;
   color: var(--color-ink);
+  cursor: pointer;
+  line-height: 1.6;
 }
 
-.plain :global(p:last-child),
-.note :global(p:last-child) {
+.summary:hover  {
+  color: var(--color-accent);
+}
+
+.plain :global(p), .note :global(p), .plain :global(li), .note :global(li)  {
+  margin-bottom: .6rem;
+  font-size: .9375rem;
+  line-height: 1.9;
+  color: var(--color-text);
+}
+
+.plain :global(p:last-child), .note :global(p:last-child), .plain :global(li:last-child), .note :global(li:last-child)  {
   margin-bottom: 0;
 }
 
-/*
- * globals.css 의 `* { padding: 0 }` 이 목록의 기본 들여쓰기까지 지운다.
- * 그대로 두면 불릿이 본문 왼쪽 끝에 붙어 목록으로 읽히지 않으므로 되살린다.
- */
-.plain :global(ul),
-.note :global(ul),
-.plain :global(ol),
-.note :global(ol) {
-  margin-bottom: var(--space-sm);
-  padding-left: var(--space-lg);
+.plain :global(ul), .note :global(ul), .plain :global(ol), .note :global(ol)  {
+  padding-left: 1.4rem;
+  margin-bottom: .75rem;
 }
 
-.plain :global(ul:last-child),
-.note :global(ul:last-child),
-.plain :global(ol:last-child),
-.note :global(ol:last-child) {
-  margin-bottom: 0;
-}
-
-.plain :global(li),
-.note :global(li) {
-  margin-bottom: var(--space-2xs);
-  font-size: 1rem;
-  line-height: 1.55;
-  color: var(--color-ink);
-}
-
-.plain :global(li:last-child),
-.note :global(li:last-child) {
-  margin-bottom: 0;
+.plain :global(a), .note :global(a)  {
+  color: var(--color-accent);
 }

@@ -13,7 +13,7 @@
   gap: var(--space-xs);
   padding: 0.4em 0.9em;
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-radius: 6px;
   background: var(--color-surface);
   color: var(--color-text);
   font-size: var(--fs-body);
@@ -36,7 +36,7 @@
 .chipCount {
   min-width: 1.6em;
   padding: 0 0.4em;
-  border-radius: 999px;
+  border-radius: 6px;
   background: var(--color-subtle);
   color: var(--color-muted);
   font-size: var(--fs-sm);
@@ -46,8 +46,8 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
-  gap: var(--space-lg);
-  margin-top: var(--space-xl);
+  gap: 18px;
+  margin-top: 28px;
 }
 
 .empty {
@@ -57,12 +57,12 @@
   border-radius: var(--radius-md);
   color: var(--color-muted);
   font-size: 1.1rem;
-  margin-top: var(--space-xl);
+  margin-top: 28px;
 }
 
 .backLink {
   display: inline-block;
-  margin-top: var(--space-xl);
+  margin-top: 28px;
   color: var(--color-accent);
   font-weight: 500;
   text-decoration: none;

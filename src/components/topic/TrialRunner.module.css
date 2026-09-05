@@ -6,7 +6,7 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 12px 28px color-mix(in srgb, var(--color-text) 8%, transparent);
+  box-shadow: none;
 }
 
 .toolbar {
@@ -64,7 +64,7 @@
 
 .runButton:focus-visible,
 .resetButton:focus-visible {
-  outline: 3px solid var(--color-blue-soft);
+  outline: 2px solid var(--color-ink);
   outline-offset: 3px;
 }
 
@@ -137,7 +137,7 @@
 }
 
 .primary {
-  background: var(--color-accent);
+  background: var(--color-chart-warm);
 }
 
 .secondary {

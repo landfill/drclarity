@@ -11,7 +11,7 @@
   max-width: var(--canvas-max-w);
   width: 100%;
   height: auto;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background-color: var(--color-surface);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: none;
 }
