@@ -126,10 +126,10 @@ export default function CursorContextCostClient() {
   }, []);
 
   const receiptRows = [
-    { key: 'cacheRead', label: 'Cache Read', tokens: totals.cacheRead, cost: costParts.cacheRead },
-    { key: 'cacheWrite', label: 'Cache Write', tokens: totals.cacheWrite, cost: costParts.cacheWrite },
-    { key: 'input', label: 'Input', tokens: totals.input, cost: costParts.input },
-    { key: 'output', label: 'Output', tokens: totals.output, cost: costParts.output },
+    { key: 'cacheRead', label: '재사용 입력', tokens: totals.cacheRead, cost: costParts.cacheRead },
+    { key: 'cacheWrite', label: '캐시 저장', tokens: totals.cacheWrite, cost: costParts.cacheWrite },
+    { key: 'input', label: '새 입력', tokens: totals.input, cost: costParts.input },
+    { key: 'output', label: '출력', tokens: totals.output, cost: costParts.output },
   ];
 
   return (
@@ -139,12 +139,13 @@ export default function CursorContextCostClient() {
       topicHref="/ai/cursor-context-cost"
       title={
         <>
-          Cursor의 <Highlight>155.2K</Highlight>는 무엇을 뜻하나
+          컨텍스트와 <Highlight>사용량</Highlight>은 무엇이 다를까?
         </>
       }
       subtitle="채팅창의 컨텍스트와 대시보드의 토큰 사용량은 서로 다른 것을 셉니다. 둘을 잇고 나면 어디를 줄여야 하는지가 보입니다."
     >
       <QuizGate
+        labels={{ skip: '바로 실험하기' }}
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -165,11 +166,21 @@ export default function CursorContextCostClient() {
             <StageLead />
           </div>
 
+          <div className={styles.experimentButtons} role="group" aria-label="호출 횟수 비교">
+            <button type="button" aria-pressed={calls === 1} onClick={() => setCalls(1)}>1. 한 번 호출</button>
+            <button type="button" aria-pressed={calls === 4} onClick={() => setCalls(4)}>2. 네 번 호출</button>
+          </div>
+          <ol className={styles.flow} aria-label="문맥이 사용량으로 쌓이는 과정">
+            <li>① 시작 입력 <strong>{formatTokens(context)}토큰</strong></li>
+            <li>② 모델 호출 <strong>{calls}번</strong></li>
+            <li>③ 입력·출력 누계 <strong>{formatTokens(grandTotal)}토큰</strong></li>
+          </ol>
           {/*
             공용 ParameterPanel 대신 한 줄짜리 컨트롤을 쓴다.
             이 주제의 요점은 두 화면을 **동시에** 보는 것인데, 세로로 긴 패널이
             둘을 한 화면 밖으로 밀어낸다. 컨트롤은 얇을수록 좋다.
           */}
+          <details className={styles.fineControls}><summary>조건을 직접 조절하기</summary>
           <div className={styles.controls}>
             <label className={styles.control}>
               <span className={styles.controlLabel}>대화</span>
@@ -211,7 +222,7 @@ export default function CursorContextCostClient() {
                 checked={trimmed}
                 onChange={event => setTrimmed(event.currentTarget.checked)}
               />
-              <span>안 쓰는 Skills · MCP · 서브에이전트 끄기</span>
+              <span>안 쓰는 도구·설정 설명 빼기</span>
             </label>
 
             <button type="button" className={styles.resetButton} onClick={handleReset}>
@@ -219,11 +230,13 @@ export default function CursorContextCostClient() {
             </button>
           </div>
 
+          </details>
+
           <div className={styles.screens}>
             {/* 화면 하나 — 채팅창의 Context Usage 패널 */}
             <div className={styles.screen}>
               <div className={styles.screenHead}>
-                <span className={styles.screenTitle}>Context Usage</span>
+                <span className={styles.screenTitle}>① 한 번에 담는 문맥</span>
                 <span className={styles.screenWhere}>채팅 입력칸의 링</span>
               </div>
 
@@ -269,8 +282,7 @@ export default function CursorContextCostClient() {
               </ul>
 
               <p className={styles.screenFoot} role="status" aria-live="polite">
-                대화를 뺀 <strong>{formatTokens(overhead)}</strong>는 한 글자도 쓰기 전에 이미
-                차 있습니다 — 전체의 {Math.round((overhead / context) * 100)}%.
+                이 모형에서 설정·도구 설명은 <strong>{formatTokens(overhead)}토큰</strong>입니다. 대화를 줄여도 이 몫은 남습니다.
               </p>
 
               <div className={styles.screenNote}>
@@ -281,7 +293,7 @@ export default function CursorContextCostClient() {
             {/* 화면 둘 — 대시보드 한 행 */}
             <div className={styles.screen}>
               <div className={styles.screenHead}>
-                <span className={styles.screenTitle}>Usage — 이 요청 한 행</span>
+                <span className={styles.screenTitle}>② 여러 호출의 사용량 합계</span>
                 {summarizedCount > 0 ? (
                   <span className={styles.summarizedTag}>요약 {summarizedCount}회</span>
                 ) : (
@@ -289,12 +301,17 @@ export default function CursorContextCostClient() {
                 )}
               </div>
 
+              <ol className={styles.callBars} aria-label="호출마다 사용한 입력">
+                {scenario.map((call, index) => <li key={index}>
+                  <span>{index + 1}회</span><span className={styles.callTrack}><span style={{ width: percent(call.activeContext, WINDOW_LIMIT) }} /></span><small>{formatTokens(call.activeContext)}{call.summarized ? ' · 요약' : ''}</small>
+                </li>)}
+              </ol>
               <table className={styles.receipt}>
                 <thead>
                   <tr>
                     <th scope="col">항목</th>
                     <th scope="col">Tokens</th>
-                    <th scope="col">Cost</th>
+                    <th scope="col">예시 비용</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -343,15 +360,15 @@ export default function CursorContextCostClient() {
           </div>
         </section>
 
-        <ExplanationBox title={oneRowTitle}>
+        <ExplanationBox title={oneRowTitle} collapsible>
           <OneRow />
         </ExplanationBox>
 
-        <ExplanationBox title={costTitle}>
+        <ExplanationBox title={costTitle} collapsible>
           <Cost />
         </ExplanationBox>
 
-        <ExplanationBox title={efficientTitle}>
+        <ExplanationBox title={efficientTitle} collapsible>
           <Efficient />
         </ExplanationBox>
       </QuizGate>

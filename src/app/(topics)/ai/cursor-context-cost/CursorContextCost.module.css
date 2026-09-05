@@ -246,13 +246,34 @@
 }
 
 /* 범주 색. Cursor 패널의 배열과 같은 순서로 구분만 되면 된다. */
-.catSystem { background: var(--color-muted-2); }
-.catTools { background: #a78bfa; }
-.catRules { background: var(--color-success); }
-.catSkills { background: var(--color-accent); }
-.catMcp { background: #f0a6ca; }
-.catSubagents { background: var(--color-blue-soft); }
-.catConversation { background: var(--color-warm); }
+.catSystem {
+  background: var(--color-muted-2);
+}
+
+.catTools {
+  background: #a78bfa;
+}
+
+.catRules {
+  background: var(--color-success);
+}
+
+.catSkills {
+  background: var(--color-accent);
+}
+
+.catMcp {
+  background: #f0a6ca;
+}
+
+.catSubagents {
+  background: var(--color-blue-soft);
+}
+
+.catConversation {
+  background: var(--color-warm);
+}
+
 
 /* --- 대시보드 한 행 --- */
 
@@ -309,4 +330,105 @@
   .resetButton {
     margin-left: 0;
   }
+}
+
+/* The experiment gives a concrete starting point before the full controls. */
+.experimentButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin: 1rem 0;
+}
+
+.experimentButtons button {
+  min-height: 44px;
+  padding: .55rem .85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.experimentButtons button[aria-pressed="true"] {
+  border-color: var(--color-secondary);
+  background: var(--color-secondary);
+  color: white;
+}
+
+.experimentButtons button:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .6rem;
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flow > li {
+  flex: 1 1 110px;
+  padding: .8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.flow strong {
+  display: block;
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.flow small {
+  color: var(--color-muted);
+}
+
+
+.callBars {
+  list-style:none;
+  padding:0;
+  margin:1rem 0;
+  display:grid;
+  gap:.4rem;
+}
+
+.callBars li {
+  display:grid;
+  grid-template-columns:2rem minmax(20px,1fr) 6rem;
+  gap:.5rem;
+  align-items:center;
+  font-size:.8rem;
+}
+
+.callTrack {
+  height:12px;
+  background:var(--color-subtle);
+  overflow:hidden;
+  border-radius:3px;
+}
+
+.callTrack > span {
+  display:block;
+  height:100%;
+  background:var(--color-secondary);
+}
+
+.fineControls {
+  margin: .75rem 0;
+}
+
+.fineControls summary {
+  padding: .75rem 0;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--color-muted);
 }

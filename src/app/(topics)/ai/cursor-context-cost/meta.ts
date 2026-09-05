@@ -1,9 +1,8 @@
 import { TopicMeta } from '@/content/types';
 
 const meta: TopicMeta = {
-  title: 'Cursor의 155.2K는 무엇을 뜻하나',
-  summary:
-    '채팅창의 컨텍스트 링과 대시보드의 토큰 사용량은 서로 다른 것을 셉니다. 두 화면을 나란히 놓고 나면 대시보드의 숫자가 어디서 왔는지, 그리고 내가 줄일 수 있는 것이 무엇인지가 보입니다.',
+  title: '컨텍스트와 사용량은 무엇이 다를까?',
+  summary: '한 번에 담는 문맥과 여러 호출의 누계를 나란히 비교합니다. 캐시 읽기는 문맥 안의 재사용된 몫입니다.',
   order: 7,
   difficulty: 2,
   tags: ['AI', '캐시', '비용', '추론'],
