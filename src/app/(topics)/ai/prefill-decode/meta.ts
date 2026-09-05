@@ -1,9 +1,8 @@
 import { TopicMeta } from '@/content/types';
 
 const meta: TopicMeta = {
-  title: '기다림과 좌르륵 — AI 가 답하는 두 박자',
-  summary:
-    '챗봇은 잠깐 멈췄다가 글자를 좌르륵 쏟아냅니다. 그 멈춤이 질문을 읽는 시간입니다. 읽는 박자와 쓰는 박자가 달라서, 빨리 시작하는 것과 빨리 끝나는 것이 따로 놉니다.',
+  title: '먼저 쓰기 시작하면, 먼저 끝날까?',
+  summary: '읽을 양과 쓸 양을 따로 바꾸며 첫 토큰과 답이 끝나는 시간을 비교합니다.',
   order: 4,
   difficulty: 2,
   tags: ['AI', '추론', '성능'],

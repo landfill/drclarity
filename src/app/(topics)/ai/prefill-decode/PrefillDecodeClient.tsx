@@ -15,6 +15,7 @@ import {
   buildTimeline,
   findPreset,
   totalDuration,
+  ttft,
 } from './timeline';
 import { TimelineRow } from './TimelineRow';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
@@ -45,6 +46,7 @@ export default function PrefillDecodeClient() {
   const [inputTokens, setInputTokens] = useState(INITIAL_PRESET.inputTokens);
   const [outputTokens, setOutputTokens] = useState(INITIAL_PRESET.outputTokens);
   const [compareId, setCompareId] = useState(INITIAL_COMPARE);
+  const [baseline, setBaseline] = useState<{ input: number; output: number } | null>(null);
 
   const phases = useMemo(
     () => buildTimeline(inputTokens, outputTokens),
@@ -53,8 +55,8 @@ export default function PrefillDecodeClient() {
   const comparePreset = findPreset(compareId);
   const comparePhases = useMemo(
     () =>
-      comparePreset ? buildTimeline(comparePreset.inputTokens, comparePreset.outputTokens) : [],
-    [comparePreset]
+      baseline ? buildTimeline(baseline.input, baseline.output) : comparePreset ? buildTimeline(comparePreset.inputTokens, comparePreset.outputTokens) : [],
+    [comparePreset, baseline]
   );
 
   // 두 줄을 겹쳐 볼 때는 눈금이 같아야 한다. 줄마다 자기 길이에 맞추면 두 배 긴 줄이
@@ -107,11 +109,12 @@ export default function PrefillDecodeClient() {
         value: compareId,
         options: [
           { value: NO_COMPARE, label: '겹치지 않기' },
+          ...(baseline ? [{ value: 'baseline', label: '바꾸기 전 기준' }] : []),
           ...PRESETS.map(preset => ({ value: preset.id, label: preset.label })),
         ],
       },
     ],
-    [compareId, inputTokens, outputTokens, presetId, presetOptions]
+    [compareId, inputTokens, outputTokens, presetId, presetOptions, baseline]
   );
 
   const handleParamChange = useCallback((id: string, value: number | boolean | string) => {
@@ -129,6 +132,7 @@ export default function PrefillDecodeClient() {
       return;
     }
     if (id === 'compare') {
+      if (value !== 'baseline') setBaseline(null);
       setCompareId(String(value));
       return;
     }
@@ -152,12 +156,13 @@ export default function PrefillDecodeClient() {
       topicHref="/ai/prefill-decode"
       title={
         <>
-          기다림과 <Highlight>좌르륵</Highlight>
+          먼저 쓰기 시작하면, <Highlight>먼저 끝날까?</Highlight>
         </>
       }
-      subtitle="챗봇은 잠깐 멈췄다가 글자를 쏟아냅니다. 그 멈춤이 질문을 읽는 시간입니다."
+      subtitle="읽을 양과 쓸 양을 따로 바꾸며, 첫 토큰이 나오는 때와 답이 끝나는 때를 비교합니다."
     >
       <QuizGate
+        labels={{ skip: '바로 실험하기' }}
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -182,7 +187,15 @@ export default function PrefillDecodeClient() {
             <StageLead />
           </div>
 
-          <ParameterPanel params={params} onChange={handleParamChange} />
+          <div className={styles.experimentButtons} role="group" aria-label="한 조건씩 비교">
+            <button type="button" aria-pressed={baseline !== null && inputTokens === 1200 && outputTokens === 40} onClick={() => { setBaseline({ input: 200, output: 40 }); setCompareId('baseline'); setPresetId(CUSTOM_PRESET_ID); setInputTokens(1200); setOutputTokens(40); }}>1. 입력만 늘리기</button>
+            <button type="button" aria-pressed={baseline !== null && inputTokens === 200 && outputTokens === 200} onClick={() => { setBaseline({ input: 200, output: 40 }); setCompareId('baseline'); setPresetId(CUSTOM_PRESET_ID); setInputTokens(200); setOutputTokens(200); }}>2. 출력만 늘리기</button>
+            <button type="button" aria-pressed={baseline === null && compareId === INITIAL_COMPARE && inputTokens === INITIAL_PRESET.inputTokens && outputTokens === INITIAL_PRESET.outputTokens} onClick={() => { setBaseline(null); setCompareId(INITIAL_COMPARE); handleParamChange('preset', INITIAL_PRESET.id); }}>퀴즈의 두 요청</button>
+          </div>
+          <details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleParamChange} /></details>
+          <p className={styles.observation} role="status">
+            {comparePhases.length > 0 ? `기준보다 첫 토큰은 ${ttft(phases) === ttft(comparePhases) ? '같은 시점에' : ttft(phases) > ttft(comparePhases) ? '나중에' : '먼저'}, 답의 끝은 ${totalDuration(phases) === totalDuration(comparePhases) ? '같은 시점에' : totalDuration(phases) > totalDuration(comparePhases) ? '나중에' : '먼저'} 옵니다.` : '첫 토큰 표시와 막대 끝은 서로 다른 시점입니다.'}
+          </p>
 
           <AnimationCard className={styles.card}>
             <div className={styles.rows}>
@@ -192,10 +205,10 @@ export default function PrefillDecodeClient() {
                 phases={phases}
                 scale={scale}
               />
-              {comparePreset && (
+              {(comparePreset || baseline) && (
                 <TimelineRow
-                  label={comparePreset.label}
-                  prompt={comparePreset.prompt}
+                  label={baseline ? '바꾸기 전 기준' : comparePreset!.label}
+                  prompt={baseline ? `입력 ${baseline.input} · 출력 ${baseline.output}토큰` : comparePreset!.prompt}
                   phases={comparePhases}
                   scale={scale}
                   muted
@@ -215,17 +228,16 @@ export default function PrefillDecodeClient() {
             </li>
             <li>
               <span className={`${styles.swatch} ${styles.swatchMarker}`} aria-hidden="true" />
-              첫 글자가 나오는 순간
+              첫 토큰이 나오는 순간
             </li>
           </ul>
 
           <p className={styles.footnote}>
-            가로 눈금은 두 줄이 함께 씁니다. 그래서 길이를 그대로 견줄 수 있고, 짧은 쪽은 뒤가
-            비어 있습니다 — 그만큼 먼저 끝난 것입니다.
+            두 줄은 같은 시간 눈금을 씁니다. 수치는 모형의 상대 시간이며 초 단위가 아닙니다.
           </p>
         </section>
 
-        <ExplanationBox title={beatsTitle}>
+        <ExplanationBox title={beatsTitle} collapsible>
           <Beats />
         </ExplanationBox>
 
