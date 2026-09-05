@@ -1,4 +1,5 @@
 import { getCategory } from '@/content/registry';
+import { DifficultyGuide } from '@/components/topic/DifficultyGuide';
 import { TopicCard } from '@/components/topic/TopicCard';
 import { TopicLayout } from '@/components/layout/TopicLayout';
 import { notFound } from 'next/navigation';
@@ -23,6 +24,7 @@ export function CategoryIndex({ categoryId }: CategoryIndexProps) {
       title={category.label}
       subtitle={category.description}
     >
+      <DifficultyGuide />
       {topics.length === 0 ? (
         <div className={styles.empty}>
           <p>이 카테고리는 아직 준비 중입니다.</p>

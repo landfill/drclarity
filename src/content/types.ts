@@ -10,7 +10,7 @@ export interface TopicMeta {
   status?: 'published' | 'draft';
   /** 카드 썸네일. /public 기준 절대경로. 없으면 카드가 텍스트 전용으로 렌더된다. */
   thumbnail?: string;
-  /** 난이도 1(쉬움)~3(어려움). 카드에 점 3개로 표시. */
+  /** 핵심 학습 경로 기준: 1 입문, 2 기본, 3 심화. 정의는 difficulty.ts 참조. 생략 시 미정. */
   difficulty?: 1 | 2 | 3;
   /**
    * 분류용 태그. 카드/주제 페이지에 배지로 노출되고 /tags/[tag] 인덱스를 만든다.

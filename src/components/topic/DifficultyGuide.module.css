@@ -1,0 +1,40 @@
+.guide  {
+  margin-bottom: 20px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-muted);
+  font-size: .8rem;
+}
+
+.guide summary  {
+  cursor: pointer;
+  min-height: 28px;
+  font-weight: 600;
+}
+
+.guide p  {
+  margin: 10px 0;
+  line-height: 1.8;
+}
+
+.guide dl  {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.guide dl > div  {
+  display: grid;
+  grid-template-columns: 80px minmax(0,1fr);
+  gap: 12px;
+}
+
+.guide dt  {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.guide dd  {
+  margin: 0;
+  line-height: 1.8;
+}

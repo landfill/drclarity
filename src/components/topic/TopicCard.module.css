@@ -116,12 +116,16 @@
   min-width: 0;
 }
 
-.difficulty  {
+.difficultyBars {
   display: inline-flex;
   flex-shrink: 0;
   gap: 3px;
   align-items: flex-end;
 }
+
+.difficulty { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; color: var(--color-muted); }
+
+.difficultyLabel { font-size: .7rem; white-space: nowrap; }
 
 .dot  {
   width: 4px;

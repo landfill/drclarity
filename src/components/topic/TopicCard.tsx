@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { DIFFICULTIES } from '@/content/difficulty';
 import type { TopicEntry } from '@/content/types';
 import { TagList } from './TagList';
 import { TopicMotif } from './TopicMotif';
@@ -10,8 +11,10 @@ export interface TopicCardProps {
 }
 
 export function TopicCard({ topic }: TopicCardProps) {
+  const level = topic.difficulty;
+  const difficulty = level ? DIFFICULTIES[level] : undefined;
   const diffDots = Array.from({ length: 3 }).map((_, i) => (
-    <span key={i} className={`${styles.dot} ${i < (topic.difficulty || 1) ? styles.filled : ''}`} />
+    <span key={i} className={`${styles.dot} ${i < (level ?? 0) ? styles.filled : ''}`} />
   ));
 
   return (
@@ -32,7 +35,7 @@ export function TopicCard({ topic }: TopicCardProps) {
         </div>
         <p className={styles.summary}>{topic.summary}</p>
         {/* 카드 전체가 <a> 라 중첩 링크가 불가하다. 여기서는 배지만 보여준다. */}
-        <div className={styles.cardFoot}><TagList tags={topic.tags?.slice(0,2)} variant="plain" className={styles.tags} /><span className={styles.difficulty} role="img" aria-label={`난이도 ${topic.difficulty || 1}/3`}>{diffDots}</span></div>
+        <div className={styles.cardFoot}><TagList tags={topic.tags?.slice(0,2)} variant="plain" className={styles.tags} /><span className={styles.difficulty} role="img" aria-label={difficulty ? `난이도 ${difficulty.label} ${level}/3` : '난이도 미정'} title={difficulty?.description}><span className={styles.difficultyLabel}>{difficulty?.label ?? '미정'}</span><span className={styles.difficultyBars} aria-hidden="true">{diffDots}</span></span></div>
       </div>
     </Link>
   );

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getCategories, getTopics } from '@/content/registry';
+import { DifficultyGuide } from '@/components/topic/DifficultyGuide';
 import { TopicCard } from '@/components/topic/TopicCard';
 import { TopicMotif } from '@/components/topic/TopicMotif';
 import styles from './page.module.css';
@@ -34,6 +35,7 @@ export default function Home() {
 
       <div id="explore" className={styles.exploreHead}><div><p className={styles.eyebrow}>호기심이 향하는 곳</p><h2>어떤 생각을 열어볼까요?</h2></div><span>{topics.length}개의 주제</span></div>
       <nav className={styles.categoryNav} aria-label="홈에서 분야 바로가기">{categories.map(cat => <a key={cat.id} href={`#category-${cat.id}`}>{cat.label}<span>{cat.topics.length}</span></a>)}</nav>
+      <DifficultyGuide />
       {categories.map((cat,index) => <section id={`category-${cat.id}`} key={cat.id} className={styles.categorySection}>
         <div className={styles.categoryHeader}><div className={styles.categoryIntro}><span className={styles.categoryNumber}>{String(index+1).padStart(2,'0')}</span><div><h2><Link href={cat.href}>{cat.label}</Link></h2><p>{cat.description}</p></div></div><Link href={cat.href} className={styles.viewAll}>전체 보기 <span aria-hidden="true">↗</span></Link></div>
         {cat.topics.length === 0 ? <p className={styles.empty}>새로운 이야기를 준비하고 있습니다.</p> : <div className={styles.grid}>{cat.topics.map(topic => <TopicCard key={topic.href} topic={topic} />)}</div>}
