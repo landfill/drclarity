@@ -52,7 +52,7 @@ export function TimelineRow({ label, prompt, phases, scale, muted = false }: Tim
   const alt =
     decodeCount === 0
       ? `${label}: 읽기만 하고 쓰지 않습니다.`
-      : `${label}: 전체 시간의 ${waitPercent}퍼센트를 질문을 읽는 데 쓰고, 나머지에 토큰 ${decodeCount}개를 씁니다.`;
+      : `${label}: 첫 토큰까지 전체 시간의 ${waitPercent}퍼센트를 기다립니다. 출력은 모두 ${decodeCount}토큰입니다.`;
 
   return (
     <div className={`${styles.row} ${muted ? styles.rowMuted : ''}`.trim()}>
@@ -77,7 +77,7 @@ export function TimelineRow({ label, prompt, phases, scale, muted = false }: Tim
 
       <dl className={styles.rowStats}>
         <div>
-          <dt>첫 글자까지</dt>
+          <dt>첫 토큰까지</dt>
           <dd className={styles.mono}>{Math.round(firstToken).toLocaleString('ko-KR')}</dd>
         </div>
         <div>
