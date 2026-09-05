@@ -225,13 +225,13 @@
 }
 
 .experimentButtons button[aria-pressed="true"] {
-  border-color: var(--color-secondary);
-  background: var(--color-secondary);
-  color: white;
+  border-color: var(--color-text);
+  background: var(--color-subtle);
+  color: var(--color-text);
 }
 
 .experimentButtons button:focus-visible {
-  outline: 3px solid var(--color-accent);
+  outline: 3px solid var(--color-text);
   outline-offset: 3px;
 }
 

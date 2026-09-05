@@ -124,7 +124,7 @@ export default function ContextLimitClient() {
               <small>{turn.inWindow ? '입력 안' : '입력 밖'}</small>
             </li>)}
           </ol>
-          <p className={styles.observation} role="status">이름을 알려준 첫 메시지: <strong>{state.remembersName ? '입력 안에 있음 → 이름을 답할 근거가 있음' : '입력 밖으로 빠짐 → 이름을 답할 근거가 없음'}</strong></p>
+          <p className={styles.observation}>이름을 알려준 첫 메시지: <strong>{state.remembersName ? '입력 안에 있음 → 이름을 답할 근거가 있음' : '입력 밖으로 빠짐 → 이름을 답할 근거가 없음'}</strong></p>
 
           {/*
             게이지를 대화 위에 둔다. 아래에 두면 메시지가 흐려지는 것을 보고 나서야
