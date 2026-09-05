@@ -39,21 +39,21 @@ const STAGE_INTERVAL_MS = 700;
  */
 const STAGE_INFO: Record<LoopStage, { label: string; href?: string; hint: string }> = {
   tokenize: {
-    label: '① 입력 확인',
+    label: '입력 확인',
     href: '/ai/tokenizer',
     hint: '지금까지의 토큰을 확인한다.',
   },
   read: {
-    label: '② 앞말 참고',
+    label: '앞말 참고',
     hint: '앞의 정보와 저장된 계산을 참고한다.',
   },
   pick: {
-    label: '③ 하나 고르기',
+    label: '하나 고르기',
     href: '/ai/next-word',
     hint: '후보마다 확률을 매기고 그중 하나를 뽑는다.',
   },
   append: {
-    label: '④ 끝에 붙이기 ↻',
+    label: '끝에 붙이기 ↻',
     hint: '새 조각도 다음 선택의 재료가 된다.',
   },
 };
