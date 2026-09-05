@@ -1,677 +1,760 @@
-.board {
+.lesson  {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  margin-bottom: 28px;
+}
+
+.lessonToolbar  {
+  position: sticky;
+  top: var(--header-h);
+  z-index: 4;
   display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  width: 100%;
-}
-
-.stageContent {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  width: 100%;
-}
-
-.problemVisual {
-  margin: 0;
-  text-align: center;
-}
-
-.problemVisual img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 12px;
-}
-
-.problemVisual figcaption {
-  margin-top: var(--space-xs);
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  font-size: .8rem;
   color: var(--color-muted);
-  font-size: 0.95rem;
-  font-style: italic;
 }
 
-.bridgePanel {
-  padding: var(--space-sm) var(--space-md);
-  background: var(--color-note-bg);
-  border: 2px solid var(--color-note-border);
-  border-radius: var(--radius-md);
+.lessonButtons  {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-.bridgeTitle {
-  margin: 0 0 var(--space-xs);
+.lessonButtons button  {
+  min-height: 42px;
+  padding: 7px 13px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font: inherit;
+  font-size: .8rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.lessonButtons .nextButton  {
+  background: var(--color-accent);
+  color: var(--color-surface);
+  border-color: var(--color-accent);
+}
+
+.lessonButtons button:disabled  {
+  opacity: .4;
+  cursor: default;
+}
+
+.lessonSteps  {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.lessonSteps button  {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 9px;
+  border: 0;
+  border-radius: 5px;
+  font: inherit;
+  font-size: .7rem;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.lessonSteps button[aria-current]  {
   color: var(--color-ink);
-  font-size: 1.05rem;
-  text-align: center;
-  line-height: 1.4;
+  background: var(--color-subtle);
+  font-weight: 700;
 }
 
-.signatureEquation {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-sm);
-}
-
-.selectedPotBadge,
-.binaryBadge {
-  min-width: 7rem;
-  padding: var(--space-xs) var(--space-sm);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2xs);
-  background: var(--color-surface);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  box-sizing: border-box;
-}
-
-.selectedPotBadge span,
-.binaryBadge span {
-  color: var(--color-muted);
-  font-size: 0.875rem;
-}
-
-.selectedPotBadge strong {
-  color: var(--color-blue);
-  font-size: 1.25rem;
-}
-
-.binaryBadge strong {
-  color: var(--color-danger);
-  font-family: monospace;
-  font-size: 1.25rem;
-  letter-spacing: 0.08em;
-}
-
-.equality {
-  color: var(--color-muted);
-  font-size: 1.35rem;
-  font-weight: 800;
-}
-
-.bitMeaningGrid {
+.lessonGrid  {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--space-xs);
+  grid-template-columns: minmax(0,1.4fr) minmax(0,1fr);
 }
 
-.bitMeaning {
-  padding: var(--space-xs) var(--space-2xs);
+.boardPanel  {
+  min-width: 0;
+  padding: 18px;
+  border-right: 1px solid var(--color-border);
+}
+
+.constraints  {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--color-muted);
+  font-size: .7rem;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.constraints strong  {
+  color: var(--color-ink);
+  font-size: .85rem;
+  margin-right: 4px;
+}
+
+.antCount  {
+  display: flex;
+  align-items: center;
+}
+
+.antCount svg  {
+  width: 28px;
+  height: 22px;
+  margin-right: 4px;
+  color: var(--color-ink);
+}
+
+.lessonExplanation  {
+  min-width: 0;
+  padding: 26px;
+}
+
+.lessonExplanation h2  {
+  font-size: 1.25rem;
+  margin-bottom: 18px;
+}
+
+.lessonBody  {
+  font-size: .95rem;
+  line-height: 1.9;
+}
+
+.lessonHint  {
+  font-size: .8rem;
+  line-height: 1.8;
+  color: var(--color-muted);
+  padding-top: 20px;
+  margin-top: 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.lessonHint strong  {
+  color: var(--color-accent);
+}
+
+.board  {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-2xs);
-  background: var(--color-surface);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  color: var(--color-muted);
-  text-align: center;
-  box-sizing: border-box;
+  gap: 18px;
   min-width: 0;
 }
 
-.bitMeaning span {
-  font-size: 0.875rem;
-  font-weight: 600;
+.grid  {
+  display: grid;
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  gap: 6px;
 }
 
-.bitMeaning strong {
+.potTile  {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+  min-height: 64px;
+  padding: 6px 2px;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  transition: border-color .2s, background-color .2s;
+}
+
+.potButton  {
+  font: inherit;
+  cursor: pointer;
+}
+
+.potButton:hover  {
+  border-color: var(--color-blue);
+}
+
+.potGraphic  {
+  position: relative;
+  display: block;
+  width: 42px;
+  max-width: 100%;
+  height: 48px;
+  color: var(--color-ink);
+}
+
+.potGraphic svg  {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.potNumber  {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 22px;
+  font-size: .8rem;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+}
+
+.potBinary  {
+  font-size: .7rem;
+  line-height: 1.2;
   font-family: monospace;
+  letter-spacing: .015em;
+  color: var(--color-muted);
+}
+
+.potTile.chosen  {
+  border: 2px solid var(--color-blue);
+  background: color-mix(in srgb,var(--color-blue) 8%,var(--color-surface));
+  padding: 5px 1px;
+}
+
+.potTile.highlighted  {
+  border: 2px solid var(--color-warm);
+  background: var(--color-note-bg);
+  padding: 5px 1px;
+}
+
+.potTile.selected  {
+  border: 2px solid var(--color-danger);
+  background: var(--color-formula-bg);
+  padding: 5px 1px;
+}
+
+.bridgePanel  {
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg);
+}
+
+.bridgeTitle  {
+  margin-bottom: 12px;
+  color: var(--color-ink);
+  font-size: .9rem;
+  line-height: 1.7;
+  text-align: left;
+}
+
+.signatureEquation  {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.selectedPotBadge, .binaryBadge  {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  padding: 10px 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  font-size: .7rem;
+  color: var(--color-muted);
+}
+
+.selectedPotBadge strong, .binaryBadge strong  {
+  font-size: 1.15rem;
+  color: var(--color-blue);
+  font-variant-numeric: tabular-nums;
+}
+
+.binaryBadge strong  {
+  font-family: monospace;
+  letter-spacing: .12em;
+}
+
+.equality  {
+  color: var(--color-muted);
   font-size: 1.2rem;
 }
 
-.bitMeaning small {
-  min-height: 2em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.875rem;
-  line-height: 1.2;
-  word-break: keep-all;
-  text-align: center;
-}
-
-.bitIncluded {
-  color: white;
-  background: var(--color-blue);
-  border-color: var(--color-blue);
-}
-
-.bridgeConclusion,
-.cupRule {
-  margin: var(--space-xs) 0 0;
-  color: var(--color-ink);
-  text-align: center;
-  line-height: 1.5;
-  word-break: keep-all;
-  font-size: 0.95rem;
-}
-
-.cupRule {
-  margin: 0 0 var(--space-sm);
-  color: var(--color-muted);
-}
-
-.routingGrid {
+.bitMeaningGrid  {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--space-xs);
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  gap: 5px;
 }
 
-.routeLane {
-  min-width: 0;
+.bitMeaning  {
   display: flex;
   flex-direction: column;
+  gap: 4px;
   align-items: center;
-  text-align: center;
-  box-sizing: border-box;
-}
-
-.routeAnt {
-  font-weight: 800;
-  color: var(--color-ink);
-  font-size: 0.875rem;
-}
-
-.routeBit {
-  width: 1.75rem;
-  height: 1.75rem;
-  margin-top: var(--space-2xs);
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--color-subtle);
-  color: var(--color-muted);
-  font-family: monospace;
-  font-size: 0.95rem;
-  flex-shrink: 0;
-}
-
-.routeActive .routeBit {
-  background: var(--color-blue);
-  color: white;
-}
-
-.routeTrack {
-  position: relative;
-  width: 24px;
-  height: 2rem;
-  margin: var(--space-2xs) 0;
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
-  flex-shrink: 0;
-}
-
-.routeTrack::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 2px;
-  transform: translateX(-50%);
-  background: var(--color-border);
-}
-
-.routeActive .routeTrack::before {
-  background: var(--color-blue-soft);
-}
-
-.sampleDrop {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  width: 0.65rem;
-  height: 0.65rem;
-  border-radius: 50%;
-  background: var(--color-warm);
-  transform: translate(-50%, 0);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 18%, transparent);
-  animation: sample-travel 1.4s ease-in-out both;
-}
-
-.routeLane:nth-child(2) .sampleDrop { animation-delay: 0.12s; }
-.routeLane:nth-child(3) .sampleDrop { animation-delay: 0.24s; }
-.routeLane:nth-child(4) .sampleDrop { animation-delay: 0.36s; }
-.routeLane:nth-child(5) .sampleDrop { animation-delay: 0.48s; }
-
-@keyframes sample-travel {
-  0% { opacity: 0; transform: translate(-50%, 0) scale(0.7); }
-  20% { opacity: 1; }
-  100% { opacity: 1; transform: translate(-50%, 1.45rem) scale(1); }
-}
-
-.cupCard {
-  width: 100%;
-  min-height: 4.6rem;
-  padding: var(--space-xs) var(--space-2xs);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--space-2xs);
-  border: 2px solid var(--color-border);
-  border-radius: 8px 8px 18px 18px;
+  padding: 8px 2px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
   background: var(--color-surface);
   color: var(--color-muted);
-  box-sizing: border-box;
-}
-
-.routeActive .cupCard {
-  border-color: var(--color-blue);
-  color: var(--color-ink);
-  box-shadow: inset 0 -10px 0 rgba(74, 144, 226, 0.1);
-}
-
-.cupCard strong {
-  font-size: 0.875rem;
-  word-break: keep-all;
-}
-
-.cupStatus {
-  font-size: 0.875rem;
-  line-height: 1.3;
-  word-break: keep-all;
-}
-
-.routeActive .cupStatus {
-  color: var(--color-blue);
-  font-weight: 800;
-  animation: sample-appears 0.45s ease-out 0.9s both;
-}
-
-@keyframes sample-appears {
-  0% { opacity: 0; transform: translateY(4px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-.antBar {
-  margin-bottom: var(--space-2xs);
-}
-
-.antBarTitle {
-  font-weight: 700;
-  margin-bottom: var(--space-xs);
-  color: var(--color-secondary);
   text-align: center;
-  font-size: 0.95rem;
 }
 
-.antTiles {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--space-xs);
-}
-
-.antTile {
-  background: var(--color-surface);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: var(--space-xs) var(--space-2xs);
-  min-width: 44px;
-  min-height: 44px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2xs);
-  cursor: pointer;
-  color: var(--color-text);
-  font-family: inherit;
-  transition: all 0.2s;
-  box-sizing: border-box;
-}
-
-.antTile:hover {
-  border-color: var(--color-accent);
-  transform: translateY(-2px);
-}
-
-.antActive {
-  background: var(--color-warm);
-  border-color: var(--color-warm);
-  color: white;
-  transform: translateY(-2px);
-}
-
-.antTileName {
-  font-size: 0.95rem;
-  font-weight: 700;
+.bitMeaning span  {
+  font-size: .65rem;
   white-space: nowrap;
 }
 
-.antTileBit {
+.bitMeaning strong  {
+  font-size: 1.15rem;
   font-family: monospace;
-  font-size: 0.875rem;
-  background: rgba(0, 0, 0, 0.05);
-  padding: 0.15rem 0.35rem;
-  border-radius: 4px;
 }
 
-.antActive .antTileBit,
-.dead .antTileBit,
-.alive .antTileBit {
-  background: rgba(255, 255, 255, 0.25);
+.bitMeaning small  {
+  font-size: .6rem;
+  line-height: 1.5;
+  word-break: keep-all;
 }
 
-.antStateTile .antTileStatus {
-  font-size: 0.875rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+.bitIncluded  {
+  border-color: var(--color-blue);
+  color: var(--color-blue);
+  background: color-mix(in srgb,var(--color-blue) 7%,var(--color-surface));
 }
 
-.antStateTile.dead {
-  background: var(--color-danger);
-  border-color: var(--color-danger);
-  color: white;
-}
-
-.antStateTile.alive {
-  background: var(--color-success);
-  border-color: var(--color-success);
-  color: white;
-}
-
-.antStateTile:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.06);
-}
-
-.antBarHelp {
-  margin-top: var(--space-xs);
-  text-align: center;
-  font-size: 0.95rem;
+.bridgeConclusion, .cupRule  {
+  margin-top: 12px;
+  font-size: .75rem;
+  line-height: 1.8;
   color: var(--color-muted);
 }
 
-.grid {
+.cupRule  {
+  margin: 0 0 14px;
+}
+
+.routingGrid  {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.routeLane  {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--space-xs);
-}
-
-@media (max-width: 480px) {
-  .grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-.potTile {
+  grid-template-columns: 44px 24px minmax(22px,1fr) minmax(76px,1.5fr);
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
   background: var(--color-surface);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: var(--space-xs) var(--space-2xs);
-  min-width: 44px;
+}
+
+.routeAnt  {
+  font-size: .7rem;
+  white-space: nowrap;
+}
+
+.routeBit  {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background: var(--color-subtle);
+  color: var(--color-muted);
+  font: 700 .85rem monospace;
+}
+
+.routeActive  {
+  border-color: var(--color-blue);
+}
+
+.routeActive .routeBit  {
+  color: var(--color-blue);
+}
+
+.routeInactive  {
+  border-style: dashed;
+}
+
+.routeTrack  {
+  position: relative;
+  height: 18px;
+  min-width: 0;
+}
+
+.routeTrack::before  {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.routeActive .routeTrack::before  {
+  background: var(--color-blue);
+}
+
+.sampleDrop  {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px 50% 50%;
+  transform: rotate(45deg);
+  background: var(--color-warm);
+  animation: deliver .9s ease-in-out var(--route-delay,0ms) both;
+}
+
+@keyframes deliver  {
+  from  {
+    left: 0;
+    opacity: 0;
+  }
+
+  15%  {
+    opacity: 1;
+  }
+
+  to  {
+    left: calc(100% - 10px);
+    opacity: 1;
+  }
+
+}
+
+.cupCard  {
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cupCard strong  {
+  font-size: .7rem;
+  font-weight: 600;
+}
+
+.cupStatus  {
+  font-size: .65rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.routeActive .cupStatus  {
+  color: var(--color-blue);
+  animation: delivered .2s ease-out calc(.9s + var(--route-delay,0ms)) both;
+}
+
+@keyframes delivered  {
+  from  {
+    opacity: 0;
+  }
+
+  to  {
+    opacity: 1;
+  }
+
+}
+
+.antBarTitle  {
+  margin-bottom: 10px;
+  color: var(--color-muted);
+  font-size: .8rem;
+  line-height: 1.7;
+}
+
+.antTiles  {
+  display: grid;
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  gap: 5px;
+}
+
+.antTile  {
+  min-width: 0;
   min-height: 44px;
+  padding: 8px 2px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: var(--space-2xs);
-  transition: all 0.2s;
-  box-sizing: border-box;
+  gap: 4px;
+  transition: border-color .2s, background-color .2s;
 }
 
-.potTile.highlighted {
-  background: var(--color-warm);
-  border-color: var(--color-warm);
-  color: white;
-  transform: translateY(-2px);
+.antDrawing  {
+  display: block;
+  width: 34px;
+  max-width: 100%;
+  height: 26px;
 }
 
-.potTile.selected {
-  background: var(--color-danger);
-  border-color: var(--color-danger);
-  color: white;
-  transform: scale(1.04);
-  box-shadow: 0 4px 12px rgba(214, 48, 49, 0.3);
+.antDrawing svg  {
+  width: 100%;
+  height: 100%;
 }
 
-.potTile.chosen {
-  background: var(--color-blue);
-  border-color: var(--color-blue);
-  color: white;
-  transform: scale(1.04);
-  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.25);
+.antTileName, .antTileBit, .antTileStatus  {
+  font-size: .65rem;
+  line-height: 1.5;
 }
 
-.potButton {
-  color: var(--color-text);
-  font-family: inherit;
-  cursor: pointer;
+.antTileName  {
+  white-space: nowrap;
+  font-weight: 600;
 }
 
-.potButton:hover {
-  border-color: var(--color-blue);
-  transform: translateY(-2px);
-}
-
-.potTile.chosen:hover {
-  transform: translateY(-2px) scale(1.04);
-}
-
-.potButton:focus-visible,
-.antTile:focus-visible {
-  outline: 2px solid var(--color-ink);
-  outline-offset: 2px;
-}
-
-.potNumber {
-  font-size: 1.1rem;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.potBinary {
+.antTileBit  {
   font-family: monospace;
-  font-size: 0.85rem;
-  background: rgba(0, 0, 0, 0.05);
-  padding: 0.15rem 0.35rem;
-  border-radius: 4px;
-  line-height: 1.2;
 }
 
-.potTile.highlighted .potBinary,
-.potTile.selected .potBinary,
-.potTile.chosen .potBinary {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.simulationResult {
-  background: var(--color-surface);
-  padding: var(--space-md);
-  border-radius: var(--radius-md);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  animation: fadeIn 0.5s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.decodeBox {
+.antActive  {
+  border-color: var(--color-warm);
   background: var(--color-note-bg);
-  border: 2px solid var(--color-note-border);
-  border-radius: var(--radius-sm);
-  padding: var(--space-sm);
-  text-align: center;
 }
 
-.decodeSum {
-  font-size: 1.35rem;
-  margin: var(--space-2xs) 0;
+.antStateTile.dead  {
+  border: 2px solid var(--color-danger);
+  padding: 7px 1px;
+  background: var(--color-formula-bg);
+}
+
+.antStateTile.dead .antTileStatus  {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+.antStateTile.alive .antTileStatus  {
+  color: var(--color-success);
+}
+
+.antBarHelp  {
+  margin-top: 10px;
+  font-size: .75rem;
+  line-height: 1.7;
+  color: var(--color-muted);
+}
+
+.simulationResult  {
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg);
+}
+
+.decodeBox  {
+  font-size: .75rem;
+  line-height: 1.8;
+}
+
+.decodeSum  {
+  margin: 6px 0;
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.decodeConclusion  {
   color: var(--color-ink);
 }
 
-.decodeConclusion {
-  font-size: 1.1rem;
-  color: var(--color-danger);
-  margin: var(--space-2xs) 0 0;
-}
-
-.decodeNote {
-  font-size: 0.95rem;
-  line-height: 1.5;
+.decodeNote  {
   color: var(--color-muted);
-  margin: var(--space-2xs) 0 0;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .simulationResult {
+.replayButton  {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 8px 0;
+  margin-bottom: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--color-blue);
+  font: inherit;
+  font-size: .75rem;
+  cursor: pointer;
+}
+
+.lesson button:focus-visible  {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+}
+
+@media(max-width:760px)  {
+  .lessonGrid  {
+    grid-template-columns: 1fr;
+  }
+
+  .boardPanel  {
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
+    padding: 12px;
+  }
+
+  .lessonExplanation  {
+    padding: 20px;
+  }
+
+  .lessonToolbar  {
+    padding: 10px 12px;
+  }
+
+  .lessonButtons button  {
+    padding: 7px 10px;
+  }
+
+  .lessonSteps  {
+    justify-content: space-between;
+    gap: 2px;
+    padding: 8px;
+  }
+
+  .lessonSteps button  {
+    width: 30px;
+    min-height: 34px;
+    justify-content: center;
+    padding: 5px;
+  }
+
+  .lessonSteps button span  {
+    display: none;
+  }
+
+  .bridgePanel  {
+    padding: 10px;
+  }
+
+  .routeLane  {
+    padding: 6px;
+    gap: 5px;
+    grid-template-columns: 38px 22px minmax(15px,1fr) minmax(74px,1.5fr);
+  }
+
+}
+
+@media(prefers-reduced-motion:reduce)  {
+  .sampleDrop  {
+    animation: none;
+    left: calc(100% - 10px);
+  }
+
+  .routeActive .cupStatus  {
     animation: none;
   }
 
-  .antTile,
-  .potTile {
+  .potTile, .antTile  {
     transition: none;
   }
 
-  .sampleDrop {
-    animation: none;
-    transform: translate(-50%, 1.45rem);
-  }
-
-  .routeActive .cupStatus {
-    animation: none;
-  }
 }
 
-@media (max-width: 768px) {
-  .routingGrid {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xs);
-  }
-
-  .routeLane {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-xs) var(--space-sm);
-    border: 2px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    background: var(--color-surface);
-    text-align: left;
-    gap: var(--space-xs);
-  }
-
-  .routeLane.routeActive {
-    border-color: var(--color-blue);
-    background: var(--color-surface);
-  }
-
-  .routeAnt {
-    min-width: 3.5rem;
-    font-size: 0.95rem;
-  }
-
-  .routeBit {
-    margin-top: 0;
-    width: 1.85rem;
-    height: 1.85rem;
-  }
-
-  .routeTrack {
-    width: 2.5rem;
-    height: 20px;
-    margin: 0;
-    align-items: center;
-  }
-
-  .routeTrack::before {
-    top: 50%;
-    bottom: auto;
-    left: 0;
-    right: 0;
-    width: auto;
-    height: 2px;
-    transform: translateY(-50%);
-  }
-
-  .sampleDrop {
-    top: 50%;
-    left: 0;
-    transform: translate(0, -50%);
-    animation: sample-travel-h 1.4s ease-in-out both;
-  }
-
-  @keyframes sample-travel-h {
-    0% { opacity: 0; transform: translate(0, -50%) scale(0.7); }
-    20% { opacity: 1; }
-    100% { opacity: 1; transform: translate(1.85rem, -50%) scale(1); }
-  }
-
-  .cupCard {
-    width: auto;
-    flex: 1;
-    min-height: unset;
-    padding: 0;
-    border: none;
-    border-radius: 0;
-    background: transparent;
-    text-align: right;
-    box-shadow: none;
-  }
-
-  .routeActive .cupCard {
-    box-shadow: none;
-  }
+.routingSource  {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px;
+  margin-bottom: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
 }
 
-@media (max-width: 768px) and (prefers-reduced-motion: reduce) {
-  .sampleDrop {
-    animation: none;
-    transform: translate(1.85rem, -50%);
-  }
+.routingSource label  {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: .75rem;
 }
 
-@media (max-width: 600px) {
-  .bridgePanel {
-    padding: var(--space-xs) var(--space-sm);
-  }
+.routingSource select  {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 38px;
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
 
-  .signatureEquation {
-    gap: var(--space-xs);
-  }
+.gridDetails summary  {
+  padding: 10px 0;
+  color: var(--color-muted);
+  font-size: .75rem;
+  cursor: pointer;
+}
 
-  .selectedPotBadge,
-  .binaryBadge {
-    min-width: 0;
-    flex: 1;
-    padding: var(--space-xs) var(--space-2xs);
-  }
-
-  .bitMeaningGrid {
-    gap: var(--space-2xs);
-  }
-
-  .bitMeaning {
-    padding: var(--space-xs) 2px;
-  }
-
-  .bitMeaning span {
-    font-size: 0.8rem;
-  }
-
-  .bitMeaning strong {
-    font-size: 1.05rem;
-  }
-
-  .bitMeaning small {
-    font-size: 0.75rem;
-    min-height: 2.2em;
-  }
-
-  .antTileName {
-    font-size: 0.85rem;
-  }
-
-  .antTile {
-    padding: var(--space-xs) 2px;
-  }
+/* Compact desktop workspace: reduce objects and empty space, not the viewport scale. */
+@media (min-width: 761px) {
+  .lessonToolbar { padding: 6px 12px; }
+  .lessonButtons button { min-height: 36px; padding: 5px 11px; }
+  .lessonSteps { padding: 6px 10px; gap: 2px; }
+  .lessonSteps button { min-height: 36px; padding: 4px 7px; }
+  .boardPanel { padding: 12px; }
+  .lessonExplanation { padding: 18px; }
+  .lessonExplanation h2 { font-size: 1.0625rem; margin-bottom: 12px; }
+  .lessonBody { font-size: .875rem; line-height: 1.65; }
+  .lessonHint { padding-top: 12px; margin-top: 12px; line-height: 1.6; }
+  .constraints { padding-bottom: 8px; margin-bottom: 8px; gap: 6px; }
+  .board { gap: 10px; }
+  .grid { gap: 4px; }
+  .potTile { min-height: 44px; padding: 3px 2px; gap: 2px; }
+  .potGraphic { width: 28px; height: 32px; }
+  .potNumber { top: 14px; font-size: .75rem; }
+  .potBinary { line-height: 1.2; }
+  .potTile.chosen, .potTile.selected, .potTile.highlighted { padding: 2px 1px; }
+  .bridgePanel { padding: 8px; }
+  .bridgeTitle { font-size: .8125rem; line-height: 1.4; margin-bottom: 6px; }
+  .signatureEquation { gap: 8px; margin-bottom: 8px; }
+  .selectedPotBadge, .binaryBadge { flex-direction: row; justify-content: center; gap: 8px; padding: 6px 4px; line-height: 1.3; }
+  .selectedPotBadge strong, .binaryBadge strong { font-size: 1rem; line-height: 1.3; }
+  .bitMeaning { padding: 4px 2px; gap: 2px; }
+  .bitMeaning span { line-height: 1.3; }
+  .bitMeaning strong { font-size: 1rem; line-height: 1.25; }
+  .bitMeaning small { line-height: 1.3; }
+  .routingGrid { gap: 5px; }
+  .routeLane { padding: 4px 6px; }
+  .cupCard { padding: 3px 6px; gap: 1px; }
+  .cupCard strong { line-height: 1.4; }
+  .cupStatus { line-height: 1.4; }
+  .routingSource { padding: 6px 8px; gap: 10px; margin-bottom: 8px; }
+  .routingSource select { min-height: 36px; padding: 4px 6px; }
+  .cupRule, .bridgeConclusion { margin-top: 8px; line-height: 1.55; }
+  .cupRule { margin-bottom: 8px; }
+  .antBarTitle { margin-bottom: 6px; }
+  .antTile { padding: 5px 2px; gap: 2px; }
+  .antStateTile.dead { padding: 4px 1px; }
+  .antDrawing { width: 28px; height: 21px; }
+  .antBarHelp { margin-top: 6px; line-height: 1.55; }
+  .simulationResult { padding: 8px; }
+  .decodeBox { line-height: 1.55; }
+  .decodeSum { font-size: .9375rem; margin: 4px 0; }
+  .replayButton { padding: 4px 0; margin-bottom: 4px; }
 }
