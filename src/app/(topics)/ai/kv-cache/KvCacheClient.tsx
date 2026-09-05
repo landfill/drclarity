@@ -38,17 +38,17 @@ type GridStyle = CSSProperties & { '--kv-size': number };
 
 /** 격자는 그림이라 읽히지 않는다. 같은 내용을 문장으로 남긴다. */
 function gridAlt(length: number, step: number, cacheOn: boolean): string {
-  if (step === 0) return `${length}칸짜리 격자가 비어 있습니다. 아직 아무 글자도 쓰지 않았습니다.`;
+  if (step === 0) return `${length}칸짜리 격자가 비어 있습니다. 아직 아무 토큰도 쓰지 않았습니다.`;
 
   const seen = (step * (step + 1)) / 2;
   return cacheOn
-    ? `${length}글자 중 ${step}번째까지 썼습니다. 본 칸 ${seen}개 가운데 ${computedCount(step, true)}개만 새로 계산했고 나머지는 적어둔 값을 다시 읽었습니다.`
-    : `${length}글자 중 ${step}번째까지 썼습니다. 본 칸 ${seen}개를 전부 새로 계산했습니다.`;
+    ? `${length}토큰 중 ${step}번째까지 썼습니다. 본 칸 ${seen}개 가운데 ${computedCount(step, true)}개만 새로 계산했고 나머지는 적어둔 값을 다시 읽었습니다.`
+    : `${length}토큰 중 ${step}번째까지 썼습니다. 본 칸 ${seen}개를 전부 새로 계산했습니다.`;
 }
 
 export default function KvCacheClient() {
   const [length, setLength] = useState(DEFAULT_LENGTH);
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(4);
   const [cacheOn, setCacheOn] = useState(false);
   const [playing, setPlaying] = useState(false);
 
@@ -61,7 +61,7 @@ export default function KvCacheClient() {
   const savedRatio = computed > 0 ? computedCount(step, false) / computed : 1;
 
   /**
-   * 마지막 글자에 닿으면 저절로 멈춘다. `playing` 을 effect 안에서 끄지 않고 파생값으로
+   * 마지막 토큰에 닿으면 저절로 멈춘다. `playing` 을 effect 안에서 끄지 않고 파생값으로
    * 두는 이유는, effect 안의 setState 가 렌더를 한 번 더 유발하기 때문이다.
    */
   const isPlaying = playing && step < length;
@@ -88,17 +88,17 @@ export default function KvCacheClient() {
       {
         kind: 'range',
         id: 'length',
-        label: '쓸 글자 수',
+        label: '쓸 토큰 수',
         min: MIN_LENGTH,
         max: MAX_LENGTH,
         step: 1,
         value: length,
-        format: value => `${value}글자`,
+        format: value => `${value}토큰`,
       },
       {
         kind: 'range',
         id: 'step',
-        label: '지금까지 쓴 글자',
+        label: '지금까지 쓴 토큰',
         min: 0,
         max: length,
         step: 1,
@@ -147,12 +147,13 @@ export default function KvCacheClient() {
       topicHref="/ai/kv-cache"
       title={
         <>
-          앞을 다 다시 보는데 <Highlight>왜 안 느려지나</Highlight>
+          앞에서 한 계산을 <Highlight>다시 쓴다면?</Highlight>
         </>
       }
-      subtitle="모델은 한 글자를 쓸 때마다 앞의 모든 글자를 다시 봅니다. 그런데도 뒤로 갈수록 느려지지 않습니다."
+      subtitle="KV 캐시를 켜고 끄며, 다시 만드는 계산과 저장할 메모가 어떻게 달라지는지 봅니다."
     >
       <QuizGate
+        labels={{ skip: '바로 실험하기' }}
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -177,14 +178,21 @@ export default function KvCacheClient() {
             <StageLead />
           </div>
 
-          <ParameterPanel params={params} onChange={handleParamChange} />
+          <div className={styles.experimentButtons} role="group" aria-label="같은 토큰 수로 캐시 비교">
+            <button type="button" aria-pressed={!cacheOn && step === length} onClick={() => { setPlaying(false); setStep(length); setCacheOn(false); }}>1. 캐시 없이</button>
+            <button type="button" aria-pressed={cacheOn && step === length} onClick={() => { setPlaying(false); setStep(length); setCacheOn(true); }}>2. 캐시 켜고</button>
+          </div>
+          <details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleParamChange} /></details>
+          <p className={styles.observation} role="status">
+            {step}토큰까지 K·V를 만드는 작업: 캐시 없이 {computedCount(step, false)}칸 → 캐시를 켜면 {computedCount(step, true)}칸. 대신 {step}토큰의 메모를 보관합니다.
+          </p>
 
           <AnimationCard
             className={styles.card}
             controls={
               <div className={styles.buttons}>
-                <button type="button" className={styles.primaryButton} onClick={handlePlay}>
-                  {isPlaying ? '재생 중…' : step >= length ? '처음부터 재생' : '재생'}
+                <button type="button" className={styles.primaryButton} onClick={() => isPlaying ? setPlaying(false) : handlePlay()}>
+                  {isPlaying ? '일시정지' : step >= length ? '처음부터 재생' : '재생'}
                 </button>
                 <button
                   type="button"
@@ -195,7 +203,7 @@ export default function KvCacheClient() {
                   }}
                   disabled={step >= length}
                 >
-                  한 글자 더
+                  한 토큰 더
                 </button>
                 <button
                   type="button"
@@ -213,10 +221,10 @@ export default function KvCacheClient() {
           >
             <div className={styles.gridFrame}>
               <span className={styles.axisTop} aria-hidden="true">
-                보는 글자 →
+                보는 토큰 →
               </span>
               <span className={styles.axisLeft} aria-hidden="true">
-                쓰는 글자
+                쓰는 토큰
               </span>
               <div className={styles.gridScroll}>
                 <div
@@ -232,7 +240,7 @@ export default function KvCacheClient() {
                         className={`${styles.cell} ${styles[cell]}`}
                         // 지금 쓰는 중인 행은 테두리로 따로 짚는다. 색만으로 구분하지 않는다.
                         data-current={rowIndex === step - 1 ? 'true' : undefined}
-                      />
+                      >{cell === 'computed' ? '+' : cell === 'reused' ? '↶' : ''}</span>
                     ))
                   )}
                 </div>
@@ -243,11 +251,11 @@ export default function KvCacheClient() {
           <ul className={styles.legend} aria-label="칸 색의 뜻">
             <li>
               <span className={`${styles.swatch} ${styles.computed}`} aria-hidden="true" />
-              새로 계산한 칸
+              + 새로 만든 K·V
             </li>
             <li>
               <span className={`${styles.swatch} ${styles.reused}`} aria-hidden="true" />
-              적어둔 값을 다시 읽은 칸
+              ↶ 저장한 K·V 재사용
             </li>
             <li>
               <span className={`${styles.swatch} ${styles.empty}`} aria-hidden="true" />
@@ -271,7 +279,7 @@ export default function KvCacheClient() {
               <dd className={styles.mono}>{memos.toLocaleString('ko-KR')}</dd>
             </div>
             <div className={styles.readout}>
-              <dt>캐시가 아낀 계산</dt>
+              <dt>K·V 생성 횟수 비율</dt>
               <dd className={styles.mono}>
                 {cacheOn && savedRatio > 1 ? `${savedRatio.toFixed(1)}배` : '—'}
               </dd>
@@ -279,14 +287,14 @@ export default function KvCacheClient() {
           </dl>
 
           <p className={styles.farsight}>
-            여기서는 {length}글자까지만 그렸습니다. {QUIZ_LENGTH}글자라면 새로 계산할 칸이{' '}
+            여기서는 {length}토큰까지만 그렸습니다. {QUIZ_LENGTH}토큰라면 새로 계산할 칸이{' '}
             <strong>{computedCount(QUIZ_LENGTH, false).toLocaleString('ko-KR')}개</strong>, 적어두고
             다시 쓰면{' '}
             <strong>{computedCount(QUIZ_LENGTH, true).toLocaleString('ko-KR')}개</strong>입니다.
           </p>
         </section>
 
-        <ExplanationBox title={memoTitle}>
+        <ExplanationBox title={memoTitle} collapsible>
           <Memo />
         </ExplanationBox>
 
