@@ -38,12 +38,12 @@ type GridStyle = CSSProperties & { '--kv-size': number };
 
 /** 격자는 그림이라 읽히지 않는다. 같은 내용을 문장으로 남긴다. */
 function gridAlt(length: number, step: number, cacheOn: boolean): string {
-  if (step === 0) return `${length}칸짜리 격자가 비어 있습니다. 아직 아무 토큰도 쓰지 않았습니다.`;
+  if (step === 0) return `${length}칸짜리 격자가 비어 있습니다. 아직 토큰을 처리하지 않았습니다.`;
 
   const seen = (step * (step + 1)) / 2;
   return cacheOn
-    ? `${length}토큰 중 ${step}번째까지 썼습니다. 본 칸 ${seen}개 가운데 ${computedCount(step, true)}개만 새로 계산했고 나머지는 적어둔 값을 다시 읽었습니다.`
-    : `${length}토큰 중 ${step}번째까지 썼습니다. 본 칸 ${seen}개를 전부 새로 계산했습니다.`;
+    ? `${length}토큰 중 ${step}번째까지 처리했습니다. 본 칸 ${seen}개 가운데 ${computedCount(step, true)}개만 새로 계산했고 나머지는 적어둔 값을 다시 읽었습니다.`
+    : `${length}토큰 중 ${step}번째까지 처리했습니다. 본 칸 ${seen}개를 전부 새로 계산했습니다.`;
 }
 
 export default function KvCacheClient() {
@@ -88,7 +88,7 @@ export default function KvCacheClient() {
       {
         kind: 'range',
         id: 'length',
-        label: '쓸 토큰 수',
+        label: '처리할 토큰 수',
         min: MIN_LENGTH,
         max: MAX_LENGTH,
         step: 1,
@@ -98,7 +98,7 @@ export default function KvCacheClient() {
       {
         kind: 'range',
         id: 'step',
-        label: '지금까지 쓴 토큰',
+        label: '지금까지 처리한 토큰',
         min: 0,
         max: length,
         step: 1,
@@ -175,7 +175,7 @@ export default function KvCacheClient() {
         <section className={styles.stage} aria-label="계산 격자">
           <h2 className={styles.sectionTitle}>{stageTitle}</h2>
           <div className={styles.sectionLead}>
-            <StageLead />
+            <StageLead length={length} />
           </div>
 
           <div className={styles.experimentButtons} role="group" aria-label="같은 토큰 수로 캐시 비교">
@@ -183,7 +183,7 @@ export default function KvCacheClient() {
             <button type="button" aria-pressed={cacheOn && step === length} onClick={() => { setPlaying(false); setStep(length); setCacheOn(true); }}>2. 캐시 켜고</button>
           </div>
           <details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleParamChange} /></details>
-          <p className={styles.observation} role="status">
+          <p className={styles.observation}>
             {step}토큰까지 K·V를 만드는 작업: 캐시 없이 {computedCount(step, false)}칸 → 캐시를 켜면 {computedCount(step, true)}칸. 대신 {step}토큰의 메모를 보관합니다.
           </p>
 
@@ -221,10 +221,10 @@ export default function KvCacheClient() {
           >
             <div className={styles.gridFrame}>
               <span className={styles.axisTop} aria-hidden="true">
-                보는 토큰 →
+                K·V를 가진 토큰 →
               </span>
               <span className={styles.axisLeft} aria-hidden="true">
-                쓰는 토큰
+                처리 단계
               </span>
               <div className={styles.gridScroll}>
                 <div
