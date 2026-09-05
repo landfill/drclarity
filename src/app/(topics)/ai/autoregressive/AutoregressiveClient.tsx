@@ -39,22 +39,22 @@ const STAGE_INTERVAL_MS = 700;
  */
 const STAGE_INFO: Record<LoopStage, { label: string; href?: string; hint: string }> = {
   tokenize: {
-    label: '자른다',
+    label: '입력 확인',
     href: '/ai/tokenizer',
-    hint: '들어온 글을 조각으로 나눈다.',
+    hint: '지금까지의 토큰을 확인한다.',
   },
   read: {
-    label: '전체를 읽는다',
-    hint: '앞의 조각을 처음부터 끝까지 다시 본다.',
+    label: '앞말 참고',
+    hint: '앞의 정보와 저장된 계산을 참고한다.',
   },
   pick: {
-    label: '다음 조각을 고른다',
+    label: '하나 고르기',
     href: '/ai/next-word',
     hint: '후보마다 확률을 매기고 그중 하나를 뽑는다.',
   },
   append: {
-    label: '끝에 붙인다',
-    hint: '뽑은 조각을 입력 끝에 붙이고 처음으로 돌아간다.',
+    label: '끝에 붙이기 ↻',
+    hint: '새 조각도 다음 선택의 재료가 된다.',
   },
 };
 
@@ -137,6 +137,7 @@ export default function AutoregressiveClient() {
       subtitle="통째로 뱉는 것이 아닙니다. 방금 쓴 조각을 자기 입력 끝에 다시 붙이며 한 조각씩 나아갑니다."
     >
       <QuizGate
+        labels={{ skip: '바로 실험하기' }}
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -167,8 +168,8 @@ export default function AutoregressiveClient() {
             className={styles.card}
             controls={
               <div className={styles.buttons}>
-                <button type="button" className={styles.primaryButton} onClick={handlePlay}>
-                  {isPlaying ? '재생 중…' : cursor >= end ? '처음부터 재생' : '재생'}
+                <button type="button" className={styles.primaryButton} onClick={() => isPlaying ? setPlaying(false) : handlePlay()}>
+                  {isPlaying ? '일시정지' : cursor >= end ? '처음부터 재생' : '재생'}
                 </button>
                 <button
                   type="button"
@@ -214,7 +215,11 @@ export default function AutoregressiveClient() {
                 <span className={styles.roundOf}> / 모두 {steps.length}바퀴</span>
               </p>
 
-              <p className={styles.stripLabel}>지금 모델에게 들어가는 입력</p>
+              <div className={styles.observation} aria-label="지금까지 만든 답">
+                <small>지금까지 만든 답 · {Math.max(0, context.length - sample.prompt.length)}조각</small>
+                <p><strong>{context.slice(sample.prompt.length).join('') || '아직 쓴 조각이 없어요'}</strong></p>
+              </div>
+              <p className={styles.stripLabel}>질문 + 지금까지 쓴 답 → 다음 선택의 입력</p>
               <ContextStrip
                 context={context}
                 freshIndex={freshIndex}
@@ -265,15 +270,15 @@ export default function AutoregressiveClient() {
           </AnimationCard>
 
           <p className={styles.footnote}>
-            바퀴마다 입력이 하나씩 길어지는 것만 보면 됩니다. 줄어드는 것은 없습니다.
+            ③에서 고르고 ④에서 붙입니다. 마지막에는 종료 신호를 고르고 멈춥니다.
           </p>
         </section>
 
-        <ExplanationBox title={loopPointTitle}>
+        <ExplanationBox title={loopPointTitle} collapsible>
           <LoopPoint />
         </ExplanationBox>
 
-        <ExplanationBox title={seriesTitle}>
+        <ExplanationBox title={seriesTitle} collapsible>
           <Series />
         </ExplanationBox>
 
