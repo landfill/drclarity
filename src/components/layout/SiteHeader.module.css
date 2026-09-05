@@ -25,15 +25,16 @@
   flex-shrink: 0;
   color: var(--color-ink);
   font-family: var(--font-main), sans-serif;
-  font-size: 1.6rem;
+  font-size: 1.3125rem;
+  line-height: 1.2;
   font-weight: 700;
   letter-spacing: -.05em;
   text-decoration: none;
 }
 
 .mark  {
-  width: 27px;
-  height: 27px;
+  width: 23px;
+  height: 23px;
   margin-right: .65rem;
   color: var(--color-accent);
 }
@@ -55,7 +56,7 @@
   min-height: 44px;
   padding: .5rem .85rem;
   text-decoration: none;
-  font-size: .85rem;
+  font-size: .8rem;
   font-weight: 500;
   color: var(--color-muted);
   border-radius: 6px;
@@ -84,7 +85,7 @@
   }
 
   .logo  {
-    font-size: 1.3rem;
+    font-size: 1.125rem;
   }
 
   .mark  {

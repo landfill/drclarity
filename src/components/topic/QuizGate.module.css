@@ -5,7 +5,7 @@
   flex-direction: column;
   gap: var(--space-md);
   margin-bottom: var(--space-md);
-  padding: clamp(18px, 3vw, 32px);
+  padding: clamp(14px, 2vw, 22px);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -40,7 +40,7 @@
   gap: var(--space-sm);
   align-items: center;
   min-height: 2.75rem;
-  padding: .9rem 1rem;
+  padding: .65rem .85rem;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -173,7 +173,7 @@
   gap: var(--space-xs);
 }
 
-.question { line-height: 1.85; }
+.question { line-height: 1.65; }
 .question h2 { margin-bottom: .75rem; }
 .actions { padding-top: .35rem; }
 .revealed { padding-top: 1rem; border-top: 1px solid var(--color-border); margin-top: .5rem; }

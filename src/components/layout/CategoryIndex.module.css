@@ -7,7 +7,7 @@
 .count  {
   color: var(--color-muted);
   font-size: .8rem;
-  margin-bottom: 20px;
+  margin-bottom: 0;
 }
 
 .count strong  {
@@ -37,3 +37,7 @@
   }
 
 }
+
+.toolbar { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 8px 16px; margin-bottom: 12px; }
+.difficultyGuide { margin-bottom: 0; }
+.difficultyGuide[open] { flex-basis: 100%; }

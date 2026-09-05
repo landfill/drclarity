@@ -36,7 +36,7 @@
 
 .openArrow  {
   color: var(--color-muted);
-  font-size: 1.05rem;
+  font-size: 1rem;
 }
 
 .card:hover .openArrow  {
@@ -89,15 +89,15 @@
 }
 
 .title  {
-  font-size: 1.02rem;
+  font-size: .9375rem;
   font-weight: 650;
   color: var(--color-ink);
   line-height: 1.55;
 }
 
 .summary  {
-  font-size: .875rem;
-  line-height: 1.8;
+  font-size: .8125rem;
+  line-height: 1.65;
   color: var(--color-muted);
   word-break: keep-all;
   overflow-wrap: anywhere;
@@ -105,7 +105,7 @@
 
 .cardFoot  {
   margin-top: auto;
-  padding-top: 22px;
+  padding-top: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -166,7 +166,7 @@
   }
 
   .title  {
-    font-size: 1.05rem;
+    font-size: 1rem;
   }
 
 }

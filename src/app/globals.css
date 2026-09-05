@@ -25,7 +25,7 @@
   --color-terminal-border: #40584B;
   --color-triangle-fill: rgba(217, 163, 76, 1);
   --color-triangle-stroke: rgba(40, 90, 144, 0.6);
-  --header-h: 76px;
+  --header-h: 60px;
   --content-h: calc(100dvh - var(--header-h));
   --content-max-w: 860px;
   --index-max-w: 1160px;
@@ -35,12 +35,12 @@
   --space-md: 1rem;
   --space-lg: 1.75rem;
   --space-xl: 3.5rem;
-  --fs-display: clamp(2.125rem, 4.4vw, 3rem);
-  --fs-hero: clamp(1.75rem, 3vw, 2.125rem);
-  --fs-h2: clamp(1.125rem, 2vw, 1.375rem);
-  --fs-lead: 1.0625rem;
-  --fs-body: 1rem;
-  --fs-sm: .875rem;
+  --fs-display: clamp(1.75rem, 3.6vw, 2.25rem);
+  --fs-hero: clamp(1.5rem, 2.7vw, 1.75rem);
+  --fs-h2: clamp(1.0625rem, 1.8vw, 1.1875rem);
+  --fs-lead: .9375rem;
+  --fs-body: .875rem;
+  --fs-sm: .8125rem;
   --media-max-h: 400px;
   --media-max-h-mobile: 260px;
   --canvas-max-w: 520px;
@@ -64,7 +64,8 @@ body  {
   font-family: var(--font-korean), var(--font-main), -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--color-bg);
   color: var(--color-text);
-  line-height: 1.75;
+  font-size: var(--fs-body);
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   overflow-wrap: break-word;
 }
@@ -104,7 +105,8 @@ button, summary  {
 
 @media (max-width: 600px)  {
   :root  {
-    --header-h: 106px;
+    --header-h: 88px;
+    --fs-body: .9375rem;
     --space-xl: 2.5rem;
     --space-lg: 1.25rem;
   }

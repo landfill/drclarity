@@ -1,15 +1,15 @@
 .container  {
   max-width: var(--index-max-w);
   margin: auto;
-  padding: calc(var(--header-h) + 60px) 28px 24px;
+  padding: calc(var(--header-h) + 28px) 28px 24px;
 }
 
 .hero  {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
-  gap: 48px;
+  gap: 32px;
   align-items: center;
-  margin-bottom: 64px;
+  margin-bottom: 28px;
 }
 
 .eyebrow  {
@@ -30,7 +30,7 @@
 }
 
 .title  {
-  margin: 22px 0;
+  margin: 14px 0;
   font-size: var(--fs-display);
   font-weight: 700;
   line-height: 1.22;
@@ -43,9 +43,9 @@
 }
 
 .subtitle  {
-  font-size: .95rem;
+  font-size: .875rem;
   color: var(--color-muted);
-  line-height: 1.9;
+  line-height: 1.65;
   word-break: keep-all;
 }
 
@@ -53,8 +53,8 @@
   display: inline-flex;
   align-items: center;
   gap: 2.4rem;
-  margin-top: 30px;
-  padding: .85rem 1.2rem;
+  margin-top: 12px;
+  padding: .65rem 1rem;
   background: var(--color-ink);
   color: white;
   text-decoration: none;
@@ -72,7 +72,7 @@
 }
 
 .catalogCount  {
-  margin-top: 18px;
+  margin-top: 12px;
   font-size: .75rem;
   color: var(--color-muted);
 }
@@ -96,7 +96,7 @@
 .featureHead  {
   display: flex;
   justify-content: space-between;
-  padding: 20px 24px;
+  padding: 12px 18px;
   font-size: .75rem;
   color: #53664B;
   letter-spacing: .05em;
@@ -107,7 +107,7 @@
   position: relative;
   display: grid;
   place-items: center;
-  height: 245px;
+  height: 156px;
   color: #3D6446;
   background-image: radial-gradient(#BFCEB7 .8px, transparent .8px);
   background-size: 16px 16px;
@@ -115,7 +115,7 @@
 
 .featureArt svg  {
   width: 75%;
-  height: 210px;
+  height: 145px;
   filter: drop-shadow(4px 6px 0 rgba(255,255,255,.5));
 }
 
@@ -130,7 +130,7 @@
 }
 
 .featureCaption  {
-  padding: 20px 24px;
+  padding: 12px 18px;
   background: #F9FBF6;
   display: flex;
   align-items: center;
@@ -162,10 +162,10 @@
   display: grid;
   grid-template-columns: repeat(3,minmax(0,1fr));
   list-style: none;
-  padding: 26px 0;
+  padding: 16px 0;
   border-top: 1px solid var(--color-border);
   border-bottom: 1px solid var(--color-border);
-  margin-bottom: 68px;
+  margin-bottom: 32px;
 }
 
 .learningPath li  {
@@ -212,7 +212,7 @@
 
 .exploreHead h2  {
   margin-top: 8px;
-  font-size: 1.75rem;
+  font-size: 1.375rem;
 }
 
 .exploreHead > span  {
@@ -225,7 +225,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: .6rem;
-  margin: 24px 0 40px;
+  margin: 16px 0 20px;
 }
 
 .categoryNav a  {
@@ -324,7 +324,7 @@
   }
 
   .featureArt  {
-    height: 220px;
+    height: 156px;
   }
 
   .learningPath li  {
@@ -336,7 +336,7 @@
 
 @media(max-width:600px)  {
   .container  {
-    padding: calc(var(--header-h) + 32px) 20px 12px;
+    padding: calc(var(--header-h) + 20px) 20px 12px;
   }
 
   .hero  {
@@ -346,15 +346,15 @@
   }
 
   .title  {
-    font-size: 2.125rem;
+    font-size: 1.875rem;
   }
 
   .featureArt  {
-    height: 200px;
+    height: 160px;
   }
 
   .featureArt svg  {
-    height: 175px;
+    height: 145px;
   }
 
   .learningPath  {
