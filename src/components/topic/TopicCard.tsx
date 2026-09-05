@@ -22,9 +22,9 @@ export function TopicCard({ topic }: TopicCardProps) {
       </div>
       {topic.thumbnail ? (
         <div className={styles.thumbWrapper}>
-          <Image src={topic.thumbnail} alt={topic.title} fill sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw" className={styles.thumb} />
+          <Image src={topic.thumbnail} alt="" fill sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw" className={styles.thumb} />
         </div>
-      ) : <div className={styles.motif}><TopicMotif categoryId={topic.categoryId} /></div>}
+      ) : <div className={styles.motif}><TopicMotif categoryId={topic.categoryId} slug={topic.slug} /></div>}
       <div className={styles.content}>
         <div className={styles.header}>
           <h3 className={styles.title}>{topic.title}</h3>
@@ -32,7 +32,7 @@ export function TopicCard({ topic }: TopicCardProps) {
         </div>
         <p className={styles.summary}>{topic.summary}</p>
         {/* 카드 전체가 <a> 라 중첩 링크가 불가하다. 여기서는 배지만 보여준다. */}
-        <div className={styles.cardFoot}><TagList tags={topic.tags?.slice(0,2)} variant="plain" className={styles.tags} /><span className={styles.difficulty} aria-label={`난이도 ${topic.difficulty || 1}/3`}>{diffDots}</span></div>
+        <div className={styles.cardFoot}><TagList tags={topic.tags?.slice(0,2)} variant="plain" className={styles.tags} /><span className={styles.difficulty} role="img" aria-label={`난이도 ${topic.difficulty || 1}/3`}>{diffDots}</span></div>
       </div>
     </Link>
   );

@@ -12,6 +12,7 @@ export const outfit = Outfit({
 });
 
 const korean = Noto_Sans_KR({
+  weight: 'variable',
   subsets: ['latin'],
   variable: '--font-korean',
   display: 'swap',

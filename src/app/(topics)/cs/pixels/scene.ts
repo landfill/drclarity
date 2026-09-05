@@ -42,7 +42,7 @@ export function rgbToHex({ r, g, b }: Rgb): string {
  */
 export const SCENE_COLORS = {
   sky: hexToRgb(palette['blue-soft']),
-  sun: hexToRgb(palette.accent),
+  sun: hexToRgb(palette['chart-warm']),
   cloud: hexToRgb(palette.surface),
   ground: hexToRgb(palette.success),
 } as const;

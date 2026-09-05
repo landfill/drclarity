@@ -21,7 +21,7 @@ export default function Home() {
         </div>
         {featured && <Link href={featured.href} className={styles.feature}>
           <div className={styles.featureHead}><span>하나의 질문, 새로운 발견</span><span aria-hidden="true">FIG. 01</span></div>
-          <div className={styles.featureArt}><TopicMotif categoryId={featured.categoryId} /><span className={styles.artLabel}>생각에 선을 하나 더.</span></div>
+          <div className={styles.featureArt}><TopicMotif categoryId={featured.categoryId} slug={featured.slug} /><span className={styles.artLabel}>생각에 선을 하나 더.</span></div>
           <div className={styles.featureCaption}><div><small>이 질문부터 시작해 볼까요?</small><h2>{featured.title}</h2></div><span className={styles.featureArrow} aria-hidden="true">↗</span></div>
         </Link>}
       </section>

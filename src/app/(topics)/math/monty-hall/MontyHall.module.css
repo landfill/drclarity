@@ -82,7 +82,7 @@
 }
 
 .door:focus-visible {
-  outline: 3px solid var(--color-blue-soft);
+  outline: 2px solid var(--color-ink);
   outline-offset: 3px;
 }
 
@@ -179,7 +179,7 @@
 
 .primaryButton:focus-visible,
 .secondaryButton:focus-visible {
-  outline: 3px solid var(--color-blue-soft);
+  outline: 2px solid var(--color-ink);
   outline-offset: 3px;
 }
 

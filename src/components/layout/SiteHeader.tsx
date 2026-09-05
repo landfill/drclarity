@@ -21,7 +21,7 @@ export function SiteHeader() {
               const isActive = pathname === cat.href || pathname.startsWith(`${cat.href}/`);
               return (
                 <li key={cat.id}>
-                  <Link href={cat.href} aria-current={isActive ? 'page' : undefined} className={`${styles.link} ${isActive ? styles.active : ''}`}>
+                  <Link href={cat.href} aria-current={pathname === cat.href ? 'page' : undefined} className={`${styles.link} ${isActive ? styles.active : ''}`}>
                     {cat.label}
                   </Link>
                 </li>
@@ -30,7 +30,7 @@ export function SiteHeader() {
             <li>
               <Link
                 href="/tags"
-                aria-current={pathname.startsWith('/tags') ? 'page' : undefined}
+                aria-current={pathname === '/tags' ? 'page' : undefined}
                 className={`${styles.link} ${pathname.startsWith('/tags') ? styles.active : ''}`}
               >
                 태그
