@@ -1,11 +1,5 @@
-export const title = '먼저 답을 골라 보세요';
+export const title = '답은 언제 정해질까?';
 
-export const choices = [
-  { id: 'once', label: '1번 — 답 하나를 통째로 만든다' },
-  { id: 'many', label: '100번쯤 — 조각마다 한 번씩' },
-  { id: 'unknown', label: '알 수 없다 — 답의 내용에 따라 다르다' },
-];
+export const choices = [{"id": "once", "label": "답 전체를 미리 정한 뒤 조금씩 보여준다"}, {"id": "many", "label": "앞서 쓴 조각을 보고 다음 조각을 정한다"}, {"id": "unknown", "label": "다음 조각들은 서로 상관없이 정한다"}];
 
-AI 에게 무언가를 물으면 답이 하나 돌아옵니다. 그 답이 100 조각쯤 된다고 해 봅시다.
-
-모델은 그 답을 만들려고 <strong>몇 번</strong> 계산했을까요?
+AI가 “맑고 따뜻해요.”라고 쓰는 중입니다. 기본적인 자기회귀 생성에서는 다음 조각을 어떻게 정할까요?
