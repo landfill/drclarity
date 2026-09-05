@@ -94,13 +94,12 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  transition: all 0.2s;
+  transition: background-color .15s;
   user-select: none;
 }
 
 .actionBtn:hover {
-  background: var(--color-blue-soft);
-  transform: translateY(-2px);
+  background: var(--color-ink);
 }
 
 .secondaryBtn {
@@ -118,7 +117,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  transition: all 0.2s;
+  transition: background-color .15s;
   user-select: none;
 }
 

@@ -1,16 +1,43 @@
-.grid {
+.grid  {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
-  gap: var(--space-lg);
-  margin-top: var(--space-xl);
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 18px;
 }
 
-.empty {
-  text-align: center;
+.count  {
+  color: var(--color-muted);
+  font-size: .8rem;
+  margin-bottom: 0;
+}
+
+.count strong  {
+  color: var(--color-accent);
+  margin-left: .4rem;
+}
+
+.empty  {
   padding: 4rem 2rem;
-  background: var(--color-surface);
+  text-align: center;
+  border: 1px dashed var(--color-border);
   border-radius: var(--radius-md);
   color: var(--color-muted);
-  font-size: 1.1rem;
-  margin-top: var(--space-xl);
 }
+
+@media(max-width:900px)  {
+  .grid  {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+
+}
+
+@media(max-width:600px)  {
+  .grid  {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+}
+
+.toolbar { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 8px 16px; margin-bottom: 12px; }
+.difficultyGuide { margin-bottom: 0; }
+.difficultyGuide[open] { flex-basis: 100%; }

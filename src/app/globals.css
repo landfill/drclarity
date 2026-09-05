@@ -1,80 +1,140 @@
-:root {
-  --color-bg: #FFFBF0;
+:root  {
+  --color-bg: #F6F7F4;
   --color-surface: #FFFFFF;
-  --color-text: #4A3B32;
-  --color-accent: #FF9F43;
-  --color-secondary: #54A0FF;
-  --color-ink: #2d3436;
-  --color-muted: #636e72;
-  --color-muted-2: #b2bec3;
-  --color-subtle: #dfe6e9;
-  --color-border: #e8e0d4;
-  --color-danger: #d63031;
-  --color-danger-soft: #ff7675;
-  --color-warm: #e17055;
-  --color-blue: #0984e3;
-  --color-blue-soft: #74b9ff;
-  --color-success: #00b894;
-  --color-dough: #ffeaa7;
-  --color-note-bg: #fff3cd;
-  --color-note-border: #ffc107;
-  --color-formula-bg: #fff5f5;
-  --color-terminal-bg: #1a1d1f;
-  --color-terminal-fg: #e0e0e0;
-  --color-terminal-border: #404448;
-  --color-triangle-fill: rgba(255, 200, 80, 1);
-  --color-triangle-stroke: rgba(9, 132, 227, 0.5);
-
-  /* --- 레이아웃 골격 --- */
-  --header-h: 70px;                              /* SiteHeader.module.css 의 height 와 동일해야 함 */
-  --content-h: calc(100dvh - var(--header-h));   /* vh 아님. 모바일 브라우저 크롬 때문에 dvh 필수 */
-  --content-max-w: 800px;                        /* TopicLayout 기존값 */
-  --index-max-w: 1000px;                         /* 홈/헤더 기존값 */
-
-  /* --- 여백 스케일 (6단계) --- */
-  --space-2xs: 0.25rem;
-  --space-xs:  0.5rem;
-  --space-sm:  0.75rem;
-  --space-md:  1rem;
-  --space-lg:  2rem;      /* 1.5rem 에서 복원 — 원본 여백 */
-  --space-xl:  4rem;      /* 2rem 에서 복원 — 원본 섹션 간격 */
-
-  /* --- 타이포 스케일 --- */
-  --fs-hero:  2.5rem;    /* 3rem (48px) -> 2.5rem (40px) 타이틀 축소 */
-  --fs-h2:    2rem;      /* 1.5rem 에서 복원 — 원본 ExplanationBox .title */
-  --fs-lead:  1.25rem;   /* 1.05rem 에서 복원 — 원본 .subtitle */
-  --fs-body:  1.1rem;    /* 1rem 에서 복원 — 원본 본문 */
-  --fs-sm:    0.9rem;
-
-  --fs-display: 3.5rem;  /* 신규. 홈 히어로 전용 — 원본 page.module.css .title */
-
-  /* --- 미디어 상한 (이슈 완료조건 3) --- */
+  --color-text: #202C28;
+  --color-accent: #21634B;
+  --color-chart-warm: #B86924;
+  --color-secondary: #35629B;
+  --color-ink: #17251F;
+  --color-muted: #606D65;
+  --color-muted-2: #ADB8AF;
+  --color-subtle: #E8EDE7;
+  --color-border: #DCE2D9;
+  --color-danger: #B33F38;
+  --color-danger-soft: #D67468;
+  --color-warm: #AD573A;
+  --color-blue: #285A90;
+  --color-blue-soft: #7DABD1;
+  --color-success: #287553;
+  --color-dough: #F0D9A1;
+  --color-note-bg: #F3F4E9;
+  --color-note-border: #839265;
+  --color-formula-bg: #F9F0EA;
+  --color-terminal-bg: #192A24;
+  --color-terminal-fg: #E5ECE5;
+  --color-terminal-border: #40584B;
+  --color-triangle-fill: rgba(217, 163, 76, 1);
+  --color-triangle-stroke: rgba(40, 90, 144, 0.6);
+  --header-h: 60px;
+  --content-h: calc(100dvh - var(--header-h));
+  --content-max-w: 860px;
+  --index-max-w: 1160px;
+  --space-2xs: .25rem;
+  --space-xs: .5rem;
+  --space-sm: .75rem;
+  --space-md: 1rem;
+  --space-lg: 1.75rem;
+  --space-xl: 3.5rem;
+  --fs-display: clamp(1.75rem, 3.6vw, 2.25rem);
+  --fs-hero: clamp(1.5rem, 2.7vw, 1.75rem);
+  --fs-h2: clamp(1.0625rem, 1.8vw, 1.1875rem);
+  --fs-lead: .9375rem;
+  --fs-body: .875rem;
+  --fs-sm: .8125rem;
   --media-max-h: 400px;
   --media-max-h-mobile: 260px;
-  --canvas-max-w: 520px;         /* InteractiveCanvas logicalWidth 와 동일 */
-
-  /* --- 반경 (기존 20px/12px/8px 혼용 정리) --- */
-  --radius-lg: 20px;     /* 16px 에서 복원 — 원본 AnimationCard border-radius */
-  --radius-md: 12px;
-  --radius-sm: 8px;
+  --canvas-max-w: 520px;
+  --radius-lg: 14px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
 }
 
-@media (max-width: 768px) {
-  :root {
-    --fs-hero: 2rem;       /* 1.75rem 에서 복원 — 원본 모바일 TopicLayout .title */
-    --fs-display: 2.5rem;  /* 원본 모바일 홈 .title */
-  }
-}
-
-* {
+*  {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-body {
-  font-family: var(--font-main), sans-serif;
-  background-color: var(--color-bg);
+html  {
+  color-scheme: light;
+  scroll-padding-top: calc(var(--header-h) + 24px);
+}
+
+body  {
+  font-family: var(--font-korean), var(--font-main), -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--color-bg);
   color: var(--color-text);
-  line-height: 1.6;
+  font-size: var(--fs-body);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
+}
+
+button, input, select, textarea  {
+  font-family: inherit;
+}
+
+button, a, input, select, textarea, summary  {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a  {
+  text-underline-offset: .2em;
+}
+
+:focus-visible  {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 4px;
+}
+
+::selection  {
+  background: #D4E5CD;
+  color: var(--color-ink);
+}
+
+h1, h2, h3  {
+  letter-spacing: -.035em;
+  line-height: 1.4;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+button, summary  {
+  touch-action: manipulation;
+}
+
+@media (max-width: 600px)  {
+  :root  {
+    --header-h: 106px;
+    --fs-body: .9375rem;
+    --fs-sm: .875rem;
+    --fs-hero: 1.75rem;
+    --fs-h2: 1.125rem;
+    --space-xl: 2.5rem;
+    --space-lg: 1.25rem;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce)  {
+  *, *::before, *::after  {
+    scroll-behavior: auto !important;
+  }
+
+}
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 16px;
+  z-index: 200;
+  padding: 10px 16px;
+  background: var(--color-ink);
+  color: white;
+  border-radius: 6px;
+  transform: translateY(-160%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
 }

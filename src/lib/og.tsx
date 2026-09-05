@@ -114,7 +114,7 @@ export async function renderOgImage({
           justifyContent: 'space-between',
           background: palette.bg,
           padding: '72px 80px',
-          // 좌측 액센트 바 — 카드/사이트의 주황 강조와 같은 언어
+          // 좌측 액센트 바 — 카드/사이트와 같은 강조색
           borderLeft: `24px solid ${palette.accent}`,
         }}
       >

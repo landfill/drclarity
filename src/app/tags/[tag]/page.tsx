@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { getAllTags, getTopicsByTag } from '@/content/registry';
 import { decodeTagParam } from '@/content/tags';
 import { TopicLayout } from '@/components/layout/TopicLayout';
+import { DifficultyGuide } from '@/components/topic/DifficultyGuide';
 import { TopicCard } from '@/components/topic/TopicCard';
 import styles from '../tags.module.css';
 
@@ -44,6 +45,7 @@ export default async function TagPage({ params }: TagPageProps) {
 
   return (
     <TopicLayout title={`#${tag}`} subtitle={`이 태그가 붙은 주제 ${topics.length}개`}>
+      <DifficultyGuide />
       <div className={styles.grid}>
         {topics.map(topic => (
           <TopicCard key={topic.href} topic={topic} />

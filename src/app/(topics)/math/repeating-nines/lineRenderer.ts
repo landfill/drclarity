@@ -35,7 +35,7 @@ export function drawNumberLine(ctx: CanvasRenderingContext2D, digits: number): v
   const oneX = toX(0);
 
   // 두 점 사이의 틈. 이 화면의 주인공이라 먼저 칠한다.
-  ctx.fillStyle = 'rgba(255, 159, 67, 0.25)';
+  ctx.fillStyle = `${palette.accent}40`;
   ctx.fillRect(ninesX, AXIS_Y - 22, Math.max(1, oneX - ninesX), 44);
 
   const tick = (x: number, color: string, label: string, above: boolean) => {

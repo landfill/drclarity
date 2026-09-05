@@ -33,7 +33,7 @@ export function drawBoard(ctx: CanvasRenderingContext2D, darts: readonly Dart[])
   ctx.stroke();
 
   for (const dart of darts) {
-    ctx.fillStyle = dart.inside ? palette.accent : palette['blue-soft'];
+    ctx.fillStyle = dart.inside ? palette['chart-warm'] : palette['blue-soft'];
     ctx.fillRect(toPx(dart.x) - DOT / 2, toPx(dart.y) - DOT / 2, DOT, DOT);
   }
 }

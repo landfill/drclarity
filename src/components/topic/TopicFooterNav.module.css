@@ -3,7 +3,7 @@
  * 최상위 블록이라 자기 여백은 자기가 들고 있어야 한다.
  */
 .nav {
-  margin-top: var(--space-xl);
+  margin-top: 48px;
   padding-top: var(--space-lg);
   border-top: 1px solid var(--color-border);
 }
@@ -15,7 +15,7 @@
   padding: var(--space-md);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--color-surface);
+  background: transparent;
 }
 
 .seriesHead {
@@ -104,7 +104,7 @@ a.seriesItem:focus-visible {
   padding: var(--space-md);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--color-surface);
+  background: transparent;
   color: var(--color-text);
   text-decoration: none;
   transition: border-color 0.2s, color 0.2s;
@@ -149,3 +149,10 @@ a.seriesItem:focus-visible {
     text-align: left;
   }
 }
+
+.seriesList { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px 20px; }
+.seriesItem { font-size: .8rem; line-height: 1.7; }
+.card { padding: 20px; }
+.cardTitle { font-size: .9rem; }
+.seriesNum { border-radius: 4px; }
+@media(max-width:600px) { .seriesList { grid-template-columns: 1fr; } }
