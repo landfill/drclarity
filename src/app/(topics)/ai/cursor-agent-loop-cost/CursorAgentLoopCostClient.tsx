@@ -35,13 +35,7 @@ import Instruction, { title as instructionTitle } from './content/instruction.md
 import meta from './meta';
 import styles from './CursorAgentLoopCost.module.css';
 
-/**
- * 첫 화면.
- *
- * 아무것도 안 적은 프롬프트 · 찾는 것 없음. 확인된 사례가 그 상태였고, 예시 표에서
- * 튀는 행도 그것이다. 화면을 열자마자 오른쪽 표가 그 행과 같은 수를 보여야 두 화면이
- * 이어진 것으로 읽힌다.
- */
+/** 범위·중단 조건이 없고 찾는 대상도 없는 모형의 시작 상태. */
 const DEFAULTS = { prompt: BARE_PROMPT, exists: false };
 
 /**
@@ -155,8 +149,6 @@ export default function CursorAgentLoopCostClient() {
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
             <QuizQuestion />
-
-
           </>
         }
         choices={quizChoices}
@@ -174,9 +166,9 @@ export default function CursorAgentLoopCostClient() {
           </div>
 
           <div className={styles.experimentButtons} role="group" aria-label="탐색 시나리오 비교">
-            <button type="button" onClick={handleReset}>1. 범위 없음</button>
-            <button type="button" onClick={() => { setPrompt({ scope: 'folder', stopCondition: true, outputShaped: false }); setExists(false); }}>2. 폴더에서 멈추기</button>
-            <button type="button" onClick={() => { setPrompt({ scope: 'file', stopCondition: true, outputShaped: false }); setExists(true); }}>3. 너무 좁게 찾기</button>
+            <button type="button" aria-pressed={prompt.scope === 'none' && !prompt.stopCondition && !prompt.outputShaped && !exists} onClick={handleReset}>1. 범위 없음</button>
+            <button type="button" aria-pressed={prompt.scope === 'folder' && prompt.stopCondition && !prompt.outputShaped && !exists} onClick={() => { setPrompt({ scope: 'folder', stopCondition: true, outputShaped: false }); setExists(false); }}>2. 폴더에서 멈추기</button>
+            <button type="button" aria-pressed={prompt.scope === 'file' && prompt.stopCondition && !prompt.outputShaped && exists} onClick={() => { setPrompt({ scope: 'file', stopCondition: true, outputShaped: false }); setExists(true); }}>3. 너무 좁게 찾기</button>
           </div>
           <ol className={styles.flow} aria-label="프롬프트가 만든 결과">
             <li>탐색 호출 <strong>{summary.callCount}번</strong></li>
