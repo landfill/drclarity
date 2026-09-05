@@ -152,7 +152,7 @@
     padding: var(--space-md);
   }
 
-  /* 좁은 화면에서 4열은 막대가 남지 않는다. 횟수를 접고 3열로 줄인다. */
+  /* 좁은 화면에서도 확률과 관측 횟수를 함께 비교할 수 있도록 열 폭을 줄인다. */
   .barRow {
     grid-template-columns: 4rem minmax(24px, 1fr) 3.5rem 2.5rem;
   }
@@ -190,13 +190,13 @@
 }
 
 .experimentButtons button[aria-pressed="true"] {
-  border-color: var(--color-secondary);
-  background: var(--color-secondary);
-  color: white;
+  border-color: var(--color-text);
+  background: var(--color-subtle);
+  color: var(--color-text);
 }
 
 .experimentButtons button:focus-visible {
-  outline: 3px solid var(--color-accent);
+  outline: 3px solid var(--color-text);
   outline-offset: 3px;
 }
 

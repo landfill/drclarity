@@ -153,7 +153,6 @@ export default function NextWordClient() {
           <span className={styles.promptText}>{prompt.text}</span>
           <span className={styles.caret} aria-hidden="true">▮</span>
         </p>
-        <p className={styles.note}>{prompt.note}</p>
 
         <ul className={styles.bars}>
           {prompt.candidates.map((c, i) => (
