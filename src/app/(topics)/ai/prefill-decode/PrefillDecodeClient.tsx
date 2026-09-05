@@ -188,9 +188,9 @@ export default function PrefillDecodeClient() {
           </div>
 
           <div className={styles.experimentButtons} role="group" aria-label="한 조건씩 비교">
-            <button type="button" onClick={() => { setBaseline({ input: 200, output: 40 }); setCompareId('baseline'); setPresetId(CUSTOM_PRESET_ID); setInputTokens(1200); setOutputTokens(40); }}>1. 입력만 늘리기</button>
-            <button type="button" onClick={() => { setBaseline({ input: 200, output: 40 }); setCompareId('baseline'); setPresetId(CUSTOM_PRESET_ID); setInputTokens(200); setOutputTokens(200); }}>2. 출력만 늘리기</button>
-            <button type="button" onClick={() => { setBaseline(null); setCompareId(INITIAL_COMPARE); handleParamChange('preset', INITIAL_PRESET.id); }}>퀴즈의 두 요청</button>
+            <button type="button" aria-pressed={baseline !== null && inputTokens === 1200 && outputTokens === 40} onClick={() => { setBaseline({ input: 200, output: 40 }); setCompareId('baseline'); setPresetId(CUSTOM_PRESET_ID); setInputTokens(1200); setOutputTokens(40); }}>1. 입력만 늘리기</button>
+            <button type="button" aria-pressed={baseline !== null && inputTokens === 200 && outputTokens === 200} onClick={() => { setBaseline({ input: 200, output: 40 }); setCompareId('baseline'); setPresetId(CUSTOM_PRESET_ID); setInputTokens(200); setOutputTokens(200); }}>2. 출력만 늘리기</button>
+            <button type="button" aria-pressed={baseline === null && compareId === INITIAL_COMPARE && inputTokens === INITIAL_PRESET.inputTokens && outputTokens === INITIAL_PRESET.outputTokens} onClick={() => { setBaseline(null); setCompareId(INITIAL_COMPARE); handleParamChange('preset', INITIAL_PRESET.id); }}>퀴즈의 두 요청</button>
           </div>
           <details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleParamChange} /></details>
           <p className={styles.observation} role="status">
@@ -228,7 +228,7 @@ export default function PrefillDecodeClient() {
             </li>
             <li>
               <span className={`${styles.swatch} ${styles.swatchMarker}`} aria-hidden="true" />
-              첫 글자가 나오는 순간
+              첫 토큰이 나오는 순간
             </li>
           </ul>
 
