@@ -6,8 +6,6 @@ import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
 import {
   BARE_PROMPT,
-  DAY_REQUESTS,
-  OUTLIER_ID,
   SCOPE_CHOICES,
   SCOPE_LABELS,
   SCOPE_TIERS,
@@ -16,14 +14,11 @@ import {
   WINDOW_LIMIT,
   promptParts,
   promptText,
-  summarizeRequest,
   summarizeRun,
   type PromptOptions,
   type ScopeChoice,
 } from './search';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
-import QuizAsk from './content/quiz-ask.mdx';
-import QuizBaseline from './content/quiz-baseline.mdx';
 import QuizScope from './content/quiz-scope.mdx';
 import QuizStop from './content/quiz-stop.mdx';
 import QuizBoth from './content/quiz-both.mdx';
@@ -124,15 +119,6 @@ export default function CursorAgentLoopCostClient() {
     []
   );
 
-  /** 퀴즈의 표. 손으로 적지 않고 같은 모형에서 뽑는다 — 표와 화면이 어긋날 수 없다. */
-  const day = useMemo(
-    () => DAY_REQUESTS.map(request => ({ ...request, ...summarizeRequest(request) })),
-    []
-  );
-
-  /** 퀴즈가 가리키는 튀는 행. 카드에 그 행의 수를 붙여 비교 대상을 못 박는다. */
-  const outlier = day.find(row => row.id === OUTLIER_ID);
-
   const handleReset = useCallback(() => {
     setPrompt(DEFAULTS.prompt);
     setExists(DEFAULTS.exists);
@@ -158,75 +144,23 @@ export default function CursorAgentLoopCostClient() {
       topicHref="/ai/cursor-agent-loop-cost"
       title={
         <>
-          <Highlight>&lsquo;이것 좀 찾아봐&rsquo;</Highlight>가 왜 위험한가
+          <Highlight>어디까지 찾을지</Highlight> 적으면 달라질까?
         </>
       }
-      subtitle="범위를 적지 않으면 에이전트는 열어 준 폴더 전부를 뒤집니다 — 비용이 서른 배. 그렇다고 좁게 짚고 멈추라고만 하면 싸게 틀린 답을 받습니다."
+      subtitle="찾을 범위와 멈출 조건을 바꾸며, 사용량과 찾기 결과를 함께 비교합니다."
     >
       <QuizGate
+        labels={{ skip: '바로 실험하기' }}
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
             <QuizQuestion />
 
-            <table className={styles.day}>
-              <caption className={styles.dayCaption}>Usage — 하루치 요청 다섯 건</caption>
-              <thead>
-                <tr>
-                  <th scope="col">시각</th>
-                  <th scope="col">Input</th>
-                  <th scope="col">Cache Write</th>
-                  <th scope="col">Cache Read</th>
-                  <th scope="col">Output</th>
-                  <th scope="col">Total</th>
-                  <th scope="col">Cost</th>
-                </tr>
-              </thead>
-              <tbody>
-                {day.map(row => (
-                  <tr key={row.id} className={row.id === OUTLIER_ID ? styles.outlier : undefined}>
-                    <th scope="row">{row.at}</th>
-                    <td className={styles.mono}>{row.totals.input.toLocaleString('ko-KR')}</td>
-                    <td className={styles.mono}>{row.totals.cacheWrite.toLocaleString('ko-KR')}</td>
-                    <td className={styles.mono}>{row.totals.cacheRead.toLocaleString('ko-KR')}</td>
-                    <td className={styles.mono}>{row.totals.output.toLocaleString('ko-KR')}</td>
-                    <td className={styles.mono}>{row.tokens.toLocaleString('ko-KR')}</td>
-                    <td className={styles.mono}>{row.cost.toFixed(3)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
 
-            <div className={styles.ask}>
-              <QuizAsk />
-            </div>
-
-            {/*
-              선택지가 전부 "이 한 줄에 무엇을 붙이면" 을 묻는다. 그러니 비교 대상이
-              본문에 섞여 있으면 안 된다 — 아래 스테이지와 같은 카드로 세워 두고,
-              견줄 수 있게 그 행의 Total 을 붙여 둔다.
-            */}
-            {outlier && (
-              <div className={`${styles.promptCard} ${styles.promptCardQuoted}`}>
-                <div className={styles.promptHead}>
-                  <p className={styles.prompt}>{promptText(BARE_PROMPT)}</p>
-                  <span className={`${styles.promptTag} ${styles.mono}`}>
-                    Total {outlier.tokens.toLocaleString('ko-KR')}
-                  </span>
-                </div>
-                <p className={styles.promptEffect}>
-                  호출 {outlier.callCount}번 · 끝내 못 찾음
-                </p>
-              </div>
-            )}
-
-            <div className={styles.ask}>
-              <QuizBaseline />
-            </div>
           </>
         }
         choices={quizChoices}
-        correctId="stop"
+        correctId="both"
         feedback={{ scope: <QuizScope />, stop: <QuizStop />, both: <QuizBoth /> }}
       >
         <ExplanationBox variant="note">
@@ -239,6 +173,16 @@ export default function CursorAgentLoopCostClient() {
             <StageLead />
           </div>
 
+          <div className={styles.experimentButtons} role="group" aria-label="탐색 시나리오 비교">
+            <button type="button" onClick={handleReset}>1. 범위 없음</button>
+            <button type="button" onClick={() => { setPrompt({ scope: 'folder', stopCondition: true, outputShaped: false }); setExists(false); }}>2. 폴더에서 멈추기</button>
+            <button type="button" onClick={() => { setPrompt({ scope: 'file', stopCondition: true, outputShaped: false }); setExists(true); }}>3. 너무 좁게 찾기</button>
+          </div>
+          <ol className={styles.flow} aria-label="프롬프트가 만든 결과">
+            <li>탐색 호출 <strong>{summary.callCount}번</strong></li>
+            <li>누적 사용량 <strong>{formatTokens(summary.tokens)}토큰</strong></li>
+            <li>찾기 결과 <strong>{OUTCOME_LABEL[summary.outcome]}</strong></li>
+          </ol>
           {/* 프롬프트 — 이 화면의 유일한 원인이므로 가장 크게 둔다 */}
           <div className={styles.promptCard}>
             <p className={styles.prompt} aria-label={`프롬프트: ${promptText(prompt)}`}>
@@ -263,6 +207,7 @@ export default function CursorAgentLoopCostClient() {
             하나만 켠 상태를 만들 수 없어 그 결론을 화면으로 보일 수 없다. 손잡이를 한 줄에
             몰아 놓으면 한 덩어리로 보여 건너뛰게 되므로 줄을 나눈다.
           */}
+          <details className={styles.fineControls}><summary>조건을 직접 조절하기</summary>
           <div className={styles.controls}>
             <div className={styles.controlsHead}>
               <span className={styles.controlLabel}>프롬프트에 더 적어 넣기</span>
@@ -339,6 +284,8 @@ export default function CursorAgentLoopCostClient() {
             </div>
           </div>
 
+          </details>
+
           <div className={styles.screens}>
             {/* 화면 하나 — 그 프롬프트가 만든 탐색 */}
             <div className={styles.screen}>
@@ -379,7 +326,7 @@ export default function CursorAgentLoopCostClient() {
                   <>
                     <strong>{SCOPE_TIERS[summary.reachedTier].label}</strong>만 보고 멈췄는데,
                     찾는 것은 그 밖에 있었습니다. 호출{' '}
-                    <strong>{summary.callCount}번</strong>으로 가장 쌌지만{' '}
+                    <strong>{summary.callCount}번</strong>으로 줄었지만{' '}
                     <strong>답이 틀렸습니다.</strong>
                   </>
                 ) : summary.outcome === 'found' ? (
@@ -428,12 +375,13 @@ export default function CursorAgentLoopCostClient() {
                 ))}
               </div>
 
+              <ul className={styles.callLegend} aria-label="호출 막대 색의 뜻"><li><i className={styles.segRead} />재사용 입력</li><li><i className={styles.segWrite} />캐시 저장</li><li><i className={styles.segInput} />새 입력</li></ul>
               <table className={styles.receipt}>
                 <thead>
                   <tr>
                     <th scope="col">항목</th>
                     <th scope="col">Tokens</th>
-                    <th scope="col">Cost</th>
+                    <th scope="col">예시 비용</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -463,7 +411,7 @@ export default function CursorAgentLoopCostClient() {
                   </>
                 ) : (
                   <>
-                    더 적은 것이 없을 때가 <strong>{bare.cost.toFixed(3)}</strong> 입니다.
+                    같은 상황에서 범위·조건을 적지 않으면 <strong>{bare.cost.toFixed(3)}</strong> 입니다.
                     지금은 <strong>{summary.cost.toFixed(3)}</strong> —{' '}
                     <strong>{(bare.cost / summary.cost).toFixed(1)}배</strong> 차이.
                   </>
@@ -481,23 +429,23 @@ export default function CursorAgentLoopCostClient() {
           </div>
         </section>
 
-        <ExplanationBox title={countCallsTitle}>
+        <ExplanationBox title={countCallsTitle} collapsible>
           <CountCalls />
         </ExplanationBox>
 
-        <ExplanationBox title={clausesTitle}>
+        <ExplanationBox title={clausesTitle} collapsible>
           <Clauses />
         </ExplanationBox>
 
-        <ExplanationBox title={missingTitle}>
+        <ExplanationBox title={missingTitle} collapsible>
           <Missing />
         </ExplanationBox>
 
-        <ExplanationBox title={accumulateTitle}>
+        <ExplanationBox title={accumulateTitle} collapsible>
           <Accumulate />
         </ExplanationBox>
 
-        <ExplanationBox title={instructionTitle}>
+        <ExplanationBox title={instructionTitle} collapsible>
           <Instruction />
         </ExplanationBox>
       </QuizGate>
