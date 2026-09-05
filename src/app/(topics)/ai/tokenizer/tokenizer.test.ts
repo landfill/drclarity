@@ -158,6 +158,7 @@ describe('병합 표', () => {
 describe('체험 버튼의 관찰 근거', () => {
   it('token은 한 조각이고 2026은 두 조각이다', () => {
     expect(encode('token').map(token => decode([token]))).toEqual(['token']);
+    expect(encode('토큰').map(token => decode([token]))).toEqual(['토큰']);
     expect(encode('2026').map(token => decode([token]))).toEqual(['20', '26']);
   });
 
