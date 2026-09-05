@@ -10,6 +10,8 @@ import {
   decodeDeadAnts
 } from './binary';
 import styles from './BinaryEncodingBoard.module.css';
+import { PotGlyph, AntGlyph } from './HoneyGlyphs';
+import type { CSSProperties } from 'react';
 
 export type HoneyBoardMode =
   | 'grid'
@@ -21,6 +23,7 @@ export type HoneyBoardMode =
 
 export interface BinaryEncodingBoardProps {
   mode: HoneyBoardMode;
+  replay?: number;
   selectedPot?: number;
   onSelectPot?: (pot: number) => void;
   activeAntBit?: number | null;
@@ -31,6 +34,7 @@ export interface BinaryEncodingBoardProps {
 
 export function BinaryEncodingBoard({
   mode,
+  replay = 0,
   selectedPot = 21,
   onSelectPot,
   activeAntBit,
@@ -96,20 +100,24 @@ export function BinaryEncodingBoard({
           );
         })}
       </div>
-      <p className={styles.bridgeConclusion}>
-        이진수와 개미가 원래 연결된 것이 아니라, <strong>이 이름표를 어느 개미의 컵에 꿀을 넣을지 알려 주는 배분표로 정한 것</strong>입니다.
-      </p>
+
     </section>
   );
 
   const renderRouting = () => (
     <section className={styles.bridgePanel} aria-labelledby="routing-title">
       <h3 id="routing-title" className={styles.bridgeTitle}>
-        {selectedPot}번 꿀 한 방울을 이름표가 1인 개미의 컵에 넣습니다
+        이름표가 1인 개미의 컵으로 나눕니다
       </h3>
-      <p className={styles.cupRule}>
-        개미를 섞는 것이 아닙니다. <strong>개미마다 자기 혼합 컵이 하나씩</strong> 있고, 같은 꿀 샘플을 여러 컵에 나눠 넣습니다.
-      </p>
+      <div className={styles.routingSource}>
+        <span className={styles.potGraphic}><PotGlyph /><span className={styles.potNumber}>{selectedPot}</span></span>
+        <label>나눠 줄 꿀통
+          <select value={selectedPot} onChange={event => onSelectPot?.(Number(event.currentTarget.value))}>
+            {pots.map(pot => <option key={pot} value={pot}>{pot}번 · {toBinary5(pot)}</option>)}
+          </select>
+        </label>
+      </div>
+      <p className={styles.cupRule}>같은 꿀을 여러 컵에 한 방울씩 나눕니다. 개미마다 자기 컵이 하나씩 있습니다.</p>
       <div
         className={styles.routingGrid}
         role="group"
@@ -119,7 +127,8 @@ export function BinaryEncodingBoard({
           const included = selectedAntBits.includes(bit);
           return (
             <div
-              key={`${selectedPot}-${bit}`}
+              key={`${selectedPot}-${replay}-${bit}`}
+              style={{ '--route-delay': `${idx * 120}ms` } as CSSProperties}
               className={`${styles.routeLane} ${included ? styles.routeActive : styles.routeInactive}`}
             >
               <span className={styles.routeAnt}>개미 {ANT_LABELS[idx]}</span>
@@ -173,63 +182,7 @@ export function BinaryEncodingBoard({
     </div>
   );
 
-  return (
-    <div className={styles.board}>
-      {mode === 'signature' && renderSignature()}
-      {mode === 'routing' && renderRouting()}
-
-      {mode === 'encoding' && (
-        <div className={styles.antBar}>
-          <div className={styles.antBarTitle}>개미 하나를 선택하면 그 개미의 혼합 컵에 들어갈 꿀통이 표시됩니다:</div>
-          <div className={styles.antTiles}>
-            {ANT_BITS.map((bit, idx) => (
-              <button
-                key={bit}
-                type="button"
-                className={`${styles.antTile} ${activeAntBit === bit ? styles.antActive : ''}`}
-                onClick={() => onActiveAntBitChange?.(bit === activeAntBit ? null : bit)}
-                aria-pressed={activeAntBit === bit}
-                aria-label={`개미 ${ANT_LABELS[idx]}, 자릿값 ${bit}`}
-              >
-                <span className={styles.antTileName}>개미 {ANT_LABELS[idx]}</span>
-                <span className={styles.antTileBit}>{bit}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {mode === 'simulation' && (
-        <>
-          <div className={styles.antBar}>
-            <div className={styles.antBarTitle}>1시간 뒤 개미들의 상태:</div>
-            <div className={styles.antTiles}>
-              {ANT_BITS.map((bit, idx) => {
-                const isDead = deadAntBits.includes(bit);
-                return (
-                  <button
-                    key={bit}
-                    type="button"
-                    className={`${styles.antTile} ${styles.antStateTile} ${isDead ? styles.dead : styles.alive}`}
-                    onClick={() => onToggleAntDead?.(bit)}
-                    aria-pressed={isDead}
-                    aria-label={`개미 ${ANT_LABELS[idx]}, 자릿값 ${bit}, ${isDead ? '사망' : '생존'}`}
-                  >
-                    <span className={styles.antTileName}>개미 {ANT_LABELS[idx]}</span>
-                    <span className={styles.antTileBit}>{bit}</span>
-                    <span className={styles.antTileStatus}>{isDead ? '사망' : '생존'}</span>
-                  </button>
-                );
-              })}
-            </div>
-            <p className={styles.antBarHelp}>
-              개미를 눌러 <strong>사망/생존</strong>을 바꿔보세요. 합계와 꿀통 번호가 바로 바뀝니다.
-            </p>
-          </div>
-          {renderSimulationResult()}
-        </>
-      )}
-
+  const renderPotGrid = () => (
       <div
         className={styles.grid}
         role={potIsSelectable ? 'group' : 'list'}
@@ -238,7 +191,7 @@ export function BinaryEncodingBoard({
         {pots.map((pot) => {
           const tileContent = (
             <>
-              <span className={styles.potNumber}>{pot}</span>
+              <span className={styles.potGraphic}><PotGlyph /><span className={styles.potNumber}>{pot}</span></span>
               {showBinary && <span className={styles.potBinary}>{toBinary5(pot)}</span>}
             </>
           );
@@ -266,6 +219,68 @@ export function BinaryEncodingBoard({
           );
         })}
       </div>
+  );
+
+  return (
+    <div className={styles.board}>
+      {mode === 'signature' && renderSignature()}
+      {mode === 'routing' && renderRouting()}
+
+      {mode === 'encoding' && (
+        <div className={styles.antBar}>
+          <div className={styles.antBarTitle}>개미 하나를 선택하면 그 개미의 혼합 컵에 들어갈 꿀통이 표시됩니다:</div>
+          <div className={styles.antTiles}>
+            {ANT_BITS.map((bit, idx) => (
+              <button
+                key={bit}
+                type="button"
+                className={`${styles.antTile} ${activeAntBit === bit ? styles.antActive : ''}`}
+                onClick={() => onActiveAntBitChange?.(bit === activeAntBit ? null : bit)}
+                aria-pressed={activeAntBit === bit}
+                aria-label={`개미 ${ANT_LABELS[idx]}, 자릿값 ${bit}`}
+              >
+                <span className={styles.antDrawing}><AntGlyph /></span>
+                <span className={styles.antTileName}>개미 {ANT_LABELS[idx]}</span>
+                <span className={styles.antTileBit}>{bit}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {mode === 'simulation' && (
+        <>
+          <div className={styles.antBar}>
+            <div className={styles.antBarTitle}>1시간 뒤 개미들의 상태:</div>
+            <div className={styles.antTiles}>
+              {ANT_BITS.map((bit, idx) => {
+                const isDead = deadAntBits.includes(bit);
+                return (
+                  <button
+                    key={bit}
+                    type="button"
+                    className={`${styles.antTile} ${styles.antStateTile} ${isDead ? styles.dead : styles.alive}`}
+                    onClick={() => onToggleAntDead?.(bit)}
+                    aria-pressed={isDead}
+                    aria-label={`개미 ${ANT_LABELS[idx]}, 자릿값 ${bit}, ${isDead ? '사망' : '생존'}`}
+                  >
+                    <span className={styles.antDrawing}><AntGlyph dead={isDead} /></span>
+                    <span className={styles.antTileName}>개미 {ANT_LABELS[idx]}</span>
+                    <span className={styles.antTileBit}>{bit}</span>
+                    <span className={styles.antTileStatus}>{isDead ? '사망' : '생존'}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <p className={styles.antBarHelp}>
+              개미를 눌러 <strong>사망/생존</strong>을 바꿔보세요. 합계와 꿀통 번호가 바로 바뀝니다.
+            </p>
+          </div>
+          {renderSimulationResult()}
+        </>
+      )}
+
+      {mode === 'routing' ? <details className={styles.gridDetails}><summary>25개 꿀통을 펼쳐서 고르기</summary>{renderPotGrid()}</details> : renderPotGrid()}
     </div>
   );
 }
