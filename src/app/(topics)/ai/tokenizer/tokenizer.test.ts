@@ -152,3 +152,24 @@ describe('병합 표', () => {
     }
   });
 });
+
+// The guide names these exact inputs; changing the vocabulary must not silently
+// contradict the prediction question or the observation shown beside the blocks.
+describe('체험 버튼의 관찰 근거', () => {
+  it('token은 한 조각이고 2026은 두 조각이다', () => {
+    expect(encode('token').map(token => decode([token]))).toEqual(['token']);
+    expect(encode('2026').map(token => decode([token]))).toEqual(['20', '26']);
+  });
+
+  it('공백을 붙여도 한 조각이지만 다른 토큰이다', () => {
+    expect(encode(' token')).toHaveLength(1);
+    expect(encode(' token')).not.toEqual(encode('token'));
+  });
+
+  it('낯선 글자 예시는 글자의 일부인 토큰을 실제로 보여준다', () => {
+    const tokens = encode('뷁');
+    expect(tokens.length).toBeGreaterThan(1);
+    expect(tokens.some(token => tokenDisplay(token).isBytes)).toBe(true);
+    expect(decode(tokens)).toBe('뷁');
+  });
+});

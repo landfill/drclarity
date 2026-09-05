@@ -258,3 +258,73 @@
     gap: var(--space-md);
   }
 }
+
+/* The experiment gives a concrete starting point before the full controls. */
+.experimentButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin: 1rem 0;
+}
+
+.experimentButtons button {
+  min-height: 44px;
+  padding: .55rem .85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.experimentButtons button[aria-pressed="true"] {
+  border-color: var(--color-secondary);
+  background: var(--color-secondary);
+  color: white;
+}
+
+.experimentButtons button:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.observation {
+  padding: .85rem 1rem;
+  margin: 1rem 0;
+  border-left: 4px solid var(--color-secondary);
+  background: var(--color-subtle);
+  color: var(--color-text);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .6rem;
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flow > li {
+  flex: 1 1 110px;
+  padding: .8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.flow strong {
+  display: block;
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.flow small {
+  color: var(--color-muted);
+}

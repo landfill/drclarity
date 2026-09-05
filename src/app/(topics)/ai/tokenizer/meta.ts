@@ -1,8 +1,8 @@
 import { TopicMeta } from '@/content/types';
 
 const meta: TopicMeta = {
-  title: '토큰 — AI는 글자가 아니라 덩어리를 본다',
-  summary: '언어 모델이 글을 자르는 단위를 직접 확인합니다. 이 단위가 비용과 컨텍스트 한도를 정합니다.',
+  title: 'AI는 글자가 아니라 토큰을 본다',
+  summary: 'token과 2026을 직접 잘라 보세요. 글자 수·단어 수와 토큰 수가 어떻게 다른지 확인합니다.',
   order: 1,
   difficulty: 1,
   tags: ['AI', '자연어 처리', '인코딩'],
