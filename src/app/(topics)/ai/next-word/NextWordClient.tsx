@@ -10,6 +10,7 @@ import QuizQuestion, { title as quizTitle, choices as quizChoices } from './cont
 import QuizVary from './content/quiz-vary.mdx';
 import QuizSame from './content/quiz-same.mdx';
 import NoteLogit from './content/note-logit.mdx';
+import StageLead, { title as stageTitle } from './content/stage-lead.mdx';
 import Entropy, { title as entropyTitle } from './content/entropy.mdx';
 import About, { title as aboutTitle } from './content/about.mdx';
 import meta from './meta';
@@ -58,7 +59,7 @@ export default function NextWordClient() {
       {
         kind: 'range',
         id: 'temperature',
-        label: 'temperature',
+        label: '후보를 고르게 (temperature)',
         min: 0.1,
         max: 2,
         step: 0.1,
@@ -112,10 +113,11 @@ export default function NextWordClient() {
       wide
       tags={meta.tags}
       topicHref="/ai/next-word"
-      title={<>다음 단어는 <Highlight>정해져 있지 않다</Highlight></>}
-      subtitle="모델은 단어를 고르는 대신 후보마다 확률을 매깁니다. temperature 를 움직여 분포의 모양을 직접 바꿔 봅니다."
+      title={<>다음 단어는 <Highlight>어떻게 뽑을까?</Highlight></>}
+      subtitle="확률을 바꾸고 같은 조건에서 여러 번 뽑아 보세요. 어떤 말이 나올까요?"
     >
       <QuizGate
+        labels={{ skip: '바로 실험하기' }}
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -135,13 +137,22 @@ export default function NextWordClient() {
       </ExplanationBox>
 
       <section className={styles.stage} aria-label="확률 분포">
-        <ParameterPanel params={params} onChange={handleParamChange} />
+        <h2 className={styles.sectionTitle}>{stageTitle}</h2>
+        <StageLead />
+        <div className={styles.experimentButtons} role="group" aria-label="확률 비교">
+          {[{ value: 0.2, label: '1. 한 후보에 몰기' }, { value: 2, label: '2. 여러 후보에 나누기' }].map(item => (
+            <button key={item.value} type="button" aria-pressed={temperature === item.value} onClick={() => handleParamChange('temperature', item.value)}>{item.label}</button>
+          ))}
+        </div>
+        <details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleParamChange} /></details>
+        <p className={styles.observation} role="status">
+          가장 유력한 “{prompt.candidates[probs.indexOf(Math.max(...probs))].word}”의 확률은 {(Math.max(...probs) * 100).toFixed(1)}%입니다. 아래에서 20번 뽑고, 다른 후보도 나오는지 보세요.
+        </p>
 
         <p className={styles.promptLine}>
           <span className={styles.promptText}>{prompt.text}</span>
           <span className={styles.caret} aria-hidden="true">▮</span>
         </p>
-        <p className={styles.note}>{prompt.note}</p>
 
         <ul className={styles.bars}>
           {prompt.candidates.map((c, i) => (
@@ -172,10 +183,7 @@ export default function NextWordClient() {
         </p>
 
         <div className={styles.readouts}>
-          <span>
-            분포의 <strong>엔트로피</strong> {bits.toFixed(2)} 비트
-            <span className={styles.dim}> / 최대 {maxBits.toFixed(2)}</span>
-          </span>
+          <span>막대: 뽑힐 확률 · 횟수: 뽑힌 결과</span>
           {totalDraws > 0 && <span>{totalDraws}회 뽑음</span>}
         </div>
 
@@ -200,7 +208,8 @@ export default function NextWordClient() {
         </div>
       </section>
 
-      <ExplanationBox title={entropyTitle}>
+      <ExplanationBox title={entropyTitle} collapsible>
+        <p>현재 엔트로피: {bits.toFixed(2)}비트</p>
         <Entropy maxBits={maxBits.toFixed(2)} candidateCount={prompt.candidates.length} />
       </ExplanationBox>
 

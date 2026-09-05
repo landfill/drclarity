@@ -1,9 +1,5 @@
-export const title = '만져보기 전에';
+export const title = '같은 문장인데, 다음 말도 같을까?';
 
-export const choices = [
-  { id: 'same', label: '설정이 같으면 항상 같은 답이 나온다' },
-  { id: 'vary', label: '설정이 같아도 다른 답이 나올 수 있다' },
-];
+export const choices = [{"id": "same", "label": "같은 확률이면 매번 같은 말"}, {"id": "vary", "label": "같은 확률이어도 다른 말이 나올 수 있다"}];
 
-완전히 **똑같은 문장**을 **똑같은 모델**에 두 번 넣으면
-어떻게 될까요?
+후보들의 확률을 그대로 두고 **20번 뽑으면**, 한 후보만 계속 나올까요?
