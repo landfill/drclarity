@@ -3,6 +3,9 @@
 import { useMemo, useState } from 'react';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
+import { QuizGate } from '@/components/topic/QuizGate';
+import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
+import QuizFeedback from './content/quiz-feedback.mdx';
 import { TokenStrip } from './TokenStrip';
 import { MAX_INPUT_LENGTH, clampInput, encode, statsOf } from './tokenizer';
 import NoteIntro from './content/note-intro.mdx';
@@ -16,7 +19,14 @@ import WhyUnits, { title as whyUnitsTitle } from './content/why-units.mdx';
 import meta from './meta';
 import styles from './Tokenizer.module.css';
 
-const DEFAULT_INPUT = '토큰 하나가 글자 하나는 아닙니다. the token is not a letter.';
+const DEFAULT_INPUT = 'token';
+const EXAMPLES = [
+  { label: '1. token', text: 'token' },
+  { label: '2. 2026', text: '2026' },
+  { label: '3. 앞에 공백', text: ' token' },
+  { label: '4. 한글', text: '토큰' },
+  { label: '5. 낯선 글자', text: '뷁' },
+];
 
 /** 같은 뜻을 담은 문장 쌍. 바이트 수는 UTF-8 규격이 정하므로 정확한 값이다. */
 const PARALLEL_SENTENCES: { english: string; korean: string }[] = [
@@ -52,8 +62,15 @@ export default function TokenizerClient() {
       tags={meta.tags}
       topicHref="/ai/tokenizer"
       title={<>AI는 글자가 아니라 <Highlight>토큰</Highlight>을 본다</>}
-      subtitle="글자도 단어도 아닌 중간 단위. 이 차이가 비용과 한도를 정합니다."
+      subtitle="같은 한 덩어리의 글도 여러 조각으로 나뉠까요? 직접 잘라 확인합니다."
     >
+      <QuizGate
+        question={<><h2 className={styles.sectionTitle}>{quizTitle}</h2><QuizQuestion /></>}
+        choices={quizChoices}
+        correctId="different"
+        feedback={{ same: <QuizFeedback />, different: <QuizFeedback /> }}
+        labels={{ skip: '바로 실험하기' }}
+      >
       <ExplanationBox variant="note">
         <NoteIntro />
       </ExplanationBox>
@@ -61,6 +78,12 @@ export default function TokenizerClient() {
       <section className={styles.section} aria-label="직접 잘라보기">
         <h2 className={styles.sectionTitle}>{tryItTitle}</h2>
 
+        <div className={styles.experimentButtons} role="group" aria-label="비교할 입력">
+          {EXAMPLES.map(example => (
+            <button key={example.label} type="button" aria-pressed={input === example.text} onClick={() => setInput(example.text)}>{example.label}</button>
+          ))}
+          <button type="button" onClick={() => setInput('')}>비우기</button>
+        </div>
         <label className={styles.inputLabel} htmlFor="tokenizer-input">
           문장을 입력하면 토큰 경계가 보입니다 (최대 {MAX_INPUT_LENGTH}자)
         </label>
@@ -75,30 +98,30 @@ export default function TokenizerClient() {
           onChange={(event) => setInput(clampInput(event.currentTarget.value))}
         />
 
-        <dl className={styles.stats}>
-          <div className={styles.stat}>
-            <dt>글자</dt>
-            <dd>{stats.chars.toLocaleString('ko-KR')}</dd>
-          </div>
-          <div className={styles.stat}>
-            <dt>UTF-8 바이트</dt>
-            <dd>{stats.bytes.toLocaleString('ko-KR')}</dd>
-          </div>
-          <div className={styles.stat}>
-            <dt>토큰</dt>
-            <dd>{stats.tokens.toLocaleString('ko-KR')}</dd>
-          </div>
-        </dl>
 
+
+        <ol className={styles.flow} aria-label="문장이 토큰이 되는 과정">
+          <li>입력 <strong>{stats.chars}글자</strong></li>
+          <li>→ 규칙대로 묶기 <strong>{stats.tokens}토큰</strong></li>
+        </ol>
         <TokenStrip tokens={tokens} />
+        <p className={styles.observation} role="status">
+          {input === 'token' ? 'token은 다섯 글자가 한 블록에 모여 1토큰입니다.'
+            : input === '2026' ? '2026은 20 / 26, 두 블록으로 나뉩니다. 한 덩어리의 숫자도 여러 토큰이 됩니다.'
+            : input === ' token' ? '공백(·)도 블록 안에 들어갑니다. 개수는 같아도 token과 다른 토큰입니다.'
+            : input === '토큰' ? '토큰은 두 글자가 한 블록으로 합쳐집니다. 한글도 여러 글자가 하나의 토큰이 될 수 있습니다.'
+            : input === '뷁' ? '낯선 글자 한 개가 바이트 조각으로 나뉩니다. 글자의 일부도 토큰이 될 수 있습니다.'
+            : input.length === 0 ? '입력이 없으면 토큰도 없습니다. 예시를 고르거나 직접 입력하세요.'
+            : `입력 ${stats.chars}글자가 ${stats.tokens}개 블록으로 나뉘었습니다. 블록 안에 몇 글자가 들어 있는지 보세요.`}
+        </p>
 
         <div className={styles.caveat}>
           <TryIt />
         </div>
       </section>
 
-      <section className={styles.section} aria-label="공백의 영향">
-        <h2 className={styles.sectionTitle}>{spacingTitle}</h2>
+      <ExplanationBox title={spacingTitle} collapsible>
+
         <div className={styles.lead}>
           <Spacing />
         </div>
@@ -121,17 +144,17 @@ export default function TokenizerClient() {
         <div className={styles.caveat}>
           <SpacingCaveat />
         </div>
-      </section>
+      </ExplanationBox>
 
-      <section className={styles.section} aria-label="한국어와 영어 비교">
-        <h2 className={styles.sectionTitle}>{koreanTitle}</h2>
+      <ExplanationBox title={koreanTitle} collapsible>
+
         <div className={styles.lead}>
           <Korean />
         </div>
 
         <table className={styles.compareTable}>
           <caption className={styles.tableCaption}>
-            글자 수와 바이트 수는 UTF-8 규격이 정하는 정확한 값입니다. 토큰 수는 이 페이지의 축소판 규칙 기준입니다.
+            글자는 코드 포인트, 바이트는 UTF-8, 토큰은 학습용 규칙으로 셉니다.
           </caption>
           <thead>
             <tr>
@@ -171,10 +194,10 @@ export default function TokenizerClient() {
         <div className={styles.caveat}>
           <KoreanCaveat />
         </div>
-      </section>
+      </ExplanationBox>
 
-      <section className={styles.section} aria-label="숫자 분할">
-        <h2 className={styles.sectionTitle}>{numbersTitle}</h2>
+      <ExplanationBox title={numbersTitle} collapsible>
+
         <div className={styles.lead}>
           <Numbers />
         </div>
@@ -187,11 +210,12 @@ export default function TokenizerClient() {
             </li>
           ))}
         </ul>
-      </section>
+      </ExplanationBox>
 
       <ExplanationBox title={whyUnitsTitle} variant="note" collapsible defaultOpen={false}>
         <WhyUnits />
       </ExplanationBox>
+      </QuizGate>
     </TopicLayout>
   );
 }
