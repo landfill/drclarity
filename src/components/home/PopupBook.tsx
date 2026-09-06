@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useReducer, type CSSProperties } from 'react';
 import Link from 'next/link';
 import styles from './PopupBook.module.css';
 import { BookSculpture } from './BookSculpture';
+import { bookTurnReducer, initialBookTurn, phaseDuration } from './bookTurn';
 
 const chapters = [
   { label: '수학 퍼즐', title: '빨간색 영역의 넓이는?', description: '겹쳐진 원 사이에 숨어 있는 기하학의 실마리.', href: '/math/geometry-area', subject: 'math', motif: '도형과 증명', page: '01' },
@@ -13,22 +14,41 @@ const chapters = [
 
 /** An illustrated book whose bookmarks select a spread and whose pages open its topic. */
 export function PopupBook() {
-  const [selected, setSelected] = useState(0);
-  const chapter = chapters[selected];
+  const [turn, dispatch] = useReducer(bookTurnReducer, initialBookTurn);
+  const chapter = chapters[turn.displayed];
+  const turning = turn.phase !== 'idle';
+
+  useEffect(() => {
+    if (turn.phase === 'idle') return;
+    const phase = turn.phase;
+    const timer = window.setTimeout(() => dispatch({ type: 'advance', phase }), phaseDuration[phase]);
+    return () => window.clearTimeout(timer);
+  }, [turn.phase]);
+
+  useEffect(() => {
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = () => { if (motion.matches) dispatch({ type: 'settle' }); };
+    motion.addEventListener('change', onChange);
+    return () => motion.removeEventListener('change', onChange);
+  }, []);
+
+  const selectChapter = (index: number) => dispatch({
+    type: 'select', index, instant: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  });
 
   return (
-    <div className={styles.library} data-subject={chapter.subject}>
+    <div className={styles.library} data-subject={chapter.subject} aria-busy={turning}>
       <div className={styles.bookmarks} role="group" aria-label="팝업북 주제 선택">
         {chapters.map((item, index) => (
-          <button key={item.href} type="button" data-subject={item.subject} aria-pressed={selected === index} onClick={() => setSelected(index)}>
+          <button key={item.href} type="button" data-subject={item.subject} aria-pressed={turn.requested === index} onClick={() => selectChapter(index)}>
             <span className={styles.indexNumber} aria-hidden="true">{item.page}</span>
             <span className={styles.indexLabel}>{item.label}</span>
           </button>
         ))}
       </div>
-      <Link href={chapter.href} className={styles.bookLink} aria-label={`${chapter.label}: ${chapter.title} 챕터 열기`}>
-        <div className={styles.stage}>
-          <BookSculpture key={chapter.subject} subject={chapter.subject} page={chapter.page} />
+      <Link href={chapter.href} className={styles.bookLink} aria-disabled={turning || undefined} tabIndex={turning ? -1 : undefined} onClick={event => { if (turning) event.preventDefault(); }} onAuxClick={event => { if (turning) event.preventDefault(); }} aria-label={`${chapter.label}: ${chapter.title} 챕터 열기`}>
+        <div className={styles.stage} style={{ '--phase-duration': `${turn.phase === 'idle' ? 0 : phaseDuration[turn.phase]}ms` } as CSSProperties}>
+          <BookSculpture subject={chapter.subject} page={chapter.page} phase={turn.phase} direction={turn.direction} />
         </div>
         <div className={styles.caption} aria-live="polite" aria-atomic="true">
           <div><span className={styles.chapterNumber}>{chapter.page} · {chapter.motif}</span><h2>{chapter.title}</h2></div>

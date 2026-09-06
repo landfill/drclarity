@@ -76,24 +76,41 @@
   transition: transform .6s cubic-bezier(.2,.7,.2,1);
 }
 
-.leaves {
-  transform-origin: 340px 440px;
-  animation: openLeaves 1.1s cubic-bezier(.2,.7,.2,1) both;
-}
-
-.rearLayer, .middleLayer, .frontLayer, .foregroundLayer {
+.scene, .rearLayer, .middleLayer, .frontLayer, .foregroundLayer {
   transform-origin: 340px 373px;
-  animation: raisePaper 1.2s cubic-bezier(.22,.65,.24,1) both;
 }
 
-.rearLayer { animation-delay: .05s; }
-.middleLayer { animation-delay: .13s; }
-.frontLayer { animation-delay: .21s; }
-.foregroundLayer { animation-delay: .29s; }
-.bookLink:hover .book, .bookLink:focus-visible .book { transform: translateY(-4px); }
+.book[data-phase='folding'] .scene {
+  animation: foldPopup var(--phase-duration) ease-in both;
+}
+
+.book[data-phase='turning-out'] .scene,
+.book[data-phase='turning-in'] .scene { visibility: hidden; }
+
+.book[data-phase='opening'] .rearLayer,
+.book[data-phase='opening'] .middleLayer,
+.book[data-phase='opening'] .frontLayer,
+.book[data-phase='opening'] .foregroundLayer {
+  animation: raisePaper calc(var(--phase-duration) - 120ms) cubic-bezier(.2,.7,.2,1) both;
+}
+
+.book[data-phase='opening'] .middleLayer { animation-delay: 40ms; }
+.book[data-phase='opening'] .frontLayer { animation-delay: 80ms; }
+.book[data-phase='opening'] .foregroundLayer { animation-delay: 120ms; }
+
+.turningLeaf { transform-origin: 340px 337px; animation-duration: var(--phase-duration); animation-timing-function: linear; animation-fill-mode: both; }
+.book[data-direction='forward'][data-phase='turning-out'] .turningLeaf { animation-name: turnForwardOut; }
+.book[data-direction='forward'][data-phase='turning-in'] .turningLeaf { animation-name: turnForwardIn; }
+.book[data-direction='backward'][data-phase='turning-out'] .turningLeaf { animation-name: turnBackwardOut; }
+.book[data-direction='backward'][data-phase='turning-in'] .turningLeaf { animation-name: turnBackwardIn; }
+
+.bookLink:not([aria-disabled]):hover .book,
+.bookLink:not([aria-disabled]):focus-visible .book { transform: translateY(-4px); }
+.bookLink[aria-disabled] { cursor: progress; }
 
 .caption {
   display: grid;
+  min-height: 72px;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
@@ -112,9 +129,31 @@
   to { transform: scale(1, 1) skewX(0); }
 }
 
-@keyframes openLeaves {
-  from { transform: scaleY(.45); }
-  to { transform: scaleY(1); }
+@keyframes foldPopup {
+  from { transform: scale(1, 1); }
+  to { transform: scale(1, .045) skewX(-8deg); }
+}
+
+/* Affine projection around the spine: horizontal reach shrinks as the leaf rises. */
+@keyframes turnForwardOut {
+  0% { transform: matrix(1, 0, 0, 1, 0, 0); }
+  50% { transform: matrix(.707, -.566, 0, 1, 0, 0); }
+  100% { transform: matrix(0, -.8, 0, 1, 0, 0); }
+}
+@keyframes turnForwardIn {
+  0% { transform: matrix(0, -.8, 0, 1, 0, 0); }
+  50% { transform: matrix(-.707, -.566, 0, 1, 0, 0); }
+  100% { transform: matrix(-1, 0, 0, 1, 0, 0); }
+}
+@keyframes turnBackwardOut {
+  0% { transform: matrix(-1, 0, 0, 1, 0, 0); }
+  50% { transform: matrix(-.707, -.566, 0, 1, 0, 0); }
+  100% { transform: matrix(0, -.8, 0, 1, 0, 0); }
+}
+@keyframes turnBackwardIn {
+  0% { transform: matrix(0, -.8, 0, 1, 0, 0); }
+  50% { transform: matrix(.707, -.566, 0, 1, 0, 0); }
+  100% { transform: matrix(1, 0, 0, 1, 0, 0); }
 }
 
 @media (max-width: 900px) and (min-width: 601px) {
@@ -135,13 +174,17 @@
 @media (max-width: 380px) {
   .library { grid-template-columns: minmax(0, 1fr) 66px; }
   .indexLabel { font-size: .625rem; }
-  .caption { gap: 6px; }
+  .caption { gap: 6px; min-height: 90px; }
   .arrow { width: 24px; height: 24px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .leaves, .rearLayer, .middleLayer, .frontLayer, .foregroundLayer { animation: none; }
+  .book[data-phase] .scene, .book[data-phase] .rearLayer,
+  .book[data-phase] .middleLayer, .book[data-phase] .frontLayer,
+  .book[data-phase] .foregroundLayer, .book[data-phase] .turningLeaf { animation: none; }
+  .turningLeaf, .turnShadow { display: none; }
+  .book[data-phase] .scene { visibility: visible; }
   .book, .bookmarks button, .arrow { transition: none; }
-  .bookLink:hover .book, .bookLink:focus-visible .book,
+  .bookLink:not([aria-disabled]):hover .book, .bookLink:not([aria-disabled]):focus-visible .book,
   .bookmarks button:hover, .bookmarks button[aria-pressed='true'] { transform: none; }
 }
