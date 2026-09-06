@@ -1,22 +1,29 @@
 import { useId } from 'react';
 import styles from './PopupBook.module.css';
+import type { BookTurnState, TurnPhase } from './bookTurn';
 
 interface BookSculptureProps {
   subject: 'math' | 'cs' | 'ai';
   page: string;
+  phase: TurnPhase;
+  direction: BookTurnState['direction'];
 }
 
 /** Layered paper cutouts, V-fold supports and fanned leaves share the book's central hinge. */
-export function BookSculpture({ subject, page }: BookSculptureProps) {
+export function BookSculpture({ subject, page, phase, direction }: BookSculptureProps) {
   const theme = {
     math: { cloth: ['#365F50', '#12392D', '#285241'], edge: '#173E30', ribbon: '#B46546', label: 'GEOMETRY' },
     cs: { cloth: ['#365F50', '#12392D', '#285241'], edge: '#173E30', ribbon: '#A68C60', label: 'PIXELS & INFORMATION' },
     ai: { cloth: ['#365F50', '#12392D', '#285241'], edge: '#173E30', ribbon: '#A68C60', label: 'CONTEXT & CONVERSATION' },
   }[subject];
+  const leafOnLeft = direction === 'forward' ? phase === 'turning-in' : phase === 'turning-out';
+  const leafOutline = leafOnLeft
+    ? 'M555 252Q446 273 340 337V436Q452 380 578 357Z'
+    : 'M555 250Q449 270 340 337V436Q457 378 578 355Z';
   const id = useId();
   const paint = (name: string) => `url(#${id}-${name})`;
   return (
-    <svg className={styles.book} viewBox="0 60 680 440" fill="none" aria-hidden="true">
+    <svg className={styles.book} data-phase={phase} data-direction={direction} viewBox="0 60 680 440" fill="none" aria-hidden="true">
       <defs>
         <linearGradient id={`${id}-cloth`} x1="60" y1="390" x2="580" y2="460" gradientUnits="userSpaceOnUse"><stop stopColor={theme.cloth[0]} /><stop offset=".5" stopColor={theme.cloth[1]} /><stop offset="1" stopColor={theme.cloth[2]} /></linearGradient>
         <linearGradient id={`${id}-left`} x1="100" y1="340" x2="341" y2="390" gradientUnits="userSpaceOnUse"><stop stopColor="#FDF8E7" /><stop offset=".73" stopColor="#F1E9D2" /><stop offset="1" stopColor="#B8B29A" /></linearGradient>
@@ -56,7 +63,18 @@ export function BookSculpture({ subject, page }: BookSculptureProps) {
         <text transform="matrix(1 -.17 .17 1 555 402)">{page}</text>
       </g>
 
-      <g className={styles.scene}>
+      {phase !== 'idle' && <ellipse className={styles.turnShadow} cx="340" cy="383" rx="192" ry="30" fill="#354A32" opacity=".14" filter={paint('softShadow')} />}
+      <g className={phase === 'idle' ? undefined : styles.turningLeaf}>
+        {phase !== 'idle' && <g className={styles.leafSurface}>
+          <path d={leafOutline} fill={leafOnLeft ? '#F7F0DA' : '#F9F3DD'} stroke={leafOnLeft ? '#C9BEA1' : '#C5B99A'} strokeWidth="1.3" />
+          <path d="M344 337C422 288 490 260 552 254M575 355C490 374 413 407 344 432" stroke="#FFFDF0" strokeWidth="2" />
+          <path d="M355 341C433 298 495 272 544 266M358 418C433 389 505 366 564 352" stroke="#CEC5A9" strokeWidth=".8" />
+          <path d="M340 337Q353 382 340 436" stroke="#A99F85" strokeWidth="1.5" />
+          <path d="M547 253Q536 303 578 355Q553 314 555 250Z" fill="#D8D0B7" opacity=".65" />
+        </g>}
+        <g className={styles.popupCarriage}>
+        <g className={leafOnLeft ? styles.popupBack : undefined}>
+      <g key={subject} className={styles.scene}>
         <ellipse cx="346" cy="352" rx="170" ry="34" fill="#365036" opacity=".16" filter={paint('softShadow')} />
         {subject === 'math' && <>
         {/* The rear V-fold is one continuous cut sheet: the bright edge marks its crease. */}
@@ -193,6 +211,9 @@ export function BookSculpture({ subject, page }: BookSculptureProps) {
         </>}
         <g stroke="#6F7958" strokeWidth="1" opacity=".7">
           <path d="M142 363L172 370M146 372L171 378M516 366L539 359M514 375L544 365" />
+        </g>
+      </g>
+        </g>
         </g>
       </g>
     </svg>

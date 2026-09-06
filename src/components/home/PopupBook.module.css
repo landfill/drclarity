@@ -76,24 +76,37 @@
   transition: transform .6s cubic-bezier(.2,.7,.2,1);
 }
 
-.leaves {
-  transform-origin: 340px 440px;
-  animation: openLeaves 1.1s cubic-bezier(.2,.7,.2,1) both;
-}
-
-.rearLayer, .middleLayer, .frontLayer, .foregroundLayer {
+.scene, .rearLayer, .middleLayer, .frontLayer, .foregroundLayer {
   transform-origin: 340px 373px;
-  animation: raisePaper 1.2s cubic-bezier(.22,.65,.24,1) both;
 }
 
-.rearLayer { animation-delay: .05s; }
-.middleLayer { animation-delay: .13s; }
-.frontLayer { animation-delay: .21s; }
-.foregroundLayer { animation-delay: .29s; }
-.bookLink:hover .book, .bookLink:focus-visible .book { transform: translateY(-4px); }
+.book[data-phase='turning-out'] .scene {
+  animation: foldPopup var(--phase-duration) linear both;
+}
+
+.book[data-phase='turning-in'] .scene {
+  animation: unfoldWithPage var(--phase-duration) linear both;
+}
+
+.book[data-phase='turning-out'] .popupCarriage { animation: carryOut var(--phase-duration) linear both; }
+.book[data-phase='turning-in'] .popupCarriage { animation: carryIn var(--phase-duration) linear both; }
+.popupBack { transform: scaleX(-1); transform-origin: 340px 337px; }
+
+.turningLeaf { transform-origin: 340px 337px; animation-duration: var(--phase-duration); animation-timing-function: linear; animation-fill-mode: both; }
+.book[data-phase='turning-in'] .leafSurface { animation: settleSurface var(--phase-duration) linear both; }
+.book[data-phase='turning-in'] .turnShadow { animation: settleShadow var(--phase-duration) linear both; }
+.book[data-direction='forward'][data-phase='turning-out'] .turningLeaf { animation-name: turnForwardOut; }
+.book[data-direction='forward'][data-phase='turning-in'] .turningLeaf { animation-name: turnForwardIn; }
+.book[data-direction='backward'][data-phase='turning-out'] .turningLeaf { animation-name: turnBackwardOut; }
+.book[data-direction='backward'][data-phase='turning-in'] .turningLeaf { animation-name: turnBackwardIn; }
+
+.bookLink:not([aria-disabled]):hover .book,
+.bookLink:not([aria-disabled]):focus-visible .book { transform: translateY(-4px); }
+.bookLink[aria-disabled] { cursor: progress; }
 
 .caption {
   display: grid;
+  min-height: 72px;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
@@ -107,14 +120,58 @@
 .arrow { display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid #CBD5C5; border-radius: 50%; color: var(--book-accent); font-size: 1rem; transition: background .2s, color .2s; }
 .bookLink:hover .arrow { color: #fff; background: var(--book-accent); }
 
-@keyframes raisePaper {
-  from { transform: scale(.86, .045) skewX(-12deg); }
-  to { transform: scale(1, 1) skewX(0); }
+/* The popup hinges within the moving page frame, rather than crossing a separate sheet. */
+@keyframes foldPopup {
+  0% { transform: scaleY(1); }
+  50% { transform: scaleY(.707); }
+  100% { transform: scaleY(0); }
+}
+@keyframes unfoldWithPage {
+  0% { transform: scaleY(0); }
+  50% { transform: scaleY(.707); }
+  100% { transform: scaleY(1); }
 }
 
-@keyframes openLeaves {
-  from { transform: scaleY(.45); }
-  to { transform: scaleY(1); }
+/* Carry the folded structure toward the raised sheet as its angle changes. */
+@keyframes carryOut {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(127.3px); }
+  100% { transform: translateX(180px); }
+}
+@keyframes carryIn {
+  0% { transform: translateX(180px); }
+  50% { transform: translateX(127.3px); }
+  100% { transform: translateX(0); }
+}
+
+/* Affine projection around the spine: horizontal reach shrinks as the leaf rises. */
+@keyframes turnForwardOut {
+  0% { transform: matrix(1, 0, 0, 1, 0, 0); }
+  50% { transform: matrix(.707, -.566, 0, 1, 0, 0); }
+  100% { transform: matrix(0, -.8, 0, 1, 0, 0); }
+}
+@keyframes turnForwardIn {
+  0% { transform: matrix(0, -.8, 0, 1, 0, 0); }
+  50% { transform: matrix(-.707, -.566, 0, 1, 0, 0); }
+  100% { transform: matrix(-1, 0, 0, 1, 0, 0); }
+}
+@keyframes turnBackwardOut {
+  0% { transform: matrix(-1, 0, 0, 1, 0, 0); }
+  50% { transform: matrix(-.707, -.566, 0, 1, 0, 0); }
+  100% { transform: matrix(0, -.8, 0, 1, 0, 0); }
+}
+@keyframes turnBackwardIn {
+  0% { transform: matrix(0, -.8, 0, 1, 0, 0); }
+  50% { transform: matrix(.707, -.566, 0, 1, 0, 0); }
+  100% { transform: matrix(1, 0, 0, 1, 0, 0); }
+}
+@keyframes settleSurface {
+  0%, 80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes settleShadow {
+  0%, 80% { opacity: .14; }
+  100% { opacity: 0; }
 }
 
 @media (max-width: 900px) and (min-width: 601px) {
@@ -135,13 +192,18 @@
 @media (max-width: 380px) {
   .library { grid-template-columns: minmax(0, 1fr) 66px; }
   .indexLabel { font-size: .625rem; }
-  .caption { gap: 6px; }
+  .caption { gap: 6px; min-height: 90px; }
   .arrow { width: 24px; height: 24px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .leaves, .rearLayer, .middleLayer, .frontLayer, .foregroundLayer { animation: none; }
+  .book[data-phase] .scene, .book[data-phase] .rearLayer,
+  .book[data-phase] .middleLayer, .book[data-phase] .frontLayer,
+  .book[data-phase] .foregroundLayer, .book[data-phase] .turningLeaf, .book[data-phase] .popupCarriage { animation: none; }
+  .leafSurface, .turnShadow { display: none; }
+  .turningLeaf, .popupBack { transform: none; }
+  .book[data-phase] .scene { visibility: visible; }
   .book, .bookmarks button, .arrow { transition: none; }
-  .bookLink:hover .book, .bookLink:focus-visible .book,
+  .bookLink:not([aria-disabled]):hover .book, .bookLink:not([aria-disabled]):focus-visible .book,
   .bookmarks button:hover, .bookmarks button[aria-pressed='true'] { transform: none; }
 }
