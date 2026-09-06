@@ -96,6 +96,7 @@
 .book[data-phase='turning-in'] .foregroundLayer { animation-delay: 90ms; }
 
 .turningLeaf { transform-origin: 340px 337px; animation-duration: var(--phase-duration); animation-timing-function: linear; animation-fill-mode: both; }
+.book[data-phase='turning-in'] .turnShadow { animation: settleShadow var(--phase-duration) linear both; }
 .book[data-direction='forward'][data-phase='turning-out'] .turningLeaf { animation-name: turnForwardOut; }
 .book[data-direction='forward'][data-phase='turning-in'] .turningLeaf { animation-name: turnForwardIn; }
 .book[data-direction='backward'][data-phase='turning-out'] .turningLeaf { animation-name: turnBackwardOut; }
@@ -140,7 +141,8 @@
 @keyframes turnForwardIn {
   0% { transform: matrix(0, -.8, 0, 1, 0, 0); }
   50% { transform: matrix(-.707, -.566, 0, 1, 0, 0); }
-  100% { transform: matrix(-1, 0, 0, 1, 0, 0); }
+  80% { opacity: 1; }
+  100% { transform: matrix(-1, 0, 0, 1, 0, 0); opacity: 0; }
 }
 @keyframes turnBackwardOut {
   0% { transform: matrix(-1, 0, 0, 1, 0, 0); }
@@ -150,7 +152,12 @@
 @keyframes turnBackwardIn {
   0% { transform: matrix(0, -.8, 0, 1, 0, 0); }
   50% { transform: matrix(.707, -.566, 0, 1, 0, 0); }
-  100% { transform: matrix(1, 0, 0, 1, 0, 0); }
+  80% { opacity: 1; }
+  100% { transform: matrix(1, 0, 0, 1, 0, 0); opacity: 0; }
+}
+@keyframes settleShadow {
+  0%, 80% { opacity: .14; }
+  100% { opacity: 0; }
 }
 
 @media (max-width: 900px) and (min-width: 601px) {

@@ -36,6 +36,17 @@ export function PopupBook() {
     type: 'select', index, instant: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   });
 
+  const linkLabel = `${chapter.label}: ${chapter.title} 챕터 열기`;
+  const bookContent = <>
+        <div className={styles.stage} style={{ '--phase-duration': `${turn.phase === 'idle' ? 0 : phaseDuration[turn.phase]}ms` } as CSSProperties}>
+          <BookSculpture subject={chapter.subject} page={chapter.page} phase={turn.phase} direction={turn.direction} />
+        </div>
+        <div className={styles.caption} aria-live="polite" aria-atomic="true">
+          <div><span className={styles.chapterNumber}>{chapter.page} · {chapter.motif}</span><h2>{chapter.title}</h2></div>
+          <span className={styles.arrow} aria-hidden="true">↗</span>
+        </div>
+  </>;
+
   return (
     <div className={styles.library} data-subject={chapter.subject} aria-busy={turning}>
       <div className={styles.bookmarks} role="group" aria-label="팝업북 주제 선택">
@@ -46,15 +57,9 @@ export function PopupBook() {
           </button>
         ))}
       </div>
-      <Link href={chapter.href} className={styles.bookLink} aria-disabled={turning || undefined} tabIndex={turning ? -1 : undefined} onClick={event => { if (turning) event.preventDefault(); }} onAuxClick={event => { if (turning) event.preventDefault(); }} aria-label={`${chapter.label}: ${chapter.title} 챕터 열기`}>
-        <div className={styles.stage} style={{ '--phase-duration': `${turn.phase === 'idle' ? 0 : phaseDuration[turn.phase]}ms` } as CSSProperties}>
-          <BookSculpture subject={chapter.subject} page={chapter.page} phase={turn.phase} direction={turn.direction} />
-        </div>
-        <div className={styles.caption} aria-live="polite" aria-atomic="true">
-          <div><span className={styles.chapterNumber}>{chapter.page} · {chapter.motif}</span><h2>{chapter.title}</h2></div>
-          <span className={styles.arrow} aria-hidden="true">↗</span>
-        </div>
-      </Link>
+      {turning
+        ? <a className={styles.bookLink} role="link" aria-disabled="true" aria-label={linkLabel}>{bookContent}</a>
+        : <Link href={chapter.href} className={styles.bookLink} aria-label={linkLabel}>{bookContent}</Link>}
     </div>
   );
 }
