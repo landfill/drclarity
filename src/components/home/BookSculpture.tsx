@@ -63,6 +63,17 @@ export function BookSculpture({ subject, page, phase, direction }: BookSculpture
         <text transform="matrix(1 -.17 .17 1 555 402)">{page}</text>
       </g>
 
+      {phase !== 'idle' && <ellipse className={styles.turnShadow} cx="340" cy="383" rx="192" ry="30" fill="#354A32" opacity=".14" filter={paint('softShadow')} />}
+      <g className={phase === 'idle' ? undefined : styles.turningLeaf}>
+        {phase !== 'idle' && <g className={styles.leafSurface}>
+          <path d={leafOutline} fill={leafOnLeft ? '#F7F0DA' : '#F9F3DD'} stroke={leafOnLeft ? '#C9BEA1' : '#C5B99A'} strokeWidth="1.3" />
+          <path d="M344 337C422 288 490 260 552 254M575 355C490 374 413 407 344 432" stroke="#FFFDF0" strokeWidth="2" />
+          <path d="M355 341C433 298 495 272 544 266M358 418C433 389 505 366 564 352" stroke="#CEC5A9" strokeWidth=".8" />
+          <path d="M340 337Q353 382 340 436" stroke="#A99F85" strokeWidth="1.5" />
+          <path d="M547 253Q536 303 578 355Q553 314 555 250Z" fill="#D8D0B7" opacity=".65" />
+        </g>}
+        <g className={styles.popupCarriage}>
+        <g className={leafOnLeft ? styles.popupBack : undefined}>
       <g key={subject} className={styles.scene}>
         <ellipse cx="346" cy="352" rx="170" ry="34" fill="#365036" opacity=".16" filter={paint('softShadow')} />
         {subject === 'math' && <>
@@ -202,16 +213,9 @@ export function BookSculpture({ subject, page, phase, direction }: BookSculpture
           <path d="M142 363L172 370M146 372L171 378M516 366L539 359M514 375L544 365" />
         </g>
       </g>
-      {(phase === 'turning-out' || phase === 'turning-in') && <>
-        <ellipse className={styles.turnShadow} cx="340" cy="383" rx="192" ry="30" fill="#354A32" opacity=".14" filter={paint('softShadow')} />
-        <g key={phase} className={styles.turningLeaf}>
-          <path d={leafOutline} fill={leafOnLeft ? '#F7F0DA' : '#F9F3DD'} stroke={leafOnLeft ? '#C9BEA1' : '#C5B99A'} strokeWidth="1.3" />
-          <path d="M344 337C422 288 490 260 552 254M575 355C490 374 413 407 344 432" stroke="#FFFDF0" strokeWidth="2" />
-          <path d="M355 341C433 298 495 272 544 266M358 418C433 389 505 366 564 352" stroke="#CEC5A9" strokeWidth=".8" />
-          <path d="M340 337Q353 382 340 436" stroke="#A99F85" strokeWidth="1.5" />
-          <path d="M547 253Q536 303 578 355Q553 314 555 250Z" fill="#D8D0B7" opacity=".65" />
         </g>
-      </>}
+        </g>
+      </g>
     </svg>
   );
 }

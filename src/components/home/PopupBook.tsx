@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useReducer, type CSSProperties } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import styles from './PopupBook.module.css';
 import { BookSculpture } from './BookSculpture';
 import { bookTurnReducer, initialBookTurn, phaseDuration } from './bookTurn';
@@ -14,6 +14,7 @@ const chapters = [
 
 /** An illustrated book whose bookmarks select a spread and whose pages open its topic. */
 export function PopupBook() {
+  const router = useRouter();
   const [turn, dispatch] = useReducer(bookTurnReducer, initialBookTurn);
   const chapter = chapters[turn.displayed];
   const turning = turn.phase !== 'idle';
@@ -57,9 +58,21 @@ export function PopupBook() {
           </button>
         ))}
       </div>
-      {turning
-        ? <a className={styles.bookLink} role="link" aria-disabled="true" aria-label={linkLabel}>{bookContent}</a>
-        : <Link href={chapter.href} className={styles.bookLink} aria-label={linkLabel}>{bookContent}</Link>}
+      <a
+        className={styles.bookLink}
+        href={turning ? undefined : chapter.href}
+        role="link"
+        aria-disabled={turning || undefined}
+        aria-label={linkLabel}
+        tabIndex={turning ? -1 : undefined}
+        onClick={event => {
+          if (turning) { event.preventDefault(); return; }
+          if (!event.defaultPrevented && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+            event.preventDefault();
+            router.push(chapter.href);
+          }
+        }}
+      >{bookContent}</a>
     </div>
   );
 }
