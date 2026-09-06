@@ -2,13 +2,12 @@ import Link from 'next/link';
 import { getCategories, getTopics } from '@/content/registry';
 import { DifficultyGuide } from '@/components/topic/DifficultyGuide';
 import { TopicCard } from '@/components/topic/TopicCard';
-import { TopicMotif } from '@/components/topic/TopicMotif';
+import { PopupBook } from '@/components/home/PopupBook';
 import styles from './page.module.css';
 
 export default function Home() {
   const categories = getCategories();
   const topics = getTopics();
-  const featured = topics.find(topic => topic.slug === 'geometry-area') ?? topics[0];
 
   return (
     <main id="main-content" tabIndex={-1} className={styles.container}>
@@ -16,15 +15,11 @@ export default function Home() {
         <div className={styles.heroCopy}>
           <p className={styles.eyebrow}><span /> 눈으로 배우는 지식의 공간</p>
           <h1 className={styles.title}>어려운 개념을,<br /><em>선명한 이해로.</em></h1>
-          <p className={styles.subtitle}>막연히 알던 원리가 또렷해지는 순간.<br />질문 하나에서 시작해, 직접 바꾸며 발견해 보세요.</p>
+          <p className={styles.subtitle}>책장을 펼치면, 원리가 눈앞에.<br />질문 하나에서 시작해, 직접 바꾸며 발견해 보세요.</p>
           <Link href="#explore" className={styles.start}>호기심 따라 시작하기 <span aria-hidden="true">↗</span></Link>
           <p className={styles.catalogCount}>{categories.length}개의 분야 <span>·</span> {topics.length}개의 직접 해보는 이야기</p>
         </div>
-        {featured && <Link href={featured.href} className={styles.feature}>
-          <div className={styles.featureHead}><span>하나의 질문, 새로운 발견</span><span aria-hidden="true">FIG. 01</span></div>
-          <div className={styles.featureArt}><TopicMotif categoryId={featured.categoryId} slug={featured.slug} /><span className={styles.artLabel}>생각에 선을 하나 더.</span></div>
-          <div className={styles.featureCaption}><div><small>이 질문부터 시작해 볼까요?</small><h2>{featured.title}</h2></div><span className={styles.featureArrow} aria-hidden="true">↗</span></div>
-        </Link>}
+        <PopupBook />
       </section>
 
       <ol className={styles.learningPath} aria-label="이곳에서 배우는 방법">
