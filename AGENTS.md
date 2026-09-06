@@ -8,6 +8,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
+# 배포 규칙
+
+**배포는 GitHub PR을 `main`에 머지하여 연결된 Vercel 자동 배포로 진행한다.**
+
+- 작업 브랜치에 변경을 커밋하고 PR을 생성한 뒤, 검증과 리뷰를 마치고 `main`에 머지한다.
+- `vercel deploy`, `vercel --prod`, 배포 API 등으로 Vercel에 직접 배포하지 않는다.
+- 배포 완료는 머지 커밋에 해당하는 Vercel 운영 배포의 성공과 운영 사이트 반영을 확인한 뒤 알린다.
+
 # PR 푸시 규칙
 
 **리뷰 봇 피드백 대응은 로컬에서 모아 한 번에 푸시한다.**
