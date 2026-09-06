@@ -72,8 +72,7 @@ export function BookSculpture({ subject, page, phase, direction }: BookSculpture
           <path d="M340 337Q353 382 340 436" stroke="#A99F85" strokeWidth="1.5" />
           <path d="M547 253Q536 303 578 355Q553 314 555 250Z" fill="#D8D0B7" opacity=".65" />
         </g>}
-        <g className={styles.popupCarriage}>
-        <g className={leafOnLeft ? styles.popupBack : undefined}>
+      </g>
       <g key={subject} className={styles.scene}>
         <ellipse cx="346" cy="352" rx="170" ry="34" fill="#365036" opacity=".16" filter={paint('softShadow')} />
         {subject === 'math' && <>
@@ -211,9 +210,6 @@ export function BookSculpture({ subject, page, phase, direction }: BookSculpture
         </>}
         <g stroke="#6F7958" strokeWidth="1" opacity=".7">
           <path d="M142 363L172 370M146 372L171 378M516 366L539 359M514 375L544 365" />
-        </g>
-      </g>
-        </g>
         </g>
       </g>
     </svg>
