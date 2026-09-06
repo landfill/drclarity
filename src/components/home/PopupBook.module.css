@@ -80,23 +80,20 @@
   transform-origin: 340px 373px;
 }
 
-.book[data-phase='folding'] .scene {
+.book[data-phase='turning-out'] .scene {
   animation: foldPopup var(--phase-duration) ease-in both;
 }
 
-.book[data-phase='turning-out'] .scene,
-.book[data-phase='turning-in'] .scene { visibility: hidden; }
-
-.book[data-phase='opening'] .rearLayer,
-.book[data-phase='opening'] .middleLayer,
-.book[data-phase='opening'] .frontLayer,
-.book[data-phase='opening'] .foregroundLayer {
-  animation: raisePaper calc(var(--phase-duration) - 120ms) cubic-bezier(.2,.7,.2,1) both;
+.book[data-phase='turning-in'] .rearLayer,
+.book[data-phase='turning-in'] .middleLayer,
+.book[data-phase='turning-in'] .frontLayer,
+.book[data-phase='turning-in'] .foregroundLayer {
+  animation: raisePaper calc(var(--phase-duration) - 90ms) cubic-bezier(.35,0,.65,1) both;
 }
 
-.book[data-phase='opening'] .middleLayer { animation-delay: 40ms; }
-.book[data-phase='opening'] .frontLayer { animation-delay: 80ms; }
-.book[data-phase='opening'] .foregroundLayer { animation-delay: 120ms; }
+.book[data-phase='turning-in'] .middleLayer { animation-delay: 30ms; }
+.book[data-phase='turning-in'] .frontLayer { animation-delay: 60ms; }
+.book[data-phase='turning-in'] .foregroundLayer { animation-delay: 90ms; }
 
 .turningLeaf { transform-origin: 340px 337px; animation-duration: var(--phase-duration); animation-timing-function: linear; animation-fill-mode: both; }
 .book[data-direction='forward'][data-phase='turning-out'] .turningLeaf { animation-name: turnForwardOut; }
@@ -130,8 +127,8 @@
 }
 
 @keyframes foldPopup {
-  from { transform: scale(1, 1); }
-  to { transform: scale(1, .045) skewX(-8deg); }
+  0% { transform: scale(1, 1); }
+  70%, 100% { transform: scale(1, .045) skewX(-8deg); }
 }
 
 /* Affine projection around the spine: horizontal reach shrinks as the leaf rises. */

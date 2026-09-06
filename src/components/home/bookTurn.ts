@@ -1,4 +1,4 @@
-export type TurnPhase = 'idle' | 'folding' | 'turning-out' | 'turning-in' | 'opening';
+export type TurnPhase = 'idle' | 'turning-out' | 'turning-in';
 
 export interface BookTurnState {
   displayed: number;
@@ -9,10 +9,8 @@ export interface BookTurnState {
 }
 
 export const phaseDuration: Record<Exclude<TurnPhase, 'idle'>, number> = {
-  folding: 240,
-  'turning-out': 340,
-  'turning-in': 340,
-  opening: 640,
+  'turning-out': 560,
+  'turning-in': 640,
 };
 
 export const initialBookTurn: BookTurnState = {
@@ -25,7 +23,7 @@ export type BookTurnAction =
   | { type: 'settle' };
 
 function beginTurn(state: BookTurnState, target: number): BookTurnState {
-  return { ...state, target, requested: target, direction: target > state.displayed ? 'forward' : 'backward', phase: 'folding' };
+  return { ...state, target, requested: target, direction: target > state.displayed ? 'forward' : 'backward', phase: 'turning-out' };
 }
 
 /** Change content only at the page's midpoint; serialize fast clicks without losing the last choice. */
@@ -40,10 +38,8 @@ export function bookTurnReducer(state: BookTurnState, action: BookTurnAction): B
   }
   if (action.phase !== state.phase) return state;
   switch (state.phase) {
-    case 'folding': return { ...state, phase: 'turning-out' };
     case 'turning-out': return { ...state, displayed: state.target, phase: 'turning-in' };
-    case 'turning-in': return { ...state, phase: 'opening' };
-    case 'opening': return state.requested === state.displayed ? { ...state, phase: 'idle' } : beginTurn(state, state.requested);
+    case 'turning-in': return state.requested === state.displayed ? { ...state, phase: 'idle' } : beginTurn(state, state.requested);
     default: return state;
   }
 }

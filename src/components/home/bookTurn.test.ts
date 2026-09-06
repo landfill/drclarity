@@ -11,12 +11,12 @@ function finish(state: BookTurnState) {
 
 describe('popup book page turn', () => {
   it('keeps the old chapter until the turning page crosses the spine', () => {
-    const folding = select(initialBookTurn, 1);
-    const outgoing = advance(folding);
-    expect([folding.displayed, outgoing.displayed]).toEqual([0, 0]);
+    const outgoing = select(initialBookTurn, 1);
+    expect(outgoing).toMatchObject({ displayed: 0, phase: 'turning-out' });
     const incoming = advance(outgoing);
     expect(incoming).toMatchObject({ displayed: 1, phase: 'turning-in' });
-    expect(advance(incoming)).toMatchObject({ displayed: 1, phase: 'opening' });
+    // The incoming turn itself unfolds the popup; there is no separate opening phase.
+    expect(advance(incoming)).toMatchObject({ displayed: 1, phase: 'idle' });
     expect(finish(incoming)).toMatchObject({ displayed: 1, phase: 'idle' });
   });
 
@@ -27,7 +27,6 @@ describe('popup book page turn', () => {
 
   it('serializes quick choices and finishes at the latest requested chapter', () => {
     let state = select(initialBookTurn, 1);
-    state = advance(state);
     state = select(state, 2);
     state = select(state, 0);
     expect(state).toMatchObject({ displayed: 0, target: 1, requested: 0 });
@@ -42,7 +41,7 @@ describe('popup book page turn', () => {
     const state = select(select(initialBookTurn, 1), 2);
     const settled = bookTurnReducer(state, { type: 'settle' });
     expect(settled).toMatchObject({ displayed: 2, target: 2, phase: 'idle' });
-    expect(bookTurnReducer(settled, { type: 'advance', phase: 'folding' })).toBe(settled);
+    expect(bookTurnReducer(settled, { type: 'advance', phase: 'turning-out' })).toBe(settled);
   });
 
   it('selects instantly with reduced motion even while another page is turning', () => {
