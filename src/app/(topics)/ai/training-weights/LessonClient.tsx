@@ -9,6 +9,7 @@ import Details from './content/details.mdx';
 import { INITIAL_WEIGHT, probability, loss, step } from './model';
 import meta from './meta';
 import styles from './Lesson.module.css';
+/** 한 단계 가중치 갱신 체험의 상태와 학습 본문을 표시한다. */
 export default function LessonClient() {
   const [updated, setUpdated] = useState(false);
   const after = step(INITIAL_WEIGHT);

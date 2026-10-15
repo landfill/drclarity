@@ -2,6 +2,7 @@
 export const INITIAL_WEIGHT = -1;
 export const INPUT = 1;
 export const LEARNING_RATE = 1;
+/** 두 후보 점수 weight*x와 0을 정규화해 맑다의 확률을 구한다. */
 export function probability(weight: number, x = INPUT): number {
   return 1 / (1 + Math.exp(-weight * x));
 }

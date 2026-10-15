@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { makeNextTokenPair, PIECES } from './pairs';
 import styles from './Training.module.css';
 
+/** 입력과 다음 토큰 정답 만들기 조작과 관찰 결과를 표시한다. */
 export default function Experiment() {
   const [position, setPosition] = useState(1);
   const pair = makeNextTokenPair(PIECES, position);

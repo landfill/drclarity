@@ -9,6 +9,7 @@ import Summary from './content/summary.mdx';
 import { TRAIN, HELD_OUT, fitMemory, fitRule, score } from './evaluation';
 import meta from './meta';
 import styles from './Lesson.module.css';
+/** 학습 자료와 새 자료의 성적 비교 체험의 상태와 학습 본문을 표시한다. */
 export default function LessonClient() {
   const [method, setMethod] = useState<'memory'|'rule'>('memory');
   const predict = method === 'memory' ? fitMemory(TRAIN) : fitRule(TRAIN);

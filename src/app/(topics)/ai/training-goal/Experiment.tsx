@@ -8,6 +8,7 @@ const examples = [
   { prefix: '잠들기 전에 나는', choices: ['책을', '우산을', '문을'], next: '책을', rest: '읽었다.' },
 ];
 
+/** 다음 조각 예측 조작과 관찰 결과를 표시한다. */
 export default function Experiment() {
   const [exampleIndex, setExampleIndex] = useState(0);
   const [guess, setGuess] = useState<string | null>(null);

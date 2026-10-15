@@ -22,6 +22,7 @@ export function fitMemory(training: readonly Example[]): Predictor {
 }
 /** Fit majority label separately for rainy=true/false; ties default to 0. */
 export function fitRule(training: readonly Example[]): Predictor {
+  /** 주어진 학습 자료의 날씨별 최빈 정답을 구하며 동률은 0으로 정한다. */
   const majority = (rainy: boolean): 0 | 1 => {
     const group = training.filter(e => e.rainy === rainy);
     return group.reduce((sum, e) => sum + e.label, 0) > group.length / 2 ? 1 : 0;
@@ -29,6 +30,7 @@ export function fitRule(training: readonly Example[]): Predictor {
   const wet = majority(true), dry = majority(false);
   return e => e.rainy ? wet : dry;
 }
+/** 고정된 예측기를 주어진 자료에 적용해 정답과 일치하는 개수를 센다. */
 export function score(predict: Predictor, examples: readonly Example[]): number {
   return examples.filter(e => predict(e) === e.label).length;
 }

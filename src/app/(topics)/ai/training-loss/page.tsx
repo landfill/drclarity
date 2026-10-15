@@ -10,6 +10,7 @@ import meta from './meta';
 
 export const metadata: Metadata = { title: meta.title, description: meta.summary };
 
+/** 정답 확률과 손실 비교 학습 페이지를 렌더링한다. */
 export default function Page() {
   return (
     <TopicLayout title={meta.title} subtitle={meta.summary} tags={meta.tags} topicHref="/ai/training-loss">

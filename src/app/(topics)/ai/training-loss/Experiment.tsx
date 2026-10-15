@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { nextTokenLoss } from './loss';
 import styles from './Training.module.css';
 
+/** 정답 확률과 손실 비교 조작과 관찰 결과를 표시한다. */
 export default function Experiment() {
   const [percent, setPercent] = useState(50);
   const loss = nextTokenLoss(percent / 100);

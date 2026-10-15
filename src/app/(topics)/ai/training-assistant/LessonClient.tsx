@@ -10,6 +10,7 @@ import Details from './content/details.mdx';
 import Summary from './content/summary.mdx';
 import meta from './meta';
 import styles from './Lesson.module.css';
+/** 이어쓰기와 지시 응답 예시 비교 체험의 상태와 학습 본문을 표시한다. */
 export default function LessonClient() {
   const [mode, setMode] = useState<'continuation'|'assistant'>('continuation');
   return <TopicLayout title={meta.title} subtitle={meta.summary} tags={meta.tags} topicHref="/ai/training-assistant">
