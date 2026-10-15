@@ -6,8 +6,6 @@ const meta: TopicMeta = {
   order: 1,
   difficulty: 1,
   tags: ['AI', '자연어 처리', '인코딩'],
-  series: 'llm-inference',
-  seriesOrder: 1
 };
 
 export default meta;

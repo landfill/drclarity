@@ -1,0 +1,5 @@
+화면의 조각 분할은 설명용이며 실제 토크나이저의 결과가 아닙니다. 여기서는 짧은 원문의 접두부를 잘라 한 쌍씩 보여 주지만, 실제 구현은 여러 위치와 여러 문서를 묶어 효율적으로 계산합니다.
+
+<a href="https://huggingface.co/docs/transformers/tasks/language_modeling" target="_blank" rel="noopener noreferrer">Hugging Face 공식 문서 · Causal language modeling</a>의 입력 준비와 데이터 collator 설명에서는 입력을 복사해 labels를 만들고 한 위치 이동한 정답을 모델 내부에서 처리하는 방식을 보여 줍니다. 입력과 labels 배열이 같게 준비되어도, 같은 위치의 토큰을 그대로 보고 맞히는 문제는 아닙니다.
+
+<a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener noreferrer">Attention Is All You Need, §3.1</a>은 디코더의 미래 위치를 가리는 마스크와 한 위치 이동한 출력 임베딩을 설명합니다.

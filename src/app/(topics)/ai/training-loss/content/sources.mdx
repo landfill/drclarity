@@ -1,0 +1,5 @@
+보조 수식은 <strong>손실 = −ln(정답 확률)</strong>입니다. ln은 자연로그입니다. 다른 로그 밑을 쓰면 숫자 크기는 달라지지만 확률이 높을수록 손실이 작아지는 관계는 같습니다. 여기서 정답은 원문에 이어진 토큰이며, 원문의 사실성을 판정한 결과가 아닙니다.
+
+<a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html" target="_blank" rel="noopener noreferrer">PyTorch 공식 문서 · CrossEntropyLoss</a>는 정답 클래스의 음의 로그 확률로 손실을 계산하는 식과 평균 등의 집계 방식을 설명합니다. 실제 구현은 점수(logits)에서 안정적으로 계산할 수 있습니다.
+
+<a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf" target="_blank" rel="noopener noreferrer">GPT-2 원논문, §2.1</a>의 다음 토큰 로그 가능도 최대화는 그 음수인 손실을 줄이는 것과 같은 방향입니다. 화면의 확률은 손으로 정한 예시이며 실제 모델 측정값이 아닙니다.
