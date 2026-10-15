@@ -16,6 +16,10 @@
     "llm-inference": {
       "label": "AI 에게 말을 걸면 생기는 일",
       "description": "질문을 넣고 답이 나오기까지, 안에서 무슨 일이 순서대로 일어나는가."
+    },
+    "llm-training": {
+      "label": "AI는 어떻게 배울까?",
+      "description": "다음 토큰을 맞히는 연습에서, 새 예시로 확인하고 비서로 다듬기까지."
     }
   }
 }
