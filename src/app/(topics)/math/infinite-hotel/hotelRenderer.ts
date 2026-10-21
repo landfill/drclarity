@@ -1,4 +1,4 @@
-import { palette } from '@/styles/palette';
+import { palette, MONO_FONT } from '@/styles/palette';
 import type { GuestMove } from './hotel';
 
 export const HOTEL_WIDTH = 520;
@@ -95,14 +95,15 @@ function drawRooms(ctx: CanvasRenderingContext2D, scene: HotelScene): void {
       ctx.strokeStyle = palette.accent;
     } else {
       ctx.setLineDash([]);
-      ctx.strokeStyle = palette['muted-2'];
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = palette.ink;
     }
     roundRect(ctx, x, ROW_Y, w, ROW_H, 6);
     ctx.stroke();
     ctx.setLineDash([]);
 
     ctx.fillStyle = isEmpty ? palette.accent : palette.muted;
-    ctx.font = '700 13px system-ui, sans-serif';
+    ctx.font = `700 13px ${MONO_FONT}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.fillText(String(room), x + w / 2, ROW_Y + ROW_H + 7);
@@ -110,7 +111,7 @@ function drawRooms(ctx: CanvasRenderingContext2D, scene: HotelScene): void {
 }
 
 function drawEllipsis(ctx: CanvasRenderingContext2D): void {
-  ctx.fillStyle = palette['muted-2'];
+  ctx.fillStyle = palette.muted;
   ctx.font = '700 20px system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -140,7 +141,7 @@ function drawMovingGuests(ctx: CanvasRenderingContext2D, scene: HotelScene): voi
     if (alpha <= 0) continue;
 
     ctx.globalAlpha = alpha;
-    drawGuest(ctx, x, y, palette['blue-soft'], palette.blue, String(move.from));
+    drawGuest(ctx, x, y, palette.blue, palette.surface, String(move.from));
     ctx.globalAlpha = 1;
   }
 }
@@ -155,7 +156,7 @@ function drawArrivingGuests(ctx: CanvasRenderingContext2D, scene: HotelScene): v
     // 로비(대기 영역)에서 방으로 내려온다.
     const y = WAIT_Y + (ROW_Y + ROW_H / 2 - WAIT_Y) * p;
     ctx.globalAlpha = p;
-    drawGuest(ctx, x, y, palette.accent, palette.warm, '새');
+    drawGuest(ctx, x, y, palette['accent-fill'], palette['on-accent'], '새');
     ctx.globalAlpha = 1;
   }
 }
@@ -172,7 +173,7 @@ function drawWaitingArea(ctx: CanvasRenderingContext2D, scene: HotelScene): void
   const labelW = ctx.measureText(scene.waitingLabel).width;
   let x = PAD + labelW + 18;
   for (let i = 0; i < scene.waitingCount; i += 1) {
-    drawGuest(ctx, x, WAIT_Y, palette.accent, palette.warm, '');
+    drawGuest(ctx, x, WAIT_Y, palette['accent-fill'], palette['on-accent'], '');
     x += GUEST_R * 2 + 6;
   }
 }
@@ -182,20 +183,21 @@ function drawGuest(
   x: number,
   y: number,
   fill: string,
-  stroke: string,
+  labelColor: string,
   label: string
 ): void {
+  // 손님 원은 모두 같은 잉크 테두리를 두르고, 무리는 채움색으로 가른다.
   ctx.beginPath();
   ctx.arc(x, y, GUEST_R, 0, Math.PI * 2);
   ctx.fillStyle = fill;
   ctx.fill();
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = stroke;
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = palette.ink;
   ctx.stroke();
 
   if (!label) return;
-  ctx.fillStyle = palette.surface;
-  ctx.font = '700 11px system-ui, sans-serif';
+  ctx.fillStyle = labelColor;
+  ctx.font = `700 11px ${MONO_FONT}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(label, x, y);

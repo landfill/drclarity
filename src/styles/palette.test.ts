@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { palette, type PaletteKey } from './palette';
+import { MONO_FONT, palette, type PaletteKey } from './palette';
 
 const css = readFileSync(resolve(__dirname, '../app/globals.css'), 'utf8');
 
@@ -30,6 +30,12 @@ function contrast(a: string, b: string): number {
 }
 
 describe('palette', () => {
+  it('canvas 고정폭 글꼴은 globals.css --font-mono 의 라틴 글꼴 목록과 같다', () => {
+    const mono = css.match(/--font-mono:\s*([^;]+);/)?.[1] ?? '';
+    const latin = mono.split(',').map((f) => f.trim()).filter((f) => !f.startsWith('var('));
+    expect(MONO_FONT).toBe(latin.join(', '));
+  });
+
   it('globals.css 의 --color-* 토큰과 이름·값이 같다', () => {
     const tokens = cssColorTokens();
     expect(Object.keys(tokens).sort()).toEqual(Object.keys(palette).sort());

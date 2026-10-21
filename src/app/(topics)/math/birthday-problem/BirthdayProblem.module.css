@@ -36,12 +36,14 @@
 }
 
 .readout dt {
+  font-family: var(--font-mono);
   font-size: var(--fs-sm);
   color: var(--color-muted);
 }
 
 .readout dd {
   margin: 0;
+  font-family: var(--font-mono);
   font-size: var(--fs-lead);
   font-variant-numeric: tabular-nums;
   color: var(--color-text);

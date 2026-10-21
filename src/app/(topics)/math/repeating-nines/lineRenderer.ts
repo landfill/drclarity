@@ -1,4 +1,4 @@
-import { palette } from '@/styles/palette';
+import { palette, MONO_FONT } from '@/styles/palette';
 import { ninesOffset, ninesString, offsetWindow, positionIn } from './nines';
 
 export const LINE_WIDTH = 520;
@@ -24,7 +24,7 @@ export function drawNumberLine(ctx: CanvasRenderingContext2D, digits: number): v
   ctx.fillRect(0, 0, LINE_WIDTH, LINE_HEIGHT);
 
   // 축
-  ctx.strokeStyle = palette['muted-2'];
+  ctx.strokeStyle = palette.ink;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(PAD * 0.5, AXIS_Y);
@@ -35,7 +35,7 @@ export function drawNumberLine(ctx: CanvasRenderingContext2D, digits: number): v
   const oneX = toX(0);
 
   // 두 점 사이의 틈. 이 화면의 주인공이라 먼저 칠한다.
-  ctx.fillStyle = `${palette.accent}40`;
+  ctx.fillStyle = `${palette['accent-fill']}80`;
   ctx.fillRect(ninesX, AXIS_Y - 22, Math.max(1, oneX - ninesX), 44);
 
   const tick = (x: number, color: string, label: string, above: boolean) => {
@@ -47,7 +47,7 @@ export function drawNumberLine(ctx: CanvasRenderingContext2D, digits: number): v
     ctx.stroke();
 
     ctx.fillStyle = color;
-    ctx.font = '700 15px system-ui, sans-serif';
+    ctx.font = `700 15px ${MONO_FONT}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = above ? 'bottom' : 'top';
     ctx.fillText(label, x, above ? AXIS_Y - 30 : AXIS_Y + 30);
