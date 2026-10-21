@@ -8,10 +8,12 @@ export interface SplitStageProps {
   stage: ReactNode;
   children: ReactNode;
   className?: string;
+  /** 넓은 화면에서 그림 칸을 본문 칸보다 넓게 (3:2). 가로로 넓은 figure 에 쓴다. */
+  wideStage?: boolean;
 }
 
 /** Shared stage/content layout and the viewport-safe mobile sticky gate. */
-export function SplitStage({ stage, children, className = '' }: SplitStageProps) {
+export function SplitStage({ stage, children, className = '', wideStage = false }: SplitStageProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const [stageCanStick, setStageCanStick] = useState(false);
 
@@ -38,7 +40,7 @@ export function SplitStage({ stage, children, className = '' }: SplitStageProps)
   }, []);
 
   return (
-    <div className={`${styles.root} ${className}`.trim()}>
+    <div className={`${styles.root} ${wideStage ? styles.wideStage : ''} ${className}`.replace(/\s+/g, ' ').trim()}>
       <div ref={stageRef} className={`${styles.stage} ${stageCanStick ? styles.stageSticky : ''}`}>
         {stage}
       </div>
