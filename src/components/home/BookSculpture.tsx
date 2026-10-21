@@ -66,7 +66,7 @@ export function BookSculpture({ subject, page, phase, direction }: BookSculpture
       {phase !== 'idle' && <ellipse className={styles.turnShadow} cx="340" cy="383" rx="192" ry="30" fill="#41538f" opacity=".14" filter={paint('softShadow')} />}
       <g className={phase === 'idle' ? undefined : styles.turningLeaf}>
         {phase !== 'idle' && <g className={styles.leafSurface}>
-          <path d={leafOutline} fill={leafOnLeft ? '#f2efe7' : '#f2efe7'} stroke={leafOnLeft ? '#bdb8a6' : '#bdb8a6'} strokeWidth="1.3" />
+          <path d={leafOutline} fill="#f2efe7" stroke="#bdb8a6" strokeWidth="1.3" />
           <path d="M344 337C422 288 490 260 552 254M575 355C490 374 413 407 344 432" stroke="#fbf8f0" strokeWidth="2" />
           <path d="M355 341C433 298 495 272 544 266M358 418C433 389 505 366 564 352" stroke="#cfc8b8" strokeWidth=".8" />
           <path d="M340 337Q353 382 340 436" stroke="#675f52" strokeWidth="1.5" />
