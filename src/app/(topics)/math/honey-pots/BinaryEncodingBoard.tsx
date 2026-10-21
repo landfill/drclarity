@@ -31,6 +31,7 @@ export interface BinaryEncodingBoardProps {
   onToggleAntDead?: (bit: number) => void;
 }
 
+/** 꿀통 퍼즐의 단계별 보드. `mode` 가 그 단계에 보일 것(격자, 이름표, 꿀 나누기 figure, 컵별 보기, 판독 등)을 정한다. */
 export function BinaryEncodingBoard({
   mode,
   selectedPot = 21,

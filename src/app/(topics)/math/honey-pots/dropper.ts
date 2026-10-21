@@ -49,6 +49,7 @@ export function timeline(pot: number): Segment[] {
   return out;
 }
 
+/** 한 꿀통을 다 나누는 데 걸리는 시간 (초). */
 export const totalSeconds = (pot: number): number => timeline(pot).reduce((s, g) => s + g.dur, 0);
 
 /** t 초에 진행 중인 구간과 그 구간 안의 진행 0..1. t 가 끝을 넘으면 마지막 구간의 끝. */
@@ -83,13 +84,16 @@ export interface DropperState {
   note: string;
 }
 
+/** 컵 번호들을 "A·C·E" 처럼 개미 이름으로 잇는다. */
 const names = (cups: number[]) => cups.map((i) => ANT_LABELS[i]).join('·');
+/** 꿀통을 고른 직후의 상태 문구. */
 const startNote = (pot: number) =>
   `${pot}번 꿀통의 이름표는 ${toBinary5(pot)}입니다. 자리가 1인 개미의 컵에만 한 방울씩 넣습니다.`;
 
 /** 꿀통 하나를 골라 둔, 컵이 모두 빈 상태. */
 export const initialDropper = (pot: number): DropperState => ({ pot, t: null, note: startNote(pot) });
 
+/** 더 움직일 것이 없는가: 시작 전이거나 다 나눴다. */
 export const isSettled = (s: DropperState): boolean => s.t === null || s.t >= totalSeconds(s.pot);
 
 /** 시간이 dt 초 흐른 뒤. 방울이 컵에 닿을 때마다 상태 문구를 바꾼다. */
@@ -105,6 +109,7 @@ export function advanceDropper(s: DropperState, dt: number): DropperState {
   return { ...s, t, note };
 }
 
+/** 다 나눈 뒤의 상태 문구. 넣은 컵과 넣지 않은 컵을 함께 적는다. */
 function doneNote(pot: number): string {
   const yes = targetCups(pot);
   const no = ANT_LABELS.map((_, i) => i).filter((i) => !yes.includes(i));

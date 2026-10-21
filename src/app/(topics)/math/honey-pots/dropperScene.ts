@@ -73,9 +73,13 @@ interface Pose {
   dir: Vec3;
   falling: Vec3 | null;
   loaded: boolean;
+  /** 나무판 위에 눕혀 있다 (시작 전, 그리고 다 나눈 뒤 내려놓았을 때). */
+  resting: boolean;
 }
 
+/** a 에서 b 로 t 만큼 간 점. */
 const lerp3 = (a: Vec3, b: Vec3, t: number): Vec3 => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+/** 같은 방향의 단위 벡터. 길이가 0 이면 그대로 둔다. */
 const unit = (v: Vec3): Vec3 => {
   const n = Math.hypot(...v) || 1;
   return [v[0] / n, v[1] / n, v[2] / n];
@@ -83,7 +87,7 @@ const unit = (v: Vec3): Vec3 => {
 
 /** t 초의 스포이트 자리와 방향, 떨어지는 중인 방울(있으면). 시작 전과 끝난 뒤에는 나무판 위에 눕혀 있다. */
 function dropperPose(s: DropperState): Pose {
-  const resting: Pose = { tip: REST_TIP, dir: REST_DIR, falling: null, loaded: false };
+  const resting: Pose = { tip: REST_TIP, dir: REST_DIR, falling: null, loaded: false, resting: true };
   if (s.t === null) return resting;
   const { seg, u } = segmentAt(s.pot, s.t);
   const above: Vec3 = [POT.x, POT.y, TIP_TRAVEL];
@@ -92,16 +96,16 @@ function dropperPose(s: DropperState): Pose {
     const tip = lerp3(REST_TIP, above, e);
     // 들어 올리는 동안 살짝 떠오른다 (판을 뚫지 않게).
     tip[2] += 4 * Math.sin(Math.PI * e);
-    return { tip, dir: unit(lerp3(REST_DIR, UP, e)), falling: null, loaded: false };
+    return { tip, dir: unit(lerp3(REST_DIR, UP, e)), falling: null, loaded: false, resting: e === 0 };
   }
   if (seg.kind === 'dip') {
     const z = TIP_TRAVEL + (TIP_DIP - TIP_TRAVEL) * Math.sin(Math.PI * u);
-    return { tip: [POT.x, POT.y, z], dir: UP, falling: null, loaded: u > 0.5 };
+    return { tip: [POT.x, POT.y, z], dir: UP, falling: null, loaded: u > 0.5, resting: false };
   }
   if (seg.kind === 'drop') {
     const [x, y] = spot(seg.cup);
     const z = TIP_DROP + (BOARD_H + 1 - TIP_DROP) * ease(u);
-    return { tip: [x, y, TIP_DROP], dir: UP, falling: u < 1 ? [x, y, z] : null, loaded: true };
+    return { tip: [x, y, TIP_DROP], dir: UP, falling: u < 1 ? [x, y, z] : null, loaded: true, resting: false };
   }
   const [x0, y0] = spot(seg.from);
   const [x1, y1] = spot(seg.to);
@@ -109,7 +113,7 @@ function dropperPose(s: DropperState): Pose {
   const z0 = seg.from === 'pot' ? TIP_TRAVEL : TIP_DROP;
   const z1 = seg.to === 'pot' ? TIP_TRAVEL : TIP_DROP;
   const z = z0 + (z1 - z0) * e + 6 * Math.sin(Math.PI * u);
-  return { tip: [x0 + (x1 - x0) * e, y0 + (y1 - y0) * e, z], dir: UP, falling: null, loaded: seg.to !== 'pot' };
+  return { tip: [x0 + (x1 - x0) * e, y0 + (y1 - y0) * e, z], dir: UP, falling: null, loaded: seg.to !== 'pot', resting: false };
 }
 
 /** 위가 열린 도자기 꿀통. 윗면 안쪽에 꿀이 보인다. */
@@ -201,7 +205,6 @@ export function dropperScene(s: DropperState): string {
   // 스포이트가 일하는 동안(뜨고, 옮기고, 떨어뜨리는 동안) 이름표가 강조색이 된다.
   const working = s.t !== null && filled.length < targetCups(s.pot).length;
   // 눕혀 둔 동안은 이름표를 오른쪽 아래 빈 판 쪽에 둬 꿀통을 가리지 않는다.
-  const resting = pose.dir === REST_DIR;
-  out += resting ? tag(along(pose.tip, pose.dir, DROPPER_LEN / 2), 26, 30, '스포이트') : tag(top, 18, -30, '스포이트', working);
+  out += pose.resting ? tag(along(pose.tip, pose.dir, DROPPER_LEN / 2), 26, 30, '스포이트') : tag(top, 18, -30, '스포이트', working);
   return out;
 }

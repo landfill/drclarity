@@ -11,6 +11,7 @@ export function DropperFigure({ pot }: { pot: number }) {
   return <DropperStage key={pot} pot={pot} />;
 }
 
+/** 꿀통 하나에 대한 figure 본체. 상태는 마운트될 때 그 꿀통으로 시작한다. */
 function DropperStage({ pot }: { pot: number }) {
   const [st, dispatch] = useFigureState<DropperState>(() => initialDropper(pot), advanceDropper, isSettled);
   const next = nextAction(st);

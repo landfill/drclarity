@@ -104,7 +104,19 @@ describe('움직임', () => {
   });
 });
 
+/** 장면에서 '스포이트' 이름표 묶음만 꺼낸다. */
+const dropperTag = (svg: string) => svg.match(/<g class="tag[^"]*">(?:(?!<\/g>).)*스포이트<\/text><\/g>/)?.[0];
+
 describe('dropperScene', () => {
+  it('눕혀 둔 스포이트의 이름표는 시작 화면과 다 나눈 화면에서 같은 자리에 있다', () => {
+    for (const pot of [1, 21, 25]) {
+      const before = dropperTag(dropperScene(initialDropper(pot)));
+      const after = dropperTag(dropperScene(run(startDropping(initialDropper(pot)))));
+      expect(before).toBeDefined();
+      expect(after).toBe(before);
+    }
+  });
+
   it('모든 단계를 숫자 오류 없이 그린다', () => {
     for (const pot of [1, 21, 25]) {
       let s = initialDropper(pot);
