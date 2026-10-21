@@ -17,6 +17,7 @@ import {
 } from './pizza';
 import { PIZZA_SIZE, pizzaScene } from './pizzaScene';
 
+/** 피자 두 판 figure. 상태는 pizza.ts, 그림은 pizzaScene.ts 가 맡고 여기서는 버튼과 숫자를 잇는다. */
 export function PizzaFigure() {
   const [st, dispatch] = useFigureState(initialPizza, advancePizza, isSettled);
   const next = nextAction(st);
@@ -25,6 +26,9 @@ export function PizzaFigure() {
   return (
     <ColorFigure
       size={PIZZA_SIZE}
+      fig="01"
+      title="피자 두 판"
+      hint="버튼을 위에서부터 차례로 눌러 보세요"
       label="나무 도마 위의 피자 두 판. 왼쪽은 10조각으로 자르는 10진법 피자, 오른쪽은 반으로만 자르는 2진법 피자."
       scene={() => pizzaScene(st)}
       actionsLabel="피자 자르기"
@@ -37,8 +41,8 @@ export function PizzaFigure() {
       ]}
       stats={[
         { label: '목표', value: '0.1' },
-        { label: '2진 조각으로 담은 양', value: unitsText(kept) },
-        { label: '모자란 양', value: gapText(kept) },
+        { label: '2진 조각으로 담은 양', value: unitsText(kept), small: true },
+        { label: '모자란 양', value: gapText(kept), small: true },
       ]}
       status={st.note}
     />

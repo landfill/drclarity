@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { P, clipTo, frameFor, inkScale, settle, tag, withFrame, type Vec3 } from './core';
+import { DEFAULT_VIEW, Dv, ISO_VIEW, P, clipTo, depthOf, frameFor, inkScale, settle, tag, vis, withFrame, type Vec3 } from './core';
 
 const corners = (size: Vec3): Vec3[] => {
   const out: Vec3[] = [];
@@ -32,6 +32,32 @@ describe('frameFor', () => {
         expect(y).toBeGreaterThanOrEqual(0);
         expect(y).toBeLessThanOrEqual(frame.vbH);
       }
+    });
+  });
+});
+
+describe('보는 방향', () => {
+  it('ISO_VIEW 는 원본 스킬의 정아이소메트릭 투영과 같다', () => {
+    const C = Math.cos(Math.PI / 6);
+    const S = Math.sin(Math.PI / 6);
+    withFrame(frameFor([10, 10, 10], 'iso', { view: ISO_VIEW }), () => {
+      for (const [x, y, z] of [[1, 0, 0], [0, 1, 0], [0, 0, 1], [3, -2, 5]] as Vec3[]) {
+        const [u, v] = Dv(x, y, z);
+        expect(u).toBeCloseTo((x - y) * C, 9);
+        expect(v).toBeCloseTo((x + y) * S - z, 9);
+      }
+      expect(depthOf([1, 2, 3]) / depthOf([1, 1, 1])).toBeCloseTo(2, 9);
+    });
+  });
+
+  it('기본 시점은 앞면을 옆면보다 더 정면으로 본다', () => {
+    expect(DEFAULT_VIEW.az).toBeLessThan(ISO_VIEW.az);
+    withFrame(frameFor([10, 10, 10], 'd'), () => {
+      const front = Math.abs(Dv(0, 1, 0)[0]); // 앞면의 가로 길이
+      const side = Math.abs(Dv(1, 0, 0)[0]); // 옆면의 가로 길이
+      expect(front).toBeGreaterThan(side);
+      expect(vis([1, 0, 0]) && vis([0, 1, 0]) && vis([0, 0, 1])).toBe(true);
+      expect(vis([-1, 0, 0]) || vis([0, -1, 0]) || vis([0, 0, -1])).toBe(false);
     });
   });
 });

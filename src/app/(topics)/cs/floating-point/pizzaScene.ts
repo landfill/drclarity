@@ -12,6 +12,7 @@ import {
   byDepth,
   castShadow,
   clipTo,
+  currentView,
   ease,
   ellUV,
   fill,
@@ -36,8 +37,8 @@ const BOARD_H = 3;
 const BOARD: [number, number, number, number] = [2, 2, 82, 154];
 const PULL = 9; // 꺼낸 조각이 밀려나는 거리
 const LIFT = 3; // 들어 올리는 높이
-/** 0.1 자리가 시작하는 각도. 조각의 가운데(45°)가 보는 사람 쪽을 향한다. */
-const A0 = 27;
+/** 0.1 자리가 시작하는 각도. 조각의 가운데가 보는 사람 쪽(시점의 방위각)을 향한다. */
+const sliceStart = () => currentView().az - 18;
 
 const DECIMAL = { cx: 40, cy: 114 };
 const BINARY = { cx: 40, cy: 40 };
@@ -71,7 +72,9 @@ interface Piece {
   lift: number;
 }
 
+/** 도 → 라디안. */
 const rad = (deg: number) => (deg * Math.PI) / 180;
+/** 조각이 제자리에서 움직였는가 (꺼냈거나 들어 올렸다). */
 const moved = (p: Piece) => p.pull > 0.01 || p.lift > 0.01;
 
 interface Pizza {
@@ -87,12 +90,14 @@ function placement(pz: Pizza, p: Piece) {
   return { x: pz.cx + ox, y: pz.cy + oy, z0: BOARD_H + p.lift };
 }
 
+/** 조각 테두리를 8° 안팎 간격으로 나눈 각도들. */
 function arcAngles(p: Piece): number[] {
   const span = p.a1 - p.a0;
   const n = Math.max(1, Math.ceil(span / 8));
   return Array.from({ length: n + 1 }, (_, i) => p.a0 + (span * i) / n);
 }
 
+/** 가운데 (x, y) 에서 반지름 r, 각도 a 인 높이 z 의 점. */
 const rim = (x: number, y: number, z: number, r: number, a: number): Vec3 => [
   x + r * Math.cos(rad(a)),
   y + r * Math.sin(rad(a)),
@@ -112,6 +117,7 @@ function piecePoints(pz: Pizza, p: Piece): Vec3[] {
   return [...topOutline(pz, p, R, z0), ...topOutline(pz, p, R, z0 + TH)];
 }
 
+/** 조각 하나: 단면, 크러스트 옆면, 윗면(소스·치즈·페퍼로니), 잉크. face0/face1 = 양쪽 단면을 그릴지. */
 function pieceSvg(pz: Pizza, p: Piece, face0: boolean, face1: boolean): string {
   const { x, y, z0 } = placement(pz, p);
   const z1 = z0 + TH;
@@ -126,8 +132,9 @@ function pieceSvg(pz: Pizza, p: Piece, face0: boolean, face1: boolean): string {
   }
 
   // 바깥 테두리 (크러스트 옆면)
-  // 통째인 판은 보이는 테두리(-45°…135°)가 끊기지 않도록 -45° 에서 시작한다.
-  const angles = p.full ? Array.from({ length: 49 }, (_, i) => -45 + (i * 360) / 48) : arcAngles(p);
+  // 통째인 판은 보이는 테두리(방위각 ± 90°)가 끊기지 않도록 방위각 − 90° 에서 시작한다.
+  const ringStart = currentView().az - 90;
+  const angles = p.full ? Array.from({ length: 49 }, (_, i) => ringStart + (i * 360) / 48) : arcAngles(p);
   const bottomArc: Vec3[][] = [];
   let run: Vec3[] = [];
   for (let i = 0; i < angles.length - 1; i++) {
@@ -184,9 +191,11 @@ interface Drawn {
   pieces: Piece[];
 }
 
+/** 10진법 피자의 조각들. 다 자르기 전에는 통째인 판 하나. */
 function decimalPieces(s: PizzaState): Piece[] {
   if (s.decCut < DECIMAL_PIECES) return [{ a0: 0, a1: 360, full: true, pull: 0, lift: 0 }];
   const t = s.decPull;
+  const A0 = sliceStart();
   return Array.from({ length: DECIMAL_PIECES }, (_, i) => ({
     a0: A0 + i * 36,
     a1: A0 + (i + 1) * 36,
@@ -196,8 +205,10 @@ function decimalPieces(s: PizzaState): Piece[] {
   }));
 }
 
-const unitDeg = (u: number) => A0 + (360 * u) / UNITS;
+/** 칸 수 → 판 위의 각도. */
+const unitDeg = (u: number) => sliceStart() + (360 * u) / UNITS;
 
+/** 2진법 피자의 조각들: 칼자국 사이마다 하나. 담은 조각은 밀려나 있고, 마지막으로 대 본 조각은 움직이는 중일 수 있다. */
 function binaryPieces(s: PizzaState): Piece[] {
   const cuts = binaryCuts(s.binSteps);
   if (cuts.length < 2) return [{ a0: 0, a1: 360, full: true, pull: 0, lift: 0 }];
@@ -245,7 +256,7 @@ function cutLines(s: PizzaState): string {
   const z = BOARD_H + TH;
   let out = '';
   for (let i = 0; i < Math.floor(s.decCut); i++) {
-    const a = A0 + i * 36;
+    const a = sliceStart() + i * 36;
     out += line([[DECIMAL.cx, DECIMAL.cy, z], rim(DECIMAL.cx, DECIMAL.cy, z, R, a)], 1.0);
   }
   return out;
@@ -257,6 +268,7 @@ function pieceTop(pz: Pizza, p: Piece): Vec3 {
   return rim(x, y, z0 + TH, R * 0.62, (p.a0 + p.a1) / 2);
 }
 
+/** 장면 전체: 도마 → 그림자 → 움직이지 않은 조각 → 움직인 조각 → 이름표. */
 export function pizzaScene(s: PizzaState): string {
   const dec: Drawn = { pizza: DECIMAL, pieces: decimalPieces(s) };
   const bin: Drawn = { pizza: BINARY, pieces: binaryPieces(s) };

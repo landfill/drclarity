@@ -26,6 +26,10 @@
     align-items: start;
   }
 
+  .wideStage {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+
   .stage {
     grid-column: 1;
     grid-row: 1;

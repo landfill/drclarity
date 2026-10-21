@@ -90,6 +90,7 @@ export interface PizzaState {
   note: string;
 }
 
+/** 아무것도 자르지 않은 처음 상태. */
 export const initialPizza = (): PizzaState => ({
   decCut: 0,
   decCutTarget: 0,
@@ -106,12 +107,14 @@ const PULL_SECONDS = 0.7;
 const TRY_SECONDS = 0.9;
 const AUTO_TRY_SECONDS = 0.6;
 
+/** 더 움직일 것이 없는가 (모든 애니메이션이 목표에 닿았고 이어 대 보는 중도 아니다). */
 export const isSettled = (s: PizzaState): boolean =>
   s.decCut === s.decCutTarget &&
   s.decPull === s.decPullTarget &&
   s.binT >= 1 &&
   !s.auto;
 
+/** step 번째로 대 본 조각에 대한 상태 문구. 마지막 조각이면 모자란 양까지 덧붙인다. */
 function tryNote(step: number): string {
   const t = binaryTries(step)[step - 1];
   const head = t.keep
@@ -121,6 +124,7 @@ function tryNote(step: number): string {
   return `${head} 1/${t.denominator} 조각까지 담아도 0.1에 ${gapText(keptUnits(step))}만큼 모자랍니다. 몇 번을 더 잘라 담아도 0.1에 딱 맞지는 않습니다.`;
 }
 
+/** 다음 2진 조각을 대 보기 시작한다. */
 const startTry = (s: PizzaState): PizzaState => {
   const step = s.binSteps + 1;
   return { ...s, binSteps: step, binT: 0, note: tryNote(step) };
@@ -145,6 +149,7 @@ export function advancePizza(s: PizzaState, dt: number): PizzaState {
 
 /* ---------- 버튼 ---------- */
 
+/** 버튼 "10조각으로 자르기". */
 export function cutDecimal(s: PizzaState): PizzaState {
   if (s.decCutTarget === DECIMAL_PIECES) {
     return {
@@ -159,6 +164,7 @@ export function cutDecimal(s: PizzaState): PizzaState {
   };
 }
 
+/** 버튼 "0.1 조각 꺼내기". 자르기 전이면 이유만 알려 준다. */
 export function takeTenth(s: PizzaState): PizzaState {
   if (s.decCutTarget !== DECIMAL_PIECES) {
     return { ...s, note: '먼저 10진법 피자를 10조각으로 잘라야 한 조각을 꺼낼 수 있습니다.' };
@@ -171,18 +177,23 @@ export function takeTenth(s: PizzaState): PizzaState {
   };
 }
 
+/** 2진 조각을 지금 대 볼 수 없으면 그 이유, 대 볼 수 있으면 null. */
 function binaryBlocked(s: PizzaState): string | null {
   if (s.decPullTarget !== 1) return '먼저 10진법 피자에서 0.1 조각을 꺼내 보세요. 그만큼을 2진법 피자로 모아 봅니다.';
+  // 버튼을 빠르게 이어 누르면 0.1 조각이 아직 움직이는 중일 수 있다. 다 꺼낸 뒤에 대 본다.
+  if (s.decPull < 1) return '0.1 조각을 꺼내는 중입니다. 다 꺼낸 뒤에 2진법 조각을 대 볼 수 있습니다.';
   if (s.binSteps >= MAX_TRIES) return `1/${UNITS} 조각까지 모두 대 봤습니다. 처음부터 다시 해 볼 수 있습니다.`;
   return null;
 }
 
+/** 버튼 "반 조각 대 보기": 조각 하나를 대 본다. */
 export function tryNext(s: PizzaState): PizzaState {
   const blocked = binaryBlocked(s);
   if (blocked) return { ...s, note: blocked };
   return startTry({ ...s, auto: false });
 }
 
+/** 버튼 "끝까지 대 보기": 1/4096 조각까지 이어서 대 본다. */
 export function tryAll(s: PizzaState): PizzaState {
   const blocked = binaryBlocked(s);
   if (blocked) return { ...s, note: blocked };
@@ -190,6 +201,7 @@ export function tryAll(s: PizzaState): PizzaState {
   return n.binT >= 1 ? startTry(n) : n;
 }
 
+/** 버튼 "처음부터". */
 export const resetPizza = (): PizzaState => initialPizza();
 
 /** 지금 누를 차례인 버튼. */

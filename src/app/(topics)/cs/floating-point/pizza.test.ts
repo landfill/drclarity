@@ -84,6 +84,18 @@ describe('버튼 순서', () => {
     expect(take.note).toContain('10조각으로 잘라야');
   });
 
+  it('0.1 조각이 아직 움직이는 중이면 2진 조각을 대 보지 않는다', () => {
+    const pulling = takeTenth(run(cutDecimal(initialPizza())));
+    expect(pulling.decPull).toBeLessThan(1);
+    for (const action of [tryNext, tryAll]) {
+      const s = action(pulling);
+      expect(s.binSteps).toBe(0);
+      expect(s.auto).toBe(false);
+      expect(s.note).toContain('꺼내는 중');
+    }
+    expect(tryNext(run(pulling)).binSteps).toBe(1);
+  });
+
   it('끝까지 대 보기는 1/4096 조각까지 대 보고 멈춘다', () => {
     let s = run(cutDecimal(initialPizza()));
     s = run(takeTenth(s));
