@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { ColorFigure, useFigureState } from '@/components/topic/ColorFigure';
 import { toBinary5 } from './binary';
 import { advanceDropper, emptyCups, initialDropper, isSettled, nextAction, startDropping, type DropperState } from './dropper';
@@ -8,12 +7,13 @@ import { DROPPER_SIZE, dropperScene } from './dropperScene';
 
 /** 꿀 한 방울씩 나누기 figure. 꿀통은 바깥의 선택기가 정하고, 바뀌면 컵을 비우고 다시 시작한다. */
 export function DropperFigure({ pot }: { pot: number }) {
+  // 꿀통이 바뀌면 새로 마운트해 첫 화면부터 새 꿀통으로 그린다.
+  return <DropperStage key={pot} pot={pot} />;
+}
+
+function DropperStage({ pot }: { pot: number }) {
   const [st, dispatch] = useFigureState<DropperState>(() => initialDropper(pot), advanceDropper, isSettled);
   const next = nextAction(st);
-
-  useEffect(() => {
-    dispatch((s) => (s.pot === pot ? s : initialDropper(pot)));
-  }, [pot, dispatch]);
 
   return (
     <ColorFigure
