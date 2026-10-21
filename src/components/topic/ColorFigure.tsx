@@ -194,7 +194,7 @@ export function ColorFigure({
                   {buttons}
                 </div>
               ) : (
-                buttons
+                buttons[0]
               );
             })}
           </div>

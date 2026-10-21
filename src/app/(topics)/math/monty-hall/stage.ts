@@ -173,9 +173,13 @@ export function newRound(s: StageState, rng: Rng = Math.random): StageState {
   };
 }
 
-/** 지금 누를 차례인 버튼. */
-export function nextAction(s: StageState): 'pick' | 'host' | 'decide' | 'again' {
+/**
+ * 지금 누를 차례인 버튼. 문이 움직이는 동안에는 다음 단계 버튼이 입력을 받지 않으므로 강조하지 않는다(null).
+ * 결과가 나온 뒤의 "한 판 더" 는 문이 열리는 중에도 누를 수 있어 그대로 강조한다.
+ */
+export function nextAction(s: StageState): 'pick' | 'host' | 'decide' | 'again' | null {
   if (s.final !== null) return 'again';
+  if (!isSettled(s)) return null;
   if (s.opened !== null) return 'decide';
   if (s.picked !== null) return 'host';
   return 'pick';

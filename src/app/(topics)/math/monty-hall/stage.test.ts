@@ -146,6 +146,24 @@ describe('새 판', () => {
     expect(n.note).toContain('닫히는 중');
   });
 
+  it('문이 움직이는 동안에는 다음 버튼을 강조하지 않는다', () => {
+    const opening = hostOpens(run(pickDoor(stageWith(0, 0), 1)));
+    expect(isSettled(opening)).toBe(false);
+    expect(nextAction(opening)).toBeNull();
+    expect(nextAction(run(opening))).toBe('decide');
+
+    const closing = newRound(run(decide(run(opening), 'stay')), () => 0.5);
+    expect(isSettled(closing)).toBe(false);
+    expect(nextAction(closing)).toBeNull();
+    expect(nextAction(run(closing))).toBe('pick');
+  });
+
+  it('결과가 나온 뒤에는 문이 열리는 중에도 "한 판 더" 를 강조한다', () => {
+    const revealing = decide(run(hostOpens(run(pickDoor(stageWith(0, 0), 1)))), 'switch');
+    expect(isSettled(revealing)).toBe(false);
+    expect(nextAction(revealing)).toBe('again');
+  });
+
   it('끝까지 하지 않은 판은 기록하지 않는다', () => {
     const s = run(newRound(run(hostOpens(pickDoor(stageWith(0, 0), 1))), () => 0.1));
     expect(s.tally.rounds).toBe(0);
