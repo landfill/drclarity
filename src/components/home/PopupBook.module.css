@@ -1,7 +1,7 @@
 .library {
-  --book-accent: #285A44;
-  --book-soft: #E3E9DB;
-  --book-glow: #E5EAD8;
+  --book-accent: var(--color-ink);
+  --book-soft: var(--color-subtle);
+  --book-glow: var(--color-subtle);
   display: grid;
   grid-template-columns: minmax(0, 1fr) 86px;
   align-items: center;
@@ -29,15 +29,16 @@
   min-width: 0;
   min-height: 48px;
   padding: 7px 7px 7px 8px;
-  border: 1px solid #CDD5C7;
-  border-right: 3px solid #ADB99A;
-  border-radius: 0 5px 5px 0;
-  background: #EFEEE2;
+  border: 1px solid var(--color-ink);
+  border-right: 3px solid var(--color-ink);
+  border-radius: 0 9px 10px 0 / 0 7px 10px 0;
+  background: var(--color-surface);
+  font-family: var(--font-mono);
   color: var(--book-accent);
   text-align: left;
   word-break: keep-all;
   cursor: pointer;
-  box-shadow: 0 2px 2px #263D2908;
+  box-shadow: 2px 2px 0 rgba(35, 30, 22, .1);
   transition: background .2s, color .2s, transform .2s;
 }
 
@@ -45,10 +46,10 @@
 .indexLabel { font-size: .6875rem; line-height: 1.45; }
 .bookmarks button:hover { background: var(--book-soft); transform: translateX(3px); }
 .bookmarks button[aria-pressed='true'] {
-  background: var(--book-accent);
-  border-color: var(--book-accent);
-  border-right-color: #98AB86;
-  color: #FFFEF2;
+  background: var(--color-accent-fill);
+  border-color: var(--color-ink);
+  border-right-color: var(--color-ink);
+  color: var(--color-on-accent);
   transform: translateX(5px);
 }
 
@@ -115,13 +116,13 @@
   align-items: center;
   margin: 2px 14px 0;
   padding-top: 10px;
-  border-top: 1px solid #D6DDCE;
+  border-top: 1px solid var(--color-border);
 }
 
-.chapterNumber { color: var(--book-accent); font-size: .5625rem; letter-spacing: .06em; }
+.chapterNumber { color: var(--color-muted); font-family: var(--font-mono); font-size: .5625rem; letter-spacing: .06em; }
 .caption h2 { margin-top: 4px; font-size: .875rem; font-weight: 600; line-height: 1.5; }
-.arrow { display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid #CBD5C5; border-radius: 50%; color: var(--book-accent); font-size: 1rem; transition: background .2s, color .2s; }
-.bookLink:hover .arrow { color: #fff; background: var(--book-accent); }
+.arrow { display: grid; place-items: center; width: 28px; height: 28px; border: var(--line-ink); border-radius: 50%; color: var(--book-accent); font-size: 1rem; transition: background .2s, color .2s; }
+.bookLink:hover .arrow { color: var(--color-on-accent); background: var(--color-accent-fill); }
 
 /* Each paper layer pivots at its own glued lower edge; no translation or whole-scene rotation. */
 @keyframes foldPopup {

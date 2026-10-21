@@ -114,8 +114,9 @@ export async function renderOgImage({
           justifyContent: 'space-between',
           background: palette.bg,
           padding: '72px 80px',
-          // 좌측 액센트 바 — 카드/사이트와 같은 강조색
-          borderLeft: `24px solid ${palette.accent}`,
+          // 좌측 겨자 띠와 잉크 테두리 — 사이트 버튼·카드와 같은 언어. next/og 는 SVG 필터를 못 쓰므로 흔들림은 없다.
+          border: `6px solid ${palette.ink}`,
+          borderLeft: `28px solid ${palette['accent-fill']}`,
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -164,7 +165,7 @@ export async function renderOgImage({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          {/* 난이도 점 3개 — TopicCard 와 같은 크기·색 (8px, accent / muted-2) */}
+          {/* 난이도 점 3개 — 채운 점은 겨자에 잉크 테두리, 빈 점은 muted-2 */}
           <div style={{ display: 'flex', alignItems: 'center' }}>
             {difficulty
               ? Array.from({ length: 3 }).map((_, i) => (
@@ -175,7 +176,8 @@ export async function renderOgImage({
                       height: 18,
                       borderRadius: 9,
                       marginRight: 10,
-                      background: i < difficulty ? palette.accent : palette['muted-2'],
+                      border: `2px solid ${i < difficulty ? palette.ink : palette['muted-2']}`,
+                      background: i < difficulty ? palette['accent-fill'] : palette['muted-2'],
                     }}
                   />
                 ))

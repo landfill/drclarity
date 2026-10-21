@@ -17,6 +17,7 @@
   display: flex;
   align-items: center;
   gap: .5rem;
+  font-family: var(--font-mono);
   font-size: .75rem;
   font-weight: 600;
   color: var(--color-accent);
@@ -26,8 +27,9 @@
 .eyebrow > span  {
   width: 6px;
   height: 6px;
+  border: 1px solid var(--color-ink);
   border-radius: 50%;
-  background: var(--color-accent);
+  background: var(--color-accent-fill);
 }
 
 .title  {
@@ -55,17 +57,20 @@
   align-items: center;
   gap: 2.4rem;
   margin-top: 12px;
-  padding: .65rem 1rem;
-  background: var(--color-ink);
-  color: white;
+  padding: .65rem 1.1rem;
+  background: var(--color-accent-fill);
+  color: var(--color-on-accent);
+  border: var(--line-ink);
   text-decoration: none;
+  font-family: var(--font-mono);
   font-size: .875rem;
-  font-weight: 500;
-  border-radius: 6px;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-paper);
 }
 
 .start:hover  {
-  background: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent-fill) 88%, var(--color-ink));
 }
 
 .start span  {
@@ -74,6 +79,7 @@
 
 .catalogCount  {
   margin-top: 12px;
+  font-family: var(--font-mono);
   font-size: .75rem;
   color: var(--color-muted);
 }
@@ -87,8 +93,8 @@
   grid-template-columns: repeat(3,minmax(0,1fr));
   list-style: none;
   padding: 16px 0;
-  border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
+  border-top: var(--line-ink);
+  border-bottom: var(--line-ink);
   margin-bottom: 32px;
 }
 
@@ -109,7 +115,7 @@
 }
 
 .learningPath li > span  {
-  font-family: var(--font-main), sans-serif;
+  font-family: var(--font-mono);
   font-size: .75rem;
   color: var(--color-accent);
 }
@@ -158,16 +164,17 @@
   gap: 1rem;
   padding: .6rem .9rem;
   min-height: 44px;
-  border: 1px solid var(--color-border);
+  border: var(--line-ink);
   background: var(--color-surface);
-  border-radius: 6px;
+  border-radius: var(--radius-pill);
   color: var(--color-text);
+  font-family: var(--font-mono);
   font-size: .8rem;
   text-decoration: none;
 }
 
 .categoryNav a:hover  {
-  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent-fill) 22%, var(--color-surface));
 }
 
 .categoryNav span  {
@@ -195,7 +202,7 @@
 }
 
 .categoryNumber  {
-  font-family: var(--font-main), sans-serif;
+  font-family: var(--font-mono);
   font-size: .75rem;
   color: var(--color-muted);
 }
@@ -222,6 +229,7 @@
   padding: 10px 0;
   text-decoration: none;
   color: var(--color-accent);
+  font-family: var(--font-mono);
   font-size: .75rem;
 }
 
