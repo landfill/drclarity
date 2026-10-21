@@ -4,9 +4,9 @@
   gap: var(--space-md);
   padding: var(--space-md);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: none;
+  border: var(--line-ink);
+  border-radius: var(--radius-hand);
+  box-shadow: var(--shadow-paper);
 }
 
 .toolbar {
@@ -28,32 +28,32 @@
   min-height: 2.75rem;
   padding: var(--space-xs) var(--space-md);
   font: inherit;
+  font-family: var(--font-mono);
   font-size: var(--fs-sm);
   font-weight: 700;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   cursor: pointer;
   transition: background-color 160ms ease, border-color 160ms ease;
 }
 
 .runButton {
-  color: var(--color-surface);
-  background: var(--color-blue);
-  border: 1px solid var(--color-blue);
+  color: var(--color-on-accent);
+  background: var(--color-accent-fill);
+  border: var(--line-ink);
 }
 
 .runButton:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--color-blue) 85%, var(--color-ink));
+  background: color-mix(in srgb, var(--color-accent-fill) 88%, var(--color-ink));
 }
 
 .resetButton {
-  color: var(--color-blue);
+  color: var(--color-ink);
   background: var(--color-surface);
-  border: 1px solid var(--color-blue-soft);
+  border: var(--line-ink);
 }
 
 .resetButton:hover:not(:disabled) {
   background: var(--color-subtle);
-  border-color: var(--color-blue);
 }
 
 .runButton:disabled,
@@ -76,6 +76,7 @@
 
 .total strong {
   color: var(--color-text);
+  font-family: var(--font-mono);
   font-size: var(--fs-body);
 }
 
@@ -112,6 +113,7 @@
 }
 
 .bucketValue {
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   font-weight: 700;
 }
@@ -126,13 +128,14 @@
   position: relative;
   height: 1.5rem;
   background: var(--color-subtle);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-pill);
   overflow: hidden;
 }
 
 .barFill {
   height: 100%;
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   transition: width 120ms linear;
 }
 

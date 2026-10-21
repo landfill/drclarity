@@ -83,7 +83,7 @@ export function ColorFigure({
   stats = [],
   status,
   view,
-  accent = '#f4b829',
+  accent = 'var(--color-accent-fill)',
   labelPx = 11,
   onAct,
 }: ColorFigureProps) {

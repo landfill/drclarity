@@ -1,7 +1,7 @@
 .footer  {
   margin-top: 4rem;
-  border-top: 1px solid var(--color-border);
-  background: #EDF0E9;
+  border-top: var(--line-ink);
+  background: var(--color-subtle);
 }
 
 .inner  {
@@ -40,6 +40,7 @@
 .explore  {
   color: var(--color-accent);
   text-decoration: none;
+  font-family: var(--font-mono);
   font-size: .85rem;
   font-weight: 600;
 }

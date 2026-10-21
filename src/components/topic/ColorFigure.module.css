@@ -3,17 +3,17 @@
  * 알약 버튼, 오른쪽 위 큰 숫자. 한글은 사이트 글꼴로 이어 쓴다.
  */
 .figure {
-  --paper: #f2efe7;
-  --ink: #231e16;
-  --muted: #857d6e;
+  --paper: var(--color-bg);
+  --ink: var(--color-ink);
+  --muted: var(--color-muted);
   container-type: inline-size;
   width: 100%;
   padding: var(--space-md) var(--space-md) var(--space-sm);
   border-radius: var(--radius-md);
   background-color: var(--paper);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .42  0 0 0 0 .39  0 0 0 0 .33  .16 0 0 0 0'/></filter><rect width='100%' height='100%' filter='url(%23p)'/></svg>");
+  background-image: var(--paper-grain);
   color: var(--ink);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, var(--font-korean), monospace;
+  font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.4;
   text-align: left;
