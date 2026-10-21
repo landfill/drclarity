@@ -204,10 +204,11 @@ export function tryAll(s: PizzaState): PizzaState {
 /** 버튼 "처음부터". */
 export const resetPizza = (): PizzaState => initialPizza();
 
-/** 지금 누를 차례인 버튼. */
-export function nextAction(s: PizzaState): 'cut' | 'take' | 'try' | 'reset' {
+/** 지금 누를 차례인 버튼. 0.1 조각이 아직 나오는 중이면 대 보기가 거절되므로 강조하지 않는다. */
+export function nextAction(s: PizzaState): 'cut' | 'take' | 'try' | 'reset' | null {
   if (s.decCutTarget !== DECIMAL_PIECES) return 'cut';
   if (s.decPullTarget !== 1) return 'take';
+  if (s.decPull < 1) return null;
   if (s.binSteps < MAX_TRIES) return 'try';
   return 'reset';
 }

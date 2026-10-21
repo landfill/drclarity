@@ -107,6 +107,13 @@ describe('버튼 순서', () => {
     expect(s.note).toContain(gapText(keptUnits(MAX_TRIES)));
   });
 
+  it('0.1 조각이 나오는 동안에는 대 보기를 강조하지 않는다', () => {
+    const pulling = takeTenth(run(cutDecimal(initialPizza())));
+    expect(nextAction(pulling)).toBeNull();
+    expect(tryNext(pulling).note).toContain('꺼내는 중');
+    expect(nextAction(run(pulling))).toBe('try');
+  });
+
   it('멈춘 상태에서는 시간이 흘러도 같은 객체를 돌려준다', () => {
     const s = initialPizza();
     expect(advancePizza(s, 0.1)).toBe(s);
