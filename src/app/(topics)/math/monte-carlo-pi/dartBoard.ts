@@ -23,13 +23,14 @@ export function drawBoard(ctx: CanvasRenderingContext2D, darts: readonly Dart[])
   ctx.fillStyle = palette.surface;
   ctx.fillRect(0, 0, BOARD_SIZE, BOARD_SIZE);
 
-  ctx.strokeStyle = palette.border;
+  ctx.strokeStyle = palette.ink;
   ctx.lineWidth = 2;
   ctx.strokeRect(1, 1, BOARD_SIZE - 2, BOARD_SIZE - 2);
 
   ctx.beginPath();
   ctx.arc(half, half, radius, 0, Math.PI * 2);
-  ctx.strokeStyle = palette['muted-2'];
+  ctx.strokeStyle = palette.ink;
+  ctx.lineWidth = 1.5;
   ctx.stroke();
 
   for (const dart of darts) {

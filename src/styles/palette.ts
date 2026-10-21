@@ -36,3 +36,6 @@ export const palette = {
 } as const;
 
 export type PaletteKey = keyof typeof palette;
+
+/** canvas 숫자 라벨 글꼴. canvas 는 CSS 변수를 못 읽어 globals.css `--font-mono` 의 앞부분을 옮겨 둔다. */
+export const MONO_FONT = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';

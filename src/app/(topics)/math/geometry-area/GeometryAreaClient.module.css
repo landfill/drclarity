@@ -1,7 +1,8 @@
 .lesson  {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border: var(--line-ink);
+  border-radius: var(--radius-hand);
   background: var(--color-surface);
+  box-shadow: var(--shadow-paper);
   overflow: hidden;
 }
 
@@ -18,14 +19,19 @@
   align-items: center;
   gap: 7px;
   min-height: 40px;
-  border: 0;
-  border-radius: 6px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
   background: transparent;
   padding: 6px 9px;
   color: var(--color-muted);
   font: inherit;
+  font-family: var(--font-mono);
   font-size: .8rem;
   cursor: pointer;
+}
+
+.steps button:hover  {
+  background: var(--color-subtle);
 }
 
 .steps button span  {
@@ -33,6 +39,7 @@
 }
 
 .steps button[aria-current]  {
+  border-color: var(--color-ink);
   background: var(--color-subtle);
   color: var(--color-ink);
   font-weight: 700;
@@ -54,6 +61,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  font-family: var(--font-mono);
   font-size: .75rem;
   color: var(--color-muted);
 }
@@ -63,6 +71,7 @@
   border: none;
   color: var(--color-accent);
   font: inherit;
+  font-weight: 700;
   padding: 8px 0;
   cursor: pointer;
 }
@@ -196,18 +205,23 @@
   flex: 1 1 120px;
   min-height: 42px;
   padding: 8px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border: var(--line-ink);
+  border-radius: var(--radius-pill);
   background: var(--color-surface);
-  color: var(--color-text);
+  color: var(--color-ink);
   font: inherit;
+  font-family: var(--font-mono);
   font-size: .75rem;
   cursor: pointer;
 }
 
-.figureControls button[aria-pressed="true"]  {
-  border-color: var(--color-ink);
+.figureControls button:hover  {
   background: var(--color-subtle);
+}
+
+.figureControls button[aria-pressed="true"]  {
+  background: var(--color-subtle);
+  box-shadow: inset 0 0 0 1px var(--color-ink);
   font-weight: 700;
 }
 
@@ -221,6 +235,7 @@
 
 .eyebrow  {
   color: var(--color-muted);
+  font-family: var(--font-mono);
   font-size: .75rem;
   margin-bottom: 10px;
 }
@@ -239,8 +254,10 @@
 .formula  {
   margin-top: 20px;
   padding: 12px;
-  border-radius: 6px;
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-hand-sm);
   background: var(--color-subtle);
+  font-family: var(--font-mono);
   font-size: .9rem;
   overflow-wrap: anywhere;
 }
@@ -268,19 +285,28 @@
 .controls button  {
   min-height: 44px;
   padding: 8px 13px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border: var(--line-ink);
+  border-radius: var(--radius-pill);
   background: var(--color-surface);
-  color: var(--color-text);
+  color: var(--color-ink);
   font: inherit;
+  font-family: var(--font-mono);
   font-size: .8rem;
   cursor: pointer;
 }
 
+.controls button:hover:not(:disabled)  {
+  background: var(--color-subtle);
+}
+
 .controls .primary  {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: var(--color-surface);
+  background: var(--color-accent-fill);
+  color: var(--color-on-accent);
+  font-weight: 700;
+}
+
+.controls .primary:hover:not(:disabled)  {
+  background: color-mix(in srgb, var(--color-accent-fill) 88%, var(--color-ink));
 }
 
 .controls button:disabled  {

@@ -1,4 +1,4 @@
-import { palette } from '@/styles/palette';
+import { palette, MONO_FONT } from '@/styles/palette';
 import { MAX_PEOPLE, formatProbabilityPercent, sharedBirthdayProbability } from './birthday';
 
 export const CURVE_WIDTH = 520;
@@ -30,19 +30,19 @@ export function drawProbabilityCurve(ctx: CanvasRenderingContext2D, people: numb
   ctx.fillStyle = palette.surface;
   ctx.fillRect(0, 0, CURVE_WIDTH, CURVE_HEIGHT);
 
-  ctx.font = '600 12px system-ui, sans-serif';
+  ctx.font = `600 12px ${MONO_FONT}`;
   ctx.lineWidth = 1;
 
   // 가로 눈금. 50% 만 실선으로 강조한다 — 이 곡선이 언제 절반을 넘는지가 요점이다.
   for (const p of [0, 0.25, 0.5, 0.75, 1]) {
     const y = toY(p);
-    ctx.strokeStyle = p === 0.5 ? palette['muted-2'] : palette.subtle;
+    ctx.strokeStyle = p === 0.5 ? palette.muted : palette.subtle;
     ctx.beginPath();
     ctx.moveTo(PAD_LEFT, y);
     ctx.lineTo(CURVE_WIDTH - PAD_RIGHT, y);
     ctx.stroke();
 
-    ctx.fillStyle = p === 0.5 ? palette.muted : palette['muted-2'];
+    ctx.fillStyle = p === 0.5 ? palette.ink : palette.muted;
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
     ctx.fillText(`${p * 100}%`, PAD_LEFT - 8, y);
@@ -59,7 +59,7 @@ export function drawProbabilityCurve(ctx: CanvasRenderingContext2D, people: numb
     ctx.lineTo(x, PAD_TOP + plotHeight);
     ctx.stroke();
 
-    ctx.fillStyle = palette['muted-2'];
+    ctx.fillStyle = palette.muted;
     ctx.fillText(String(n), x, PAD_TOP + plotHeight + 8);
   }
 
@@ -77,15 +77,15 @@ export function drawProbabilityCurve(ctx: CanvasRenderingContext2D, people: numb
   // 눈금 라벨은 선의 왼쪽에 붙인다. 기본값이 23명이라 현재 인원 라벨(선 오른쪽)과
   // 정확히 같은 자리에 겹치기 때문이다.
   ctx.fillStyle = palette.blue;
-  ctx.font = '700 13px system-ui, sans-serif';
+  ctx.font = `700 13px ${MONO_FONT}`;
   ctx.textAlign = 'right';
   ctx.textBaseline = 'bottom';
   ctx.fillText(`${MARKED_PEOPLE}명 · 50%`, markX - 8, toY(0.5) - 6);
 
   // 곡선. 인원은 정수라 한 명씩 잇는다 — 80점이면 계단이 보이지 않는다.
-  ctx.strokeStyle = palette.accent;
-  ctx.lineWidth = 3;
+  // 굵은 잉크 선 위에 겨자색을 한 번 더 그어 잉크 테두리를 두른 띠로 보이게 한다.
   ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
   ctx.beginPath();
   for (let n = MIN_PEOPLE; n <= MAX_PEOPLE; n += 1) {
     const x = toX(n);
@@ -93,7 +93,13 @@ export function drawProbabilityCurve(ctx: CanvasRenderingContext2D, people: numb
     if (n === MIN_PEOPLE) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   }
+  ctx.strokeStyle = palette.ink;
+  ctx.lineWidth = 6;
   ctx.stroke();
+  ctx.strokeStyle = palette['accent-fill'];
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.lineCap = 'butt';
 
   // 지금 고른 인원. 슬라이더를 움직이면 이 점이 곡선 위를 탄다.
   const current = Math.min(MAX_PEOPLE, Math.max(MIN_PEOPLE, people));
@@ -114,15 +120,18 @@ export function drawProbabilityCurve(ctx: CanvasRenderingContext2D, people: numb
 
   ctx.beginPath();
   ctx.arc(cx, cy, 6, 0, Math.PI * 2);
-  ctx.fillStyle = palette.warm;
+  ctx.fillStyle = palette['chart-warm'];
   ctx.fill();
+  ctx.strokeStyle = palette.ink;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
 
   // 라벨이 오른쪽 끝에서 잘리지 않도록, 절반을 넘어가면 점 왼쪽에 붙인다.
   const labelOnLeft = cx > PAD_LEFT + plotWidth * 0.6;
   // 확률이 1 에 붙으면 점이 위 테두리에 닿아 라벨의 윗부분이 잘린다. 그때는 아래에 단다.
   const labelBelow = cy - 8 < PAD_TOP + 14;
   ctx.fillStyle = palette.warm;
-  ctx.font = '700 14px system-ui, sans-serif';
+  ctx.font = `700 14px ${MONO_FONT}`;
   ctx.textAlign = labelOnLeft ? 'right' : 'left';
   ctx.textBaseline = labelBelow ? 'top' : 'bottom';
   ctx.fillText(
