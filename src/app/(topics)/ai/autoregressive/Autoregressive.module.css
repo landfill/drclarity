@@ -11,9 +11,10 @@
 .stage {
   margin-bottom: var(--space-lg);
   padding: var(--space-lg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border: var(--line-ink);
+  border-radius: var(--radius-hand);
   background: var(--color-surface);
+  box-shadow: var(--shadow-paper);
 }
 
 /* 마크다운 문단이 <p> 로 들어오므로 래퍼는 div 다 (§4.6). */
@@ -42,11 +43,13 @@
 }
 
 .roundCount {
+  font-family: var(--font-mono);
   font-weight: 700;
   color: var(--color-text);
 }
 
 .roundOf {
+  font-family: var(--font-mono);
   font-size: var(--fs-sm);
   color: var(--color-muted);
 }
@@ -67,8 +70,8 @@
   padding: var(--space-sm);
   list-style: none;
   background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-hand-sm);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -84,8 +87,8 @@
   color: var(--color-muted);
   font-size: var(--fs-sm);
   background: var(--color-bg);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-sm);
+  border: 1px dashed var(--color-ink);
+  border-radius: var(--radius-hand-sm);
 }
 
 .token {
@@ -94,17 +97,18 @@
   align-items: baseline;
   padding: var(--space-2xs) var(--space-xs);
   border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-hand-sm);
   white-space: pre-wrap;
 }
 
 .tokenText {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: var(--fs-sm);
 }
 
 .tokenIndex {
   color: var(--color-muted);
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   font-variant-numeric: tabular-nums;
 }
@@ -120,8 +124,8 @@
 
 /* 방금 붙은 조각. 색이 비슷해도 테두리로 알아볼 수 있게 한다. */
 .fresh {
-  border-color: var(--color-accent);
-  background: color-mix(in srgb, var(--color-accent) 35%, var(--color-surface));
+  border-color: var(--color-ink);
+  background: var(--color-accent-fill);
   font-weight: 700;
 }
 
@@ -151,10 +155,10 @@
 
 .stageItem {
   padding: var(--space-xs) var(--space-sm);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-hand-sm);
   background: var(--color-bg);
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
 .stageItem::before {
@@ -163,14 +167,15 @@
   display: inline-block;
   margin-right: var(--space-2xs);
   color: var(--color-muted);
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   font-variant-numeric: tabular-nums;
 }
 
 /* 지금 밝은 단계. 색만으로 구분하지 않도록 테두리와 굵기를 함께 쓴다. */
 .stageActive {
-  border-color: var(--color-accent);
-  background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));
+  background: color-mix(in srgb, var(--color-accent-fill) 22%, var(--color-surface));
+  box-shadow: inset 0 0 0 1px var(--color-ink);
 }
 
 .stageActive .stageName {
@@ -215,29 +220,37 @@
 .primaryButton,
 .secondaryButton {
   padding: var(--space-xs) var(--space-md);
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
-  font-size: var(--fs-body);
+  border-radius: var(--radius-pill);
+  border: var(--line-ink);
+  font-size: var(--fs-sm);
   font-weight: 700;
-  font-family: inherit;
+  font-family: var(--font-mono);
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: background-color 160ms ease;
 }
 
 .primaryButton {
-  background: var(--color-secondary);
-  color: #fff;
+  background: var(--color-accent-fill);
+  color: var(--color-on-accent);
 }
 
 .secondaryButton {
-  background: var(--color-bg);
-  border-color: var(--color-border);
-  color: var(--color-text);
+  background: var(--color-surface);
+  color: var(--color-ink);
 }
 
-.primaryButton:hover,
-.secondaryButton:hover {
-  opacity: 0.85;
+.primaryButton:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-accent-fill) 88%, var(--color-ink));
+}
+
+.secondaryButton:hover:not(:disabled) {
+  background: var(--color-subtle);
+}
+
+.primaryButton:focus-visible,
+.secondaryButton:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
 }
 
 .primaryButton:disabled,
@@ -263,7 +276,9 @@
 .observation {
   padding: .85rem 1rem;
   margin: 1rem 0;
+  border: 1px solid var(--color-ink);
   border-left: 4px solid var(--color-secondary);
+  border-radius: var(--radius-hand-sm);
   background: var(--color-subtle);
   color: var(--color-text);
   line-height: 1.7;
