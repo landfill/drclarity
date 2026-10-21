@@ -85,6 +85,12 @@
   outline-offset: 3px;
 }
 
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .primary,
 .primary:hover {
   background: var(--accent);

@@ -20,6 +20,19 @@ export interface FigureAction {
   onClick: () => void;
   /** 지금 누를 차례인 버튼. 강조색으로 보인다. */
   primary?: boolean;
+  /** 같은 group 이 이어지면 한 줄에 나란히 놓인다 (문 세 개 중 하나 고르기처럼). */
+  group?: string;
+}
+
+/** 이어진 같은 group 끼리 묶는다. group 이 없으면 한 줄에 하나. */
+export function actionRows(actions: FigureAction[]): FigureAction[][] {
+  const rows: FigureAction[][] = [];
+  for (const a of actions) {
+    const last = rows[rows.length - 1];
+    if (a.group && last && last[0].group === a.group) last.push(a);
+    else rows.push([a]);
+  }
+  return rows;
 }
 
 export interface FigureStat {
@@ -165,16 +178,25 @@ export function ColorFigure({
             <p className={styles.cap} aria-hidden="true">
               {actionsLabel}
             </p>
-            {actions.map((a) => (
-              <button
-                key={a.label}
-                type="button"
-                className={`${styles.action} ${a.primary ? styles.primary : ''}`.trim()}
-                onClick={a.onClick}
-              >
-                {a.label}
-              </button>
-            ))}
+            {actionRows(actions).map((row) => {
+              const buttons = row.map((a) => (
+                <button
+                  key={a.label}
+                  type="button"
+                  className={`${styles.action} ${a.primary ? styles.primary : ''}`.trim()}
+                  onClick={a.onClick}
+                >
+                  {a.label}
+                </button>
+              ));
+              return row.length > 1 ? (
+                <div key={row[0].label} className={styles.row}>
+                  {buttons}
+                </div>
+              ) : (
+                buttons[0]
+              );
+            })}
           </div>
         )}
         <svg
