@@ -30,6 +30,7 @@ export function drawProbabilityCurve(ctx: CanvasRenderingContext2D, people: numb
   ctx.fillStyle = palette.surface;
   ctx.fillRect(0, 0, CURVE_WIDTH, CURVE_HEIGHT);
 
+  // 숫자만 있는 눈금은 고정폭, 한글이 섞인 라벨은 고정폭이면 글자 사이가 벌어져 일반 글꼴로 쓴다.
   ctx.font = `600 12px ${MONO_FONT}`;
   ctx.lineWidth = 1;
 
@@ -77,7 +78,7 @@ export function drawProbabilityCurve(ctx: CanvasRenderingContext2D, people: numb
   // 눈금 라벨은 선의 왼쪽에 붙인다. 기본값이 23명이라 현재 인원 라벨(선 오른쪽)과
   // 정확히 같은 자리에 겹치기 때문이다.
   ctx.fillStyle = palette.blue;
-  ctx.font = `700 13px ${MONO_FONT}`;
+  ctx.font = '700 13px system-ui, sans-serif';
   ctx.textAlign = 'right';
   ctx.textBaseline = 'bottom';
   ctx.fillText(`${MARKED_PEOPLE}명 · 50%`, markX - 8, toY(0.5) - 6);
@@ -131,7 +132,7 @@ export function drawProbabilityCurve(ctx: CanvasRenderingContext2D, people: numb
   // 확률이 1 에 붙으면 점이 위 테두리에 닿아 라벨의 윗부분이 잘린다. 그때는 아래에 단다.
   const labelBelow = cy - 8 < PAD_TOP + 14;
   ctx.fillStyle = palette.warm;
-  ctx.font = `700 14px ${MONO_FONT}`;
+  ctx.font = '700 14px system-ui, sans-serif';
   ctx.textAlign = labelOnLeft ? 'right' : 'left';
   ctx.textBaseline = labelBelow ? 'top' : 'bottom';
   ctx.fillText(
