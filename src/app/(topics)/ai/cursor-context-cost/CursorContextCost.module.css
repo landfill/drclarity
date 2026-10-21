@@ -11,9 +11,10 @@
 .stage {
   margin-bottom: var(--space-lg);
   padding: var(--space-lg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border: var(--line-ink);
+  border-radius: var(--radius-hand);
   background: var(--color-surface);
+  box-shadow: var(--shadow-paper);
 }
 
 /* 마크다운 문단이 <p> 로 들어오므로 래퍼는 div 다 (§4.6). */
@@ -36,7 +37,7 @@
 }
 
 .mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
 }
 
 /* --- 컨트롤 한 줄 --- */
@@ -228,6 +229,7 @@
   flex-shrink: 0;
   width: 10px;
   height: 10px;
+  border: 1px solid var(--color-ink);
   border-radius: 3px;
 }
 
@@ -245,13 +247,13 @@
   white-space: nowrap;
 }
 
-/* 범주 색. Cursor 패널의 배열과 같은 순서로 구분만 되면 된다. */
+/* 범주 색. Cursor 패널의 배열과 같은 순서로 구분만 되면 된다. 사이트 색표 안에서 이웃끼리 겹치지 않게 고른다. */
 .catSystem {
   background: var(--color-muted-2);
 }
 
 .catTools {
-  background: #a78bfa;
+  background: var(--color-chart-warm);
 }
 
 .catRules {
@@ -259,11 +261,11 @@
 }
 
 .catSkills {
-  background: var(--color-accent);
+  background: var(--color-accent-fill);
 }
 
 .catMcp {
-  background: #f0a6ca;
+  background: var(--color-danger-soft);
 }
 
 .catSubagents {
@@ -343,23 +345,34 @@
 .experimentButtons button {
   min-height: 44px;
   padding: .55rem .85rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg);
-  color: var(--color-text);
+  border: var(--line-ink);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-ink);
   font: inherit;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
   font-weight: 700;
   cursor: pointer;
+  transition: background-color 160ms ease;
 }
 
-.experimentButtons button[aria-pressed="true"] {
-  border-color: var(--color-text);
+.experimentButtons button:hover {
   background: var(--color-subtle);
-  color: var(--color-text);
+}
+
+/* 고른 실험은 겨자로 채운다. 글자는 잉크라 대비가 유지된다. */
+.experimentButtons button[aria-pressed="true"] {
+  background: var(--color-accent-fill);
+  color: var(--color-on-accent);
+}
+
+.experimentButtons button[aria-pressed="true"]:hover {
+  background: color-mix(in srgb, var(--color-accent-fill) 88%, var(--color-ink));
 }
 
 .experimentButtons button:focus-visible {
-  outline: 3px solid var(--color-text);
+  outline: 3px solid var(--color-ink);
   outline-offset: 3px;
 }
 
@@ -376,14 +389,15 @@
 .flow > li {
   flex: 1 1 110px;
   padding: .8rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-hand-sm);
   background: var(--color-bg);
   color: var(--color-text);
 }
 
 .flow strong {
   display: block;
+  font-family: var(--font-mono);
   font-size: 1.25rem;
   font-variant-numeric: tabular-nums;
 }
