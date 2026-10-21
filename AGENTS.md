@@ -29,6 +29,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 | `chatgpt-codex-connector` (Codex) | PR 열기 · ready 전환 · 새 커밋 · `@codex review` 댓글 | 도는 동안 PR에 👀, 지적이 없으면 👍 반응만 남긴다. 지적은 우선순위 배지(P2 등)를 단 줄 코멘트로 온다. 상태는 `Codex Review Summary` 코멘트 하나가 커밋마다 갱신한다. |
 
 예전 이 자리에는 "`chatgpt-codex-connector` 는 붙어 있지 않다"고 적혀 있었다(PR #50~#65 에 코멘트가 없었다). 지금은 붙어 있다. PR #95 에서 P2 지적(0.1 조각이 다 나오기 전의 입력)을 줄 코멘트로 달았고, #96~#102 에는 👍 를 남겼다. **👍 는 지적이 없다는 뜻이라 코멘트 목록만 보면 놓친다.** 머지 전에는 반응과 요약 코멘트의 상태(`Running` / `completed`)까지 확인한다.
+Codex 쪽에 이 저장소의 환경이 없으면 리뷰하지 않고 `To use Codex here, create an environment for this repo` 코멘트만 남긴다(PR #103). 이 코멘트는 "지적 없음" 이 아니라 "리뷰 안 함" 이다.
 
 **CodeRabbit은 자동으로 돌지 않는다.** 이 저장소는 별이 10개 미만이라 `Review skipped: manual review required for this OSS repository` 로 건너뛴다. PR을 몇 개 열든 자동 리뷰는 **전부 0건**이다. 받으려면 PR에 `@coderabbitai review` 코멘트를 달아야 하고, 이 수동 요청이 **한 시간에 하나만** 처리된다. 같은 시간 안에 여러 PR에서 요청하면 첫 것만 돌고 나머지는 rate limited 된다 — 어느 PR에 쓸지 정해서 걸어야 한다.
 
