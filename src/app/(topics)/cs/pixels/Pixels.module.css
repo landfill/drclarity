@@ -11,9 +11,10 @@
 .stage {
   margin-bottom: var(--space-lg);
   padding: var(--space-lg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border: var(--line-ink);
+  border-radius: var(--radius-hand);
   background: var(--color-surface);
+  box-shadow: var(--shadow-paper);
 }
 
 /* 마크다운 문단이 <p> 로 들어오므로 래퍼는 div 다 (§4.6). */
@@ -97,18 +98,24 @@
 }
 
 .presetButton {
-  padding: var(--space-2xs) var(--space-xs);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: inherit;
+  padding: var(--space-2xs) var(--space-sm);
+  border: var(--line-ink);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-mono);
   font-size: var(--fs-sm);
   cursor: pointer;
+  transition: background-color 160ms ease;
 }
 
 .presetButton:hover {
-  border-color: var(--color-secondary);
+  background: var(--color-subtle);
+}
+
+.presetButton:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
 }
 
 /* --- 수치 --- */
@@ -121,6 +128,7 @@
 }
 
 .stat dt {
+  font-family: var(--font-mono);
   font-size: var(--fs-sm);
   color: var(--color-muted);
 }
@@ -133,7 +141,7 @@
 }
 
 .mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
 }
 
 .strong {
@@ -145,7 +153,7 @@
 .swatch {
   width: 1em;
   height: 1em;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-ink);
   border-radius: 3px;
 }
 
@@ -162,5 +170,5 @@
  */
 .canvasWrap canvas,
 .compareItem canvas {
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-ink);
 }
