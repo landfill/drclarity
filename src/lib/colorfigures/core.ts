@@ -220,7 +220,7 @@ export const mix = (a: string, b: string, t: number): string =>
   '#' +
   [1, 3, 5]
     .map((i) =>
-      Math.round(parseInt(a.substr(i, 2), 16) * (1 - t) + parseInt(b.substr(i, 2), 16) * t)
+      Math.round(parseInt(a.slice(i, i + 2), 16) * (1 - t) + parseInt(b.slice(i, i + 2), 16) * t)
         .toString(16)
         .padStart(2, '0'),
     )
