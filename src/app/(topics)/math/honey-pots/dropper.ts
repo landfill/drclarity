@@ -124,5 +124,8 @@ export function startDropping(s: DropperState): DropperState {
 /** 버튼 "컵 비우기". */
 export const emptyCups = (s: DropperState): DropperState => initialDropper(s.pot);
 
-/** 지금 누를 차례인 버튼. */
-export const nextAction = (s: DropperState): 'drop' | 'empty' => (s.t !== null && isSettled(s) ? 'empty' : 'drop');
+/** 지금 누를 차례인 버튼. 나누는 동안에는 없다 (다시 누르면 거절되므로 강조하지 않는다). */
+export function nextAction(s: DropperState): 'drop' | 'empty' | null {
+  if (s.t === null) return 'drop';
+  return isSettled(s) ? 'empty' : null;
+}

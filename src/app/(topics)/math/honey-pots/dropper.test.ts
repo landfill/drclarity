@@ -60,6 +60,12 @@ describe('순서를 건너뛴 입력', () => {
     expect(n.note).toContain('나누는 중');
   });
 
+  it('나누는 동안에는 어느 버튼도 강조하지 않는다', () => {
+    expect(nextAction(initialDropper(21))).toBe('drop');
+    expect(nextAction(startDropping(initialDropper(21)))).toBeNull();
+    expect(nextAction(advanceDropper(startDropping(initialDropper(21)), 1.2))).toBeNull();
+  });
+
   it('다 나눈 뒤에 다시 누르면 상태를 바꾸지 않고 컵 비우기를 알린다', () => {
     const s = run(startDropping(initialDropper(7)));
     const n = startDropping(s);
