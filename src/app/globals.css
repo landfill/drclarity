@@ -1,30 +1,43 @@
 :root  {
-  --color-bg: #F6F7F4;
-  --color-surface: #FFFFFF;
-  --color-text: #202C28;
-  --color-accent: #21634B;
-  --color-chart-warm: #B86924;
-  --color-secondary: #35629B;
-  --color-ink: #17251F;
-  --color-muted: #606D65;
-  --color-muted-2: #ADB8AF;
-  --color-subtle: #E8EDE7;
-  --color-border: #DCE2D9;
-  --color-danger: #B33F38;
-  --color-danger-soft: #D67468;
-  --color-warm: #AD573A;
-  --color-blue: #285A90;
-  --color-blue-soft: #7DABD1;
-  --color-success: #287553;
-  --color-dough: #F0D9A1;
-  --color-note-bg: #F3F4E9;
-  --color-note-border: #839265;
-  --color-formula-bg: #F9F0EA;
-  --color-terminal-bg: #192A24;
-  --color-terminal-fg: #E5ECE5;
-  --color-terminal-border: #40584B;
-  --color-triangle-fill: rgba(217, 163, 76, 1);
-  --color-triangle-stroke: rgba(40, 90, 144, 0.6);
+  /* Colorfigures 종이·잉크 언어. src/styles/palette.ts 와 값이 같아야 한다(palette.test.ts). */
+  --color-bg: #f2efe7;
+  --color-surface: #fbf8f0;
+  --color-text: #231e16;
+  --color-accent: #7a5a00;
+  --color-accent-fill: #f4b829;
+  --color-on-accent: #231e16;
+  --color-chart-warm: #f2913a;
+  --color-secondary: #4a6fb0;
+  --color-ink: #231e16;
+  --color-muted: #675f52;
+  --color-muted-2: #bdb8a6;
+  --color-subtle: #e8e3d6;
+  --color-border: #b9b1a0;
+  --color-danger: #a8381f;
+  --color-danger-soft: #ef6a4c;
+  --color-warm: #84562a;
+  --color-blue: #2f55a0;
+  --color-blue-soft: #76a0e2;
+  --color-success: #2a6449;
+  --color-dough: #f3d9a0;
+  --color-note-bg: #fff4d6;
+  --color-note-border: #d49c1f;
+  --color-formula-bg: #f7ecd9;
+  --color-terminal-bg: #272421;
+  --color-terminal-fg: #f2efe7;
+  --color-terminal-border: #55504a;
+  --color-triangle-fill: rgba(244, 184, 41, 1);
+  --color-triangle-stroke: rgba(28, 41, 72, 0.6);
+  --color-selection: #f3d488;
+  /* 잉크 선과 손그림 모서리. 글자 상자에는 SVG 필터를 쓰지 않고 모서리 반지름만 비뚤게 준다. */
+  --line-w: 1.5px;
+  --line-ink: var(--line-w) solid var(--color-ink);
+  --radius-pill: 999px;
+  --radius-hand: 15px 12px 16px 11px / 12px 16px 11px 15px;
+  --radius-hand-sm: 9px 7px 10px 6px / 7px 10px 6px 9px;
+  --shadow-paper: 3px 3px 0 rgba(35, 30, 22, .1);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, var(--font-korean), monospace;
+  --paper-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .42  0 0 0 0 .39  0 0 0 0 .33  .16 0 0 0 0'/></filter><rect width='100%' height='100%' filter='url(%23p)'/></svg>");
   --header-h: 60px;
   --content-h: calc(100dvh - var(--header-h));
   --content-max-w: 860px;
@@ -62,7 +75,8 @@ html  {
 
 body  {
   font-family: var(--font-korean), var(--font-main), -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--color-bg);
+  background-color: var(--color-bg);
+  background-image: var(--paper-grain);
   color: var(--color-text);
   font-size: var(--fs-body);
   line-height: 1.65;
@@ -88,7 +102,7 @@ a  {
 }
 
 ::selection  {
-  background: #D4E5CD;
+  background: var(--color-selection);
   color: var(--color-ink);
 }
 
@@ -130,8 +144,8 @@ button, summary  {
   z-index: 200;
   padding: 10px 16px;
   background: var(--color-ink);
-  color: white;
-  border-radius: 6px;
+  color: var(--color-surface);
+  border-radius: var(--radius-pill);
   transform: translateY(-160%);
 }
 

@@ -19,8 +19,8 @@
   max-width: 42rem;
   color: var(--color-danger);
   background: var(--color-note-bg);
-  border: 1px solid var(--color-note-border);
-  border-radius: 8px;
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-hand-sm);
   font-size: 0.95rem;
   visibility: hidden;
   opacity: 0;
@@ -53,8 +53,8 @@
   font-weight: 700;
   background: var(--color-formula-bg);
   padding: 0.5rem 1rem;
-  border-radius: 8px;
-  border: 1px solid var(--color-danger-soft);
+  border-radius: var(--radius-hand-sm);
+  border: 1px solid var(--color-ink);
   display: inline-block;
 }
 
@@ -83,12 +83,13 @@
   min-height: 44px;
   min-width: 44px;
   padding: var(--space-sm) var(--space-lg);
-  background: var(--color-blue);
-  color: white;
-  border: none;
-  border-radius: 8px;
+  background: var(--color-accent-fill);
+  color: var(--color-on-accent);
+  border: var(--line-ink);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -99,17 +100,18 @@
 }
 
 .actionBtn:hover {
-  background: var(--color-ink);
+  background: color-mix(in srgb, var(--color-accent-fill) 88%, var(--color-ink));
 }
 
 .secondaryBtn {
   min-height: 44px;
   min-width: 44px;
   padding: var(--space-sm) var(--space-lg);
-  background: var(--color-subtle);
-  color: var(--color-muted);
-  border: none;
-  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border: var(--line-ink);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
@@ -122,7 +124,7 @@
 }
 
 .secondaryBtn:hover {
-  background: var(--color-muted-2);
+  background: var(--color-subtle);
 }
 
 @media (max-width: 480px) {
