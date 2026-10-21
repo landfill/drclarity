@@ -20,10 +20,11 @@
   flex: 1 1 auto;
   min-width: 0;
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-ink);
   padding: 0 var(--space-md);
-  border-radius: var(--radius-sm);
-  font-family: monospace;
+  border-radius: var(--radius-hand-sm);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: clamp(0.75rem, 3vw, 1.1rem);
   text-align: right;
   min-height: 44px;
@@ -53,10 +54,11 @@
   flex: 0 0 auto;
   padding: var(--space-xs) var(--space-md);
   white-space: nowrap;
-  background: var(--color-accent);
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
+  background: var(--color-accent-fill);
+  color: var(--color-on-accent);
+  border: var(--line-ink);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
@@ -65,7 +67,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, background-color 160ms ease;
+}
+
+.button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-accent-fill) 88%, var(--color-ink));
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
 }
 
 .button:disabled {
@@ -81,9 +92,10 @@
 .explanationPanel {
   background: var(--color-terminal-bg);
   color: var(--color-terminal-fg);
-  border: 1px solid var(--color-terminal-border);
+  border: var(--line-ink);
   padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-hand);
+  box-shadow: var(--shadow-paper);
   font-family: monospace;
   font-size: 0.95rem;
   line-height: 1.5;

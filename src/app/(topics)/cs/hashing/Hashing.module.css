@@ -11,9 +11,10 @@
 .stage {
   margin-bottom: var(--space-lg);
   padding: var(--space-lg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border: var(--line-ink);
+  border-radius: var(--radius-hand);
   background: var(--color-surface);
+  box-shadow: var(--shadow-paper);
 }
 
 /* 마크다운 문단이 <p> 로 들어오므로 래퍼는 div 다 (§4.6). */
@@ -49,9 +50,9 @@
 .input {
   width: 100%;
   padding: var(--space-sm);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg);
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-hand-sm);
+  background: var(--color-surface);
   color: var(--color-text);
   font-family: inherit;
   font-size: var(--fs-body);
@@ -91,18 +92,24 @@
 }
 
 .sampleButton {
-  padding: var(--space-2xs) var(--space-xs);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: inherit;
+  padding: var(--space-2xs) var(--space-sm);
+  border: var(--line-ink);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-mono);
   font-size: var(--fs-sm);
   cursor: pointer;
+  transition: background-color 160ms ease;
 }
 
 .sampleButton:hover {
-  border-color: var(--color-secondary);
+  background: var(--color-subtle);
+}
+
+.sampleButton:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
 }
 
 /* --- 해시 표시 --- */
@@ -115,9 +122,10 @@
   display: block;
   margin-top: var(--space-sm);
   padding: var(--space-sm);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-hand-sm);
   background: var(--color-subtle);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: var(--fs-sm);
   line-height: 1.6;
   word-break: break-all;
@@ -142,6 +150,7 @@
 }
 
 .stat dt {
+  font-family: var(--font-mono);
   font-size: var(--fs-sm);
   color: var(--color-muted);
 }
@@ -151,7 +160,7 @@
 }
 
 .mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
 }
 
 .strong {
@@ -188,6 +197,7 @@
 .table {
   width: 100%;
   border-collapse: collapse;
+  border: 1px solid var(--color-ink);
   font-size: var(--fs-sm);
 }
 
@@ -207,7 +217,10 @@
 
 .table th {
   color: var(--color-muted);
+  font-family: var(--font-mono);
   font-weight: 500;
+  background: var(--color-subtle);
+  border-bottom-color: var(--color-ink);
 }
 
 .hitRow {
