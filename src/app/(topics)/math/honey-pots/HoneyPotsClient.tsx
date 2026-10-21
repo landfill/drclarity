@@ -20,7 +20,6 @@ export default function HoneyPotsClient() {
   const [selectedPot, setSelectedPot] = useState(21);
   const [activeAntBit, setActiveAntBit] = useState<number | null>(null);
   const [deadAntBits, setDeadAntBits] = useState<number[]>([]);
-  const [replay, setReplay] = useState(0);
   const current = HONEY_STEPS[stepIndex];
   const lessonRef = useRef<HTMLElement>(null);
   const shouldAlignLessonRef = useRef(false);
@@ -48,7 +47,6 @@ export default function HoneyPotsClient() {
     const next = Math.max(0, Math.min(HONEY_STEPS.length-1,index));
     if (next !== stepIndex) shouldAlignLessonRef.current = true;
     setStepIndex(next);
-    setReplay(0);
     if (next !== 5) setActiveAntBit(null);
     if (next === 0) { setSelectedPot(21); setDeadAntBits([]); }
     else if (next < 6) setDeadAntBits([]);
@@ -67,8 +65,7 @@ export default function HoneyPotsClient() {
         <div className={styles.lessonGrid}>
           <div className={styles.boardPanel}>
             <div className={styles.constraints}><span><strong>25</strong>개의 꿀통</span><span className={styles.antCount}><AntGlyph /><strong>5</strong>마리</span><span><strong>1시간</strong> 뒤 한 번 판독</span></div>
-            {stepIndex === 4 && <button type="button" className={styles.replayButton} onClick={() => setReplay(value => value+1)}>꿀 보내기 다시 보기 ↻</button>}
-            <BinaryEncodingBoard mode={MODES[stepIndex]} replay={replay} selectedPot={selectedPot} onSelectPot={setSelectedPot} activeAntBit={activeAntBit} onActiveAntBitChange={setActiveAntBit} deadAntBits={deadAntBits} onToggleAntDead={bit => setDeadAntBits(previous => previous.includes(bit) ? previous.filter(value => value !== bit) : [...previous,bit])} />
+            <BinaryEncodingBoard mode={MODES[stepIndex]} selectedPot={selectedPot} onSelectPot={setSelectedPot} activeAntBit={activeAntBit} onActiveAntBitChange={setActiveAntBit} deadAntBits={deadAntBits} onToggleAntDead={bit => setDeadAntBits(previous => previous.includes(bit) ? previous.filter(value => value !== bit) : [...previous,bit])} />
           </div>
           <div className={styles.lessonExplanation}>
             <h2>{STAGE_LABELS[stepIndex]}</h2>

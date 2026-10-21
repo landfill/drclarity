@@ -332,147 +332,11 @@
   background: color-mix(in srgb,var(--color-blue) 7%,var(--color-surface));
 }
 
-.bridgeConclusion, .cupRule  {
+.bridgeConclusion {
   margin-top: 12px;
   font-size: .75rem;
   line-height: 1.8;
   color: var(--color-muted);
-}
-
-.cupRule  {
-  margin: 0 0 14px;
-}
-
-.routingGrid  {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.routeLane  {
-  display: grid;
-  grid-template-columns: 44px 24px minmax(22px,1fr) minmax(76px,1.5fr);
-  align-items: center;
-  gap: 8px;
-  padding: 8px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-surface);
-}
-
-.routeAnt  {
-  font-size: .7rem;
-  white-space: nowrap;
-}
-
-.routeBit  {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  background: var(--color-subtle);
-  color: var(--color-muted);
-  font: 700 .85rem monospace;
-}
-
-.routeActive  {
-  border-color: var(--color-blue);
-}
-
-.routeActive .routeBit  {
-  color: var(--color-blue);
-}
-
-.routeInactive  {
-  border-style: dashed;
-}
-
-.routeTrack  {
-  position: relative;
-  height: 18px;
-  min-width: 0;
-}
-
-.routeTrack::before  {
-  content: '';
-  position: absolute;
-  top: 8px;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--color-border);
-}
-
-.routeActive .routeTrack::before  {
-  background: var(--color-blue);
-}
-
-.sampleDrop  {
-  position: absolute;
-  top: 4px;
-  left: 0;
-  width: 10px;
-  height: 10px;
-  border-radius: 2px 50% 50%;
-  transform: rotate(45deg);
-  background: var(--color-warm);
-  animation: deliver .9s ease-in-out var(--route-delay,0ms) both;
-}
-
-@keyframes deliver  {
-  from  {
-    left: 0;
-    opacity: 0;
-  }
-
-  15%  {
-    opacity: 1;
-  }
-
-  to  {
-    left: calc(100% - 10px);
-    opacity: 1;
-  }
-
-}
-
-.cupCard  {
-  min-width: 0;
-  border: 1px solid var(--color-border);
-  border-top: 0;
-  border-radius: 0 0 8px 8px;
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.cupCard strong  {
-  font-size: .7rem;
-  font-weight: 600;
-}
-
-.cupStatus  {
-  font-size: .65rem;
-  line-height: 1.5;
-  color: var(--color-muted);
-}
-
-.routeActive .cupStatus  {
-  color: var(--color-blue);
-  animation: delivered .2s ease-out calc(.9s + var(--route-delay,0ms)) both;
-}
-
-@keyframes delivered  {
-  from  {
-    opacity: 0;
-  }
-
-  to  {
-    opacity: 1;
-  }
-
 }
 
 .antBarTitle  {
@@ -584,20 +448,6 @@
   color: var(--color-muted);
 }
 
-.replayButton  {
-  display: inline-flex;
-  align-items: center;
-  min-height: 36px;
-  padding: 8px 0;
-  margin-bottom: 8px;
-  border: 0;
-  background: transparent;
-  color: var(--color-blue);
-  font: inherit;
-  font-size: .75rem;
-  cursor: pointer;
-}
-
 .lesson button:focus-visible  {
   outline: 2px solid var(--color-ink);
   outline-offset: 3px;
@@ -647,23 +497,9 @@
     padding: 10px;
   }
 
-  .routeLane  {
-    padding: 6px;
-    gap: 5px;
-    grid-template-columns: 38px 22px minmax(15px,1fr) minmax(74px,1.5fr);
-  }
-
 }
 
 @media(prefers-reduced-motion:reduce)  {
-  .sampleDrop  {
-    animation: none;
-    left: calc(100% - 10px);
-  }
-
-  .routeActive .cupStatus  {
-    animation: none;
-  }
 
   .potTile, .antTile  {
     transition: none;
@@ -739,15 +575,9 @@
   .bitMeaning span { line-height: 1.3; }
   .bitMeaning strong { font-size: 1rem; line-height: 1.25; }
   .bitMeaning small { line-height: 1.3; }
-  .routingGrid { gap: 5px; }
-  .routeLane { padding: 4px 6px; }
-  .cupCard { padding: 3px 6px; gap: 1px; }
-  .cupCard strong { line-height: 1.4; }
-  .cupStatus { line-height: 1.4; }
   .routingSource { padding: 6px 8px; gap: 10px; margin-bottom: 8px; }
   .routingSource select { min-height: 36px; padding: 4px 6px; }
-  .cupRule, .bridgeConclusion { margin-top: 8px; line-height: 1.55; }
-  .cupRule { margin-bottom: 8px; }
+  .bridgeConclusion { margin-top: 8px; line-height: 1.55; }
   .antBarTitle { margin-bottom: 6px; }
   .antTile { padding: 5px 2px; gap: 2px; }
   .antStateTile.dead { padding: 4px 1px; }
@@ -756,5 +586,4 @@
   .simulationResult { padding: 8px; }
   .decodeBox { line-height: 1.55; }
   .decodeSum { font-size: .9375rem; margin: 4px 0; }
-  .replayButton { padding: 4px 0; margin-bottom: 4px; }
 }
