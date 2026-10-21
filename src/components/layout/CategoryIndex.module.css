@@ -6,6 +6,7 @@
 
 .count  {
   color: var(--color-muted);
+  font-family: var(--font-mono);
   font-size: .8rem;
   margin-bottom: 0;
 }
