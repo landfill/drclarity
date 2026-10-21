@@ -11,7 +11,7 @@ import {
 } from './binary';
 import styles from './BinaryEncodingBoard.module.css';
 import { PotGlyph, AntGlyph } from './HoneyGlyphs';
-import type { CSSProperties } from 'react';
+import { DropperFigure } from './DropperFigure';
 
 export type HoneyBoardMode =
   | 'grid'
@@ -23,7 +23,6 @@ export type HoneyBoardMode =
 
 export interface BinaryEncodingBoardProps {
   mode: HoneyBoardMode;
-  replay?: number;
   selectedPot?: number;
   onSelectPot?: (pot: number) => void;
   activeAntBit?: number | null;
@@ -34,7 +33,6 @@ export interface BinaryEncodingBoardProps {
 
 export function BinaryEncodingBoard({
   mode,
-  replay = 0,
   selectedPot = 21,
   onSelectPot,
   activeAntBit,
@@ -117,35 +115,7 @@ export function BinaryEncodingBoard({
           </select>
         </label>
       </div>
-      <p className={styles.cupRule}>같은 꿀을 여러 컵에 한 방울씩 나눕니다. 개미마다 자기 컵이 하나씩 있습니다.</p>
-      <div
-        className={styles.routingGrid}
-        role="group"
-        aria-label={`${selectedPot}번 꿀이 들어가는 경로`}
-      >
-        {ANT_BITS.map((bit, idx) => {
-          const included = selectedAntBits.includes(bit);
-          return (
-            <div
-              key={`${selectedPot}-${replay}-${bit}`}
-              style={{ '--route-delay': `${idx * 120}ms` } as CSSProperties}
-              className={`${styles.routeLane} ${included ? styles.routeActive : styles.routeInactive}`}
-            >
-              <span className={styles.routeAnt}>개미 {ANT_LABELS[idx]}</span>
-              <strong className={styles.routeBit}>{selectedBinary[idx]}</strong>
-              <div className={styles.routeTrack} aria-hidden="true">
-                {included && <span className={styles.sampleDrop} />}
-              </div>
-              <div className={styles.cupCard}>
-                <strong>{ANT_LABELS[idx]}의 혼합 컵</strong>
-                <span className={styles.cupStatus}>
-                  {included ? `${selectedPot}번 한 방울` : '이번 꿀은 넣지 않음'}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <DropperFigure pot={selectedPot} />
       <p className={styles.bridgeConclusion}>
         {selectedPot}번이 가짜라면 <strong>{selectedAntNames}가 사망</strong>하고, 생사 결과가{' '}
         <strong>{selectedBinary}</strong>로 이름표를 그대로 복사합니다.
