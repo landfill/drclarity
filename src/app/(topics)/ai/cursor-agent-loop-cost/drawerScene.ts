@@ -36,7 +36,7 @@ import {
 import { koreanLabels } from '@/lib/colorfigures/fonts';
 import { palette } from '@/styles/palette';
 import { SCOPE_TIERS, TIER_CONTEXT_SCALE } from './search';
-import { TARGET_TIER, drawerView, formatTokens, isSettled, summaryOf, type DrawerState } from './drawer';
+import { TARGET_TIER, cardOut, drawerView, formatTokens, tabShown, type DrawerState } from './drawer';
 
 const BASE_H = 3;
 const BASE: [number, number, number, number] = [0, 0, 50, 188];
@@ -83,16 +83,8 @@ export function frontTexts(s: DrawerState, i: number): [string, string] {
   return [SCOPE_TIERS[i].label, v.done && v.step ? `${v.step.calls}회 · +${formatTokens(v.step.contextAdded)}` : '—'];
 }
 
-/** 찾은 카드가 서 있는가: 찾았고, 찾은 칸의 서랍이 다 열렸다. */
-export function cardOut(s: DrawerState): boolean {
-  const sum = summaryOf(s);
-  return sum.outcome === 'found' && drawerView(s, sum.reachedTier).done;
-}
-
-/** 카드 끝이 서랍 틈으로 보이는가: 찾는 것이 있는데 그 칸을 열지 않은 채 탐색이 끝났다. */
-export function tabShown(s: DrawerState): boolean {
-  return isSettled(s) && summaryOf(s).outcome === 'missed';
-}
+/** 카드 판단은 대체 글과 같은 것을 쓴다 (drawer.ts). */
+export { cardOut, tabShown };
 
 /** 장면 전체. */
 export function drawerScene(s: DrawerState): string {

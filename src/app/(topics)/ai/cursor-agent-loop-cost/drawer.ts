@@ -125,6 +125,17 @@ export function progress(s: DrawerState) {
 /** 찾는 것이 들어 있는 칸 (있을 때). */
 export const TARGET_TIER = FOUND_AT_TIER;
 
+/** 찾은 카드가 서 있는가: 찾았고, 찾은 칸의 서랍이 다 열렸다. 그림과 대체 글이 같이 쓴다. */
+export function cardOut(s: DrawerState): boolean {
+  const sum = summaryOf(s);
+  return sum.outcome === 'found' && drawerView(s, sum.reachedTier).done;
+}
+
+/** 카드 끝이 서랍 틈으로 보이는가: 찾는 것이 있는데 그 칸을 열지 않은 채 탐색이 끝났다. */
+export function tabShown(s: DrawerState): boolean {
+  return isSettled(s) && summaryOf(s).outcome === 'missed';
+}
+
 /** 큰 토큰 수를 화면용 축약형으로 (예전 화면 그대로). `52000` → `52.0K`, `4279800` → `4.28M`. */
 export function formatTokens(value: number): string {
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(2)}M`;
@@ -149,6 +160,11 @@ export function figureLabel(s: DrawerState): string {
     const v = drawerView(s, i);
     return v.done && v.step ? `${tier.label} 열림, ${v.step.calls}회 · +${formatTokens(v.step.contextAdded)}` : `${tier.label} 닫힘`;
   }).join('; ');
-  const target = s.exists ? (drawerView(s, TARGET_TIER).done ? ' 찾는 카드가 그 폴더 서랍에서 올라왔습니다.' : ' 찾는 카드가 그 폴더 서랍 안에 닫힌 채 있습니다.') : '';
+  // 그림과 같은 판단: 찾은 칸이 다 열렸으면 카드가 서 있고, 있는데 못 찾고 끝났으면 카드 끝이 그 폴더 서랍 틈에 보인다.
+  const target = cardOut(s)
+    ? ` 찾는 카드가 ${SCOPE_TIERS[summaryOf(s).reachedTier].label} 서랍에서 올라왔습니다.`
+    : tabShown(s)
+      ? ` 찾는 카드가 ${SCOPE_TIERS[TARGET_TIER].label} 서랍 안에 닫힌 채 있습니다.`
+      : '';
   return `범위 서랍장, 아래가 좁은 범위: ${rows}.${target} 시작 문맥 ${formatTokens(START_CONTEXT)}.`;
 }

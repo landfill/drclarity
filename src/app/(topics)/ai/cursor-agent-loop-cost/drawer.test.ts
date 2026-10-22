@@ -12,6 +12,7 @@ import {
   advanceDrawer,
   chooseScenario,
   drawerView,
+  figureLabel,
   initialDrawer,
   isSettled,
   nextAction,
@@ -165,6 +166,20 @@ describe('본문과 같은 수치', () => {
     expect(summaryOf(found).outcome).toBe('found');
     expect(cardOut({ ...found, opened: 0, t: 0.9 })).toBe(false);
     expect(cardOut(found)).toBe(true);
+  });
+
+  // 그림의 대체 글은 그림과 같은 결과를 말한다 (범위 없이 찾아도 찾으면 카드가 올라온다).
+  it('대체 글의 카드 문장은 그림의 카드와 같다', () => {
+    for (const s of allStates()) {
+      const label = figureLabel(s);
+      expect(label.includes('올라왔습니다'), label).toBe(cardOut(s));
+      expect(label.includes('닫힌 채'), label).toBe(tabShown(s));
+      if (cardOut(s)) expect(label).toContain(`${SCOPE_TIERS[summaryOf(s).reachedTier].label} 서랍에서 올라왔습니다`);
+    }
+    const bareFound = setExists(initialDrawer(), true); // 범위 없음 + 찾는 것이 있다 (세밀 조절)
+    expect(summaryOf(bareFound).outcome).toBe('found');
+    expect(figureLabel(bareFound)).toContain('올라왔습니다');
+    expect(figureLabel(bareFound)).not.toContain('닫힌 채');
   });
 
   it('너무 좁게 찾기는 싸지만 답이 틀렸다고 적는다', () => {
