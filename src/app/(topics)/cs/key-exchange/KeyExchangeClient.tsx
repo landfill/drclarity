@@ -6,16 +6,8 @@ import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
 import { SolutionStepper } from '@/components/topic/SolutionStepper';
-import {
-  DH_PRESETS,
-  bruteForceDiscreteLog,
-  clampSecret,
-  findPreset,
-  publicValue,
-  secretRange,
-  sharedSecret,
-  type DiscreteLogResult,
-} from './dh';
+import { useFigureState } from '@/components/topic/ColorFigure';
+import { DH_PRESETS, secretRange } from './dh';
 import {
   PUBLIC_COLOR,
   SECRET_COLORS,
@@ -27,6 +19,8 @@ import {
   type Rgb,
 } from './mixing';
 import { MIX_STEPS } from './steps';
+import { advanceTrial, initialTrial, isSettled as isTrialSettled, setPreset, setSecret, values } from './trial';
+import { TrialFigure } from './TrialFigure';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizPossible from './content/quiz-possible.mdx';
 import QuizImpossible from './content/quiz-impossible.mdx';
@@ -199,19 +193,11 @@ export default function KeyExchangeClient() {
 
 /** 실제 모듈러 거듭제곱 구간. 색 구간과 상태를 공유하지 않아 따로 둔다. */
 function RealMath() {
-  const [presetId, setPresetId] = useState(DH_PRESETS[0].id);
-  const [aliceSecret, setAliceSecret] = useState(6);
-  const [bobSecret, setBobSecret] = useState(15);
-  /** 도청자의 무차별 대입 결과. 프리셋이나 비밀이 바뀌면 비운다. */
-  const [attack, setAttack] = useState<DiscreteLogResult | null>(null);
-
-  const preset = findPreset(presetId);
-  const { p, g } = preset;
+  // 세밀 조절(공개 값 · 두 비밀)과 아래 figure 가 같은 상태를 쓴다. 카드가 건너는 움직임과 움직임 줄이기는 useFigureState 가 맡는다.
+  const [st, dispatch] = useFigureState(initialTrial, advanceTrial, isTrialSettled);
+  const { presetId, a: aliceSecret, b: bobSecret } = st;
+  const { p, g, A: sentByAlice, B: sentByBob, shared } = values(st);
   const { min: secretMin, max: secretMax } = secretRange(p);
-
-  const sentByAlice = publicValue(g, aliceSecret, p);
-  const sentByBob = publicValue(g, bobSecret, p);
-  const shared = sharedSecret(g, p, aliceSecret, bobSecret);
 
   const params: ParameterDefinition[] = useMemo(
     () => [
@@ -244,26 +230,14 @@ function RealMath() {
     [aliceSecret, bobSecret, presetId, secretMax, secretMin],
   );
 
-  const handleChange = useCallback((id: string, value: number | boolean | string) => {
-    setAttack(null);
-
-    if (id === 'preset') {
-      const next = findPreset(String(value));
-      setPresetId(next.id);
-      // p 가 줄어들면 이전 p 에서 고른 지수가 범위를 넘는다. 그대로 두면
-      // 슬라이더 값과 화면의 계산이 어긋난다.
-      setAliceSecret(current => clampSecret(current, next.p));
-      setBobSecret(current => clampSecret(current, next.p));
-      return;
-    }
-
-    if (id === 'alice') setAliceSecret(Number(value));
-    else setBobSecret(Number(value));
-  }, []);
-
-  const runAttack = useCallback(() => {
-    setAttack(bruteForceDiscreteLog(g, sentByAlice, p));
-  }, [g, p, sentByAlice]);
+  // p 가 줄어들면 이전 p 에서 고른 지수가 범위를 넘는다. setPreset 이 두 비밀을 새 범위로 당긴다.
+  const handleChange = useCallback(
+    (id: string, value: number | boolean | string) => {
+      if (id === 'preset') dispatch(s => setPreset(s, String(value)));
+      else dispatch(s => setSecret(s, id === 'alice' ? 'a' : 'b', Number(value)));
+    },
+    [dispatch],
+  );
 
   return (
     <section className={styles.mathSection} aria-label="실제 연산">
@@ -274,35 +248,7 @@ function RealMath() {
 
       <ParameterPanel params={params} onChange={handleChange} />
 
-      <div className={styles.mathBoard}>
-        <div className={styles.mathParty}>
-          <h3 className={styles.partyTitle}>앨리스</h3>
-          <p className={styles.mathLine}>
-            비밀 <strong className={styles.secretValue}>a = {aliceSecret}</strong>
-          </p>
-          <p className={styles.mathLine}>
-            보냄: {g}<sup>{aliceSecret}</sup> mod {p} ={' '}
-            <strong className={styles.sentValue}>{sentByAlice}</strong>
-          </p>
-          <p className={styles.mathLine}>
-            받은 {sentByBob} 에 a 제곱: <strong className={styles.sharedValue}>{shared}</strong>
-          </p>
-        </div>
-
-        <div className={styles.mathParty}>
-          <h3 className={styles.partyTitle}>밥</h3>
-          <p className={styles.mathLine}>
-            비밀 <strong className={styles.secretValue}>b = {bobSecret}</strong>
-          </p>
-          <p className={styles.mathLine}>
-            보냄: {g}<sup>{bobSecret}</sup> mod {p} ={' '}
-            <strong className={styles.sentValue}>{sentByBob}</strong>
-          </p>
-          <p className={styles.mathLine}>
-            받은 {sentByAlice} 에 b 제곱: <strong className={styles.sharedValue}>{shared}</strong>
-          </p>
-        </div>
-      </div>
+      <TrialFigure state={st} dispatch={dispatch} />
 
       <div className={styles.punchline}>
         <MathPunchline shared={shared} />
@@ -316,18 +262,6 @@ function RealMath() {
         <div className={styles.mathLine}>
           <EavesExplain g={g} p={p} sent={sentByAlice} />
         </div>
-
-        <button type="button" className={styles.attackButton} onClick={runAttack}>
-          도청자가 풀어보게 하기
-        </button>
-
-        <p className={styles.attackResult} role="status" aria-live="polite">
-          {attack === null
-            ? `아직 시도하지 않았습니다. 최대 ${p - 1}번이면 끝납니다.`
-            : attack.exponent === null
-              ? `${attack.attempts}번을 다 훑었지만 찾지 못했습니다.`
-              : `${attack.attempts}번 만에 a = ${attack.exponent} 를 찾았습니다. 이 크기의 소수는 실제로 뚫립니다.`}
-        </p>
       </div>
 
       <ExplanationBox title={whySafeTitle}>

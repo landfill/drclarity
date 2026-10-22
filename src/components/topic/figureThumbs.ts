@@ -27,6 +27,8 @@ import { initialDrawer } from '@/app/(topics)/ai/cursor-agent-loop-cost/drawer';
 import { DRAWER_SIZE, drawerScene } from '@/app/(topics)/ai/cursor-agent-loop-cost/drawerScene';
 import { initialLookup } from '@/app/(topics)/cs/hashing/lookup';
 import { LOOKUP_SIZE, lookupScene } from '@/app/(topics)/cs/hashing/lookupScene';
+import { initialTrial } from '@/app/(topics)/cs/key-exchange/trial';
+import { TRIAL_SIZE, trialScene } from '@/app/(topics)/cs/key-exchange/trialScene';
 import { SHELF_SIZE, shelfScene } from '@/app/(topics)/ai/prefill-decode/shelfScene';
 import { PROMPTS as NW_PROMPTS, applyTemperature } from '@/app/(topics)/ai/next-word/softmax';
 import { initialWheel } from '@/app/(topics)/ai/next-word/wheel';
@@ -73,6 +75,7 @@ export const FIGURE_THUMBS: Record<string, FigureThumbSpec> = {
   'ai/cursor-context-cost': { size: LEDGER_SIZE, view: FRONT_VIEW, crispText: true, scene: () => ledgerScene(initialLedger()) },
   'ai/cursor-agent-loop-cost': { size: DRAWER_SIZE, view: FRONT_VIEW, crispText: true, scene: () => drawerScene(initialDrawer()) },
   'cs/hashing': { size: LOOKUP_SIZE, view: FRONT_VIEW, crispText: true, scene: () => lookupScene(initialLookup()) },
+  'cs/key-exchange': { size: TRIAL_SIZE, view: FRONT_VIEW, crispText: true, scene: () => trialScene({ ...initialTrial(), step: 3 }) },
   'ai/prefill-decode': {
     size: SHELF_SIZE,
     view: FRONT_VIEW,
