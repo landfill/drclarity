@@ -12,11 +12,17 @@ import {
   type Vec3,
   type View,
 } from '@/lib/colorfigures/core';
+import { splitText } from '@/lib/colorfigures/fonts';
 import { prefersReducedMotion } from '@/lib/reducedMotion';
 import styles from './ColorFigure.module.css';
 
 export interface FigureAction {
   label: string;
+  /**
+   * 버튼의 이름. 생략하면 label 을 쓴다. 누를 때 글자가 바뀌는 버튼(출발 ↔ 멈춤)은 id 를 주어야 같은 버튼으로 남아
+   * 키보드 포커스를 잃지 않는다.
+   */
+  id?: string;
   onClick: () => void;
   /** 지금 누를 차례인 버튼. 강조색으로 보인다. */
   primary?: boolean;
@@ -67,6 +73,11 @@ export interface ColorFigureProps {
   accent?: string;
   /** 이름표 글자의 최소 화면 크기(px). 그림이 작게 보이면 이름표를 키운다. */
   labelPx?: number;
+  /**
+   * 장면 안 글자(이름표, `tx` 글자)를 흔들림 필터 밖의 층에 따로 그린다. 새 figure 는 켠다.
+   * 먼저 만든 figure 넷은 끈 채로 둔다(지금 모양 그대로). 글자는 그림 위에 얹히므로 물체에 가려지지 않는다.
+   */
+  crispText?: boolean;
   /** 장면 안 `act(name, …)` 부품을 눌렀을 때. 장면이 매 프레임 다시 그려지므로 click 이 아니라 누르는 순간에 받는다. */
   onAct?: (name: string, el: Element) => void;
 }
@@ -98,6 +109,7 @@ export function ColorFigure({
   view,
   accent = 'var(--color-accent-fill)',
   labelPx = 11,
+  crispText = false,
   onAct,
 }: ColorFigureProps) {
   const id = 'cf' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
@@ -143,7 +155,8 @@ export function ColorFigure({
 
   const filterId = `${id}-hand`;
   const defs = useMemo(() => filterFor(filterId, base.inkK), [filterId, base.inkK]);
-  const art = withFrame(frame, () => inkScale(scene()));
+  const drawn = withFrame(frame, () => inkScale(scene()));
+  const { art, text } = crispText ? splitText(drawn) : { art: drawn, text: '' };
 
   const handlePointerDown = (event: ReactPointerEvent<SVGSVGElement>) => {
     if (!onAct || event.button) return;
@@ -181,7 +194,7 @@ export function ColorFigure({
             {actionRows(actions).map((row) => {
               const buttons = row.map((a) => (
                 <button
-                  key={a.label}
+                  key={a.id ?? a.label}
                   type="button"
                   className={`${styles.action} ${a.primary ? styles.primary : ''}`.trim()}
                   onClick={a.onClick}
@@ -190,7 +203,7 @@ export function ColorFigure({
                 </button>
               ));
               return row.length > 1 ? (
-                <div key={row[0].label} className={styles.row}>
+                <div key={row[0].id ?? row[0].label} className={styles.row}>
                   {buttons}
                 </div>
               ) : (
@@ -209,6 +222,7 @@ export function ColorFigure({
         >
           <defs dangerouslySetInnerHTML={{ __html: defs }} />
           <g filter={`url(#${filterId})`} dangerouslySetInnerHTML={{ __html: art }} />
+          {text && <g dangerouslySetInnerHTML={{ __html: text }} />}
         </svg>
       </div>
       {status !== undefined && (

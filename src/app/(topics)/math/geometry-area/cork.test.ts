@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { Dv, FRONT_VIEW, P, frameFor, settle, withFrame } from '@/lib/colorfigures/core';
 import { GEOMETRY } from './scene';
+import { GENERAL_FONT } from '@/lib/colorfigures/fonts';
 import {
   AREAS,
   PIN_TARGETS,
@@ -146,6 +147,16 @@ describe('움직임', () => {
 });
 
 describe('corkScene', () => {
+  // AGENTS.md: 한글이 섞인 라벨은 일반 글꼴로 쓴다.
+  it('접점 이름표는 일반 글꼴로 쓴다', () => {
+    withFrame(frame(), () => {
+      const svg = corkScene(run(initialCork(1)));
+      const korean = svg.match(/<text[^>]*>[^<]*[가-힯][^<]*<\/text>/g) ?? [];
+      expect(korean.length).toBe(1);
+      expect(korean[0]).toContain(GENERAL_FONT);
+    });
+  });
+
   it('모든 단계를 숫자 오류 없이 그린다', () => {
     withFrame(frame(), () => {
       for (const s of allStates()) expect(corkScene(s)).not.toMatch(/NaN|undefined|Infinity/);

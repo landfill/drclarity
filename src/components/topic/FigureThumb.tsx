@@ -1,4 +1,5 @@
 import { P, filterFor, frameFor, inkScale, withFrame, type Vec3, type View } from '@/lib/colorfigures/core';
+import { splitText } from '@/lib/colorfigures/fonts';
 
 export interface FigureThumbSpec {
   /** 물체의 경계 상자 [W, D, H]. figure 와 같은 값을 쓴다. */
@@ -7,6 +8,8 @@ export interface FigureThumbSpec {
   view?: View;
   /** 첫 장면을 SVG 문자열로 그린다. */
   scene: () => string;
+  /** figure 처럼 장면 글자를 흔들림 필터 밖에 그린다 (ColorFigure 의 crispText 와 같다). 새 figure 는 켠다. */
+  crispText?: boolean;
 }
 
 /** 이름표 묶음. 작은 그림에서는 읽히지 않아 걷어 낸다. tag() 의 <g> 안에는 다른 <g> 가 없다. */
@@ -35,7 +38,8 @@ export function tightBox([W, D, H]: Vec3): string {
  */
 export function FigureThumb({ id, spec, className }: { id: string; spec: FigureThumbSpec; className?: string }) {
   const frame = frameFor(spec.size, id, { view: spec.view });
-  const { art, box } = withFrame(frame, () => ({ art: withoutTags(inkScale(spec.scene())), box: tightBox(spec.size) }));
+  const { drawn, box } = withFrame(frame, () => ({ drawn: withoutTags(inkScale(spec.scene())), box: tightBox(spec.size) }));
+  const { art, text } = spec.crispText ? splitText(drawn) : { art: drawn, text: '' };
   const filterId = `${id}-hand`;
   return (
     <svg
@@ -46,6 +50,7 @@ export function FigureThumb({ id, spec, className }: { id: string; spec: FigureT
     >
       <defs dangerouslySetInnerHTML={{ __html: filterFor(filterId, frame.inkK) }} />
       <g filter={`url(#${filterId})`} dangerouslySetInnerHTML={{ __html: art }} />
+      {text && <g dangerouslySetInnerHTML={{ __html: text }} />}
     </svg>
   );
 }

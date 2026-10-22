@@ -37,6 +37,7 @@ import {
   type Vec2,
   type Vec3,
 } from '@/lib/colorfigures/core';
+import { koreanLabels } from '@/lib/colorfigures/fonts';
 import { palette } from '@/styles/palette';
 import { GEOMETRY } from './scene';
 import {
@@ -268,5 +269,6 @@ export function corkScene(s: CorkState): string {
     const tip = onBoard(sp[sp.length - 1], STRING_X);
     out += `<path d="${pd([[SPOOL.x, SPOOL.y + SPOOL.r - 0.6, BASE_H + SPOOL.h / 2], tip], false)}" fill="none" stroke="${STRING}" stroke-width="1.2" stroke-linecap="round"/>`;
   }
-  return out;
+  // 한글이 섞인 글자(접점 이름표)는 일반 글꼴로 쓴다.
+  return koreanLabels(out);
 }
