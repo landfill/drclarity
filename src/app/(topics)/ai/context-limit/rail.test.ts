@@ -4,7 +4,7 @@ import { FRONT_VIEW, frameFor, withFrame } from '@/lib/colorfigures/core';
 import { GENERAL_FONT } from '@/lib/colorfigures/fonts';
 import { palette } from '@/styles/palette';
 import { MAX_TURNS, MIN_TURNS, WINDOW_SIZES } from './conversation';
-import { PRESETS, activePreset, alreadyNote, blockName, nextAction, observation, windowOf } from './rail';
+import { PRESETS, activePreset, alreadyNote, blockName, nextAction, observation, pressPreset, windowOf } from './rail';
 import { RAIL, RAIL_SIZE, TOKEN_W, blockTextSize, blocks, frame, frameLabelU, labelSize, railScene, textWidth } from './railScene';
 
 const draw = (turns: number, size: number, labelScale = 1) =>
@@ -31,6 +31,20 @@ describe('세 버튼', () => {
   });
 
   // 본문: 이름을 못 답하는 이유는 이름이 든 메시지가 입력에서 빠졌기 때문이다. 창을 넓히면 다시 들어온다.
+  it('이미 그 상태인 버튼과 순서를 건너뛴 버튼(짧은 대화에서 바로 창 넓히기)은 값을 바꾸지 않고 이유를 알린다', () => {
+    for (const p of ['short', 'long', 'wide'] as const) expect(pressPreset(p, p)).toEqual({ apply: false, note: alreadyNote(p) });
+    const skip = pressPreset('short', 'wide');
+    expect(skip.apply).toBe(false);
+    expect(skip.note).toContain(PRESETS.long.label);
+    // 본문 순서, 되돌아가기, 세밀 조절로 만든 값에서는 받는다.
+    for (const [from, to] of [['short', 'long'], ['long', 'wide'], ['wide', 'short'], ['wide', 'long'], ['long', 'short'], [null, 'wide'], [null, 'short']] as const)
+      expect(pressPreset(from, to)).toEqual({ apply: true, note: '' });
+  });
+
+  it('nextAction 이 권하는 버튼은 지금 누르면 받아들여진다', () => {
+    for (const p of ['short', 'long', null] as const) expect(pressPreset(p, nextAction(p)!).apply).toBe(true);
+  });
+
   it('짧은 대화는 이름이 입력 안, 긴 대화는 입력 밖, 창 넓히기는 다시 입력 안이다', () => {
     expect(windowOf(4, 300).remembersName).toBe(true);
     expect(windowOf(12, 300).remembersName).toBe(false);

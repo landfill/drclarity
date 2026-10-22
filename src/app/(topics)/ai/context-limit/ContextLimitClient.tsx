@@ -13,7 +13,7 @@ import {
   USER_NAME,
   WINDOW_SIZES,
 } from './conversation';
-import { PRESETS, activePreset, alreadyNote, windowOf, type Preset } from './rail';
+import { PRESETS, activePreset, pressPreset, windowOf, type Preset } from './rail';
 import { RailFigure } from './RailFigure';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizWindow from './content/quiz-window.mdx';
@@ -73,13 +73,11 @@ export default function ContextLimitClient() {
     setWindowSize(DEFAULT_WINDOW);
   }, []);
 
-  /** 세 버튼 (예전 화면의 값 그대로). 이미 그 상태면 값을 바꾸지 않고 이유를 알린다. */
+  /** 세 버튼 (예전 화면의 값 그대로). 이미 그 상태이거나 순서를 건너뛰면 값을 바꾸지 않고 이유를 알린다. */
   const applyPreset = (p: Preset) => {
-    if (p === active) {
-      setNote(alreadyNote(p));
-      return;
-    }
-    setNote('');
+    const { apply, note: reason } = pressPreset(active, p);
+    setNote(reason);
+    if (!apply) return;
     setTurnCount(PRESETS[p].turns);
     setWindowSize(PRESETS[p].window);
   };

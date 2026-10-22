@@ -36,6 +36,20 @@ export function nextAction(active: Preset | null): Preset | null {
 
 export const alreadyNote = (p: Preset) => `이미 "${PRESETS[p].label}" 상태입니다.${nextAction(p) ? ` 다음은 "${PRESETS[nextAction(p)!].label}" 입니다.` : ''}`;
 
+/** 짧은 대화에서 바로 창을 넓히면 이름이 빠지는 긴 대화를 건너뛴다. 본문 순서대로 긴 대화를 먼저 보게 한다. */
+export const skipNote = `아직 이름이 입력 밖으로 빠지는 것을 보지 않았습니다. 먼저 "${PRESETS.long.label}" 를 눌러 보세요.`;
+
+/**
+ * 버튼을 눌렀을 때: 값을 바꿀지와 안내 문구.
+ * 이미 그 상태이거나, 짧은 대화에서 긴 대화를 건너뛰고 창을 넓히면 값을 바꾸지 않고 이유를 알린다(AGENTS.md).
+ * 세밀 조절로 만든 값(active 가 null)에서는 순서가 없으므로 어느 버튼이든 받는다.
+ */
+export function pressPreset(active: Preset | null, p: Preset): { apply: boolean; note: string } {
+  if (p === active) return { apply: false, note: alreadyNote(p) };
+  if (p === 'wide' && active === 'short') return { apply: false, note: skipNote };
+  return { apply: true, note: '' };
+}
+
 /** 관찰 문구 (예전 화면의 두 문장. 그림에서는 밀려난 메시지가 위가 아니라 왼쪽에 있으므로 "위쪽" 대신 "오래된 메시지" 라고 쓴다). */
 export function observation(s: WindowState): string {
   const name = s.remembersName ? '입력 안에 있음 → 이름을 답할 근거가 있음' : '입력 밖으로 빠짐 → 이름을 답할 근거가 없음';
