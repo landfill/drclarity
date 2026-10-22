@@ -27,104 +27,6 @@
   margin-top: var(--space-xs);
 }
 
-.card {
-  margin-top: var(--space-md);
-}
-
-/* AnimationCard 의 .stage 가 flex 라서 폭을 주지 않으면 줄이 내용 크기까지 쪼그라든다. */
-.rows {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
-  flex: 1 1 100%;
-  width: 100%;
-  text-align: left;
-}
-
-.rowHead {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-xs);
-  margin-bottom: var(--space-2xs);
-}
-
-.rowLabel {
-  font-weight: 700;
-  color: var(--color-text);
-}
-
-.rowPrompt {
-  font-size: var(--fs-sm);
-  color: var(--color-muted);
-  overflow-wrap: anywhere;
-}
-
-/*
- * 두 구간이 빈틈 없이 이어지는 것이 이 그림의 전부다. gap 을 주면 없는 틈이 생긴다.
- */
-.track {
-  position: relative;
-  display: flex;
-  align-items: stretch;
-  height: 42px;
-  border-radius: var(--radius-sm);
-  background: var(--color-subtle);
-  overflow: hidden;
-}
-
-.prefill {
-  background: var(--color-accent);
-  transition: width 0.2s ease;
-}
-
-/* 줄무늬는 인라인 스타일로 넣는다 — 칸 폭이 출력 토큰 수에 따라 달라진다. */
-.decode {
-  background-color: var(--color-bg);
-  transition: width 0.2s ease;
-}
-
-/* 첫 글자가 나오는 순간. 두 구간의 경계에 선다. */
-.marker {
-  position: absolute;
-  top: -4px;
-  bottom: -4px;
-  width: 2px;
-  margin-left: -1px;
-  background: var(--color-danger);
-}
-
-.rowStats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-md);
-  margin-top: var(--space-xs);
-}
-
-.rowStats dt {
-  font-size: var(--fs-sm);
-  color: var(--color-muted);
-}
-
-.rowStats dd {
-  margin: 0;
-}
-
-.mono {
-  font-variant-numeric: tabular-nums;
-  color: var(--color-text);
-}
-
-/* 비교용 아래 줄. 기준 줄보다 한 단계 물러나 보이게 한다. */
-.rowMuted .track {
-  height: 32px;
-}
-
-.rowMuted .rowLabel,
-.rowMuted .mono {
-  color: var(--color-muted);
-}
-
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -178,75 +80,6 @@
   .stage {
     padding: var(--space-md);
   }
-
-  .track {
-    height: 34px;
-  }
-
-  .rowMuted .track {
-    height: 26px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .prefill,
-  .decode {
-    transition: none;
-  }
-}
-
-/* The experiment gives a concrete starting point before the full controls. */
-.experimentButtons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .5rem;
-  margin: 1rem 0;
-}
-
-.experimentButtons button {
-  min-height: 44px;
-  padding: .55rem .85rem;
-  border: var(--line-ink);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface);
-  color: var(--color-ink);
-  font: inherit;
-  font-family: var(--font-mono);
-  font-size: var(--fs-sm);
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color 160ms ease;
-}
-
-.experimentButtons button:hover {
-  background: var(--color-subtle);
-}
-
-/* 고른 실험은 겨자로 채운다. 글자는 잉크라 대비가 유지된다. */
-.experimentButtons button[aria-pressed="true"] {
-  background: var(--color-accent-fill);
-  color: var(--color-on-accent);
-}
-
-.experimentButtons button[aria-pressed="true"]:hover {
-  background: color-mix(in srgb, var(--color-accent-fill) 88%, var(--color-ink));
-}
-
-.experimentButtons button:focus-visible {
-  outline: 3px solid var(--color-ink);
-  outline-offset: 3px;
-}
-
-.observation {
-  padding: .85rem 1rem;
-  margin: 1rem 0;
-  border: 1px solid var(--color-ink);
-  border-left: 4px solid var(--color-secondary);
-  border-radius: var(--radius-hand-sm);
-  background: var(--color-subtle);
-  color: var(--color-text);
-  line-height: 1.7;
-  overflow-wrap: anywhere;
 }
 
 .fineControls {
@@ -258,8 +91,4 @@
   cursor: pointer;
   font-weight: 700;
   color: var(--color-muted);
-}
-
-.row {
-  min-width: 0;
 }

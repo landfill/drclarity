@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
-import { AnimationCard } from '@/components/topic/AnimationCard';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
@@ -15,9 +14,9 @@ import {
   buildTimeline,
   findPreset,
   totalDuration,
-  ttft,
 } from './timeline';
-import { TimelineRow } from './TimelineRow';
+import { BASELINE, CONFIGS, activeConfig, alreadyNote, type Config } from './shelf';
+import { ShelfFigure } from './ShelfFigure';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizPoem from './content/quiz-poem.mdx';
 import QuizSummary from './content/quiz-summary.mdx';
@@ -47,6 +46,8 @@ export default function PrefillDecodeClient() {
   const [outputTokens, setOutputTokens] = useState(INITIAL_PRESET.outputTokens);
   const [compareId, setCompareId] = useState(INITIAL_COMPARE);
   const [baseline, setBaseline] = useState<{ input: number; output: number } | null>(null);
+  /** 이미 그 상태인 버튼을 다시 눌렀을 때의 안내. 값이 바뀌면 지운다. */
+  const [note, setNote] = useState('');
 
   const phases = useMemo(
     () => buildTimeline(inputTokens, outputTokens),
@@ -118,6 +119,7 @@ export default function PrefillDecodeClient() {
   );
 
   const handleParamChange = useCallback((id: string, value: number | boolean | string) => {
+    setNote('');
     if (id === 'preset') {
       const preset = findPreset(String(value));
       // '직접 조절' 은 지금 슬라이더 값을 그대로 둔다. 고를 것이 없어서가 아니라,
@@ -143,6 +145,31 @@ export default function PrefillDecodeClient() {
     // 슬라이더를 건드린 순간 더는 그 프리셋이 아니다.
     setPresetId(CUSTOM_PRESET_ID);
   }, []);
+
+  const active = activeConfig(
+    { inputTokens, outputTokens, baseline, compareId, presetId },
+    { presetId: INITIAL_PRESET.id, input: INITIAL_PRESET.inputTokens, output: INITIAL_PRESET.outputTokens, compareId: INITIAL_COMPARE }
+  );
+
+  /** 세 버튼 (예전 화면의 값 그대로). 이미 그 상태면 값을 바꾸지 않고 이유를 알린다. */
+  const applyConfig = (c: Config) => {
+    if (c === active) {
+      setNote(alreadyNote(c));
+      return;
+    }
+    setNote('');
+    if (c === 'quiz') {
+      setBaseline(null);
+      setCompareId(INITIAL_COMPARE);
+      handleParamChange('preset', INITIAL_PRESET.id);
+      return;
+    }
+    setBaseline({ ...BASELINE });
+    setCompareId('baseline');
+    setPresetId(CUSTOM_PRESET_ID);
+    setInputTokens(CONFIGS[c].input);
+    setOutputTokens(CONFIGS[c].output);
+  };
 
   const currentPreset = findPreset(presetId);
   const currentLabel = currentPreset?.label ?? '직접 조절';
@@ -187,36 +214,17 @@ export default function PrefillDecodeClient() {
             <StageLead />
           </div>
 
-          <div className={styles.experimentButtons} role="group" aria-label="한 조건씩 비교">
-            <button type="button" aria-pressed={baseline !== null && inputTokens === 1200 && outputTokens === 40} onClick={() => { setBaseline({ input: 200, output: 40 }); setCompareId('baseline'); setPresetId(CUSTOM_PRESET_ID); setInputTokens(1200); setOutputTokens(40); }}>1. 입력만 늘리기</button>
-            <button type="button" aria-pressed={baseline !== null && inputTokens === 200 && outputTokens === 200} onClick={() => { setBaseline({ input: 200, output: 40 }); setCompareId('baseline'); setPresetId(CUSTOM_PRESET_ID); setInputTokens(200); setOutputTokens(200); }}>2. 출력만 늘리기</button>
-            <button type="button" aria-pressed={baseline === null && compareId === INITIAL_COMPARE && inputTokens === INITIAL_PRESET.inputTokens && outputTokens === INITIAL_PRESET.outputTokens} onClick={() => { setBaseline(null); setCompareId(INITIAL_COMPARE); handleParamChange('preset', INITIAL_PRESET.id); }}>퀴즈의 두 요청</button>
-          </div>
           <details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleParamChange} /></details>
-          <p className={styles.observation} role="status">
-            {comparePhases.length > 0 ? `기준보다 첫 토큰은 ${ttft(phases) === ttft(comparePhases) ? '같은 시점에' : ttft(phases) > ttft(comparePhases) ? '나중에' : '먼저'}, 답의 끝은 ${totalDuration(phases) === totalDuration(comparePhases) ? '같은 시점에' : totalDuration(phases) > totalDuration(comparePhases) ? '나중에' : '먼저'} 옵니다.` : '첫 토큰 표시와 막대 끝은 서로 다른 시점입니다.'}
-          </p>
-
-          <AnimationCard className={styles.card}>
-            <div className={styles.rows}>
-              <TimelineRow
-                label={currentLabel}
-                prompt={currentPrompt}
-                phases={phases}
-                scale={scale}
-              />
-              {(comparePreset || baseline) && (
-                <TimelineRow
-                  label={baseline ? '바꾸기 전 기준' : comparePreset!.label}
-                  prompt={baseline ? `입력 ${baseline.input} · 출력 ${baseline.output}토큰` : comparePreset!.prompt}
-                  phases={comparePhases}
-                  scale={scale}
-                  muted
-                />
-              )}
-            </div>
-          </AnimationCard>
-
+          <ShelfFigure
+            rows={[
+              { label: currentLabel, prompt: currentPrompt, phases },
+              ...(comparePreset || baseline ? [{ label: baseline ? '바꾸기 전 기준' : comparePreset!.label, prompt: baseline ? `입력 ${baseline.input} · 출력 ${baseline.output}토큰` : comparePreset!.prompt, phases: comparePhases, muted: true }] : []),
+            ]}
+            scale={scale}
+            active={active}
+            note={note}
+            onConfig={applyConfig}
+          />
           <ul className={styles.legend} aria-label="타임라인 읽는 법">
             <li>
               <span className={`${styles.swatch} ${styles.swatchPrefill}`} aria-hidden="true" />
