@@ -12,9 +12,9 @@ import {
   cutAt,
   encodeUtf8,
   graphemeLength,
-  toHex,
 } from './utf8';
 import { ByteBoard } from './ByteBoard';
+import { TapeFigure } from './TapeFigure';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizFour from './content/quiz-four.mdx';
 import QuizOne from './content/quiz-one.mdx';
@@ -226,8 +226,11 @@ export default function Utf8Client() {
 
           <ParameterPanel params={cutParams} onChange={handleCutChange} />
 
+          <TapeFigure text={input} chars={chars} limit={byteLimit} onLimit={setRawLimit} />
+
+          {/* 판독 창은 끝 몇 글자만 보이므로, 자른 결과 전체를 여기 적는다. 바뀔 때 읽어 주는 일은 figure 의 상태 줄이 맡는다. */}
           <p className={styles.cutResultLabel}>자른 결과</p>
-          <p className={styles.cutResult} role="status" aria-live="polite">
+          <p className={styles.cutResult}>
             <span className={styles.cutKept}>{cut.kept.map(item => item.char).join('')}</span>
             {cut.broken && (
               <span
@@ -239,19 +242,6 @@ export default function Utf8Client() {
             )}
             {cut.kept.length === 0 && !cut.broken && (
               <span className={styles.cutEmpty}>(아무것도 남지 않았습니다)</span>
-            )}
-          </p>
-
-          <p className={styles.cutNote}>
-            {cut.broken ? (
-              <>
-                <strong>{cut.broken.char.char}</strong> 는 {cut.broken.char.bytes.length}바이트인데{' '}
-                <strong>{cut.broken.keptBytes.length}바이트</strong>만 남았습니다 —{' '}
-                <span className={styles.mono}>{cut.broken.keptBytes.map(toHex).join(' ')}</span>. 이
-                조각은 어떤 글자도 되지 못합니다.
-              </>
-            ) : (
-              <>글자 경계와 맞아떨어져 깨진 글자가 없습니다. 슬라이더를 한 칸씩 움직여 보세요.</>
             )}
           </p>
         </section>
