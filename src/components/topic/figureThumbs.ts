@@ -5,6 +5,9 @@ import { initialStage } from '@/app/(topics)/math/monty-hall/stage';
 import { STAGE_SIZE, stageScene } from '@/app/(topics)/math/monty-hall/stageScene';
 import { initialDropper } from '@/app/(topics)/math/honey-pots/dropper';
 import { DROPPER_SIZE, dropperScene } from '@/app/(topics)/math/honey-pots/dropperScene';
+import { initialPlotter } from '@/app/(topics)/math/monte-carlo-pi/plotter';
+import { PLOTTER_SIZE, plotterScene } from '@/app/(topics)/math/monte-carlo-pi/plotterScene';
+import { FRONT_VIEW } from '@/lib/colorfigures/core';
 import { HOTEL_FIGURE_SIZE, HOTEL_VIEW, hotelFigure } from '@/app/(topics)/math/infinite-hotel/hotelFigure';
 import { sceneForStep } from '@/app/(topics)/math/infinite-hotel/hotelScene';
 
@@ -17,5 +20,6 @@ export const FIGURE_THUMBS: Record<string, FigureThumbSpec> = {
   'cs/floating-point': { size: PIZZA_SIZE, scene: () => pizzaScene(initialPizza()) },
   'math/monty-hall': { size: STAGE_SIZE, scene: () => stageScene(initialStage(() => 0)) },
   'math/honey-pots': { size: DROPPER_SIZE, scene: () => dropperScene(initialDropper(21)) },
+  'math/monte-carlo-pi': { size: PLOTTER_SIZE, view: FRONT_VIEW, scene: () => plotterScene(initialPlotter()) },
   'math/infinite-hotel': { size: HOTEL_FIGURE_SIZE, view: HOTEL_VIEW, scene: () => hotelFigure(sceneForStep('full', 1)) },
 };
