@@ -11,6 +11,8 @@ import { initialDropper } from '@/app/(topics)/math/honey-pots/dropper';
 import { DROPPER_SIZE, dropperScene } from '@/app/(topics)/math/honey-pots/dropperScene';
 import { initialCalendar } from '@/app/(topics)/math/birthday-problem/calendar';
 import { CALENDAR_SIZE, calendarScene } from '@/app/(topics)/math/birthday-problem/calendarScene';
+import { initialCards } from '@/app/(topics)/math/repeating-nines/cards';
+import { CARDS_SIZE, cardsScene } from '@/app/(topics)/math/repeating-nines/cardsScene';
 import { initialCork } from '@/app/(topics)/math/geometry-area/cork';
 import { CORK_SIZE, corkScene } from '@/app/(topics)/math/geometry-area/corkScene';
 import { initialPlotter } from '@/app/(topics)/math/monte-carlo-pi/plotter';
@@ -36,6 +38,7 @@ export const FIGURE_THUMBS: Record<string, FigureThumbSpec> = {
   'math/monty-hall': { size: STAGE_SIZE, scene: () => stageScene(initialStage(() => 0)) },
   'math/honey-pots': { size: DROPPER_SIZE, scene: () => dropperScene(initialDropper(21)) },
   'math/birthday-problem': { size: CALENDAR_SIZE, view: FRONT_VIEW, crispText: true, scene: () => calendarScene(initialCalendar(23)) },
+  'math/repeating-nines': { size: CARDS_SIZE, view: FRONT_VIEW, crispText: true, scene: () => cardsScene(initialCards(3)) },
   'math/geometry-area': { size: CORK_SIZE, view: FRONT_VIEW, crispText: true, scene: () => corkScene(initialCork(0)) },
   'math/monte-carlo-pi': { size: PLOTTER_SIZE, view: FRONT_VIEW, crispText: true, scene: () => plotterScene(initialPlotter()) },
   'math/infinite-hotel': { size: HOTEL_FIGURE_SIZE, view: HOTEL_VIEW, scene: () => hotelFigure(sceneForStep('full', 1)) },

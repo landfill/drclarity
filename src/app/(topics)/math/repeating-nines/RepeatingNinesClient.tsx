@@ -1,13 +1,12 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
-import { InteractiveCanvas } from '@/components/topic/InteractiveCanvas';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
 import { SolutionStepper } from '@/components/topic/SolutionStepper';
-import { LINE_HEIGHT, LINE_WIDTH, drawNumberLine } from './lineRenderer';
+import { CardsFigure } from './CardsFigure';
 import { MAX_DIGITS, gapString, ninesString } from './nines';
 import { SOLUTION_STEPS, SOLUTION_TITLE } from './steps';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
@@ -24,8 +23,6 @@ import styles from './RepeatingNines.module.css';
 
 export default function RepeatingNinesClient() {
   const [digits, setDigits] = useState(3);
-
-  const draw = useCallback((ctx: CanvasRenderingContext2D) => drawNumberLine(ctx, digits), [digits]);
 
   const params: ParameterDefinition[] = useMemo(
     () => [
@@ -78,13 +75,7 @@ export default function RepeatingNinesClient() {
             onReset={() => setDigits(3)}
           />
 
-          <InteractiveCanvas
-            logicalWidth={LINE_WIDTH}
-            logicalHeight={LINE_HEIGHT}
-            draw={draw}
-            ariaLabel={`9 가 ${digits}개인 ${ninesString(digits)} 와 1 사이의 틈은 ${gapString(digits)} 입니다.`}
-            className={styles.canvas}
-          />
+          <CardsFigure digits={digits} onDigits={setDigits} />
 
           <dl className={styles.readouts}>
             <div className={styles.readout}>
