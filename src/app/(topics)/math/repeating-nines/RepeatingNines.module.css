@@ -26,12 +26,6 @@
   margin-bottom: var(--space-lg);
 }
 
-.canvas {
-  max-width: 520px;
-  width: 100%;
-  margin: var(--space-md) auto 0;
-}
-
 .readouts {
   display: flex;
   flex-wrap: wrap;
