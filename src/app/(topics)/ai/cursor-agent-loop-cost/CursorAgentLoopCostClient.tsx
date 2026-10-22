@@ -1,16 +1,15 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
+import { useFigureState } from '@/components/topic/ColorFigure';
 import {
   BARE_PROMPT,
   SCOPE_CHOICES,
   SCOPE_LABELS,
-  SCOPE_TIERS,
   START_CONTEXT,
-  TIER_CONTEXT_SCALE,
   WINDOW_LIMIT,
   promptParts,
   promptText,
@@ -18,6 +17,8 @@ import {
   type PromptOptions,
   type ScopeChoice,
 } from './search';
+import { advanceDrawer, formatTokens, initialDrawer, isSettled, resetDrawer, setExists, setScope, setShaped, setStop } from './drawer';
+import { DrawerFigure } from './DrawerFigure';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizScope from './content/quiz-scope.mdx';
 import QuizStop from './content/quiz-stop.mdx';
@@ -35,8 +36,11 @@ import Instruction, { title as instructionTitle } from './content/instruction.md
 import meta from './meta';
 import styles from './CursorAgentLoopCost.module.css';
 
-/** 범위·중단 조건이 없고 찾는 대상도 없는 모형의 시작 상태. */
-const DEFAULTS = { prompt: BARE_PROMPT, exists: false };
+/** 막대 한 구간의 폭. 0 으로 나누지 않는다. */
+function percent(part: number, whole: number): string {
+  if (whole <= 0) return '0%';
+  return `${(part / whole) * 100}%`;
+}
 
 /**
  * 지금 설정이 무엇을 하고 있는지 한 줄.
@@ -58,26 +62,6 @@ function clauseEffect(options: PromptOptions): string {
   return '어디를 볼지도, 언제 그만둘지도 적혀 있지 않습니다. 찾을 것만 적혀 있습니다.';
 }
 
-/** 탐색이 어떻게 끝났는지. 싼 것과 맞는 것은 다르다. */
-const OUTCOME_LABEL = {
-  found: '찾음',
-  absent: '없어서 못 찾음',
-  missed: '있는데 못 찾음',
-} as const;
-
-/** 큰 토큰 수를 화면용 축약형으로. `52000` → `52.0K`, `4279800` → `4.28M`. */
-function formatTokens(value: number): string {
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(2)}M`;
-  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
-  return String(value);
-}
-
-/** 막대 한 구간의 폭. 0 으로 나누지 않는다. */
-function percent(part: number, whole: number): string {
-  if (whole <= 0) return '0%';
-  return `${(part / whole) * 100}%`;
-}
-
 /**
  * 프롬프트가 탐색 범위를 정하고, 그 범위가 문맥에 남고, 남은 것이 한 행이 되는 과정.
  *
@@ -87,8 +71,9 @@ function percent(part: number, whole: number): string {
  * 문구는 `content/*.mdx` 에 두고 여기서는 상태에 따라 달라지는 짧은 문장만 만든다.
  */
 export default function CursorAgentLoopCostClient() {
-  const [prompt, setPrompt] = useState<PromptOptions>(DEFAULTS.prompt);
-  const [exists, setExists] = useState(DEFAULTS.exists);
+  // figure 와 세밀 조절이 같은 상태를 쓴다. 서랍이 열리는 움직임과 움직임 줄이기는 useFigureState 가 맡는다.
+  const [st, dispatch] = useFigureState(initialDrawer, advanceDrawer, isSettled);
+  const { prompt, exists } = st;
 
   const summary = useMemo(() => summarizeRun(prompt, exists), [prompt, exists]);
   const parts = useMemo(() => promptParts(prompt), [prompt]);
@@ -106,24 +91,7 @@ export default function CursorAgentLoopCostClient() {
     return promptParts({ ...BARE_PROMPT, ...patch }).find(part => part.slot === slot)?.text ?? '';
   }, []);
 
-  /** 어구 하나를 켜고 끄는 손잡이. 셋이 서로 독립이라는 것이 이 화면의 전제다. */
-  const setClause = useCallback(
-    <K extends keyof PromptOptions>(key: K, value: PromptOptions[K]) =>
-      setPrompt(current => ({ ...current, [key]: value })),
-    []
-  );
-
-  const handleReset = useCallback(() => {
-    setPrompt(DEFAULTS.prompt);
-    setExists(DEFAULTS.exists);
-  }, []);
-
-  /** 칸별 계획을 사다리에 얹기 좋게. 도달 못한 칸도 자리를 지킨다. */
-  const ladder = SCOPE_TIERS.map((tier, index) => ({
-    tier,
-    step: summary.steps.find(step => step.tierIndex === index) ?? null,
-  }));
-
+  const handleReset = useCallback(() => dispatch(() => resetDrawer()), [dispatch]);
   const receiptRows = [
     { key: 'cacheRead', label: 'Cache Read', tokens: summary.totals.cacheRead, cost: summary.costParts.cacheRead },
     { key: 'cacheWrite', label: 'Cache Write', tokens: summary.totals.cacheWrite, cost: summary.costParts.cacheWrite },
@@ -165,16 +133,6 @@ export default function CursorAgentLoopCostClient() {
             <StageLead />
           </div>
 
-          <div className={styles.experimentButtons} role="group" aria-label="탐색 시나리오 비교">
-            <button type="button" aria-pressed={prompt.scope === 'none' && !prompt.stopCondition && !prompt.outputShaped && !exists} onClick={handleReset}>1. 범위 없음</button>
-            <button type="button" aria-pressed={prompt.scope === 'folder' && prompt.stopCondition && !prompt.outputShaped && !exists} onClick={() => { setPrompt({ scope: 'folder', stopCondition: true, outputShaped: false }); setExists(false); }}>2. 폴더에서 멈추기</button>
-            <button type="button" aria-pressed={prompt.scope === 'file' && prompt.stopCondition && !prompt.outputShaped && exists} onClick={() => { setPrompt({ scope: 'file', stopCondition: true, outputShaped: false }); setExists(true); }}>3. 너무 좁게 찾기</button>
-          </div>
-          <ol className={styles.flow} aria-label="프롬프트가 만든 결과">
-            <li>탐색 호출 <strong>{summary.callCount}번</strong></li>
-            <li>누적 사용량 <strong>{formatTokens(summary.tokens)}토큰</strong></li>
-            <li>찾기 결과 <strong>{OUTCOME_LABEL[summary.outcome]}</strong></li>
-          </ol>
           {/* 프롬프트 — 이 화면의 유일한 원인이므로 가장 크게 둔다 */}
           <div className={styles.promptCard}>
             <p className={styles.prompt} aria-label={`프롬프트: ${promptText(prompt)}`}>
@@ -221,7 +179,7 @@ export default function CursorAgentLoopCostClient() {
                       name="scope"
                       value={choice}
                       checked={prompt.scope === choice}
-                      onChange={() => setClause('scope', choice as ScopeChoice)}
+                      onChange={() => dispatch(s => setScope(s, choice as ScopeChoice))}
                     />
                     {SCOPE_LABELS[choice]}
                   </label>
@@ -240,7 +198,7 @@ export default function CursorAgentLoopCostClient() {
                 <input
                   type="checkbox"
                   checked={prompt.stopCondition}
-                  onChange={event => setClause('stopCondition', event.currentTarget.checked)}
+                  onChange={event => { const on = event.currentTarget.checked; dispatch(s => setStop(s, on)); }}
                 />
                 <span className={styles.rowPhrase}>
                   「{phraseOf({ stopCondition: true }, 'stop')}」
@@ -254,7 +212,7 @@ export default function CursorAgentLoopCostClient() {
                 <input
                   type="checkbox"
                   checked={prompt.outputShaped}
-                  onChange={event => setClause('outputShaped', event.currentTarget.checked)}
+                  onChange={event => { const on = event.currentTarget.checked; dispatch(s => setShaped(s, on)); }}
                 />
                 <span className={styles.rowPhrase}>
                   「{phraseOf({ outputShaped: true }, 'shape')}」
@@ -269,7 +227,7 @@ export default function CursorAgentLoopCostClient() {
                 <input
                   type="checkbox"
                   checked={exists}
-                  onChange={event => setExists(event.currentTarget.checked)}
+                  onChange={event => { const on = event.currentTarget.checked; dispatch(s => setExists(s, on)); }}
                 />
                 <span className={styles.rowPhrase}>찾는 것이 실제로 있다</span>
               </label>
@@ -278,68 +236,10 @@ export default function CursorAgentLoopCostClient() {
 
           </details>
 
-          <div className={styles.screens}>
-            {/* 화면 하나 — 그 프롬프트가 만든 탐색 */}
-            <div className={styles.screen}>
-              <div className={styles.screenHead}>
-                <span className={styles.screenTitle}>에이전트가 뒤진 범위</span>
-                <span
-                  className={
-                    summary.outcome === 'missed' ? styles.outcomeMissed : styles.outcomeTag
-                  }
-                >
-                  {OUTCOME_LABEL[summary.outcome]}
-                </span>
-              </div>
-
-              <ul className={styles.ladder} aria-label="탐색이 올라간 범위 사다리">
-                {ladder.map(({ tier, step }) => (
-                  <li
-                    key={tier.id}
-                    className={`${styles.rung} ${step ? '' : styles.rungOff}`}
-                    data-tier={tier.id}
-                  >
-                    <span className={styles.rungLabel}>{tier.label}</span>
-                    <span className={styles.rungTrack}>
-                      <span
-                        className={styles.rungBar}
-                        style={{ width: percent(step?.contextAdded ?? 0, TIER_CONTEXT_SCALE) }}
-                      />
-                    </span>
-                    <span className={`${styles.rungValue} ${styles.mono}`}>
-                      {step ? `${step.calls}회 · +${formatTokens(step.contextAdded)}` : '—'}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              <p className={styles.screenFoot} role="status" aria-live="polite">
-                {summary.outcome === 'missed' ? (
-                  <>
-                    <strong>{SCOPE_TIERS[summary.reachedTier].label}</strong>만 보고 멈췄는데,
-                    찾는 것은 그 밖에 있었습니다. 호출{' '}
-                    <strong>{summary.callCount}번</strong>으로 줄었지만{' '}
-                    <strong>답이 틀렸습니다.</strong>
-                  </>
-                ) : summary.outcome === 'found' ? (
-                  <>
-                    <strong>{SCOPE_TIERS[summary.reachedTier].label}</strong>에서 찾고 멈췄습니다.
-                    호출 <strong>{summary.callCount}번</strong>, 문맥에 남은 것{' '}
-                    <strong>{formatTokens(summary.contextFromSearch)}</strong>.
-                  </>
-                ) : (
-                  <>
-                    못 찾은 채 <strong>{SCOPE_TIERS[summary.reachedTier].label}</strong>까지
-                    올라갔습니다. 호출 <strong>{summary.callCount}번</strong>, 문맥에 남은 것{' '}
-                    <strong>{formatTokens(summary.contextFromSearch)}</strong>.
-                  </>
-                )}
-              </p>
-
-              <div className={styles.screenNote}>
-                <PanelANote />
-              </div>
-            </div>
+          <DrawerFigure state={st} dispatch={dispatch} />
+          <div className={styles.screenNote}>
+            <PanelANote />
+          </div>
 
             {/* 화면 둘 — 그 문맥이 만든 한 행 */}
             <div className={styles.screen}>
@@ -414,7 +314,6 @@ export default function CursorAgentLoopCostClient() {
                 <PanelBNote />
               </div>
             </div>
-          </div>
 
           <div className={styles.sectionNote}>
             <StageNote />
