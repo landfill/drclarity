@@ -16,6 +16,9 @@ import { initialGrade } from '@/app/(topics)/ai/training-validation/grade';
 import { initialSign } from '@/app/(topics)/ai/training-assistant/sign';
 import { SAMPLES as AR_SAMPLES } from '@/app/(topics)/ai/autoregressive/loop';
 import { initialReel } from '@/app/(topics)/ai/autoregressive/reel';
+import { PROMPTS as NW_PROMPTS, applyTemperature } from '@/app/(topics)/ai/next-word/softmax';
+import { initialWheel } from '@/app/(topics)/ai/next-word/wheel';
+import { WHEEL_SIZE, wheelScene } from '@/app/(topics)/ai/next-word/wheelScene';
 import { REEL_SIZE, reelScene } from '@/app/(topics)/ai/autoregressive/reelScene';
 import { SIGN_SIZE, signScene } from '@/app/(topics)/ai/training-assistant/signScene';
 import { GRADE_SIZE, gradeScene } from '@/app/(topics)/ai/training-validation/gradeScene';
@@ -52,6 +55,12 @@ export const FIGURE_THUMBS: Record<string, FigureThumbSpec> = {
     view: FRONT_VIEW,
     crispText: true,
     scene: () => lensScene({ cells: sampleGrid(128), gridSize: 128, zoom: 1, showLines: true, lens: DEFAULT_FOCUS }),
+  },
+  'ai/next-word': {
+    size: WHEEL_SIZE,
+    view: FRONT_VIEW,
+    crispText: true,
+    scene: () => wheelScene(initialWheel(applyTemperature(NW_PROMPTS[0].candidates.map((c) => c.logit), 1)), NW_PROMPTS[0].candidates.map((c) => c.word), NW_PROMPTS[0].text),
   },
   'ai/autoregressive': { size: REEL_SIZE, view: FRONT_VIEW, crispText: true, scene: () => reelScene({ ...initialReel(AR_SAMPLES[0]), cursor: 7 }) },
   'ai/training-assistant': { size: SIGN_SIZE, view: FRONT_VIEW, crispText: true, scene: () => signScene(initialSign()) },
