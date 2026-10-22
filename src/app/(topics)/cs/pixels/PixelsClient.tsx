@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
-import type { MouseEvent } from 'react';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { InteractiveCanvas } from '@/components/topic/InteractiveCanvas';
@@ -9,16 +8,15 @@ import { ParameterPanel, type ParameterDefinition } from '@/components/topic/Par
 import { QuizGate } from '@/components/topic/QuizGate';
 import {
   DEFAULT_FOCUS,
-  FOCUS_PRESETS,
   GRID_SIZES,
   formatBytes,
   rawBytes,
   rgbToHex,
   sampleGrid,
   viewportFor,
-  visibleCells,
 } from './scene';
 import { drawGrid, drawVector } from './draw';
+import { LensFigure } from './LensFigure';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizGrid from './content/quiz-grid.mdx';
 import QuizBlur from './content/quiz-blur.mdx';
@@ -57,9 +55,6 @@ export default function PixelsClient() {
   /** 격자는 해상도가 바뀔 때만 다시 굳힌다. 배율을 움직여도 값은 그대로다 — 그게 요점이다. */
   const cells = useMemo(() => sampleGrid(gridSize), [gridSize]);
   const view = useMemo(() => viewportFor(zoom, focus.x, focus.y), [zoom, focus]);
-
-  const bounds = useMemo(() => visibleCells(view, gridSize), [view, gridSize]);
-  const visibleCount = (bounds.colEnd - bounds.colStart) * (bounds.rowEnd - bounds.rowStart);
 
   /**
    * 초점이 놓인 칸의 색. 화면의 한 칸이 결국 숫자 셋이라는 것을 보여준다.
@@ -123,30 +118,6 @@ export default function PixelsClient() {
     setFocus(DEFAULT_FOCUS);
   }, []);
 
-  /**
-   * 그림을 눌러 초점을 옮긴다.
-   *
-   * 캔버스의 실제 크기는 컨테이너에 따라 달라지므로 논리 좌표가 아니라 화면 비율로
-   * 환산한 뒤 지금 보고 있는 구역에 얹는다.
-   */
-  const handleCanvasClick = useCallback(
-    (event: MouseEvent<HTMLDivElement>) => {
-      const canvas = (event.target as HTMLElement).closest('canvas');
-      if (!canvas) return;
-      // getBoundingClientRect 는 테두리까지 포함한다. 그림이 그려지는 것은 그 안쪽
-      // content box 이므로, 테두리 두께(clientLeft/Top)를 빼고 clientWidth/Height 로
-      // 나눈다. 그러지 않으면 고른 칸이 가장자리에서 한 칸씩 밀린다.
-      const rect = canvas.getBoundingClientRect();
-      const ratio = (offset: number, border: number, size: number) =>
-        size > 0 ? Math.min(1, Math.max(0, (offset - border) / size)) : 0;
-      setFocus({
-        x: view.x + ratio(event.clientX - rect.left, canvas.clientLeft, canvas.clientWidth) * view.size,
-        y: view.y + ratio(event.clientY - rect.top, canvas.clientTop, canvas.clientHeight) * view.size,
-      });
-    },
-    [view]
-  );
-
   return (
     <TopicLayout
       wide
@@ -184,47 +155,22 @@ export default function PixelsClient() {
             <ZoomLead />
           </div>
 
-          {/* 클릭은 편의 수단이다. 키보드로도 갈 수 있도록 바로가기를 함께 둔다. */}
-          <div className={styles.canvasWrap} onClick={handleCanvasClick}>
-            <InteractiveCanvas
-              logicalWidth={CANVAS_SIDE}
-              logicalHeight={CANVAS_SIDE}
-              draw={drawBitmap}
-              ariaLabel={`격자로 그린 장면. 한 변 ${gridSize}칸을 ${Math.round(zoom)}배로 보고 있습니다.`}
-            />
-          </div>
-
-          <div className={styles.presets}>
-            <span className={styles.presetsLabel}>여기를 확대해 보세요</span>
-            {FOCUS_PRESETS.map(preset => (
-              <button
-                key={preset.id}
-                type="button"
-                className={styles.presetButton}
-                onClick={() => setFocus({ x: preset.x, y: preset.y })}
-              >
-                {preset.label}
-              </button>
-            ))}
-          </div>
+          <LensFigure
+            cells={cells}
+            gridSize={gridSize}
+            zoom={zoom}
+            showLines={showLines}
+            focus={focus}
+            onFocus={setFocus}
+            focusHex={focusHex}
+          />
 
           <ParameterPanel params={params} onChange={handleChange} onReset={handleReset} />
 
-          <dl className={styles.stats} role="status" aria-live="polite">
-            <div className={styles.stat}>
-              <dt>화면에 보이는 칸</dt>
-              <dd className={`${styles.mono} ${styles.strong}`}>{visibleCount}</dd>
-            </div>
+          <dl className={styles.stats}>
             <div className={styles.stat}>
               <dt>그림 전체의 칸</dt>
               <dd className={styles.mono}>{(gridSize * gridSize).toLocaleString()}</dd>
-            </div>
-            <div className={styles.stat}>
-              <dt>고른 칸의 색</dt>
-              <dd className={styles.mono}>
-                <span className={styles.swatch} style={{ background: focusHex }} aria-hidden="true" />
-                {focusHex}
-              </dd>
             </div>
             <div className={styles.stat}>
               <dt>줄이지 않고 저장하면</dt>
