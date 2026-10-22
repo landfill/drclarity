@@ -18,6 +18,7 @@ import {
   stepOnce,
   stepsOf,
   togglePlay,
+  tokenReadings,
   view,
   visibleText,
   type ReelState,
@@ -79,6 +80,25 @@ describe('순서', () => {
       if (a === 'pause') expect(togglePlay(s).playing).toBe(false);
     }
   });
+
+  // AGENTS.md: 앞 단계가 아직 움직이는 동안의 입력. 움직임은 겉모습이라, 누른 버튼은 받아들이고 새 자리에서 다시 움직인다.
+  it('조각이 옮겨 가는 동안의 입력도 받아들이고, 새 자리에서 움직임을 다시 시작한다', () => {
+    const sample = SAMPLES[0];
+    const moving = advanceReel(stepOnce(at(sample, 2)), 0.1);
+    expect(moving.t).toBeGreaterThan(0);
+    expect(moving.t).toBeLessThan(1);
+    expect(isSettled(moving)).toBe(false);
+    expect(nextAction(moving)).toBe('step');
+
+    const next = stepOnce(moving);
+    expect(next).toMatchObject({ cursor: 4, t: 0, note: '' });
+    expect(run(next).cursor).toBe(4);
+    expect(stepBack(moving)).toMatchObject({ cursor: 2, t: 1, note: '' });
+    expect(rewind(moving)).toMatchObject({ cursor: 0, t: 1, note: '' });
+    const played = run(togglePlay(moving));
+    expect(played.cursor).toBe(endOf(played));
+    expect(played.playing).toBe(false);
+  });
 });
 
 describe('테이프와 저장된 계산', () => {
@@ -108,6 +128,26 @@ describe('테이프와 저장된 계산', () => {
     }
     expect(cachedCount(at(sample, 0))).toBe(0);
     expect(cachedCount(at(sample, 1))).toBe(sample.prompt.length);
+  });
+
+  // 그림은 role="img" 라 칸이 하나씩 읽히지 않는다. 숨은 목록이 예전 입력 스트립의 낭독 문구를 그대로 읽는다.
+  it('낭독 목록은 테이프의 조각을 차례로, 내가 넣은 것 · 모델이 쓴 것 · 방금 붙은 것을 나눠 읽는다', () => {
+    const sample = SAMPLES[0];
+    const end = endOf(initialReel(sample));
+    for (let c = 0; c <= end; c++) {
+      const s = at(sample, c);
+      const { context, freshIndex } = view(s);
+      const r = tokenReadings(s);
+      expect(r).toHaveLength(context.length);
+      r.forEach((line, i) => {
+        expect(line.startsWith(`${i + 1}번째 조각 ${context[i]},`)).toBe(true);
+        expect(line).toContain(i < sample.prompt.length ? '내가 넣은 것' : '모델이 쓴 것');
+        expect(line.endsWith('방금 붙었습니다')).toBe(i === freshIndex);
+      });
+    }
+    const append = at(sample, 3);
+    expect(view(append).stage).toBe('append');
+    expect(tokenReadings(append).at(-1)).toBe(`${sample.prompt.length + 1}번째 조각 ${sample.completion[0]}, 모델이 쓴 것, 방금 붙었습니다`);
   });
 
   // 퀴즈의 오답 "답 전체를 미리 정한 뒤 조금씩 보여준다" 를 되살리지 않는다: 아직 고르지 않은 조각은 그리지 않는다.

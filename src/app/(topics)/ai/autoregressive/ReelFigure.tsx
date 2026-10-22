@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ColorFigure, useFigureState } from '@/components/topic/ColorFigure';
 import { FRONT_VIEW } from '@/lib/colorfigures/core';
 import { LOOP_STAGES, type LoopStage, type Sample } from './loop';
-import { STAGE_LABEL, advanceReel, initialReel, isSettled, nextAction, rewind, statusText, stepBack, stepOnce, stepsOf, togglePlay, view, endOf, cachedCount } from './reel';
+import { STAGE_LABEL, advanceReel, initialReel, isSettled, nextAction, rewind, statusText, stepBack, stepOnce, stepsOf, togglePlay, view, endOf, cachedCount, tokenReadings } from './reel';
 import { REEL_SIZE, reelScene } from './reelScene';
 import styles from './Autoregressive.module.css';
 
@@ -54,6 +54,12 @@ export function ReelFigure({ sample }: { sample: Sample }) {
         ]}
         status={statusText(st)}
       />
+      {/* 그림은 role="img" 라 테이프 칸이 하나씩 읽히지 않는다. 예전 입력 스트립의 낭독 문구를 그대로 남긴다. */}
+      <ol className={styles.srOnly} aria-label="테이프의 입력 조각">
+        {tokenReadings(st).map((reading, index) => (
+          <li key={`${index}-${context[index]}`}>{reading}</li>
+        ))}
+      </ol>
       <ol className={styles.stages}>
         {LOOP_STAGES.map((item) => {
           const info = STAGE_INFO[item];

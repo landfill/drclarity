@@ -100,6 +100,18 @@ export function cachedCount(s: ReelState): number {
   return stepIndex === 0 ? 0 : step.context.length - 1;
 }
 
+/**
+ * 테이프 칸의 낭독 문구 (예전 입력 스트립의 문구 그대로). 그림은 role="img" 라 칸이 하나씩 읽히지 않으므로
+ * figure 옆의 숨은 목록이 이 문구를 읽는다.
+ */
+export function tokenReadings(s: ReelState): string[] {
+  const { context, freshIndex } = view(s);
+  return context.map(
+    (token, index) =>
+      `${index + 1}번째 조각 ${token}${index >= s.sample.prompt.length ? ', 모델이 쓴 것' : ', 내가 넣은 것'}${index === freshIndex ? ', 방금 붙었습니다' : ''}`
+  );
+}
+
 /** 단계 이름 (예전 화면 그대로). */
 export const STAGE_LABEL: Record<LoopStage, string> = { tokenize: '입력 확인', read: '앞말 참고', pick: '하나 고르기', append: '끝에 붙이기 ↻' };
 
