@@ -51,6 +51,10 @@ describe('순서', () => {
     check(act(s0, 'attack'), s0, '아직 아무 수도');
     const made = through(s0, 1);
     check(act(made, 'make'), made, '이미');
+    // 주고받은 뒤 마무리를 건너뛰고 도청자부터 시키면 받지 않는다.
+    const sent = through(s0, 2);
+    check(act(sent, 'attack'), sent, '3. 받은 수로 마무리');
+    expect(nextAction(sent)).toBe('finish');
     const sending = advanceTrial(act(made, 'send'), 0.2);
     expect(isSettled(sending)).toBe(false);
     for (const a of ACTION_ORDER) check(act(sending, a), sending, '건너는 중');

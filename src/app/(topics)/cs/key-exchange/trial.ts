@@ -89,6 +89,7 @@ export function act(s: TrialState, action: TrialAction): TrialState {
       return { ...s, step: 3, note: '' };
     case 'attack':
       if (s.step < 2) return { ...s, note: '도청자가 아직 아무 수도 듣지 못했습니다. 먼저 두 사람이 주고받아야 합니다.' };
+      if (s.step < 3) return { ...s, note: '아직 두 사람이 마무리하지 않았습니다. 먼저 "3. 받은 수로 마무리" 를 눌러 같은 수에 도달하는 것을 보세요.' };
       if (s.tried !== null) return { ...s, note: '이미 도청자가 다 넣어 봤습니다. 비밀이나 공개 값을 바꾸면 다시 해 볼 수 있습니다.' };
       return { ...s, tried: 0, note: '' };
   }
