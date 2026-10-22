@@ -1,13 +1,9 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
-import { InteractiveCanvas } from '@/components/topic/InteractiveCanvas';
 import { QuizGate } from '@/components/topic/QuizGate';
-import { TrialRunner, type TrialBucket } from '@/components/topic/TrialRunner';
-import { BOARD_SIZE, drawBoard } from './dartBoard';
-import { INSIDE_RATE, estimatePi, errorFromPi, throwDart, type Dart } from './pi';
+import { PlotterFigure } from './PlotterFigure';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizPi4 from './content/quiz-pi4.mdx';
 import QuizHalf from './content/quiz-half.mdx';
@@ -18,18 +14,7 @@ import WhyInexact, { title as whyTitle } from './content/why-inexact.mdx';
 import meta from './meta';
 import styles from './MonteCarloPi.module.css';
 
-const TRIAL_BUCKETS: TrialBucket[] = [
-  { id: 'inside', label: '원 안', theoretical: INSIDE_RATE, tone: 'primary' },
-  { id: 'outside', label: '원 밖', theoretical: 1 - INSIDE_RATE, tone: 'secondary' },
-];
-
 export default function MonteCarloPiClient() {
-  const runTrial = useCallback(() => throwDart(Math.random), []);
-
-  const bucketsOf = useCallback((dart: Dart) => (dart.inside ? 'inside' : 'outside'), []);
-
-  const renderProgress = useCallback((darts: Dart[]) => <Board darts={darts} />, []);
-
   return (
     <TopicLayout
       wide
@@ -62,14 +47,7 @@ export default function MonteCarloPiClient() {
           <div className={styles.sectionLead}>
             <SimLead />
           </div>
-          <TrialRunner
-            runTrial={runTrial}
-            bucketsOf={bucketsOf}
-            buckets={TRIAL_BUCKETS}
-            presets={[10, 100, 1000, 5000]}
-            renderProgress={renderProgress}
-            labels={{ run: '개 던지기', reset: '판 비우기', total: '던진 점' }}
-          />
+          <PlotterFigure />
         </section>
 
         <ExplanationBox title={whyTitle}>
@@ -77,42 +55,5 @@ export default function MonteCarloPiClient() {
         </ExplanationBox>
       </QuizGate>
     </TopicLayout>
-  );
-}
-
-/** 점판과 현재 추정값. TrialRunner 가 회차마다 다시 부른다. */
-function Board({ darts }: { darts: Dart[] }) {
-  const inside = useMemo(() => darts.reduce((n, d) => n + (d.inside ? 1 : 0), 0), [darts]);
-  const draw = useCallback((ctx: CanvasRenderingContext2D) => drawBoard(ctx, darts), [darts]);
-
-  const estimate = estimatePi(inside, darts.length);
-  const hasEstimate = Number.isFinite(estimate);
-
-  return (
-    <div className={styles.board}>
-      <InteractiveCanvas
-        logicalWidth={BOARD_SIZE}
-        logicalHeight={BOARD_SIZE}
-        draw={draw}
-        ariaLabel={`정사각형에 던진 점 ${darts.length}개 중 ${inside}개가 원 안에 있습니다.`}
-        className={styles.canvas}
-      />
-      <dl className={styles.readouts}>
-        <div className={styles.readout}>
-          <dt>원 안 / 전체</dt>
-          <dd>
-            {inside} / {darts.length}
-          </dd>
-        </div>
-        <div className={styles.readout}>
-          <dt>π 추정값</dt>
-          <dd className={styles.estimate}>{hasEstimate ? estimate.toFixed(4) : '—'}</dd>
-        </div>
-        <div className={styles.readout}>
-          <dt>실제 π 와의 차이</dt>
-          <dd>{hasEstimate ? errorFromPi(estimate).toFixed(4) : '—'}</dd>
-        </div>
-      </dl>
-    </div>
   );
 }
