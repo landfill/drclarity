@@ -40,13 +40,6 @@
 
 /* --- 캔버스 --- */
 
-/* 그림을 눌러 초점을 옮길 수 있다는 것이 커서로 먼저 전달되어야 한다. */
-.canvasWrap {
-  display: flex;
-  justify-content: center;
-  cursor: crosshair;
-}
-
 /*
  * 두 그림은 반드시 나란히 둔다. 위아래로 쌓으면 같은 자리를 견줄 수 없어
  * 이 섹션이 하려는 일 자체가 성립하지 않는다.
@@ -82,42 +75,6 @@
   }
 }
 
-/* --- 초점 바로가기 --- */
-
-.presets {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-xs);
-  margin-top: var(--space-md);
-}
-
-.presetsLabel {
-  font-size: var(--fs-sm);
-  color: var(--color-muted);
-}
-
-.presetButton {
-  padding: var(--space-2xs) var(--space-sm);
-  border: var(--line-ink);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface);
-  color: var(--color-ink);
-  font-family: var(--font-mono);
-  font-size: var(--fs-sm);
-  cursor: pointer;
-  transition: background-color 160ms ease;
-}
-
-.presetButton:hover {
-  background: var(--color-subtle);
-}
-
-.presetButton:focus-visible {
-  outline: 2px solid var(--color-ink);
-  outline-offset: 3px;
-}
-
 /* --- 수치 --- */
 
 .stats {
@@ -142,19 +99,6 @@
 
 .mono {
   font-family: var(--font-mono);
-}
-
-.strong {
-  color: var(--color-accent);
-  font-weight: 700;
-}
-
-/* 색 값 옆의 견본. 숫자만으로는 어느 색인지 읽히지 않는다. */
-.swatch {
-  width: 1em;
-  height: 1em;
-  border: 1px solid var(--color-ink);
-  border-radius: 3px;
 }
 
 .verdict {

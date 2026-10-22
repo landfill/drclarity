@@ -1,4 +1,6 @@
 import type { FigureThumbSpec } from './FigureThumb';
+import { DEFAULT_FOCUS, sampleGrid } from '@/app/(topics)/cs/pixels/scene';
+import { LENS_SIZE, lensScene } from '@/app/(topics)/cs/pixels/lensScene';
 import { initialRace } from '@/app/(topics)/cs/sorting-race/race';
 import { RACE_SIZE, raceScene } from '@/app/(topics)/cs/sorting-race/raceScene';
 import { initialPizza } from '@/app/(topics)/cs/floating-point/pizza';
@@ -22,6 +24,12 @@ import { sceneForStep } from '@/app/(topics)/math/infinite-hotel/hotelScene';
  */
 export const FIGURE_THUMBS: Record<string, FigureThumbSpec> = {
   'cs/floating-point': { size: PIZZA_SIZE, scene: () => pizzaScene(initialPizza()) },
+  'cs/pixels': {
+    size: LENS_SIZE,
+    view: FRONT_VIEW,
+    crispText: true,
+    scene: () => lensScene({ cells: sampleGrid(128), gridSize: 128, zoom: 1, showLines: true, lens: DEFAULT_FOCUS }),
+  },
   'cs/sorting-race': { size: RACE_SIZE, view: FRONT_VIEW, crispText: true, scene: () => raceScene(initialRace(50, 'random')) },
   'math/monty-hall': { size: STAGE_SIZE, scene: () => stageScene(initialStage(() => 0)) },
   'math/honey-pots': { size: DROPPER_SIZE, scene: () => dropperScene(initialDropper(21)) },
