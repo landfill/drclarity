@@ -4,9 +4,9 @@ import { useCallback, useMemo, useState } from 'react';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
+import { useFigureState } from '@/components/topic/ColorFigure';
 import {
   ACCOUNTS,
-  COMMON_PASSWORDS,
   MAX_INPUT_CHARS,
   SAMPLE_PAIRS,
   bitDifference,
@@ -16,6 +16,8 @@ import {
 } from './hashing';
 import { HASH_BITS, sha256 } from './sha256';
 import { HashDigits } from './HashDigits';
+import { ACCOUNT_PASSWORD, advanceLookup, initialLookup, isSettled, setSalted } from './lookup';
+import { LookupFigure } from './LookupFigure';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizNobody from './content/quiz-nobody.mdx';
 import QuizPolicy from './content/quiz-policy.mdx';
@@ -36,19 +38,13 @@ import styles from './Hashing.module.css';
 const DEFAULT_LEFT = 'password';
 const DEFAULT_RIGHT = 'Password';
 
-/**
- * 두 계정이 나란히 고른 비밀번호.
- *
- * 흔한 값이어서 아래 '미리 만들어 둔 표' 에 그대로 들어 있고, 둘이 같은 값을 골랐기 때문에
- * 소금이 없으면 저장된 값까지 똑같아진다 — 저장소만 봐도 둘이 같은 비밀번호를 쓴다는
- * 사실이 드러난다. 소금을 켜면 두 사실이 한꺼번에 사라진다.
- */
-const ACCOUNT_PASSWORD = 'password';
 
 export default function HashingClient() {
   const [left, setLeft] = useState(DEFAULT_LEFT);
   const [right, setRight] = useState(DEFAULT_RIGHT);
-  const [salted, setSalted] = useState(false);
+  // 소금 체크 상자와 아래 figure 가 같은 상태를 쓴다. 표를 훑는 움직임과 움직임 줄이기는 useFigureState 가 맡는다.
+  const [lk, dispatchLk] = useFigureState(initialLookup, advanceLookup, isSettled);
+  const salted = lk.salted;
   const [attempt, setAttempt] = useState('');
 
   const leftHash = useMemo(() => sha256(left), [left]);
@@ -66,22 +62,6 @@ export default function HashingClient() {
       })),
     [salted]
   );
-  const storedValues = useMemo(() => new Set(stored.map(row => row.hash)), [stored]);
-
-  /**
-   * 공격자의 표. 흔한 비밀번호를 미리 해시해 둔 것이므로 소금과 무관하게 늘 같다 —
-   * 바뀌는 것은 이 표가 저장소에 걸리느냐뿐이다.
-   */
-  const rainbow = useMemo(
-    () =>
-      COMMON_PASSWORDS.map(password => {
-        const hash = sha256(password);
-        return { password, hash, hit: storedValues.has(hash) };
-      }),
-    [storedValues]
-  );
-  const hits = rainbow.filter(row => row.hit).length;
-
   /** 로그인 판정. 서버가 하는 일이 이 비교 한 번뿐이라는 것을 그대로 보여준다. */
   const [firstAccount] = stored;
   const attemptHash = useMemo(
@@ -230,7 +210,7 @@ export default function HashingClient() {
               id="hash-salt"
               type="checkbox"
               checked={salted}
-              onChange={event => setSalted(event.currentTarget.checked)}
+              onChange={event => { const on = event.currentTarget.checked; dispatchLk(st => setSalted(st, on)); }}
             />
             <span>사용자마다 다른 소금을 섞어서 저장하기</span>
           </label>
@@ -310,42 +290,7 @@ export default function HashingClient() {
         </ExplanationBox>
 
         <section className={styles.stage} aria-label="미리 계산해 둔 표">
-          <table className={styles.table}>
-            <caption className={styles.caption}>
-              공격자가 미리 만들어 둔 표 — 흔한 비밀번호 10개
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col">비밀번호</th>
-                <th scope="col">해시 (앞 16자)</th>
-                <th scope="col">저장소와 일치</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rainbow.map(row => (
-                <tr key={row.password} className={row.hit ? styles.hitRow : undefined}>
-                  <td className={styles.mono}>{row.password}</td>
-                  <td className={styles.mono}>{row.hash.slice(0, 16)}…</td>
-                  <td>{row.hit ? <span className={styles.hit}>걸림</span> : '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <p className={styles.storeNote} role="status" aria-live="polite">
-            {hits > 0 ? (
-              <>
-                <strong>{hits}줄이 걸렸습니다.</strong> 되돌린 것이 아니라 찾은 것입니다 — 두 사람의
-                비밀번호가 <code className={styles.mono}>{ACCOUNT_PASSWORD}</code> 라는 사실이 표
-                한 번 훑는 것으로 드러났습니다. 위에서 소금을 켜 보세요.
-              </>
-            ) : (
-              <>
-                <strong>한 줄도 걸리지 않습니다.</strong> 비밀번호는 그대로인데 표가 쓸모없어졌습니다.
-                이 표는 소금을 모르는 채로 만든 것이기 때문입니다.
-              </>
-            )}
-          </p>
+          <LookupFigure state={lk} dispatch={dispatchLk} />
         </section>
 
         <ExplanationBox title={saltTitle}>

@@ -223,15 +223,6 @@
   border-bottom-color: var(--color-ink);
 }
 
-.hitRow {
-  background: var(--color-note-bg);
-}
-
-.hit {
-  color: var(--color-danger);
-  font-weight: 700;
-}
-
 .storeNote {
   margin-top: var(--space-md);
 }
