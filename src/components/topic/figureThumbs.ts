@@ -6,6 +6,8 @@ import { TAPE_SIZE, tapeScene } from '@/app/(topics)/cs/utf8/tapeScene';
 import { encodeUtf8, utf8Length } from '@/app/(topics)/cs/utf8/utf8';
 import { initialBpe } from '@/app/(topics)/ai/tokenizer/bpe';
 import { BPE_SIZE, bpeScene } from '@/app/(topics)/ai/tokenizer/bpeScene';
+import { initialGoal } from '@/app/(topics)/ai/training-goal/guess';
+import { GOAL_SIZE, guessScene } from '@/app/(topics)/ai/training-goal/guessScene';
 import { initialRace } from '@/app/(topics)/cs/sorting-race/race';
 import { RACE_SIZE, raceScene } from '@/app/(topics)/cs/sorting-race/raceScene';
 import { initialPizza } from '@/app/(topics)/cs/floating-point/pizza';
@@ -39,6 +41,7 @@ export const FIGURE_THUMBS: Record<string, FigureThumbSpec> = {
     crispText: true,
     scene: () => lensScene({ cells: sampleGrid(128), gridSize: 128, zoom: 1, showLines: true, lens: DEFAULT_FOCUS }),
   },
+  'ai/training-goal': { size: GOAL_SIZE, view: FRONT_VIEW, crispText: true, scene: () => guessScene(initialGoal()) },
   'ai/tokenizer': { size: BPE_SIZE, view: FRONT_VIEW, crispText: true, scene: () => bpeScene(initialBpe('token')) },
   // utf8 의 첫 화면: 기본 문장(Utf8Client 의 DEFAULT_INPUT)을 찍은 테이프, 아직 자르지 않음.
   'cs/utf8': { size: TAPE_SIZE, view: FRONT_VIEW, crispText: true, scene: () => tapeScene(initialTape('안녕 hi 😀', utf8Length('안녕 hi 😀')), encodeUtf8('안녕 hi 😀')) },
