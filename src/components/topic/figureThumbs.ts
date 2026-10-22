@@ -18,6 +18,8 @@ import { SAMPLES as AR_SAMPLES } from '@/app/(topics)/ai/autoregressive/loop';
 import { initialReel } from '@/app/(topics)/ai/autoregressive/reel';
 import { buildTimeline } from '@/app/(topics)/ai/prefill-decode/timeline';
 import { compare as kvCompare, initialKv } from '@/app/(topics)/ai/kv-cache/tiles';
+import { windowOf } from '@/app/(topics)/ai/context-limit/rail';
+import { RAIL_SIZE, railScene } from '@/app/(topics)/ai/context-limit/railScene';
 import { TILES_SIZE, tilesScene } from '@/app/(topics)/ai/kv-cache/tilesScene';
 import { SHELF_SIZE, shelfScene } from '@/app/(topics)/ai/prefill-decode/shelfScene';
 import { PROMPTS as NW_PROMPTS, applyTemperature } from '@/app/(topics)/ai/next-word/softmax';
@@ -60,6 +62,7 @@ export const FIGURE_THUMBS: Record<string, FigureThumbSpec> = {
     crispText: true,
     scene: () => lensScene({ cells: sampleGrid(128), gridSize: 128, zoom: 1, showLines: true, lens: DEFAULT_FOCUS }),
   },
+  'ai/context-limit': { size: RAIL_SIZE, view: FRONT_VIEW, crispText: true, scene: () => railScene(windowOf(12, 300)) },
   'ai/kv-cache': { size: TILES_SIZE, view: FRONT_VIEW, crispText: true, scene: () => tilesScene(kvCompare(initialKv(), true)) },
   'ai/prefill-decode': {
     size: SHELF_SIZE,
