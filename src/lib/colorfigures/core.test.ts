@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_VIEW, Dv, FRONT_VIEW, ISO_VIEW, P, PALS, castShadow, clipTo, depthOf, frameFor, inkScale, settle, tag, tone, vis, withFrame, type Vec2, type Vec3, type View } from './core';
+import { DEFAULT_VIEW, DEFAULT_WOBBLE, Dv, FRONT_VIEW, ISO_VIEW, P, PALS, castShadow, clipTo, depthOf, filterFor, frameFor, inkScale, settle, tag, tone, vis, withFrame, type Vec2, type Vec3, type View } from './core';
 
 const corners = (size: Vec3): Vec3[] => {
   const out: Vec3[] = [];
@@ -180,4 +180,22 @@ describe('FRONT_VIEW (새 figure 의 시점)', () => {
       });
     },
   );
+});
+
+describe('filterFor (흔들림 · 종이결 필터)', () => {
+  it('기본값은 흔들림 0: 선을 흔드는 단계 없이 종이결만 입힌다', () => {
+    expect(DEFAULT_WOBBLE).toBe(0);
+    for (const k of [0.5, 1, 2]) {
+      const f = filterFor('f', k);
+      expect(f).not.toContain('feDisplacementMap');
+      expect(f).toContain('result="wob"');
+      expect(f).toContain('result="grain"');
+      expect(f).toContain('<feComposite in="g2" in2="wob" operator="in"/>');
+    }
+  });
+
+  it('흔들림 값을 주면 화면 배율만큼 선을 흔든다', () => {
+    const f = filterFor('f', 2, 2.4);
+    expect(f).toContain('<feDisplacementMap in="SourceGraphic" in2="warp" scale="4.80"');
+  });
 });
