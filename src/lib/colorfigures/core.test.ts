@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_VIEW, Dv, ISO_VIEW, P, clipTo, depthOf, frameFor, inkScale, settle, tag, vis, withFrame, type Vec3 } from './core';
+import { DEFAULT_VIEW, Dv, FRONT_VIEW, ISO_VIEW, P, PALS, castShadow, clipTo, depthOf, frameFor, inkScale, settle, tag, tone, vis, withFrame, type Vec2, type Vec3, type View } from './core';
 
 const corners = (size: Vec3): Vec3[] => {
   const out: Vec3[] = [];
@@ -118,4 +118,66 @@ describe('settle', () => {
     const end = settle(0, (s, dt) => Math.min(1, s + dt), (s) => s >= 1);
     expect(end).toBe(1);
   });
+});
+
+/** 화면에 투영한 평행사변형(원점, a, a+b, b)의 넓이. */
+const projArea = (a: Vec3, b: Vec3): number => {
+  const u: Vec2 = Dv(...a);
+  const v: Vec2 = Dv(...b);
+  return Math.abs(u[0] * v[1] - u[1] * v[0]);
+};
+
+/** 단위 상자의 앞면(+x)·왼쪽 옆면(+y)·윗면(+z)이 화면에서 차지하는 넓이. */
+const faceAreas = (view: View) =>
+  withFrame(frameFor([1, 1, 1], 'area', { view }), () => ({
+    front: projArea([0, 1, 0], [0, 0, 1]),
+    side: projArea([1, 0, 0], [0, 0, 1]),
+    top: projArea([1, 0, 0], [0, 1, 0]),
+  }));
+
+describe('FRONT_VIEW (새 figure 의 시점)', () => {
+  it('기존 figure 의 시점 DEFAULT_VIEW 는 { az: 25, el: 30 } 그대로다', () => {
+    expect(DEFAULT_VIEW).toEqual({ az: 25, el: 30 });
+  });
+
+  it('단위 상자의 앞면·왼쪽 옆면·윗면이 모두 보이고, 뒤쪽 세 면은 보이지 않는다', () => {
+    withFrame(frameFor([1, 1, 1], 'f', { view: FRONT_VIEW }), () => {
+      expect(vis([1, 0, 0]) && vis([0, 1, 0]) && vis([0, 0, 1])).toBe(true);
+      expect(vis([-1, 0, 0]) || vis([0, -1, 0]) || vis([0, 0, -1])).toBe(false);
+    });
+  });
+
+  // 3배: 방위 18° 의 앞면/옆면 넓이 비는 cot 18° ≈ 3.08 이다. 기본 시점(cot 25° ≈ 2.14)보다 앞면이 넓다.
+  it('화면에서 앞면 넓이가 왼쪽 옆면 넓이의 3배 이상이고 기본 시점보다 넓다', () => {
+    const a = faceAreas(FRONT_VIEW);
+    const d = faceAreas(DEFAULT_VIEW);
+    expect(a.front).toBeGreaterThanOrEqual(3 * a.side);
+    expect(a.front / a.side).toBeGreaterThan(d.front / d.side);
+  });
+
+  it('바닥에 누운 판의 윗면이 앞면 넓이의 0.4배 이상으로 읽힌다', () => {
+    const a = faceAreas(FRONT_VIEW);
+    expect(a.top).toBeGreaterThanOrEqual(0.4 * a.front);
+  });
+
+  it('원본처럼 앞면과 윗면은 밝은 면, 왼쪽 옆면은 그늘이다', () => {
+    withFrame(frameFor([1, 1, 1], 'f', { view: FRONT_VIEW }), () => {
+      for (const m of Object.values(PALS)) {
+        expect(tone([1, 0, 0], m)).toBe(m.l);
+        expect(tone([0, 0, 1], m)).toBe(m.l);
+        expect(tone([0, 1, 0], m)).toBe(m.d);
+      }
+    });
+  });
+
+  it.each([['FRONT_VIEW', FRONT_VIEW], ['DEFAULT_VIEW', DEFAULT_VIEW]] as [string, View][])(
+    '%s 에서 세운 막대의 그림자는 화면 왼쪽(+y 쪽)으로 떨어진다',
+    (_, view) => {
+      withFrame(frameFor([10, 10, 10], 's', { view }), () => {
+        const svg = castShadow([[5, 5, 0], [5, 5, 10]], 0);
+        const xs = [...svg.matchAll(/(-?[\d.]+) (-?[\d.]+)/g)].map((m) => Number(m[1]));
+        expect(Math.min(...xs)).toBeLessThan(P(5, 5, 0)[0] - 1);
+      });
+    },
+  );
 });
