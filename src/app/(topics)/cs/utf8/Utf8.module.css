@@ -303,16 +303,6 @@
   color: var(--color-muted);
 }
 
-.cutNote {
-  margin-top: var(--space-sm);
-  color: var(--color-text);
-}
-
-.cutNote .mono {
-  font-family: var(--font-mono);
-  font-size: var(--fs-sm);
-}
-
 @media (max-width: 768px) {
   .stage {
     padding: var(--space-md);
