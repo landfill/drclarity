@@ -49,7 +49,8 @@ export function advanceGoal(s: GoalState, dt: number): GoalState {
   const move = Math.min(1, s.move + dt / MOVE_SECONDS);
   const target = s.revealed ? 1 : 0;
   const step = dt / FLAP_SECONDS;
-  const flap = target > s.flap ? Math.min(1, s.flap + step) : Math.max(0, s.flap - step);
+  // 목표에 닿으면 그 자리에 선다 (스티커가 아직 움직이는 동안 덮개가 떨지 않게).
+  const flap = target > s.flap ? Math.min(target, s.flap + step) : Math.max(target, s.flap - step);
   return { ...s, move, flap };
 }
 

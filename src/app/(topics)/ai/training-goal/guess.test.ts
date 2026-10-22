@@ -76,6 +76,14 @@ describe('순서', () => {
     expect(run(again).flap).toBe(0);
   });
 
+  it('덮개가 다 열린 뒤 스티커가 아직 움직여도 덮개는 열린 채로 있다', () => {
+    let s: GoalState = { ...reveal(run(choose(initialGoal(), 1))), flap: 1, move: 0.2 };
+    for (let i = 0; i < 5; i++) {
+      s = advanceGoal(s, 1 / 60);
+      expect(s.flap).toBe(1);
+    }
+  });
+
   it('스티커가 옮겨 가고 쪽지가 열리는 동안에도 끝나면 정확히 선다', () => {
     let s = reveal({ ...choose(initialGoal(), 1), move: 1 });
     let steps = 0;
