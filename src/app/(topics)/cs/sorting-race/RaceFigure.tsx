@@ -28,6 +28,7 @@ export function RaceFigure({ size, pattern }: { size: number; pattern: InputPatt
     <ColorFigure
       size={RACE_SIZE}
       view={FRONT_VIEW}
+      crispText
       fig="01"
       title="정렬 선반"
       hint="세 칸에 같은 배열, 같은 빠르기"

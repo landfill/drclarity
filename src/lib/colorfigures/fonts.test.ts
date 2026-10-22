@@ -21,6 +21,8 @@ describe('koreanLabels', () => {
       expect(koreanLabels(digits)).toBe(digits);
       const mono = tx(1, 1, 1, '한글', 3).replace('<text ', '<text font-family="monospace" ');
       expect(koreanLabels(mono)).toBe(mono);
+      const styled = tx(1, 1, 1, '한글', 3).replace('<text ', '<text style="opacity: .5" ');
+      expect(koreanLabels(styled)).toBe(styled);
     });
   });
 });

@@ -29,6 +29,22 @@ export interface FigureAction {
   group?: string;
 }
 
+/** 장면 SVG 의 글자: 이름표 묶음(tag)과 낱 <text>. 이름표 묶음 안의 <text> 는 묶음과 함께 옮긴다. */
+const TEXT_PARTS = /<g class="tag[^"]*">[\s\S]*?<\/g>|<text[^>]*>[^<]*<\/text>/g;
+
+/**
+ * 장면 SVG 를 그림과 글자로 나눈다. 글자는 손그림 흔들림 필터 밖에 그려 또렷하게 둔다
+ * (AGENTS.md: 글자 상자와 본문에는 손그림 흔들림 필터를 걸지 않는다). 글자끼리의 앞뒤 순서는 지킨다.
+ */
+export function splitText(svg: string): { art: string; text: string } {
+  const text: string[] = [];
+  const art = svg.replace(TEXT_PARTS, (part) => {
+    text.push(part);
+    return '';
+  });
+  return { art, text: text.join('') };
+}
+
 /** 이어진 같은 group 끼리 묶는다. group 이 없으면 한 줄에 하나. */
 export function actionRows(actions: FigureAction[]): FigureAction[][] {
   const rows: FigureAction[][] = [];
@@ -72,6 +88,11 @@ export interface ColorFigureProps {
   accent?: string;
   /** 이름표 글자의 최소 화면 크기(px). 그림이 작게 보이면 이름표를 키운다. */
   labelPx?: number;
+  /**
+   * 장면 안 글자(이름표, `tx` 글자)를 흔들림 필터 밖의 층에 따로 그린다. 새 figure 는 켠다.
+   * 먼저 만든 figure 넷은 끈 채로 둔다(지금 모양 그대로). 글자는 그림 위에 얹히므로 물체에 가려지지 않는다.
+   */
+  crispText?: boolean;
   /** 장면 안 `act(name, …)` 부품을 눌렀을 때. 장면이 매 프레임 다시 그려지므로 click 이 아니라 누르는 순간에 받는다. */
   onAct?: (name: string, el: Element) => void;
 }
@@ -103,6 +124,7 @@ export function ColorFigure({
   view,
   accent = 'var(--color-accent-fill)',
   labelPx = 11,
+  crispText = false,
   onAct,
 }: ColorFigureProps) {
   const id = 'cf' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
@@ -148,7 +170,8 @@ export function ColorFigure({
 
   const filterId = `${id}-hand`;
   const defs = useMemo(() => filterFor(filterId, base.inkK), [filterId, base.inkK]);
-  const art = withFrame(frame, () => inkScale(scene()));
+  const drawn = withFrame(frame, () => inkScale(scene()));
+  const { art, text } = crispText ? splitText(drawn) : { art: drawn, text: '' };
 
   const handlePointerDown = (event: ReactPointerEvent<SVGSVGElement>) => {
     if (!onAct || event.button) return;
@@ -214,6 +237,7 @@ export function ColorFigure({
         >
           <defs dangerouslySetInnerHTML={{ __html: defs }} />
           <g filter={`url(#${filterId})`} dangerouslySetInnerHTML={{ __html: art }} />
+          {text && <g dangerouslySetInnerHTML={{ __html: text }} />}
         </svg>
       </div>
       {status !== undefined && (

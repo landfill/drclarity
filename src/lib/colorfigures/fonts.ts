@@ -16,7 +16,8 @@ const HANGUL = /[ᄀ-ᇿ㄰-㆏가-힯]/;
 
 /** 장면 SVG 에서 한글이 든 <text> 마다 일반 글꼴을 준다. 이미 글꼴을 정한 글자는 그대로 둔다. */
 export function koreanLabels(svg: string): string {
-  return svg.replace(/<text((?:(?!font-family)[^>])*)>([^<]*)<\/text>/g, (whole, attrs: string, body: string) =>
+  // 이미 글꼴이나 style 을 정한 글자는 건드리지 않는다 (style 속성이 둘이 되지 않게).
+  return svg.replace(/<text((?:(?!font-family|style=)[^>])*)>([^<]*)<\/text>/g, (whole, attrs: string, body: string) =>
     HANGUL.test(body) ? `<text style="font-family: ${GENERAL_FONT}"${attrs}>${body}</text>` : whole,
   );
 }
