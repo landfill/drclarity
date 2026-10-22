@@ -200,3 +200,39 @@ export function statsOf(text: string): TextStats {
     tokens: encode(text).length,
   };
 }
+
+/** 병합 한 번: 몇 번째 규칙으로, 몇 번째 자리의 쌍을 합쳤고, 합친 뒤 토큰들이 어떤지. */
+export interface MergeStep {
+  rank: number;
+  rule: MergeRule;
+  /** 합친 쌍의 왼쪽 토큰 자리 (합치기 전 기준). */
+  at: number;
+  tokens: Token[];
+}
+
+/**
+ * encode 가 지나는 길을 한 단계씩 적는다. 그림이 "바이트에서 시작해 정해진 순서로 쌍을 합친다" 를 보이는 데 쓴다.
+ * 고르는 규칙은 encode 와 같다(이웃한 쌍 중 우선순위가 가장 높은 것, 같으면 왼쪽). 마지막 단계의 토큰은 encode 와 같다.
+ */
+export function encodeTrace(text: string): MergeStep[] {
+  let tokens: Token[] = toBytes(text).map((byte) => [byte]);
+  const steps: MergeStep[] = [];
+
+  for (;;) {
+    let bestRank = Infinity;
+    let bestIndex = -1;
+
+    for (let i = 0; i < tokens.length - 1; i += 1) {
+      const rank = RANKS.get(pairKey(tokens[i], tokens[i + 1]));
+      if (rank !== undefined && rank < bestRank) {
+        bestRank = rank;
+        bestIndex = i;
+      }
+    }
+
+    if (bestIndex === -1) return steps;
+    const rule = MERGES[bestRank];
+    tokens = [...tokens.slice(0, bestIndex), rule.merged, ...tokens.slice(bestIndex + 2)];
+    steps.push({ rank: bestRank, rule, at: bestIndex, tokens });
+  }
+}

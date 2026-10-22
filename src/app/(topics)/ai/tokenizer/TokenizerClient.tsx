@@ -7,6 +7,7 @@ import { QuizGate } from '@/components/topic/QuizGate';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizFeedback from './content/quiz-feedback.mdx';
 import { TokenStrip } from './TokenStrip';
+import { BpeFigure } from './BpeFigure';
 import { MAX_INPUT_LENGTH, clampInput, encode, statsOf } from './tokenizer';
 import NoteIntro from './content/note-intro.mdx';
 import TryIt, { title as tryItTitle } from './content/try-it.mdx';
@@ -43,7 +44,13 @@ const PARALLEL_SENTENCES: { english: string; korean: string }[] = [
 const NUMBER_SAMPLES = ['2026', '19260817', '1000000'];
 
 export default function TokenizerClient() {
-  const [input, setInput] = useState(DEFAULT_INPUT);
+  const [input, setInputValue] = useState(DEFAULT_INPUT);
+  /** 입력을 한 번이라도 바꿨는가. 바꾼 뒤에 새로 마운트되는 figure 는 바이트로 풀어 처음부터 묶는다. */
+  const [changed, setChanged] = useState(false);
+  const setInput = (text: string) => {
+    setInputValue(text);
+    setChanged(true);
+  };
 
   const tokens = useMemo(() => encode(input), [input]);
   const stats = useMemo(() => statsOf(input), [input]);
@@ -104,6 +111,8 @@ export default function TokenizerClient() {
           <li>입력 <strong>{stats.chars}글자</strong></li>
           <li>→ 규칙대로 묶기 <strong>{stats.tokens}토큰</strong></li>
         </ol>
+        {/* 입력이 바뀌면 새로 마운트한다(AGENTS.md). 이전 입력의 묶음이 한 프레임도 남지 않는다. */}
+        <BpeFigure key={input} text={input} animate={changed} />
         <TokenStrip tokens={tokens} />
         <p className={styles.observation} role="status">
           {input === 'token' ? 'token은 다섯 글자가 한 블록에 모여 1토큰입니다.'
