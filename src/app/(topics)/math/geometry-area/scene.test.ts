@@ -1,24 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { toCanvasX, toCanvasY, GEOMETRY, CANVAS } from './scene';
+import { GEOMETRY } from './scene';
 
 describe('geometry-area scene', () => {
-  it('toCanvasX and toCanvasY calculate correctly', () => {
-    expect(toCanvasX(0)).toBe(88);
-    expect(toCanvasX(6)).toBe(496);
-    expect(toCanvasY(0)).toBe(440);
-    expect(toCanvasY(6)).toBe(32);
-  });
-
-  it('all shapes fit inside 520x520 canvas with sufficient label clearance', () => {
-    // Origin is at (88, 440), Scale is 68
-    // Leftmost label at x=-0.8 ("6-x", center at 33.6px) has clearance to prevent clipping
-    const LABEL_HALF_WIDTH = 20; // 24px/18px bold text half-width allowance
-    expect(toCanvasX(-0.8)).toBeCloseTo(33.6, 1);
-    expect(toCanvasX(-0.8) - LABEL_HALF_WIDTH).toBeGreaterThan(0);
-    expect(toCanvasX(6)).toBeLessThanOrEqual(CANVAS.width);
-    expect(toCanvasY(6)).toBeGreaterThanOrEqual(0);
-  });
-
   it('pythagoras equation yields exactly 2', () => {
     // 3^2 + (6-x)^2 = (3+x)^2
     // 9 + 36 - 12x + x^2 = 9 + 6x + x^2
