@@ -14,7 +14,7 @@ import {
   nextAction,
   pieceText,
   planFor,
-  retarget,
+  openBpe,
   sideText,
   statusText,
   tokensAt,
@@ -72,9 +72,34 @@ describe('버튼과 시간', () => {
     expect(tokensAt(planFor('token'), s.step)).toEqual(encode('token'));
   });
 
-  it('입력이 바뀌면 바이트로 풀어 처음부터 묶고, 2초 안에 끝난다', () => {
+  // AGENTS.md: 바깥 값이 바뀌면 key 로 새로 마운트한다. 새로 마운트한 figure 의 첫 상태를 본다.
+  it('첫 화면·움직임 줄이기·긴 글은 다 묶은 모습으로 열고, 입력을 바꾼 뒤에는 바이트에서 시작한다', () => {
+    expect(openBpe('토큰', false, false)).toEqual(initialBpe('토큰'));
+    expect(openBpe('토큰', true, true)).toEqual(initialBpe('토큰'));
+    expect(openBpe('the model cost is not a word', true, false)).toEqual(initialBpe('the model cost is not a word'));
+    expect(openBpe('뷁', true, false)).toEqual(initialBpe('뷁'));
+    expect(openBpe('토큰', true, false)).toMatchObject({ step: 0, running: true });
+  });
+
+  it('묶는 동안 받아들이지 않았던 누름의 이유는 다 묶으면 지운다', () => {
+    let s = mergeOnce(advanceBpe(openBpe('토큰', true, false), 0.05));
+    expect(s.note).toContain('묶는 중');
+    s = run(s);
+    expect(s.note).toBe('');
+    expect(statusText(s)).toContain('토큰 1개');
+  });
+
+  it('같은 입력의 계획은 한 번만 계산한다 (긴 입력도 그릴 때마다 다시 나누지 않는다)', () => {
+    const long = '토큰'.repeat(150);
+    expect(planFor(long)).toBe(planFor(long));
+    const started = performance.now();
+    for (let i = 0; i < 20; i++) planFor(long);
+    expect(performance.now() - started).toBeLessThan(50);
+  });
+
+  it('입력을 바꾸면 바이트로 풀어 처음부터 묶고, 2초 안에 끝난다', () => {
     for (const text of PRESETS) {
-      let s = retarget(initialBpe(''), text);
+      let s = openBpe(text, true, false);
       const n = planFor(text).steps.length;
       if (n === 0) {
         expect(s.running).toBe(false);
@@ -105,7 +130,7 @@ describe('버튼과 시간', () => {
     check(mergeAll(done), done, '규칙표에 없습니다');
     const raw = unpack(done);
     check(unpack(raw), raw, '이미 바이트');
-    const moving = advanceBpe(retarget(done, '토큰'), 0.1);
+    const moving = advanceBpe(openBpe('토큰', true, false), 0.1);
     check(mergeOnce(moving), moving, '묶는 중');
     check(mergeAll(moving), moving, '묶는 중');
     const long = initialBpe('the model cost is not a word');
@@ -114,7 +139,7 @@ describe('버튼과 시간', () => {
 
   it('nextAction 은 지금 누르면 받아들여지는 버튼만 돌려준다', () => {
     for (const text of [...PRESETS, '', 'the model cost is not a word']) {
-      const states = [initialBpe(text), unpack(initialBpe(text)), advanceBpe(retarget(initialBpe('x'), text), 0.05)];
+      const states = [initialBpe(text), unpack(initialBpe(text)), advanceBpe(openBpe(text, true, false), 0.05)];
       for (const s of states) {
         const a = nextAction(s);
         if (a === null) continue;
@@ -122,11 +147,11 @@ describe('버튼과 시간', () => {
         expect(after.note, `${text} ${a}`).toBe('');
       }
     }
-    expect(nextAction(advanceBpe(retarget(initialBpe('x'), 'token'), 0.05))).toBeNull();
+    expect(nextAction(advanceBpe(openBpe('token', true, false), 0.05))).toBeNull();
   });
 
   it('상태 문구는 묶는 동안 바뀌지 않는다 (화면 낭독이 단계마다 끼어들지 않게)', () => {
-    let s = retarget(initialBpe('x'), '토큰');
+    let s = openBpe('토큰', true, false);
     const seen = new Set<string>();
     while (s.running) {
       seen.add(statusText(s));
@@ -139,7 +164,7 @@ describe('버튼과 시간', () => {
   // 본문: 이 모형은 입력할 때 새로 학습하지 않는다.
   it('규칙표는 입력에 따라 바뀌지 않는다', () => {
     const before = MERGES.map((m) => m.merged.join(','));
-    for (const text of PRESETS) run(retarget(initialBpe('x'), text));
+    for (const text of PRESETS) run(openBpe(text, true, false));
     expect(MERGES.map((m) => m.merged.join(','))).toEqual(before);
   });
 });

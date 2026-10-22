@@ -2,16 +2,16 @@
 
 import { ColorFigure, useFigureState } from '@/components/topic/ColorFigure';
 import { FRONT_VIEW } from '@/lib/colorfigures/core';
-import { advanceBpe, initialBpe, isSettled, mergeAll, mergeOnce, nextAction, planFor, retarget, statusText, tokensAt, unpack } from './bpe';
+import { prefersReducedMotion } from '@/lib/reducedMotion';
+import { advanceBpe, isSettled, mergeAll, mergeOnce, nextAction, openBpe, planFor, statusText, tokensAt, unpack } from './bpe';
 import { BPE_SIZE, bpeScene } from './bpeScene';
 
 /**
- * 바이트 타일과 규칙표. 입력은 바깥(예시 버튼·입력 칸)이 정하고, figure 는 묶는 과정만 갖는다.
- * 입력이 바뀌면 그리는 중에 목표만 바꾼다 (effect 로 되돌리지 않으므로 이전 입력이 한 프레임 남지 않는다).
+ * 바이트 타일과 규칙표. 입력은 바깥(예시 버튼·입력 칸)이 정하고, 바뀌면 바깥이 key 로 새로 마운트한다.
+ * animate 면 바이트로 풀어 처음부터 묶는다 (움직임 줄이기 설정이면 끝 모습으로 연다).
  */
-export function BpeFigure({ text }: { text: string }) {
-  const [st, dispatch] = useFigureState(() => initialBpe(text), advanceBpe, isSettled);
-  if (st.text !== text) dispatch((s) => retarget(s, text));
+export function BpeFigure({ text, animate }: { text: string; animate: boolean }) {
+  const [st, dispatch] = useFigureState(() => openBpe(text, animate, animate && prefersReducedMotion()), advanceBpe, isSettled);
   const plan = planFor(st.text);
   const pieces = tokensAt(plan, st.step).length;
   const next = nextAction(st);

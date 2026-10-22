@@ -7,7 +7,7 @@
  *   3. 더 합칠 쌍이 규칙표에 없으면 멈춘다. 남은 묶음 하나가 토큰 하나다.
  * 규칙표는 미리 정해 둔 것이다. 입력할 때 새로 배우거나 바뀌지 않는다.
  *
- * 입력은 바깥(위의 예시 버튼과 입력 칸)이 정한다. figure 는 묶는 과정의 진행만 갖는다.
+ * 입력은 바깥(위의 예시 버튼과 입력 칸)이 정한다. 입력이 바뀌면 figure 를 새로 마운트하고, figure 는 묶는 과정의 진행만 갖는다.
  */
 import { MERGES, byteLength, encode, encodeTrace, type MergeStep, type Token } from './tokenizer';
 
@@ -37,7 +37,18 @@ export interface BpePlan {
 
 const encoder = new TextEncoder();
 
+/**
+ * 그림에 보일 것. 한 번 그릴 때 여러 곳(장면·버튼·상태 문구)이 같은 입력으로 부르므로 마지막 입력의 결과를 둔다.
+ * 긴 입력은 전체를 토큰으로 나눈 뒤 앞쪽만 쓰기 때문에, 다시 계산하면 300자 입력에서 눈에 띄게 느려진다.
+ */
+let cached: { text: string; plan: BpePlan } | null = null;
+
 export function planFor(text: string): BpePlan {
+  if (cached?.text !== text) cached = { text, plan: computePlan(text) };
+  return cached.plan;
+}
+
+function computePlan(text: string): BpePlan {
   if (byteLength(text) <= MAX_FIG_BYTES) {
     const steps = encodeTrace(text);
     const bytes = Array.from(encoder.encode(text));
@@ -67,13 +78,14 @@ export const initialBpe = (text: string): BpeState => ({ text, step: total(planF
 
 export const isSettled = (s: BpeState) => !s.running;
 
-/** 입력이 바뀌었다: 바이트로 풀어 늘어놓고 처음부터 묶는다. 긴 글은 끝 모습으로 둔다. */
-export function retarget(s: BpeState, text: string): BpeState {
-  if (s.text === text) return s;
+/**
+ * 새로 마운트할 때의 상태. 입력이 바뀌면 figure 를 key 로 새로 마운트하고(AGENTS.md), 바이트로 풀어 처음부터 묶는다.
+ * 첫 화면(animate = false)과 움직임 줄이기, 긴 글, 합칠 것이 없는 글은 다 묶은 끝 모습으로 연다.
+ */
+export function openBpe(text: string, animate: boolean, reducedMotion: boolean): BpeState {
   const plan = planFor(text);
-  return plan.clipped || total(plan) === 0
-    ? { text, step: total(plan), running: false, note: '' }
-    : { text, step: 0, running: true, note: '' };
+  if (!animate || reducedMotion || plan.clipped || total(plan) === 0) return initialBpe(text);
+  return { text, step: 0, running: true, note: '' };
 }
 
 export function advanceBpe(s: BpeState, dt: number): BpeState {
@@ -81,7 +93,8 @@ export function advanceBpe(s: BpeState, dt: number): BpeState {
   const n = total(planFor(s.text));
   const speed = Math.max(MERGES_PER_SECOND, n / MAX_RUN);
   const step = s.step + speed * dt;
-  return step >= n ? { ...s, step: n, running: false } : { ...s, step };
+  // 다 묶으면 묶는 동안 받아들이지 않았던 누름의 이유는 지운다(이제 맞지 않는 말이다).
+  return step >= n ? { ...s, step: n, running: false, note: '' } : { ...s, step };
 }
 
 /* ---------- 버튼 ---------- */
