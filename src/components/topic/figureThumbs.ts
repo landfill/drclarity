@@ -16,6 +16,8 @@ import { initialGrade } from '@/app/(topics)/ai/training-validation/grade';
 import { initialSign } from '@/app/(topics)/ai/training-assistant/sign';
 import { SAMPLES as AR_SAMPLES } from '@/app/(topics)/ai/autoregressive/loop';
 import { initialReel } from '@/app/(topics)/ai/autoregressive/reel';
+import { buildTimeline } from '@/app/(topics)/ai/prefill-decode/timeline';
+import { SHELF_SIZE, shelfScene } from '@/app/(topics)/ai/prefill-decode/shelfScene';
 import { PROMPTS as NW_PROMPTS, applyTemperature } from '@/app/(topics)/ai/next-word/softmax';
 import { initialWheel } from '@/app/(topics)/ai/next-word/wheel';
 import { WHEEL_SIZE, wheelScene } from '@/app/(topics)/ai/next-word/wheelScene';
@@ -55,6 +57,12 @@ export const FIGURE_THUMBS: Record<string, FigureThumbSpec> = {
     view: FRONT_VIEW,
     crispText: true,
     scene: () => lensScene({ cells: sampleGrid(128), gridSize: 128, zoom: 1, showLines: true, lens: DEFAULT_FOCUS }),
+  },
+  'ai/prefill-decode': {
+    size: SHELF_SIZE,
+    view: FRONT_VIEW,
+    crispText: true,
+    scene: () => shelfScene([{ label: '긴 기사를 세 줄로 요약하기', phases: buildTimeline(900, 60) }, { label: '짧게 묻고 길게 답하기', phases: buildTimeline(10, 200), muted: true }], 2010),
   },
   'ai/next-word': {
     size: WHEEL_SIZE,
