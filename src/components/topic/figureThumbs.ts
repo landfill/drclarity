@@ -11,6 +11,8 @@ import { GOAL_SIZE, guessScene } from '@/app/(topics)/ai/training-goal/guessScen
 import { initialMask } from '@/app/(topics)/ai/training-targets/mask';
 import { MASK_SIZE, maskScene } from '@/app/(topics)/ai/training-targets/maskScene';
 import { LOSS_SIZE, lossScene } from '@/app/(topics)/ai/training-loss/lossScene';
+import { initialWeight } from '@/app/(topics)/ai/training-weights/knob';
+import { WEIGHT_SIZE, weightScene } from '@/app/(topics)/ai/training-weights/knobScene';
 import { initialRace } from '@/app/(topics)/cs/sorting-race/race';
 import { RACE_SIZE, raceScene } from '@/app/(topics)/cs/sorting-race/raceScene';
 import { initialPizza } from '@/app/(topics)/cs/floating-point/pizza';
@@ -44,6 +46,7 @@ export const FIGURE_THUMBS: Record<string, FigureThumbSpec> = {
     crispText: true,
     scene: () => lensScene({ cells: sampleGrid(128), gridSize: 128, zoom: 1, showLines: true, lens: DEFAULT_FOCUS }),
   },
+  'ai/training-weights': { size: WEIGHT_SIZE, view: FRONT_VIEW, crispText: true, scene: () => weightScene(initialWeight()) },
   'ai/training-loss': { size: LOSS_SIZE, view: FRONT_VIEW, crispText: true, scene: () => lossScene(50) },
   'ai/training-targets': { size: MASK_SIZE, view: FRONT_VIEW, crispText: true, scene: () => maskScene(initialMask()) },
   'ai/training-goal': { size: GOAL_SIZE, view: FRONT_VIEW, crispText: true, scene: () => guessScene(initialGoal()) },
