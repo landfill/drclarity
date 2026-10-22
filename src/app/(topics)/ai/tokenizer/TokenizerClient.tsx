@@ -7,6 +7,7 @@ import { QuizGate } from '@/components/topic/QuizGate';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizFeedback from './content/quiz-feedback.mdx';
 import { TokenStrip } from './TokenStrip';
+import { BpeFigure } from './BpeFigure';
 import { MAX_INPUT_LENGTH, clampInput, encode, statsOf } from './tokenizer';
 import NoteIntro from './content/note-intro.mdx';
 import TryIt, { title as tryItTitle } from './content/try-it.mdx';
@@ -104,6 +105,7 @@ export default function TokenizerClient() {
           <li>입력 <strong>{stats.chars}글자</strong></li>
           <li>→ 규칙대로 묶기 <strong>{stats.tokens}토큰</strong></li>
         </ol>
+        <BpeFigure text={input} />
         <TokenStrip tokens={tokens} />
         <p className={styles.observation} role="status">
           {input === 'token' ? 'token은 다섯 글자가 한 블록에 모여 1토큰입니다.'
