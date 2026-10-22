@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { STANDING_X, arrivalPos, guestOpacity, hotelFigure, roomY } from './hotelFigure';
+import { P, frameFor, withFrame } from '@/lib/colorfigures/core';
+import { HOTEL_FIGURE_SIZE, HOTEL_VIEW, guestOpacity, guestPlacements, hotelFigure, roomY } from './hotelFigure';
 import { HOTEL_STEP_IDS, VISIBLE_ROOMS, sceneForStep } from './hotelScene';
 
 const rooms = (svg: string) => [...svg.matchAll(/data-room="(\d+)"/g)].map((m) => Number(m[1]));
@@ -39,22 +40,27 @@ describe('hotelFigure', () => {
     expect(guestOpacity(roomY(2 * VISIBLE_ROOMS))).toBe(0);
   });
 
-  it('새 손님은 걸어오는 동안 문 앞에 선 손님과 겹치지 않는다', () => {
-    // 몸 반지름 2.7 두 개에 여유를 조금 더한 거리.
+  it('어느 단계 어느 순간에도 두 손님의 머리가 화면에서 겹치지 않는다', () => {
+    // 머리는 화면 반지름 3 의 원이다. 두 머리 중심이 6 보다 가까우면 겹친다.
+    const HEAD_Z = 12.8;
     const MIN_GAP = 6;
-    for (const id of ['board', 'odds'] as const) {
-      const scene = sceneForStep(id, 1);
-      const standing = scene.moves.filter((m) => m.to <= VISIBLE_ROOMS).map((m) => [STANDING_X, roomY(m.to)]);
-      const arrivals = scene.arrivals.filter((r) => r <= VISIBLE_ROOMS);
-      for (let k = 0; k <= 100; k++) {
-        const a = k / 100;
-        arrivals.forEach((room, i) => {
-          const [x, y] = arrivalPos(i, room, a);
-          for (const [sx, sy] of standing) {
-            expect(Math.hypot(x - sx, y - sy), `${id} ${room}번 방 손님, 진행도 ${a}`).toBeGreaterThanOrEqual(MIN_GAP);
+    const frame = frameFor(HOTEL_FIGURE_SIZE, 't', { view: HOTEL_VIEW });
+    withFrame(frame, () => {
+      for (const id of HOTEL_STEP_IDS) {
+        for (let k = 0; k <= 50; k++) {
+          const p = k / 50;
+          const heads = guestPlacements(sceneForStep(id, p))
+            .filter((g) => g.opacity > 0)
+            .map((g) => ({ g, at: P(g.x, g.y, HEAD_Z) }));
+          for (let i = 0; i < heads.length; i++) {
+            for (let j = i + 1; j < heads.length; j++) {
+              const d = Math.hypot(heads[i].at[0] - heads[j].at[0], heads[i].at[1] - heads[j].at[1]);
+              const who = `${id} 진행도 ${p}: ${heads[i].g.kind} ${heads[i].g.label} 와 ${heads[j].g.kind} ${heads[j].g.label}`;
+              expect(d, who).toBeGreaterThanOrEqual(MIN_GAP);
+            }
           }
-        });
+        }
       }
-    }
+    });
   });
 });

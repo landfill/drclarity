@@ -54,8 +54,13 @@ const DOOR_HALF = 4.6;
 /** 손님이 서는 x (문 앞), 옮길 때 복도로 비켜서는 거리. */
 const STAND_X = 18;
 const STEP_OUT = 6;
-/** 로비: 1번 방 앞 복도 바깥쪽. */
-const LOBBY_X = 29;
+/** 새 손님이 복도에 나타나는 x (복도 바깥쪽). 그 자리에서 자기 방 문 앞으로 들어선다. */
+const ARRIVE_X = 29;
+/** 로비: 1번 방 왼쪽. 옮기는 손님들의 길(1번 방 문 앞부터 오른쪽)과 겹치지 않는다. */
+const LOBBY_X = 24;
+const LOBBY_Y0 = Y_LEFT + 8;
+const LOBBY_GAP = 8;
+const LOBBY_END = LOBBY_Y0 + 2 * LOBBY_GAP + 6;
 /** 복도 바닥의 바깥 끝. */
 const FLOOR_X = 35;
 
@@ -66,7 +71,7 @@ const FLOOR_X = 35;
 export const HOTEL_VIEW: View = { az: 12, el: 28 };
 
 /** 장면의 경계 상자 [W, D, H]. */
-export const HOTEL_FIGURE_SIZE: Vec3 = [FLOOR_X, Y_LEFT + 4, FACADE_H + 2];
+export const HOTEL_FIGURE_SIZE: Vec3 = [FLOOR_X, LOBBY_END, FACADE_H + 2];
 
 const WALL: Mat = CERAMIC;
 const DOOR: Mat = WOOD;
@@ -78,8 +83,8 @@ const CARPET: Mat = PALS.blush;
 /** n 번 방 문의 가운데 y. n 이 VISIBLE_ROOMS 를 넘어도 같은 식으로 오른쪽에 계속 놓인다. */
 export const roomY = (room: number) => Y_LEFT - (room - 0.5) * ROOM_W;
 
-/** 로비에 줄 선 i 번째 손님의 y. */
-const lobbyY = (i: number) => Y_LEFT + 2 - i * 8;
+/** 로비에 줄 선 i 번째 손님의 y. 1번 방에서 멀어지는 쪽으로 선다. */
+const lobbyY = (i: number) => LOBBY_Y0 + i * LOBBY_GAP;
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
@@ -95,9 +100,9 @@ export const guestOpacity = (y: number) => (y >= FADE_START ? 1 : clamp01((y - Y
 
 /** 복도 바닥. 오른쪽 끝은 닫지 않는다 — 바닥이 끝나는 선을 그리면 마지막 방이 생긴다. */
 function floor(): string {
-  const pts: Vec3[] = [[0, Y_GHOST, 0], [FLOOR_X, Y_GHOST, 0], [FLOOR_X, Y_LEFT + 4, 0], [0, Y_LEFT + 4, 0]];
+  const pts: Vec3[] = [[0, Y_GHOST, 0], [FLOOR_X, Y_GHOST, 0], [FLOOR_X, LOBBY_END, 0], [0, LOBBY_END, 0]];
   let s = fill(pd(pts), CARPET.l, 'opacity=".55"');
-  s += line([[FLOOR_X, Y_GHOST, 0], [FLOOR_X, Y_LEFT + 4, 0], [0, Y_LEFT + 4, 0]], 1.4);
+  s += line([[FLOOR_X, Y_GHOST, 0], [FLOOR_X, LOBBY_END, 0], [0, LOBBY_END, 0]], 1.4);
   return s;
 }
 
@@ -155,22 +160,53 @@ function guest(x: number, y: number, z: number, m: Mat, label: string, opacity: 
   return opacity < 1 ? `<g opacity="${opacity.toFixed(2)}">${s}</g>` : s;
 }
 
-/** 새 손님이 복도 바깥쪽을 따라 걷다 문 앞으로 들어서기 시작하는 진행도. */
-const STEP_IN_AT = 0.75;
+/** 새 손님이 복도에 나타나 자리를 잡는 진행도. 이 사이에 흐릿하다 또렷해진다. */
+const APPEAR_UNTIL = 0.35;
 
 /**
- * 로비의 i 번째 새 손님이 진행도 a 에서 서 있는 (x, y). 먼저 복도 바깥쪽(LOBBY_X)을 따라 자기 방 앞까지
- * 걷고, 그다음 문 앞으로 들어선다. 곧장 대각선으로 가면 이미 문 앞에 선 손님들을 뚫고 지나간다.
+ * 손님 한 명이 그 순간 서 있는 자리. kind 는 원래 손님(resident)·새 손님(newcomer)·로비에서 기다리는 손님(waiting).
  */
-export function arrivalPos(i: number, room: number, a: number): [number, number] {
-  const y0 = lobbyY(i);
-  const walk = clamp01(a / STEP_IN_AT);
-  const stepIn = clamp01((a - STEP_IN_AT) / (1 - STEP_IN_AT));
-  return [LOBBY_X + (STAND_X - LOBBY_X) * stepIn, y0 + (roomY(room) - y0) * walk];
+export interface GuestPlacement {
+  kind: 'resident' | 'newcomer' | 'waiting';
+  x: number;
+  y: number;
+  label: string;
+  opacity: number;
 }
 
-/** 문 앞에 선 손님의 x. 테스트가 겹침을 잴 때 쓴다. */
-export const STANDING_X = STAND_X;
+/**
+ * 장면의 모든 손님 자리. 그림과 테스트가 같은 값을 쓴다.
+ * - 원래 손님은 옮기는 동안 복도로 한 걸음 비켜선다. 제자리에서 미끄러지면 누가 어디로 가는지 따라가기 어렵다.
+ * - 새 손님은 자기 방 앞 복도 바깥쪽에 나타나 문 앞으로 들어선다. 로비에서 곧장 걸어오면 이미 문 앞에 선
+ *   손님들이나 서로를 가로지른다.
+ */
+export function guestPlacements(scene: HotelScene): GuestPlacement[] {
+  const out: GuestPlacement[] = [];
+  const p = clamp01(scene.progress);
+  for (const mv of scene.moves) {
+    const moving = mv.from !== mv.to;
+    const y = roomY(mv.from) + (roomY(mv.to) - roomY(mv.from)) * p;
+    const x = STAND_X + (moving ? STEP_OUT * Math.sin(Math.PI * p) : 0);
+    out.push({ kind: 'resident', x, y, label: String(mv.from), opacity: guestOpacity(y) });
+  }
+  const a = clamp01(scene.arrivalProgress);
+  if (a > 0) {
+    for (const room of scene.arrivals) {
+      if (room > VISIBLE_ROOMS) continue;
+      out.push({
+        kind: 'newcomer',
+        x: ARRIVE_X + (STAND_X - ARRIVE_X) * a,
+        y: roomY(room),
+        label: '새',
+        opacity: clamp01(a / APPEAR_UNTIL),
+      });
+    }
+  }
+  for (let i = 0; i < scene.waitingCount; i++) {
+    out.push({ kind: 'waiting', x: LOBBY_X, y: lobbyY(i), label: '', opacity: 1 });
+  }
+  return out;
+}
 
 interface Placed {
   depth: number;
@@ -184,38 +220,17 @@ export function hotelFigure(scene: HotelScene): string {
   out += ghost();
   out += facade(empty);
 
-  const placed: Placed[] = [];
-  const p = clamp01(scene.progress);
-  for (const mv of scene.moves) {
-    const moving = mv.from !== mv.to;
-    const y = roomY(mv.from) + (roomY(mv.to) - roomY(mv.from)) * p;
-    // 옮기는 동안 복도로 한 걸음 비켜선다. 제자리에서 미끄러지면 누가 어디로 가는지 따라가기 어렵다.
-    const x = STAND_X + (moving ? STEP_OUT * Math.sin(Math.PI * p) : 0);
-    const pos: Vec3 = [x, y, 0];
-    placed.push({ depth: depthOf(pos), svg: guest(x, y, 0, GUEST, String(mv.from), guestOpacity(y)) });
-  }
-
-  const a = clamp01(scene.arrivalProgress);
-  if (a > 0) {
-    scene.arrivals
-      .filter((room) => room <= VISIBLE_ROOMS)
-      .forEach((room, i) => {
-        const [x, y] = arrivalPos(i, room, a);
-        placed.push({ depth: depthOf([x, y, 0]), svg: guest(x, y, 0, NEW_GUEST, '새', 1) });
-      });
-  }
-
-  for (let i = 0; i < scene.waitingCount; i++) {
-    const y = lobbyY(i);
-    placed.push({ depth: depthOf([LOBBY_X, y, 0]), svg: guest(LOBBY_X, y, 0, NEW_GUEST, '', 1) });
-  }
+  const placed: Placed[] = guestPlacements(scene).map((g) => ({
+    depth: depthOf([g.x, g.y, 0]),
+    svg: guest(g.x, g.y, 0, g.kind === 'resident' ? GUEST : NEW_GUEST, g.label, g.opacity),
+  }));
 
   placed.sort((m, n) => m.depth - n.depth);
   out += placed.map((g) => g.svg).join('');
 
   // 이름표: 로비, 처음 빈 방, 이어지는 쪽. 셋을 넘지 않는다.
   if (scene.waitingLabel && scene.waitingCount > 0) {
-    out += tag([LOBBY_X, lobbyY(0), 12], 30, 26, scene.waitingLabel);
+    out += tag([LOBBY_X, lobbyY(1), 12], 0, 34, scene.waitingLabel);
   }
   const firstEmpty = scene.emptyHighlight.find((room) => room <= VISIBLE_ROOMS);
   if (firstEmpty !== undefined) {
