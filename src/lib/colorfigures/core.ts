@@ -538,11 +538,21 @@ export function tag(p3: Vec3, dx: number, dy: number, text: string, on = false):
 export const inkScale = (svg: string, k = F.inkK): string =>
   k === 1 ? svg : svg.replace(/stroke-width="([\d.]+)"/g, (_, w: string) => `stroke-width="${(+w * k).toFixed(2)}"`);
 
-/** 흔들림·종이결 필터. wobble 은 원본 슬라이더의 기본값 2.4. */
-export const filterFor = (id: string, k: number, wobble = 2.4): string =>
+/**
+ * 선 흔들림의 기본값. 0 이면 선을 흔들지 않고 종이결만 입힌다 (원본 슬라이더의 기본값은 2.4).
+ * 이 사이트의 모든 figure 와 카드 썸네일이 이 값을 쓴다.
+ */
+export const DEFAULT_WOBBLE = 0;
+
+/** 흔들림·종이결 필터. wobble 이 0 보다 크면 선을 그만큼 흔들고, 0 이면 흔들림 단계를 빼고 종이결만 입힌다. */
+export const filterFor = (id: string, k: number, wobble = DEFAULT_WOBBLE): string =>
   `<filter id="${id}" x="-3%" y="-3%" width="106%" height="106%" color-interpolation-filters="sRGB">
-  <feTurbulence type="fractalNoise" baseFrequency="${(0.045 / k).toFixed(4)}" numOctaves="2" seed="4" result="warp"/>
-  <feDisplacementMap in="SourceGraphic" in2="warp" scale="${(wobble * k).toFixed(2)}" xChannelSelector="R" yChannelSelector="G" result="wob"/>
+  ${
+    wobble > 0
+      ? `<feTurbulence type="fractalNoise" baseFrequency="${(0.045 / k).toFixed(4)}" numOctaves="2" seed="4" result="warp"/>
+  <feDisplacementMap in="SourceGraphic" in2="warp" scale="${(wobble * k).toFixed(2)}" xChannelSelector="R" yChannelSelector="G" result="wob"/>`
+      : `<feOffset in="SourceGraphic" dx="0" dy="0" result="wob"/>`
+  }
   <feTurbulence type="fractalNoise" baseFrequency="${(0.9 / k).toFixed(4)}" numOctaves="3" seed="11" result="n1"/>
   <feColorMatrix in="n1" type="matrix" values=".3 0 0 0 .84  .3 0 0 0 .84  .3 0 0 0 .84  0 0 0 0 1" result="grain"/>
   <feTurbulence type="fractalNoise" baseFrequency="${(0.012 / k).toFixed(4)}" numOctaves="2" seed="7" result="n2"/>
