@@ -1,21 +1,19 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { InteractiveCanvas } from '@/components/topic/InteractiveCanvas';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
-import { TrialRunner, type TrialBucket } from '@/components/topic/TrialRunner';
 import {
   DAYS_IN_YEAR,
   MAX_PEOPLE,
-  drawBirthdays,
   formatProbabilityPercent,
-  hasSharedBirthday,
   pairCount,
   sharedBirthdayProbability,
 } from './birthday';
+import { CalendarFigure } from './CalendarFigure';
 import { CURVE_HEIGHT, CURVE_WIDTH, MARKED_PEOPLE, drawProbabilityCurve } from './curveRenderer';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizN23 from './content/quiz-n23.mdx';
@@ -39,10 +37,8 @@ export default function BirthdayProblemClient() {
   const probability = sharedBirthdayProbability(people);
   const pairs = pairCount(people);
 
-  const draw = useCallback(
-    (ctx: CanvasRenderingContext2D) => drawProbabilityCurve(ctx, people),
-    [people],
-  );
+  // React Compiler 가 people 에 맞춰 메모한다.
+  const draw = (ctx: CanvasRenderingContext2D) => drawProbabilityCurve(ctx, people);
 
   const params: ParameterDefinition[] = useMemo(
     () => [
@@ -58,21 +54,6 @@ export default function BirthdayProblemClient() {
       },
     ],
     [people],
-  );
-
-  const runTrial = useCallback(
-    () => hasSharedBirthday(drawBirthdays(people, Math.random)),
-    [people],
-  );
-
-  const bucketsOf = useCallback((shared: boolean) => (shared ? 'shared' : 'none'), []);
-
-  const buckets: TrialBucket[] = useMemo(
-    () => [
-      { id: 'shared', label: '같은 생일 있음', theoretical: probability, tone: 'primary' },
-      { id: 'none', label: '전부 다른 날', theoretical: 1 - probability, tone: 'secondary' },
-    ],
-    [probability],
   );
 
   return (
@@ -147,19 +128,8 @@ export default function BirthdayProblemClient() {
           <div className={styles.sectionLead}>
             <SimLead people={people} />
           </div>
-          <TrialRunner
-            /*
-             * 인원이 바뀌면 이론값이 통째로 달라진다. 이전 인원에서 쌓은 집계를
-             * 그대로 이어가면 실측 막대와 눈금이 서로 다른 분포를 가리키게 되므로
-             * key 로 다시 마운트해 비운다.
-             */
-            key={people}
-            runTrial={runTrial}
-            bucketsOf={bucketsOf}
-            buckets={buckets}
-            presets={[10, 100, 1000, 5000]}
-            labels={{ run: '번 모아보기', reset: '집계 비우기', total: '모아본 횟수' }}
-          />
+          {/* 인원이 바뀌면 이론값이 통째로 달라지므로 새로 마운트해 집계를 비운다. */}
+          <CalendarFigure key={people} people={people} />
         </section>
 
         <ExplanationBox title={complementTitle}>
