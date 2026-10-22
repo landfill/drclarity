@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { frameFor, inkScale, withFrame } from '@/lib/colorfigures/core';
+import { FRONT_VIEW, frameFor, inkScale, withFrame } from '@/lib/colorfigures/core';
 import { getTopics } from '@/content/registry';
 import { tightBox, withoutTags } from './FigureThumb';
 import { FIGURE_THUMBS } from './figureThumbs';
@@ -17,6 +17,15 @@ describe('FIGURE_THUMBS', () => {
       expect(svg, key).not.toMatch(/NaN|undefined|Infinity/);
       expect(svg, key).not.toContain('class="tag');
       expect(svg.length, key).toBeGreaterThan(1000);
+    }
+  });
+
+  // AGENTS.md: 글자에는 손그림 흔들림 필터를 걸지 않는다. 새 figure(FRONT_VIEW)는 카드에서도 글자를 필터 밖에 그린다.
+  it('FRONT_VIEW 로 그린 새 figure 의 카드는 장면 글자를 필터 밖 층에 그린다', () => {
+    for (const [key, spec] of Object.entries(FIGURE_THUMBS)) {
+      if (spec.view !== FRONT_VIEW) continue;
+      const svg = withFrame(frameFor(spec.size, 't', { view: spec.view }), () => spec.scene());
+      if (svg.includes('<text')) expect(spec.crispText, key).toBe(true);
     }
   });
 

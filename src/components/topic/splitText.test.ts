@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { box, frameFor, tag, tx, withFrame, PALS } from '@/lib/colorfigures/core';
-import { splitText } from './ColorFigure';
+import { splitText } from '@/lib/colorfigures/fonts';
 
 describe('splitText', () => {
   it('이름표 묶음과 낱 글자를 그림에서 떼어 내고, 그림은 그대로 둔다', () => {

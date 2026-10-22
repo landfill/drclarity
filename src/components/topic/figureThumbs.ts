@@ -22,10 +22,10 @@ import { sceneForStep } from '@/app/(topics)/math/infinite-hotel/hotelScene';
  */
 export const FIGURE_THUMBS: Record<string, FigureThumbSpec> = {
   'cs/floating-point': { size: PIZZA_SIZE, scene: () => pizzaScene(initialPizza()) },
-  'cs/sorting-race': { size: RACE_SIZE, view: FRONT_VIEW, scene: () => raceScene(initialRace(50, 'random')) },
+  'cs/sorting-race': { size: RACE_SIZE, view: FRONT_VIEW, crispText: true, scene: () => raceScene(initialRace(50, 'random')) },
   'math/monty-hall': { size: STAGE_SIZE, scene: () => stageScene(initialStage(() => 0)) },
   'math/honey-pots': { size: DROPPER_SIZE, scene: () => dropperScene(initialDropper(21)) },
-  'math/geometry-area': { size: CORK_SIZE, view: FRONT_VIEW, scene: () => corkScene(initialCork(0)) },
-  'math/monte-carlo-pi': { size: PLOTTER_SIZE, view: FRONT_VIEW, scene: () => plotterScene(initialPlotter()) },
+  'math/geometry-area': { size: CORK_SIZE, view: FRONT_VIEW, crispText: true, scene: () => corkScene(initialCork(0)) },
+  'math/monte-carlo-pi': { size: PLOTTER_SIZE, view: FRONT_VIEW, crispText: true, scene: () => plotterScene(initialPlotter()) },
   'math/infinite-hotel': { size: HOTEL_FIGURE_SIZE, view: HOTEL_VIEW, scene: () => hotelFigure(sceneForStep('full', 1)) },
 };

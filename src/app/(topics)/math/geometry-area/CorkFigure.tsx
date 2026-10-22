@@ -32,6 +32,7 @@ export function CorkFigure({ step, solved, area }: CorkFigureProps) {
     <ColorFigure
       size={CORK_SIZE}
       view={FRONT_VIEW}
+      crispText
       fig="01"
       title="코르크판 위의 사분원"
       hint="핀과 실로 중심을 이어 봅니다"

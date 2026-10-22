@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { formatCount } from '@/components/topic/trialAggregate';
 import { FRONT_VIEW, frameFor, settle, withFrame } from '@/lib/colorfigures/core';
 import { estimatePi, isInsideCircle } from './pi';
+import { GENERAL_FONT } from '@/lib/colorfigures/fonts';
 import {
   BATCHES,
   MAX_DARTS,
@@ -173,6 +174,14 @@ describe('버튼 순서', () => {
 });
 
 describe('plotterScene', () => {
+  // AGENTS.md: 한글이 섞인 라벨은 일반 글꼴로 쓴다.
+  it('한글이 든 글자(막대 이름, 이름표)는 일반 글꼴로 쓴다', () => {
+    const svg = draw(advancePlotter(throwBatch(initialPlotter(2), 10), 0.3));
+    const korean = (svg.match(/<text[^>]*>[^<]*[가-힯][^<]*<\/text>/g) ?? []);
+    expect(korean.length).toBeGreaterThanOrEqual(4);
+    for (const t of korean) expect(t).toContain(GENERAL_FONT);
+  });
+
   const stages = (): PlotterState[] => {
     const out: PlotterState[] = [];
     let s = initialPlotter(11);

@@ -32,6 +32,7 @@ export function PlotterFigure() {
     <ColorFigure
       size={PLOTTER_SIZE}
       view={FRONT_VIEW}
+      crispText
       fig="01"
       title="점 찍는 기계"
       hint="던질 개수를 골라 눌러 보세요"

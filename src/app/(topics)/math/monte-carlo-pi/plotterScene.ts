@@ -36,6 +36,7 @@ import {
   tx,
   type Vec3,
 } from '@/lib/colorfigures/core';
+import { koreanLabels } from '@/lib/colorfigures/fonts';
 import { MONO_FONT, palette } from '@/styles/palette';
 import type { Dart } from './pi';
 import { insideCount, penAt, type PlotterState } from './plotter';
@@ -201,5 +202,6 @@ export function plotterScene(s: PlotterState): string {
   // 펜 이름표는 종이 가운데 쪽으로 단다. 펜이 왼쪽 반에 있을 때 왼쪽으로 달면 비율 막대 판의 이름표와 겹친다.
   out += tag([HEAD_X1, penY, penZ + 1], pen.x < 0 ? 30 : -30, -26, '펜', busy);
   out += tag([PANEL_X, BAR_IN.y1, BAR_Z0 + BAR_H * (Math.PI / 4)], -26, -46, '이론값 π/4');
-  return out;
+  // 한글이 섞인 글자(막대 이름, 이름표)는 일반 글꼴로 쓴다.
+  return koreanLabels(out);
 }

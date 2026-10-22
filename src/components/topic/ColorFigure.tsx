@@ -12,6 +12,7 @@ import {
   type Vec3,
   type View,
 } from '@/lib/colorfigures/core';
+import { splitText } from '@/lib/colorfigures/fonts';
 import { prefersReducedMotion } from '@/lib/reducedMotion';
 import styles from './ColorFigure.module.css';
 
@@ -27,22 +28,6 @@ export interface FigureAction {
   primary?: boolean;
   /** 같은 group 이 이어지면 한 줄에 나란히 놓인다 (문 세 개 중 하나 고르기처럼). */
   group?: string;
-}
-
-/** 장면 SVG 의 글자: 이름표 묶음(tag)과 낱 <text>. 이름표 묶음 안의 <text> 는 묶음과 함께 옮긴다. */
-const TEXT_PARTS = /<g class="tag[^"]*">[\s\S]*?<\/g>|<text[^>]*>[^<]*<\/text>/g;
-
-/**
- * 장면 SVG 를 그림과 글자로 나눈다. 글자는 손그림 흔들림 필터 밖에 그려 또렷하게 둔다
- * (AGENTS.md: 글자 상자와 본문에는 손그림 흔들림 필터를 걸지 않는다). 글자끼리의 앞뒤 순서는 지킨다.
- */
-export function splitText(svg: string): { art: string; text: string } {
-  const text: string[] = [];
-  const art = svg.replace(TEXT_PARTS, (part) => {
-    text.push(part);
-    return '';
-  });
-  return { art, text: text.join('') };
 }
 
 /** 이어진 같은 group 끼리 묶는다. group 이 없으면 한 줄에 하나. */
