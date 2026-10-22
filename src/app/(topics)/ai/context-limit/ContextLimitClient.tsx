@@ -8,14 +8,13 @@ import { QuizGate } from '@/components/topic/QuizGate';
 import {
   DEFAULT_TURNS,
   DEFAULT_WINDOW,
-  FINAL_QUESTION,
   MAX_TURNS,
   MIN_TURNS,
-  SCRIPT,
   USER_NAME,
   WINDOW_SIZES,
-  fitToWindow,
 } from './conversation';
+import { PRESETS, activePreset, alreadyNote, windowOf, type Preset } from './rail';
+import { RailFigure } from './RailFigure';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizWindow from './content/quiz-window.mdx';
 import QuizFade from './content/quiz-fade.mdx';
@@ -34,12 +33,10 @@ export default function ContextLimitClient() {
   const [windowSize, setWindowSize] = useState<number>(DEFAULT_WINDOW);
 
   /** 마지막 질문은 대화 길이와 무관하게 늘 붙는다 — 지금 막 물은 말이기 때문이다. */
-  const state = useMemo(
-    () => fitToWindow([...SCRIPT.slice(0, turnCount), FINAL_QUESTION], windowSize),
-    [turnCount, windowSize]
-  );
-
-  const fillPercent = Math.min(100, (state.used / state.limit) * 100);
+  const state = useMemo(() => windowOf(turnCount, windowSize), [turnCount, windowSize]);
+  /** 이미 그 상태인 버튼을 다시 눌렀을 때의 안내. 값이 바뀌면 지운다. */
+  const [note, setNote] = useState('');
+  const active = activePreset(turnCount, windowSize);
 
   const params: ParameterDefinition[] = useMemo(
     () => [
@@ -65,14 +62,27 @@ export default function ContextLimitClient() {
   );
 
   const handleChange = useCallback((id: string, value: number | boolean | string) => {
+    setNote('');
     if (id === 'turns') setTurnCount(Math.round(Number(value)));
     if (id === 'window') setWindowSize(Number(value));
   }, []);
 
   const handleReset = useCallback(() => {
+    setNote('');
     setTurnCount(DEFAULT_TURNS);
     setWindowSize(DEFAULT_WINDOW);
   }, []);
+
+  /** 세 버튼 (예전 화면의 값 그대로). 이미 그 상태면 값을 바꾸지 않고 이유를 알린다. */
+  const applyPreset = (p: Preset) => {
+    if (p === active) {
+      setNote(alreadyNote(p));
+      return;
+    }
+    setNote('');
+    setTurnCount(PRESETS[p].turns);
+    setWindowSize(PRESETS[p].window);
+  };
 
   return (
     <TopicLayout
@@ -112,53 +122,8 @@ export default function ContextLimitClient() {
             <StageLead />
           </div>
 
-          <div className={styles.experimentButtons} role="group" aria-label="대화와 입력 창 비교">
-            <button type="button" aria-pressed={turnCount === DEFAULT_TURNS && windowSize === DEFAULT_WINDOW} onClick={handleReset}>1. 짧은 대화</button>
-            <button type="button" aria-pressed={turnCount === MAX_TURNS && windowSize === DEFAULT_WINDOW} onClick={() => { setTurnCount(MAX_TURNS); setWindowSize(DEFAULT_WINDOW); }}>2. 긴 대화</button>
-            <button type="button" aria-pressed={turnCount === MAX_TURNS && windowSize === 800} onClick={() => { setTurnCount(MAX_TURNS); setWindowSize(800); }}>3. 창 넓히기</button>
-          </div>
           <details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleChange} onReset={handleReset} /></details>
-          <ol className={styles.messageMap} aria-label="메시지가 입력에 남는지 한눈에 보기">
-            {state.turns.map((turn, index) => <li key={turn.id} data-kept={turn.inWindow}>
-              <strong>{index === 0 ? '이름' : turn.id === FINAL_QUESTION.id ? '질문' : index + 1}</strong>
-              <small>{turn.inWindow ? '입력 안' : '입력 밖'}</small>
-            </li>)}
-          </ol>
-          <p className={styles.observation}>이름을 알려준 첫 메시지: <strong>{state.remembersName ? '입력 안에 있음 → 이름을 답할 근거가 있음' : '입력 밖으로 빠짐 → 이름을 답할 근거가 없음'}</strong></p>
-
-          {/*
-            게이지를 대화 위에 둔다. 아래에 두면 메시지가 흐려지는 것을 보고 나서야
-            왜인지를 찾아 내려가야 한다.
-          */}
-          <div className={styles.meter}>
-            <div className={styles.meterHead}>
-              <span>모델에게 건네지는 몫</span>
-              <span className={styles.mono}>
-                <strong>{state.used}</strong> / {state.limit}토큰
-              </span>
-            </div>
-            <div
-              className={styles.meterTrack}
-              role="meter"
-              aria-valuenow={state.used}
-              aria-valuemin={0}
-              aria-valuemax={state.limit}
-              aria-label="창 사용량"
-            >
-              <div className={styles.meterFill} style={{ width: `${fillPercent}%` }} />
-            </div>
-            <p className={styles.meterNote}>
-              {state.droppedCount === 0 ? (
-                <>대화 전체가 창 안에 들어갑니다.</>
-              ) : (
-                <>
-                  위쪽 <strong>{state.droppedCount}개</strong>가 창 밖으로 밀려나 전달되지
-                  않습니다.
-                </>
-              )}
-            </p>
-          </div>
-
+          <RailFigure state={state} active={active} note={note} onPreset={applyPreset} />
           <details className={styles.chatDetails}><summary>메시지 원문 확인하기</summary>
           <ol className={styles.chat} aria-label="대화">
             {state.turns.map(turn => (
