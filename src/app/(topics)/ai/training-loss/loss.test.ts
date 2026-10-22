@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { FRONT_VIEW, frameFor, withFrame } from '@/lib/colorfigures/core';
+import { BOARD, CERAMIC, CLEAR, DARK, FRONT_VIEW, INK, METAL, PALS, SHADOW, WOOD, frameFor, withFrame } from '@/lib/colorfigures/core';
 import { GENERAL_FONT } from '@/lib/colorfigures/fonts';
-import { MONO_FONT } from '@/styles/palette';
+import { MONO_FONT, palette } from '@/styles/palette';
 import { nextTokenLoss } from './loss';
 import {
   CUP,
@@ -119,6 +119,19 @@ describe('확률 컵과 벌점 눈금 figure', () => {
     for (const t of texts(draw(30))) {
       if (/[가-힯]/.test(t.body)) expect(t.tag, t.body).toContain(GENERAL_FONT);
       if (/^\d$/.test(t.body)) expect(t.tag, t.body).toContain(MONO_FONT);
+    }
+  });
+});
+
+// AGENTS.md "색과 글자": 그림 색은 엔진의 PALS 와 재질에서 고른다 (Codex 지적: 다른 후보 층의 임시 색).
+describe('확률 컵 figure 의 색', () => {
+  it('그림에 쓰인 색은 모두 엔진의 PALS · 재질 · 잉크 색이다', () => {
+    const allowed = new Set<string>(
+      [...Object.values(PALS), METAL, CLEAR, CERAMIC, DARK, BOARD, WOOD].flatMap((m) => [m.l, m.m, m.d]).concat([INK, SHADOW, palette.muted]).map((c) => c.toLowerCase()),
+    );
+    for (const percent of [0, 1, 37, 100]) {
+      const svg = withFrame({ ...frameFor(LOSS_SIZE, 't', { view: FRONT_VIEW }), labelScale: 1 }, () => lossScene(percent));
+      for (const [, c] of svg.matchAll(/(?:fill|stroke)="(#[0-9a-fA-F]{3,6})"/g)) expect(allowed, `${percent}% ${c}`).toContain(c.toLowerCase());
     }
   });
 });

@@ -108,10 +108,9 @@ export function lossScene(percent: number): string {
 
   // 계량컵: 투명한 원통. 아래층 = 정답 몫, 위층 = 다른 후보 몫. 컵 하나가 100%.
   const answerH = p * CUP.h;
-  const OTHERS = { l: '#e3e1db', m: '#cfccc3', d: '#a9a59a' };
   out += cyl(CUP.cx, CUP.cy, BASE_H, CUP.z0, CUP.r + 1, CLEAR, tone, 1);
   if (answerH > 0.05) out += cyl(CUP.cx, CUP.cy, CUP.z0, CUP.z0 + answerH, CUP.r, PALS.mustard, tone, 0.9, 40);
-  if (CUP.h - answerH > 0.05) out += cyl(CUP.cx, CUP.cy, CUP.z0 + answerH, CUP.z0 + CUP.h, CUP.r, OTHERS, tone, 0.9, 40);
+  if (CUP.h - answerH > 0.05) out += cyl(CUP.cx, CUP.cy, CUP.z0 + answerH, CUP.z0 + CUP.h, CUP.r, METAL, tone, 0.9, 40);
 
   // 눈금관: 금속 테의 유리관. 기둥 높이 = 손실.
   out += box(TUBE.x0 - 2, TUBE.y0 - 2, BASE_H, TUBE.x1 + 2, TUBE.y1 + 2, TUBE.z0, METAL, tone, 1.1);
