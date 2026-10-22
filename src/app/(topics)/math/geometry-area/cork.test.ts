@@ -11,6 +11,7 @@ import {
   corkNote,
   initialCork,
   isSettled,
+  openStep,
   pinProgress,
   sideLabels,
   stepDuration,
@@ -122,6 +123,17 @@ describe('움직임', () => {
       expect(isSettled(s)).toBe(true);
       expect(advanceCork(s, 0.1)).toBe(s);
     }
+  });
+
+  it('움직임 줄이기 설정이면 단계를 끝 상태로 열고, 아니면 처음부터 연다', () => {
+    for (let step = 0; step < STEP_COUNT; step++) {
+      const reduced = openStep(step, true);
+      expect(isSettled(reduced)).toBe(true);
+      expect(reduced).toEqual(run(initialCork(step)));
+      expect(openStep(step, false)).toEqual(initialCork(step));
+    }
+    // 첫 화면(서버 렌더)은 0단계라 움직임이 없어 설정과 상관없이 같다.
+    expect(openStep(0, true)).toEqual(openStep(0, false));
   });
 
   it('넓이 비교부터는 핀과 실을 걷는다', () => {

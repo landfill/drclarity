@@ -66,6 +66,15 @@ export const initialCork = (step: number, solved = false, area: AreaPart = 'red'
 
 export const isSettled = (s: CorkState): boolean => s.t >= stepDuration(s.step);
 
+/**
+ * 단계를 열 때의 상태. 움직임 줄이기 설정이면 움직임을 건너뛴 끝 상태로 연다. 이 figure 는 버튼(dispatch) 없이
+ * 단계가 바뀔 때마다 새로 마운트되므로, useFigureState 의 dispatch 가 대신 건너뛰어 주지 않는다.
+ */
+export const openStep = (step: number, reducedMotion: boolean): CorkState => {
+  const s = initialCork(step);
+  return reducedMotion ? { ...s, t: stepDuration(s.step) } : s;
+};
+
 /** 시간이 dt 초 흐른 뒤. 바뀐 것이 없으면 s 를 그대로 돌려준다. */
 export function advanceCork(s: CorkState, dt: number): CorkState {
   if (isSettled(s) || dt <= 0) return s;
