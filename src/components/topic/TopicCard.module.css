@@ -55,6 +55,19 @@
   height: 58px;
 }
 
+/* 손그림 figure 의 첫 장면. 선 그림 칸과 같은 높이라 카드 제목 줄이 맞는다. */
+.figureThumb  {
+  padding: 12px 20px 4px;
+  height: 72px;
+}
+
+.figureThumb svg  {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: 100%;
+}
+
 .card[data-category="cs"] .motif  {
   color: var(--color-blue);
 }

@@ -4,6 +4,8 @@ import { DIFFICULTIES } from '@/content/difficulty';
 import type { TopicEntry } from '@/content/types';
 import { TagList } from './TagList';
 import { TopicMotif } from './TopicMotif';
+import { FigureThumb } from './FigureThumb';
+import { FIGURE_THUMBS } from './figureThumbs';
 import styles from './TopicCard.module.css';
 
 export interface TopicCardProps {
@@ -12,6 +14,8 @@ export interface TopicCardProps {
 
 export function TopicCard({ topic }: TopicCardProps) {
   const level = topic.difficulty;
+  // 손그림 figure 가 있는 주제는 선 그림 대신 figure 의 첫 장면을 쓴다.
+  const figure = FIGURE_THUMBS[`${topic.categoryId}/${topic.slug}`];
   const difficulty = level ? DIFFICULTIES[level] : undefined;
   const diffDots = Array.from({ length: 3 }).map((_, i) => (
     <span key={i} className={`${styles.dot} ${i < (level ?? 0) ? styles.filled : ''}`} />
@@ -26,6 +30,10 @@ export function TopicCard({ topic }: TopicCardProps) {
       {topic.thumbnail ? (
         <div className={styles.thumbWrapper}>
           <Image src={topic.thumbnail} alt="" fill sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw" className={styles.thumb} />
+        </div>
+      ) : figure ? (
+        <div className={styles.figureThumb}>
+          <FigureThumb id={`thumb-${topic.categoryId}-${topic.slug}`} spec={figure} />
         </div>
       ) : <div className={styles.motif}><TopicMotif categoryId={topic.categoryId} slug={topic.slug} /></div>}
       <div className={styles.content}>

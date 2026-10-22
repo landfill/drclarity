@@ -1,0 +1,21 @@
+import type { FigureThumbSpec } from './FigureThumb';
+import { initialPizza } from '@/app/(topics)/cs/floating-point/pizza';
+import { PIZZA_SIZE, pizzaScene } from '@/app/(topics)/cs/floating-point/pizzaScene';
+import { initialStage } from '@/app/(topics)/math/monty-hall/stage';
+import { STAGE_SIZE, stageScene } from '@/app/(topics)/math/monty-hall/stageScene';
+import { initialDropper } from '@/app/(topics)/math/honey-pots/dropper';
+import { DROPPER_SIZE, dropperScene } from '@/app/(topics)/math/honey-pots/dropperScene';
+import { HOTEL_FIGURE_SIZE, HOTEL_VIEW, hotelFigure } from '@/app/(topics)/math/infinite-hotel/hotelFigure';
+import { sceneForStep } from '@/app/(topics)/math/infinite-hotel/hotelScene';
+
+/**
+ * 손그림 figure 가 있는 주제의 카드 그림. 키는 `categoryId/slug`.
+ * 각 figure 가 처음 열렸을 때의 장면을 그린다. 몬티 홀은 문이 모두 닫혀 있어 자동차 자리와 상관없이
+ * 같은 그림이지만, 서버 렌더가 매번 같도록 난수 대신 고정값을 준다.
+ */
+export const FIGURE_THUMBS: Record<string, FigureThumbSpec> = {
+  'cs/floating-point': { size: PIZZA_SIZE, scene: () => pizzaScene(initialPizza()) },
+  'math/monty-hall': { size: STAGE_SIZE, scene: () => stageScene(initialStage(() => 0)) },
+  'math/honey-pots': { size: DROPPER_SIZE, scene: () => dropperScene(initialDropper(21)) },
+  'math/infinite-hotel': { size: HOTEL_FIGURE_SIZE, view: HOTEL_VIEW, scene: () => hotelFigure(sceneForStep('full', 1)) },
+};
