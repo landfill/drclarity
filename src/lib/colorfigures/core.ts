@@ -80,6 +80,15 @@ export interface View {
 }
 export const ISO_VIEW: View = { az: 45, el: (Math.atan(1 / Math.SQRT2) * 180) / Math.PI };
 export const DEFAULT_VIEW: View = { az: 25, el: 30 };
+/**
+ * 새로 만드는 figure 의 시점. DEFAULT_VIEW 보다 앞면을 더 정면으로 보아 앞면에 눈금·칸·글자를 더 담는다.
+ * 이미 만든 figure 는 바꾸지 않는다: 피자·몬티 홀·꿀통은 DEFAULT_VIEW, 무한 호텔은 자기 시점(HOTEL_VIEW)을 쓴다.
+ *
+ * 방위각을 더 줄이지 않는 이유: 빛이 시점과 함께 돌아 방위 + 60° 에서 오므로, 방위각이 약 16.6° 보다
+ * 작으면 앞면이 밝은 면(l)에서 중간 면(m)으로 어두워진다. 18° 는 앞면이 밝은 면으로 남는 값 중 작은 쪽이다.
+ * 고도 26° 에서 바닥에 누운 판의 윗면은 앞면 넓이의 절반쯤으로 보인다.
+ */
+export const FRONT_VIEW: View = { az: 18, el: 26 };
 
 /** 도 → 라디안. */
 const rad = (deg: number) => (deg * Math.PI) / 180;
