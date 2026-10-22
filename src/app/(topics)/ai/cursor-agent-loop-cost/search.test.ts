@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   buildScenario,
@@ -437,15 +436,6 @@ describe('상수', () => {
           }
         }
       }
-    }
-  });
-
-  it('칸마다 막대 색이 있다', () => {
-    // 칸의 id 를 바꾸면서 CSS 선택자만 남으면 그 칸이 조용히 색을 잃는다.
-    // `outside` → `opened` 로 바꿨을 때 실제로 그랬다.
-    const css = readFileSync(new URL('./CursorAgentLoopCost.module.css', import.meta.url), 'utf8');
-    for (const tier of SCOPE_TIERS) {
-      expect(css).toContain(`.rung[data-tier='${tier.id}']`);
     }
   });
 

@@ -162,89 +162,6 @@
   color: var(--color-muted);
 }
 
-/* --- 범위 사다리 --- */
-
-/*
- * 아래에서 위로 올라가는 것이 사다리이지만 화면은 위에서 아래로 읽는다. 그래서 순서를
- * 뒤집지 않고 위가 좁은 칸, 아래가 넓은 칸이다 — 내려갈수록 넓어지는 것이 눈에 남는다.
- */
-.ladder {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: var(--fs-sm);
-}
-
-.rung {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-2xs) 0;
-}
-
-/* 도달하지 않은 칸은 지우지 않고 흐린다. 사라지면 무엇이 꺼졌는지 볼 대상이 없어진다. */
-.rungOff {
-  opacity: 0.3;
-}
-
-/*
- * 이름은 한 줄로 둔다. 접히면 그 칸만 키가 커져 사다리의 다섯 줄이 어긋나 보이고,
- * 막대의 길이를 위아래로 견주는 일이 어려워진다.
- */
-
-.rungLabel {
-  flex-shrink: 0;
-  width: 8em;
-  color: var(--color-text);
-  white-space: nowrap;
-}
-
-.rungTrack {
-  flex: 1;
-  min-width: 0;
-  height: 10px;
-  border-radius: 999px;
-  background: var(--color-subtle);
-  overflow: hidden;
-}
-
-.rungBar {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: var(--color-accent);
-}
-
-/* 위 칸일수록 짙게. 같은 사다리를 오르고 있다는 것이 보이도록 색상은 하나로 둔다. */
-.rung[data-tier='file'] .rungBar {
-  background: var(--color-blue-soft);
-}
-
-.rung[data-tier='folder'] .rungBar {
-  background: var(--color-success);
-}
-
-.rung[data-tier='repo'] .rungBar {
-  background: var(--color-accent);
-}
-
-.rung[data-tier='git'] .rungBar {
-  background: var(--color-warm);
-}
-
-.rung[data-tier='opened'] .rungBar {
-  background: var(--color-danger);
-}
-
-
-.rungValue {
-  flex-shrink: 0;
-  width: 8.5em;
-  color: var(--color-muted);
-  text-align: right;
-  white-space: nowrap;
-}
-
 /* --- 컨트롤 한 줄 --- */
 
 /*
@@ -381,19 +298,6 @@
   color: var(--color-text);
 }
 
-/* --- 두 화면 --- */
-
-/*
- * 요청의 안과 밖을 좌우로 놓는다. 위아래로 쌓으면 아래쪽이 위쪽의 결론처럼 읽혀,
- * 계단의 넓이가 곧 오른쪽 표라는 관계가 인과처럼 보이지 않는다.
- */
-.screens {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-md);
-  margin-top: var(--space-sm);
-}
-
 .screen {
   display: flex;
   flex-direction: column;
@@ -421,27 +325,6 @@
 .screenWhere {
   font-size: var(--fs-sm);
   color: var(--color-muted);
-}
-
-/* 탐색이 어떻게 끝났는지. 싼 것과 맞는 것은 다르므로 값 옆에 늘 붙여 둔다. */
-.outcomeTag {
-  padding: 0 var(--space-2xs);
-  border-radius: var(--radius-sm);
-  background: var(--color-subtle);
-  color: var(--color-muted);
-  font-size: var(--fs-sm);
-  white-space: nowrap;
-}
-
-/* 있는데 못 찾은 경우. 가장 싼 조합이 가장 좋은 조합은 아니라는 것을 색으로 세운다. */
-.outcomeMissed {
-  padding: 0 var(--space-2xs);
-  border-radius: var(--radius-sm);
-  background: var(--color-note-bg);
-  color: var(--color-danger);
-  font-size: var(--fs-sm);
-  font-weight: 700;
-  white-space: nowrap;
 }
 
 .summarizedTag {
@@ -558,11 +441,6 @@
     padding: var(--space-md);
   }
 
-  /* 좁은 화면에서는 좌우 배치를 포기한다. 읽기 순서는 그대로다. */
-  .screens {
-    grid-template-columns: 1fr;
-  }
-
   /* 이름 칸의 폭을 고정할 여유가 없다. 위아래로 접되 줄의 경계는 남긴다. */
   .controlRow {
     flex-wrap: wrap;
@@ -576,104 +454,6 @@
     flex: 1 1 100%;
   }
 }
-
-@media (max-width: 480px) {
-  /*
-   * 이름·값의 고정폭만 16.5em 이라 320px 화면에서는 막대가 설 자리가 없다. 막대를
-   * 아래 줄로 내린다 — 다섯 칸이 모두 같은 폭의 자를 쓰므로 길이를 위아래로 견주는
-   * 일은 그대로 되고, 넘치는 것만 없어진다.
-   */
-  .rung {
-    flex-wrap: wrap;
-  }
-
-  .rungLabel {
-    flex: 1 1 auto;
-    width: auto;
-  }
-
-  .rungValue {
-    width: auto;
-  }
-
-  .rungTrack {
-    order: 3;
-    flex: 0 0 100%;
-  }
-}
-
-/* The experiment gives a concrete starting point before the full controls. */
-.experimentButtons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .5rem;
-  margin: 1rem 0;
-}
-
-.experimentButtons button {
-  min-height: 44px;
-  padding: .55rem .85rem;
-  border: var(--line-ink);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface);
-  color: var(--color-ink);
-  font: inherit;
-  font-family: var(--font-mono);
-  font-size: var(--fs-sm);
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color 160ms ease;
-}
-
-.experimentButtons button:hover {
-  background: var(--color-subtle);
-}
-
-/* 고른 실험은 겨자로 채운다. 글자는 잉크라 대비가 유지된다. */
-.experimentButtons button[aria-pressed="true"] {
-  background: var(--color-accent-fill);
-  color: var(--color-on-accent);
-}
-
-.experimentButtons button[aria-pressed="true"]:hover {
-  background: color-mix(in srgb, var(--color-accent-fill) 88%, var(--color-ink));
-}
-
-.experimentButtons button:focus-visible {
-  outline: 3px solid var(--color-ink);
-  outline-offset: 3px;
-}
-
-.flow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: .6rem;
-  margin: 1rem 0;
-  padding: 0;
-  list-style: none;
-}
-
-.flow > li {
-  flex: 1 1 110px;
-  padding: .8rem;
-  border: 1px solid var(--color-ink);
-  border-radius: var(--radius-hand-sm);
-  background: var(--color-bg);
-  color: var(--color-text);
-}
-
-.flow strong {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 1.25rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.flow small {
-  color: var(--color-muted);
-}
-
 
 .callLegend {
   display:flex;
