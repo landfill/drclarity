@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { TopicLayout } from '@/components/layout/TopicLayout';
-import { GeometryFigure, type AreaPart } from './GeometryFigure';
+import { CorkFigure } from './CorkFigure';
+import type { AreaPart } from './cork';
 import { GEOMETRY_STEPS } from './steps';
 import { GEOMETRY } from './scene';
 import meta from './meta';
@@ -39,7 +40,7 @@ export default function GeometryAreaClient() {
         <div className={styles.lessonGrid}>
           <div className={styles.figurePanel}>
             <div className={styles.figureHead}><span>그림에서 확인하기</span><button type="button" disabled={![1,2,5].includes(step)} onClick={() => setReplay(value => value+1)}>그림 다시 보기 ↻</button></div>
-            <GeometryFigure step={step} solved={solved} area={area} replay={replay} />
+            <CorkFigure key={`${step}-${replay}`} step={step} solved={solved} area={area} />
             {step === 3 && <div className={styles.figureControls} role="group" aria-label="변의 길이 비교"><button type="button" aria-pressed={!solved} onClick={() => setSolved(false)}>식으로 보기</button><button type="button" aria-pressed={solved} onClick={() => setSolved(true)}>x = 2 대입하기</button></div>}
             {step === 4 && <div className={styles.figureControls} role="group" aria-label="넓이 비교">{AREA_PARTS.map(part => <button key={part.id} type="button" aria-pressed={area === part.id} onClick={() => setArea(part.id)}>{part.label} · {GEOMETRY.areas[part.id]}π</button>)}</div>}
           </div>
