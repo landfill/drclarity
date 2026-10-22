@@ -35,7 +35,7 @@ import {
   type Vec3,
 } from '@/lib/colorfigures/core';
 import { koreanLabels } from '@/lib/colorfigures/fonts';
-import { MONO_FONT, palette } from '@/styles/palette';
+import { MONO_FONT, palette, type PaletteKey } from '@/styles/palette';
 import { cutAt, toHex, type EncodedChar } from './utf8';
 import { NARROW_WINDOW, WINDOW, bladeDown, displayText, isCut, pieceFall, tapeCells, windowStart, type TapeState } from './tape';
 
@@ -69,9 +69,27 @@ const BLADE = { w: 1.6, h: 9, upZ: TAPE.z1 + 3, downZ: TAPE.z0 - 4 };
 
 export const TAPE_SIZE: Vec3 = [BASE[2], BASE[3], MACHINE.z1];
 
-/** 칸 색: 위 보드(Utf8.module.css 의 .size1~4)와 같은 색을 미리 섞어 둔 값. 깨진 조각은 .cutBroken 과 같다. */
-export const SIZE_FILL = ['#d3deec', '#c7d3c6', '#f5e1b4', '#cec19c'] as const;
-export const BROKEN_FILL = '#f7c6b7';
+/**
+ * CSS 의 `color-mix(in srgb, var(--color-<name>) <percent>%, var(--color-surface))` 와 같은 색.
+ * SVG 는 CSS 변수를 섞을 수 없으므로 palette 에서 같은 비율로 섞는다.
+ */
+export function mixWithSurface(name: PaletteKey, percent: number): string {
+  const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  const a = rgb(palette[name]);
+  const b = rgb(palette.surface);
+  return '#' + a.map((v, i) => Math.round((v * percent + b[i] * (100 - percent)) / 100).toString(16).padStart(2, '0')).join('');
+}
+
+/** 칸 색: 위 보드(Utf8.module.css 의 .size1~4)와 같은 섞음. 깨진 조각은 .cutBroken 과 같다. 비율은 테스트가 CSS 와 맞춰 본다. */
+export const SIZE_MIX = [
+  ['blue-soft', 30],
+  ['success', 25],
+  ['dough', 75],
+  ['accent', 35],
+] as const satisfies readonly (readonly [PaletteKey, number])[];
+export const BROKEN_MIX = ['danger-soft', 35] as const satisfies readonly [PaletteKey, number];
+export const SIZE_FILL = SIZE_MIX.map(([name, percent]) => mixWithSurface(name, percent));
+export const BROKEN_FILL = mixWithSurface(...BROKEN_MIX);
 
 /** 창의 k 번째 칸 왼쪽 끝 y. */
 const cellY = (k: number, w: number) => CELL_Y0 - k * w;

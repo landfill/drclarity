@@ -24,7 +24,9 @@ import {
   windowStart,
   type TapeState,
 } from './tape';
-import { BROKEN_FILL, TAPE_SIZE, cellWidth, hexSize, tapeScene, windowFor } from './tapeScene';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import { BROKEN_FILL, BROKEN_MIX, SIZE_FILL, SIZE_MIX, TAPE_SIZE, cellWidth, hexSize, mixWithSurface, tapeScene, windowFor } from './tapeScene';
 
 const SHORT = '안녕 hi 😀';
 const LONG = '정말 고맙습니다 thank you very much 😀😀 é';
@@ -181,6 +183,23 @@ describe('tapeScene', () => {
     expect(count(draw(initialTape(SHORT, 13)))).toBe(3);
     expect(count(draw(initialTape(SHORT, 10)))).toBe(0);
     expect(count(draw({ ...initialTape(SHORT, 12), t: 0.1 }))).toBe(0);
+  });
+
+  // AGENTS.md: 같은 뜻에는 사이트 전체에서 같은 색을 쓴다. 테이프 칸은 위 바이트 보드와 같은 색이어야 한다.
+  it('칸 색은 위 바이트 보드(Utf8.module.css)와 같은 색을 같은 비율로 섞는다', () => {
+    const css = readFileSync(join(__dirname, 'Utf8.module.css'), 'utf8');
+    const mixOf = (cls: string) => {
+      const block = new RegExp(`\\.${cls} \\{[^}]*?color-mix\\(in srgb, var\\(--color-([a-z-]+)\\) (\\d+)%, var\\(--color-surface\\)\\)`).exec(css);
+      expect(block, cls).not.toBeNull();
+      return [block![1], Number(block![2])];
+    };
+    SIZE_MIX.forEach((m, i) => expect([...m], `size${i + 1}`).toEqual(mixOf(`size${i + 1}`)));
+    expect([...BROKEN_MIX]).toEqual(mixOf('cutBroken'));
+    expect(SIZE_FILL).toEqual(SIZE_MIX.map(([n, p]) => mixWithSurface(n, p)));
+    expect(BROKEN_FILL).toBe(mixWithSurface(...BROKEN_MIX));
+    // 섞는 셈이 CSS 의 srgb 섞음과 같다: 끝값은 원래 색과 바탕색.
+    expect(mixWithSurface('accent', 100)).toBe('#7a5a00');
+    expect(mixWithSurface('accent', 0)).toBe('#fbf8f0');
   });
 
   // AGENTS.md: 한글이 섞인 라벨은 일반 글꼴로, 숫자만 있는 눈금은 고정폭으로 쓴다.
