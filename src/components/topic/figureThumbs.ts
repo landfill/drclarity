@@ -14,6 +14,9 @@ import { LOSS_SIZE, lossScene } from '@/app/(topics)/ai/training-loss/lossScene'
 import { initialWeight } from '@/app/(topics)/ai/training-weights/knob';
 import { initialGrade } from '@/app/(topics)/ai/training-validation/grade';
 import { initialSign } from '@/app/(topics)/ai/training-assistant/sign';
+import { SAMPLES as AR_SAMPLES } from '@/app/(topics)/ai/autoregressive/loop';
+import { initialReel } from '@/app/(topics)/ai/autoregressive/reel';
+import { REEL_SIZE, reelScene } from '@/app/(topics)/ai/autoregressive/reelScene';
 import { SIGN_SIZE, signScene } from '@/app/(topics)/ai/training-assistant/signScene';
 import { GRADE_SIZE, gradeScene } from '@/app/(topics)/ai/training-validation/gradeScene';
 import { WEIGHT_SIZE, weightScene } from '@/app/(topics)/ai/training-weights/knobScene';
@@ -50,6 +53,7 @@ export const FIGURE_THUMBS: Record<string, FigureThumbSpec> = {
     crispText: true,
     scene: () => lensScene({ cells: sampleGrid(128), gridSize: 128, zoom: 1, showLines: true, lens: DEFAULT_FOCUS }),
   },
+  'ai/autoregressive': { size: REEL_SIZE, view: FRONT_VIEW, crispText: true, scene: () => reelScene({ ...initialReel(AR_SAMPLES[0]), cursor: 7 }) },
   'ai/training-assistant': { size: SIGN_SIZE, view: FRONT_VIEW, crispText: true, scene: () => signScene(initialSign()) },
   'ai/training-validation': { size: GRADE_SIZE, view: FRONT_VIEW, crispText: true, scene: () => gradeScene(initialGrade()) },
   'ai/training-weights': { size: WEIGHT_SIZE, view: FRONT_VIEW, crispText: true, scene: () => weightScene(initialWeight()) },
