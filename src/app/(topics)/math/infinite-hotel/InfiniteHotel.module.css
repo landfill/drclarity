@@ -22,53 +22,12 @@
   box-shadow: var(--shadow-paper);
 }
 
-.canvasSlot {
+.figureSlot {
   width: 100%;
-  max-width: var(--canvas-max-w);
-  margin-inline: auto;
-}
-
-.canvas {
-  width: 100%;
-}
-
-.readouts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-lg);
-  margin-top: var(--space-md);
-}
-
-.readout dt {
-  font-family: var(--font-mono);
-  font-size: var(--fs-sm);
-  color: var(--color-muted);
-}
-
-.readout dd {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--fs-body);
-  color: var(--color-text);
-}
-
-.mono {
-  font-variant-numeric: tabular-nums;
-  /* 빈 방 목록이 길어져도 줄이 밀리지 않게. */
-  overflow-wrap: anywhere;
-}
-
-.freed {
-  font-weight: 700;
-  color: var(--color-accent);
 }
 
 @media (max-width: 768px) {
   .stage {
     padding: var(--space-md);
-  }
-
-  .readouts {
-    gap: var(--space-md);
   }
 }

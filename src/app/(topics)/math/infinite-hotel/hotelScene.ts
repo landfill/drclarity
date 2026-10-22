@@ -1,5 +1,28 @@
-import { type Rule, freedRooms, guestMoves } from './hotel';
-import { VISIBLE_ROOMS, type HotelScene } from './hotelRenderer';
+import { type GuestMove, type Rule, freedRooms, guestMoves } from './hotel';
+
+/**
+ * 화면에 그리는 방의 개수. 호텔은 무한하지만 그림은 여기서 끊고 오른쪽에 '…' 를 둔다.
+ * 이 값이 곧 이 주제가 화면에서 보증할 수 있는 범위다 — 본문이 그 사실을 밝힌다.
+ */
+export const VISIBLE_ROOMS = 12;
+
+/** 한 단계의 한 순간에 그릴 것. */
+export interface HotelScene {
+  /** 이미 묵고 있던 손님들의 이동. `progress` 로 보간해 그린다. */
+  moves: GuestMove[];
+  /** 이동 진행도 0~1. 호출자가 easing 을 적용해 넘긴다 (§5.2). */
+  progress: number;
+  /** 새로 들어오는 손님이 차지할 방. */
+  arrivals: number[];
+  /** 새 손님이 방에 자리 잡는 정도 0~1. */
+  arrivalProgress: number;
+  /** 로비에서 기다리는 손님 표시. 비우면 대기 영역을 그리지 않는다. */
+  waitingLabel?: string;
+  /** 로비에 그릴 손님 수. */
+  waitingCount: number;
+  /** 빈 방으로 강조할 방. */
+  emptyHighlight: number[];
+}
 
 /**
  * 풀이 단계와 화면 상태의 대응.

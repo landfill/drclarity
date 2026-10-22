@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { VISIBLE_ROOMS } from './hotelRenderer';
 import {
   HOTEL_STEP_IDS,
   durationForStep,
@@ -7,6 +6,7 @@ import {
   isHotelStepId,
   ruleForStep,
   sceneForStep,
+  VISIBLE_ROOMS,
 } from './hotelScene';
 
 describe('isHotelStepId', () => {

@@ -213,6 +213,8 @@ export function withFrame<T>(frame: Frame, fn: () => T): T {
 
 /** 지금 그리는 figure 의 선 굵기 배율. */
 export const inkK = (): number => F.inkK;
+/** 지금 그리는 figure 의 이름표 글자 배율. 작은 화면에서 1 보다 커진다. 장면 안 글자를 같이 키울 때 쓴다. */
+export const labelScale = (): number => F.labelScale;
 /** 지금 그리는 figure 의 보는 방향. */
 export const currentView = (): View => F.view;
 
