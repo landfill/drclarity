@@ -2,7 +2,7 @@
 
 import { ColorFigure, useFigureState } from '@/components/topic/ColorFigure';
 import { FRONT_VIEW } from '@/lib/colorfigures/core';
-import { EXAMPLES, advanceGoal, choose, initialGoal, isSettled, nextAction, nextExample, reveal, statusText } from './guess';
+import { EXAMPLES, advanceGoal, choose, figureLabel, initialGoal, isSettled, nextAction, nextExample, reveal, statusText } from './guess';
 import { GOAL_SIZE, guessScene } from './guessScene';
 
 /** 가림 쪽지: 독자가 후보 하나를 예상 칸에 붙이고, 쪽지를 들어 원문의 다음 조각과 견준다. */
@@ -10,7 +10,6 @@ export function GuessFigure() {
   const [st, dispatch] = useFigureState(initialGoal, advanceGoal, isSettled);
   const ex = EXAMPLES[st.example];
   const next = nextAction(st);
-  const guess = st.guess === null ? null : ex.choices[st.guess];
 
   return (
     <ColorFigure
@@ -20,7 +19,7 @@ export function GuessFigure() {
       fig="01"
       title="가림 쪽지"
       hint="후보 하나를 예상 칸에 붙인 뒤 쪽지를 들어 보세요"
-      label={`원문 ${st.example + 1}: "${ex.prefix}" 다음 조각은 ${st.revealed ? `"${ex.next}" 입니다` : '쪽지로 가려 두었습니다'}. 내 예상은 ${guess ? `"${guess}"` : '아직 없습니다'}.`}
+      label={figureLabel(st)}
       scene={() => guessScene(st)}
       actionsLabel="다음 조각 예상"
       actions={[

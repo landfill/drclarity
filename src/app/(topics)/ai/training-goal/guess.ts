@@ -85,3 +85,11 @@ export function statusText(s: GoalState): string {
   const verdict = guess === ex.next ? '이 위치에서 예상과 원문이 같았습니다.' : '말이 될 수 있는 예상이어도, 이 위치의 학습 정답은 원문에 있던 조각입니다.';
   return `내 예상: ${guess} · 원문의 다음 조각: ${ex.next}. ${verdict} 학습은 이 조각에 얼마나 확률을 주었는지 비교하는 데서 출발합니다.`;
 }
+
+/** 그림의 대체 글: 공개한 뒤에는 원문 전체를 적는다 (그림 속 글자는 화면 읽기에 따로 드러나지 않는다). */
+export function figureLabel(s: GoalState): string {
+  const ex = EXAMPLES[s.example];
+  const guess = s.guess === null ? '아직 없습니다' : `"${ex.choices[s.guess]}"`;
+  const original = s.revealed ? `"${ex.prefix}" 다음 조각은 "${ex.next}" 입니다. 원문 전체: "${ex.prefix} ${ex.next} ${ex.rest}"` : `"${ex.prefix}" 다음 조각은 쪽지로 가려 두었습니다`;
+  return `원문 ${s.example + 1}: ${original}. 내 예상은 ${guess}.`;
+}

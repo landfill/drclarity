@@ -6,6 +6,7 @@ import {
   EXAMPLES,
   advanceGoal,
   choose,
+  figureLabel,
   initialGoal,
   isSettled,
   nextAction,
@@ -92,6 +93,20 @@ describe('상태 문구 (Experiment 의 관찰 문구 그대로)', () => {
     const same = run(reveal(run(choose(initialGoal(), 0))));
     expect(statusText(same)).toContain('이 위치에서 예상과 원문이 같았습니다.');
     for (const s of [diff, same]) expect(statusText(s)).toContain('학습은 이 조각에 얼마나 확률을 주었는지 비교하는 데서 출발합니다.');
+  });
+});
+
+describe('대체 글', () => {
+  // 그림은 role="img" 라 그림 속 글자는 화면 읽기에 드러나지 않는다. 공개한 뒤에는 원문 전체가 대체 글에 있어야 한다.
+  it('공개 전에는 다음 조각을 적지 않고, 공개 뒤에는 원문 전체를 적는다', () => {
+    for (const example of [0, 1]) {
+      const ex = EXAMPLES[example];
+      const closed = run(choose({ ...initialGoal(), example }, 1));
+      expect(figureLabel(closed)).not.toContain(ex.next);
+      expect(figureLabel(closed)).not.toContain(ex.rest);
+      const open = run(reveal(closed));
+      expect(figureLabel(open)).toContain(`${ex.prefix} ${ex.next} ${ex.rest}`);
+    }
   });
 });
 
