@@ -17,6 +17,11 @@ import styles from './ColorFigure.module.css';
 
 export interface FigureAction {
   label: string;
+  /**
+   * 버튼의 이름. 생략하면 label 을 쓴다. 누를 때 글자가 바뀌는 버튼(출발 ↔ 멈춤)은 id 를 주어야 같은 버튼으로 남아
+   * 키보드 포커스를 잃지 않는다.
+   */
+  id?: string;
   onClick: () => void;
   /** 지금 누를 차례인 버튼. 강조색으로 보인다. */
   primary?: boolean;
@@ -181,7 +186,7 @@ export function ColorFigure({
             {actionRows(actions).map((row) => {
               const buttons = row.map((a) => (
                 <button
-                  key={a.label}
+                  key={a.id ?? a.label}
                   type="button"
                   className={`${styles.action} ${a.primary ? styles.primary : ''}`.trim()}
                   onClick={a.onClick}
@@ -190,7 +195,7 @@ export function ColorFigure({
                 </button>
               ));
               return row.length > 1 ? (
-                <div key={row[0].label} className={styles.row}>
+                <div key={row[0].id ?? row[0].label} className={styles.row}>
                   {buttons}
                 </div>
               ) : (

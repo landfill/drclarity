@@ -27,6 +27,7 @@ import {
   type Mat,
   type Vec3,
 } from '@/lib/colorfigures/core';
+import { koreanLabels } from '@/lib/colorfigures/fonts';
 import { palette } from '@/styles/palette';
 import { laneDone, type Lane, type RaceState } from './race';
 
@@ -103,8 +104,12 @@ function bay(l: Lane, i: number, n: number): string {
   const { title, counts, done: doneText } = edgeTexts(l);
   const fs = edgeFontSize();
   const left = EDGE_LEFT;
+  // 글자 폭을 어림하지 않고 글자 기준점으로 맞춘다: 왼쪽 정렬은 시작점, 오른쪽 정렬은 끝점.
   const at = (text: string, z: number, alignRight = false) =>
-    tx(DEPTH + 0.05, alignRight ? EDGE_RIGHT + textWidth(text, fs) / 2 : left - textWidth(text, fs) / 2, z, text, fs, INK, 700);
+    tx(DEPTH + 0.05, alignRight ? EDGE_RIGHT : left, z, text, fs, INK, 700).replace(
+      'text-anchor="middle"',
+      `text-anchor="${alignRight ? 'end' : 'start'}"`,
+    );
   const [lineTop, lineBottom] = edgeLines(z0, fs);
   s += at(title, lineTop);
   s += at(counts, lineBottom);
@@ -146,5 +151,6 @@ export function raceScene(s: RaceState): string {
   });
   out += box(0, WIDTH - SIDE, BASE_H, DEPTH, WIDTH, TOP, CABINET, tone, 1.2);
   out += box(0, 0, TOP - 4, DEPTH, WIDTH, TOP, CABINET, tone, 1.2);
-  return out;
+  // 모서리 글자는 한글과 숫자가 섞여 있어 일반 글꼴로 쓴다.
+  return koreanLabels(out);
 }

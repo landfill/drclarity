@@ -32,12 +32,13 @@ export function RaceFigure({ size, pattern }: { size: number; pattern: InputPatt
       title="정렬 선반"
       hint="세 칸에 같은 배열, 같은 빠르기"
       label={`선반 세 칸에 같은 배열 ${size}개가 막대로 놓여 있습니다. 위에서부터 버블, 병합, 퀵 정렬입니다. ${st.lanes
-        .map((l) => `${l.label} 비교 ${l.compares.toLocaleString('ko-KR')}회`)
+        .map((l) => `${l.label} 비교 ${l.compares.toLocaleString('ko-KR')}회, 이동 ${l.writes.toLocaleString('ko-KR')}회`)
         .join(', ')}.`}
       scene={() => raceScene(st)}
       actionsLabel="정렬하기"
       actions={[
-        { label: st.running ? '멈춤' : '출발', onClick: () => dispatch(toggleRun), primary: next === 'start' },
+        // 글자가 출발 ↔ 멈춤으로 바뀌어도 같은 버튼으로 남도록 id 를 준다 (키보드 포커스를 지킨다).
+        { id: 'run', label: st.running ? '멈춤' : '출발', onClick: () => dispatch(toggleRun), primary: next === 'start' },
         { label: '한 스텝', onClick: () => dispatch(stepOnce) },
         { label: '새 배열', onClick: () => dispatch((s) => newArray(s, randomSeed())), primary: next === 'reset' },
       ]}

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { FRONT_VIEW, PALS, frameFor, settle, withFrame } from '@/lib/colorfigures/core';
+import { GENERAL_FONT } from '@/lib/colorfigures/fonts';
 import { palette } from '@/styles/palette';
 import { ALGORITHMS, runToCompletion, type InputPattern } from './sorting';
 import {
@@ -175,6 +176,16 @@ describe('raceScene', () => {
       const svg = raceScene(done);
       expect(svg).toContain(green);
       expect(svg).not.toContain(orange);
+    });
+  });
+
+  // AGENTS.md: 한글이 섞인 라벨은 일반 글꼴로 쓴다. figure 의 SVG 글자는 고정폭 글꼴을 물려받는다.
+  it('모서리 글자는 한글이 섞여 있어 모두 일반 글꼴로 쓴다', () => {
+    withFrame(frame(), () => {
+      const svg = raceScene(run(toggleRun(initialRace(10, 'random'))));
+      const texts = svg.match(/<text[^>]*>[^<]*<\/text>/g) ?? [];
+      expect(texts.length).toBeGreaterThanOrEqual(9);
+      for (const t of texts) expect(t, t).toContain(GENERAL_FONT);
     });
   });
 
