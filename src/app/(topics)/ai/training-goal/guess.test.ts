@@ -68,6 +68,14 @@ describe('순서', () => {
     expect(run(again).flap).toBe(0);
   });
 
+  it('공개한 뒤 같은 후보를 다시 고르면 스티커는 예상 칸에 그대로 있고 쪽지만 닫힌다', () => {
+    const open = run(reveal(run(choose(initialGoal(), 1))));
+    const again = choose(open, 1);
+    expect(again.revealed).toBe(false);
+    for (const i of [0, 1, 2]) expect(stickerPos(again, i)).toEqual(stickerPos(open, i));
+    expect(run(again).flap).toBe(0);
+  });
+
   it('스티커가 옮겨 가고 쪽지가 열리는 동안에도 끝나면 정확히 선다', () => {
     let s = reveal({ ...choose(initialGoal(), 1), move: 1 });
     let steps = 0;

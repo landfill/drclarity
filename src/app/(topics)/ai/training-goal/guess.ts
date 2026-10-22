@@ -56,6 +56,8 @@ export function advanceGoal(s: GoalState, dt: number): GoalState {
 /** 후보 하나를 골라 "내 예상" 칸에 붙인다. 덮개가 열려 있었으면 다시 닫는다(새 예상은 원문을 보기 전에). */
 export function choose(s: GoalState, index: number): GoalState {
   if (s.guess === index && !s.revealed) return { ...s, note: `이미 "${EXAMPLES[s.example].choices[index]}" 를 예상 칸에 붙였습니다. 덮개를 열어 원문과 견줘 보세요.` };
+  // 공개한 뒤 같은 후보를 다시 고르면 스티커는 이미 예상 칸에 있으므로 옮기지 않고 덮개만 닫는다.
+  if (s.guess === index) return { ...s, revealed: false, note: '' };
   return { ...s, prevGuess: s.guess, guess: index, move: 0, revealed: false, note: '' };
 }
 
