@@ -155,6 +155,23 @@ function guest(x: number, y: number, z: number, m: Mat, label: string, opacity: 
   return opacity < 1 ? `<g opacity="${opacity.toFixed(2)}">${s}</g>` : s;
 }
 
+/** 새 손님이 복도 바깥쪽을 따라 걷다 문 앞으로 들어서기 시작하는 진행도. */
+const STEP_IN_AT = 0.75;
+
+/**
+ * 로비의 i 번째 새 손님이 진행도 a 에서 서 있는 (x, y). 먼저 복도 바깥쪽(LOBBY_X)을 따라 자기 방 앞까지
+ * 걷고, 그다음 문 앞으로 들어선다. 곧장 대각선으로 가면 이미 문 앞에 선 손님들을 뚫고 지나간다.
+ */
+export function arrivalPos(i: number, room: number, a: number): [number, number] {
+  const y0 = lobbyY(i);
+  const walk = clamp01(a / STEP_IN_AT);
+  const stepIn = clamp01((a - STEP_IN_AT) / (1 - STEP_IN_AT));
+  return [LOBBY_X + (STAND_X - LOBBY_X) * stepIn, y0 + (roomY(room) - y0) * walk];
+}
+
+/** 문 앞에 선 손님의 x. 테스트가 겹침을 잴 때 쓴다. */
+export const STANDING_X = STAND_X;
+
 interface Placed {
   depth: number;
   svg: string;
@@ -183,9 +200,7 @@ export function hotelFigure(scene: HotelScene): string {
     scene.arrivals
       .filter((room) => room <= VISIBLE_ROOMS)
       .forEach((room, i) => {
-        const y0 = lobbyY(i);
-        const y = y0 + (roomY(room) - y0) * a;
-        const x = LOBBY_X + (STAND_X - LOBBY_X) * a;
+        const [x, y] = arrivalPos(i, room, a);
         placed.push({ depth: depthOf([x, y, 0]), svg: guest(x, y, 0, NEW_GUEST, '새', 1) });
       });
   }

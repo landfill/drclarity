@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { guestOpacity, hotelFigure, roomY } from './hotelFigure';
+import { STANDING_X, arrivalPos, guestOpacity, hotelFigure, roomY } from './hotelFigure';
 import { HOTEL_STEP_IDS, VISIBLE_ROOMS, sceneForStep } from './hotelScene';
 
 const rooms = (svg: string) => [...svg.matchAll(/data-room="(\d+)"/g)].map((m) => Number(m[1]));
@@ -37,5 +37,24 @@ describe('hotelFigure', () => {
     expect(next).toBeLessThan(1);
     expect(guestOpacity(roomY(VISIBLE_ROOMS + 2))).toBe(0);
     expect(guestOpacity(roomY(2 * VISIBLE_ROOMS))).toBe(0);
+  });
+
+  it('새 손님은 걸어오는 동안 문 앞에 선 손님과 겹치지 않는다', () => {
+    // 몸 반지름 2.7 두 개에 여유를 조금 더한 거리.
+    const MIN_GAP = 6;
+    for (const id of ['board', 'odds'] as const) {
+      const scene = sceneForStep(id, 1);
+      const standing = scene.moves.filter((m) => m.to <= VISIBLE_ROOMS).map((m) => [STANDING_X, roomY(m.to)]);
+      const arrivals = scene.arrivals.filter((r) => r <= VISIBLE_ROOMS);
+      for (let k = 0; k <= 100; k++) {
+        const a = k / 100;
+        arrivals.forEach((room, i) => {
+          const [x, y] = arrivalPos(i, room, a);
+          for (const [sx, sy] of standing) {
+            expect(Math.hypot(x - sx, y - sy), `${id} ${room}번 방 손님, 진행도 ${a}`).toBeGreaterThanOrEqual(MIN_GAP);
+          }
+        });
+      }
+    }
   });
 });
