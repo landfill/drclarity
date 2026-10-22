@@ -21,6 +21,8 @@ import { compare as kvCompare, initialKv } from '@/app/(topics)/ai/kv-cache/tile
 import { windowOf } from '@/app/(topics)/ai/context-limit/rail';
 import { RAIL_SIZE, railScene } from '@/app/(topics)/ai/context-limit/railScene';
 import { TILES_SIZE, tilesScene } from '@/app/(topics)/ai/kv-cache/tilesScene';
+import { initialLedger } from '@/app/(topics)/ai/cursor-context-cost/ledger';
+import { LEDGER_SIZE, ledgerScene } from '@/app/(topics)/ai/cursor-context-cost/ledgerScene';
 import { SHELF_SIZE, shelfScene } from '@/app/(topics)/ai/prefill-decode/shelfScene';
 import { PROMPTS as NW_PROMPTS, applyTemperature } from '@/app/(topics)/ai/next-word/softmax';
 import { initialWheel } from '@/app/(topics)/ai/next-word/wheel';
@@ -64,6 +66,7 @@ export const FIGURE_THUMBS: Record<string, FigureThumbSpec> = {
   },
   'ai/context-limit': { size: RAIL_SIZE, view: FRONT_VIEW, crispText: true, scene: () => railScene(windowOf(12, 300)) },
   'ai/kv-cache': { size: TILES_SIZE, view: FRONT_VIEW, crispText: true, scene: () => tilesScene(kvCompare(initialKv(), true)) },
+  'ai/cursor-context-cost': { size: LEDGER_SIZE, view: FRONT_VIEW, crispText: true, scene: () => ledgerScene(initialLedger()) },
   'ai/prefill-decode': {
     size: SHELF_SIZE,
     view: FRONT_VIEW,

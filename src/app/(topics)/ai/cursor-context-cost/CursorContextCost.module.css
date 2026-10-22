@@ -190,22 +190,6 @@
   color: var(--color-danger);
 }
 
-/*
- * 자식에 `flex-shrink: 0` 을 주지 않는다 (의도적).
- *
- * 폭 합이 100% 를 넘는 상황이 오더라도 기본 축소가 **basis 에 비례**해 일어나므로
- * 범주 사이의 비율은 그대로 보존된다 (실측으로 확인: 대화 최대치에서 렌더 비율이
- * 기대 비율과 소수 둘째 자리까지 일치). 축소를 막으면 대신 뒤쪽 범주가 잘려
- * 사라지므로 오히려 나쁘다.
- */
-.track {
-  display: flex;
-  height: 12px;
-  border-radius: 999px;
-  background: var(--color-subtle);
-  overflow: hidden;
-}
-
 .cats {
   margin-top: var(--space-sm);
   padding: 0;
@@ -225,14 +209,6 @@
   opacity: 0.35;
 }
 
-.swatch {
-  flex-shrink: 0;
-  width: 10px;
-  height: 10px;
-  border: 1px solid var(--color-ink);
-  border-radius: 3px;
-}
-
 .catLabel {
   flex: 1;
   min-width: 0;
@@ -246,36 +222,6 @@
   color: var(--color-muted);
   white-space: nowrap;
 }
-
-/* 범주 색. Cursor 패널의 배열과 같은 순서로 구분만 되면 된다. 사이트 색표 안에서 이웃끼리 겹치지 않게 고른다. */
-.catSystem {
-  background: var(--color-muted-2);
-}
-
-.catTools {
-  background: var(--color-chart-warm);
-}
-
-.catRules {
-  background: var(--color-success);
-}
-
-.catSkills {
-  background: var(--color-accent-fill);
-}
-
-.catMcp {
-  background: var(--color-danger-soft);
-}
-
-.catSubagents {
-  background: var(--color-blue-soft);
-}
-
-.catConversation {
-  background: var(--color-warm);
-}
-
 
 /* --- 대시보드 한 행 --- */
 
@@ -332,108 +278,6 @@
   .resetButton {
     margin-left: 0;
   }
-}
-
-/* The experiment gives a concrete starting point before the full controls. */
-.experimentButtons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .5rem;
-  margin: 1rem 0;
-}
-
-.experimentButtons button {
-  min-height: 44px;
-  padding: .55rem .85rem;
-  border: var(--line-ink);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface);
-  color: var(--color-ink);
-  font: inherit;
-  font-family: var(--font-mono);
-  font-size: var(--fs-sm);
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color 160ms ease;
-}
-
-.experimentButtons button:hover {
-  background: var(--color-subtle);
-}
-
-/* 고른 실험은 겨자로 채운다. 글자는 잉크라 대비가 유지된다. */
-.experimentButtons button[aria-pressed="true"] {
-  background: var(--color-accent-fill);
-  color: var(--color-on-accent);
-}
-
-.experimentButtons button[aria-pressed="true"]:hover {
-  background: color-mix(in srgb, var(--color-accent-fill) 88%, var(--color-ink));
-}
-
-.experimentButtons button:focus-visible {
-  outline: 3px solid var(--color-ink);
-  outline-offset: 3px;
-}
-
-.flow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: .6rem;
-  margin: 1rem 0;
-  padding: 0;
-  list-style: none;
-}
-
-.flow > li {
-  flex: 1 1 110px;
-  padding: .8rem;
-  border: 1px solid var(--color-ink);
-  border-radius: var(--radius-hand-sm);
-  background: var(--color-bg);
-  color: var(--color-text);
-}
-
-.flow strong {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 1.25rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.flow small {
-  color: var(--color-muted);
-}
-
-
-.callBars {
-  list-style:none;
-  padding:0;
-  margin:1rem 0;
-  display:grid;
-  gap:.4rem;
-}
-
-.callBars li {
-  display:grid;
-  grid-template-columns:2rem minmax(20px,1fr) 6rem;
-  gap:.5rem;
-  align-items:center;
-  font-size:.8rem;
-}
-
-.callTrack {
-  height:12px;
-  background:var(--color-subtle);
-  overflow:hidden;
-  border-radius:3px;
-}
-
-.callTrack > span {
-  display:block;
-  height:100%;
-  background:var(--color-secondary);
 }
 
 .fineControls {
