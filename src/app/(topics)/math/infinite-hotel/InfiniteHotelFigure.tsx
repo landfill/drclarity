@@ -28,7 +28,7 @@ export const STEP_ALT: Record<HotelStepId, string> = {
  * 무한 호텔 figure. 단계는 바깥의 풀이 단계(SolutionStepper)가 정하고, 단계가 바뀌면
  * 바깥에서 `key` 로 새로 마운트해 이동을 처음부터 보여 준다.
  */
-export function HotelFigure({ stepId }: { stepId: HotelStepId }) {
+export function InfiniteHotelFigure({ stepId }: { stepId: HotelStepId }) {
   const [progress, setProgress] = useState(0);
   const onFrame = useCallback((_elapsed: number, p: number) => setProgress(p), []);
   useAnimationFrame(onFrame, durationForStep(stepId), [stepId, onFrame]);

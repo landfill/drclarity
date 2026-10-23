@@ -4,7 +4,6 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { BinaryEncodingBoard, type HoneyBoardMode } from './BinaryEncodingBoard';
-import { AntGlyph } from './HoneyGlyphs';
 import { antsForPot } from './binary';
 import { HONEY_STEPS } from './steps';
 import Problem from './content/problem.mdx';
@@ -13,7 +12,7 @@ import meta from './meta';
 import styles from './BinaryEncodingBoard.module.css';
 
 const STAGE_LABELS = ['문제', '그룹 나누기', '결과의 개수', '이름표 붙이기', '꿀 나누기', '컵별로 보기', '결과 읽기', '정리'];
-const MODES: HoneyBoardMode[] = ['grid','grid','codes','signature','routing','encoding','simulation','simulation'];
+const MODES: HoneyBoardMode[] = ['grid','groups','codes','signature','routing','encoding','simulation','summary'];
 
 export default function HoneyPotsClient() {
   const [stepIndex, setStepIndex] = useState(0);
@@ -64,7 +63,11 @@ export default function HoneyPotsClient() {
         <nav className={styles.lessonSteps} aria-label="풀이 단계">{STAGE_LABELS.map((label,index) => <button key={label} type="button" aria-current={stepIndex === index ? 'step' : undefined} aria-label={`${index+1}단계: ${label}`} onClick={() => go(index)}>{index+1}<span>{label}</span></button>)}</nav>
         <div className={styles.lessonGrid}>
           <div className={styles.boardPanel}>
-            <div className={styles.constraints}><span><strong>25</strong>개의 꿀통</span><span className={styles.antCount}><AntGlyph /><strong>5</strong>마리</span><span><strong>1시간</strong> 뒤 한 번 판독</span></div>
+            <dl className={styles.constraints} aria-label="퍼즐 조건">
+              <div><dt>꿀통</dt><dd><strong>25</strong><span>통 중 가짜 1통</span></dd></div>
+              <div><dt>개미</dt><dd><strong>5</strong><span>마리</span></dd></div>
+              <div><dt>판독</dt><dd><strong>1</strong><span>시간 뒤 한 번</span></dd></div>
+            </dl>
             <BinaryEncodingBoard mode={MODES[stepIndex]} selectedPot={selectedPot} onSelectPot={setSelectedPot} activeAntBit={activeAntBit} onActiveAntBitChange={setActiveAntBit} deadAntBits={deadAntBits} onToggleAntDead={bit => setDeadAntBits(previous => previous.includes(bit) ? previous.filter(value => value !== bit) : [...previous,bit])} />
           </div>
           <div className={styles.lessonExplanation}>
