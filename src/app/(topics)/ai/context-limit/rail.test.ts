@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import * as ENGINE from '@/lib/colorfigures/core';
 import { FRONT_VIEW, frameFor, withFrame } from '@/lib/colorfigures/core';
 import { GENERAL_FONT } from '@/lib/colorfigures/fonts';
-import { palette } from '@/styles/palette';
+import { MONO_FONT, palette } from '@/styles/palette';
 import { MAX_TURNS, MIN_TURNS, WINDOW_SIZES } from './conversation';
 import { PRESETS, activePreset, alreadyNote, blockName, nextAction, observation, pressPreset, windowOf } from './rail';
 import { RAIL, RAIL_SIZE, TOKEN_W, blockTextSize, blocks, frame, frameLabelU, labelSize, railScene, textWidth } from './railScene';
@@ -116,6 +116,16 @@ describe('railScene', () => {
       const bs = blocks(windowOf(12, 300));
       const narrowest = Math.min(...bs.map((b) => b.uL - b.uR));
       expect(textWidth('9', blockTextSize(scale))).toBeLessThan(narrowest);
+    }
+  });
+
+  it('순번(숫자만)은 블록 안이든 위든 고정폭으로 쓴다', () => {
+    for (const [turns, size] of [[4, 300], [12, 300], [12, 800], [7, 150]] as const) {
+      const numbered = windowOf(turns, size).turns.map((t, i) => blockName(i, t.id)).filter((n) => /^\d+$/.test(n));
+      const drawn = texts(draw(turns, size)).filter((t) => /^\d+$/.test(t.body));
+      // 좁은 블록의 순번(블록 위로 올린 것)도 빠짐없이 그려지고, 모두 고정폭이다.
+      expect(drawn.map((t) => t.body).sort()).toEqual([...numbered].sort());
+      for (const t of drawn) expect(t.tag, t.body).toContain(MONO_FONT);
     }
   });
 
