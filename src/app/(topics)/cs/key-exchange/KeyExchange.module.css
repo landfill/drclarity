@@ -136,44 +136,11 @@
   color: var(--color-muted);
 }
 
-/* ── 실제 연산 ──────────────────────────────────────────────── */
-
-.mathBoard {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-md);
-  margin-top: var(--space-md);
-}
-
-.mathParty {
-  padding: var(--space-md);
-  background: var(--color-surface);
-  border: var(--line-ink);
-  border-radius: var(--radius-hand);
-  box-shadow: var(--shadow-paper);
-}
-
 .mathLine {
   margin: var(--space-xs) 0 0;
   font-size: var(--fs-sm);
   font-variant-numeric: tabular-nums;
   color: var(--color-text);
-}
-
-.secretValue {
-  font-family: var(--font-mono);
-  color: var(--color-danger);
-}
-
-.sentValue {
-  font-family: var(--font-mono);
-  color: var(--color-blue);
-}
-
-.sharedValue {
-  font-family: var(--font-mono);
-  font-size: var(--fs-lead);
-  color: var(--color-accent);
 }
 
 .punchline {
@@ -195,45 +162,9 @@
   text-align: left;
 }
 
-.attackButton {
-  min-height: 2.75rem;
-  margin-top: var(--space-md);
-  padding: var(--space-xs) var(--space-md);
-  font: inherit;
-  font-family: var(--font-mono);
-  font-size: var(--fs-sm);
-  font-weight: 700;
-  color: var(--color-surface);
-  background: var(--color-danger);
-  border: var(--line-ink);
-  border-radius: var(--radius-pill);
-  cursor: pointer;
-  transition: background-color 160ms ease;
-}
-
-.attackButton:hover {
-  background: color-mix(in srgb, var(--color-danger) 85%, var(--color-ink));
-}
-
-.attackButton:focus-visible {
-  outline: 2px solid var(--color-ink);
-  outline-offset: 3px;
-}
-
-.attackResult {
-  margin: var(--space-xs) 0 0;
-  font-size: var(--fs-sm);
-  font-variant-numeric: tabular-nums;
-  color: var(--color-muted);
-}
-
 @media (max-width: 768px) {
   /* 세 열을 유지하면 스와치 라벨이 두세 글자마다 줄바꿈된다. */
   .board {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .mathBoard {
     grid-template-columns: minmax(0, 1fr);
   }
 
