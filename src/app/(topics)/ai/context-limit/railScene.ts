@@ -107,12 +107,11 @@ export function railScene(s: WindowState): string {
     out += box(STAND.x1 + 1, b.uR + 0.4, RAIL.v, STAND.x1 + RAIL.depth, b.uL - 0.4, RAIL.v + RAIL.h, mat, tone, 1);
     const name = blockName(i, t.id);
     const inside = name !== '질문' && textWidth(name, bsize) <= b.uL - b.uR - 1.2;
-    if (inside) {
-      const svg = tx(fx, (b.uL + b.uR) / 2, RAIL.v + RAIL.h / 2 - bsize * 0.35, name, bsize, INK, 700);
-      text += /^\d+$/.test(name) ? svg.replace('<text ', `<text font-family="${MONO_FONT}" `) : svg;
-    } else {
-      put(fx, (b.uL + b.uR) / 2, RAIL.v + RAIL.h + FRAME_PAD + 4, name, small, INK, 700);
-    }
+    // 순번(숫자만)은 블록 안이든 위든 고정폭으로 쓴다 (AGENTS.md "색과 글자").
+    const svg = inside
+      ? tx(fx, (b.uL + b.uR) / 2, RAIL.v + RAIL.h / 2 - bsize * 0.35, name, bsize, INK, 700)
+      : tx(fx, (b.uL + b.uR) / 2, RAIL.v + RAIL.h + FRAME_PAD + 4 - small * 0.35, name, small, INK, 700);
+    text += /^\d+$/.test(name) ? svg.replace('<text ', `<text font-family="${MONO_FONT}" `) : svg;
   });
 
   // 틀: 담긴 메시지를 감싸는 실선, 창 끝까지 점선.
