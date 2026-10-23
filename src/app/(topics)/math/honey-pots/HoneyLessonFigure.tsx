@@ -5,6 +5,7 @@ import { FRONT_VIEW } from '@/lib/colorfigures/core';
 import { ANT_BITS, ANT_LABELS, POT_COUNT, toBinary5 } from './binary';
 import { addAnt, advanceLesson, antNamesFor, groupPots, initialLesson, lessonIsSettled, nextAction, readResult, type LessonMode } from './lesson';
 import { GRID_SIZE, LABEL_SIZE, OUTCOMES_SIZE, lessonScene, mixtureCount } from './lessonScene';
+import styles from './BinaryEncodingBoard.module.css';
 
 const TITLES: Record<LessonMode, string> = {
   grid: '25통 가운데 가짜는 하나', groups: '다섯 그룹으로 나누면?', codes: '개미가 늘면 결과는 두 배',
@@ -30,8 +31,6 @@ export function HoneyLessonFigure({ mode, pot, activeAntBit, deadAntBits }: {
       break;
     case 'groups': {
       const candidates = groupPots(st.group);
-      actions.push(...ANT_LABELS.map((name, i) => ({ label: `${name} 그룹`, group: 'groups', primary: i === st.group,
-        onClick: () => dispatch(s => ({ ...s, group: i })) })));
       stats = [{ label: '그룹', value: ANT_LABELS[st.group] }, { label: '남은 후보', value: '5통' }];
       status = `${ANT_LABELS[st.group]}가 ${candidates[0]}~${candidates[4]}번을 섞어 먹고 죽었다면, 이 다섯 통 중 하나가 가짜입니다. 어느 통인지는 구별되지 않습니다.`;
       break;
@@ -64,7 +63,24 @@ export function HoneyLessonFigure({ mode, pot, activeAntBit, deadAntBits }: {
   }
 
   const size = mode === 'signature' || mode === 'simulation' ? LABEL_SIZE : mode === 'codes' || mode === 'summary' ? OUTCOMES_SIZE : GRID_SIZE;
-  return <ColorFigure size={size} view={FRONT_VIEW} crispText fig={FIGURES[mode]} title={TITLES[mode]}
-    label={`${TITLES[mode]}. ${status}`} scene={() => lessonScene(mode, st, pot, activeAntBit, deadAntBits)}
-    actions={actions} actionsLabel={mode === 'groups' ? '관찰할 그룹' : '결과 세기'} stats={stats} status={status} />;
+  return <>
+    {mode === 'groups' && (
+      <fieldset className={styles.antPicker}>
+        <legend>관찰할 그룹</legend>
+        <div className={styles.antChoices}>
+          {ANT_LABELS.map((name, i) => {
+            const candidates = groupPots(i);
+            return <button type="button" key={name} aria-pressed={i === st.group}
+              aria-label={`${name} 그룹, ${candidates[0]}~${candidates[4]}번 꿀통`}
+              onClick={() => dispatch(s => ({ ...s, group: i }))}>
+              <strong>{name}</strong><span>{candidates[0]}~{candidates[4]}번</span>
+            </button>;
+          })}
+        </div>
+      </fieldset>
+    )}
+    <ColorFigure size={size} view={FRONT_VIEW} crispText fig={FIGURES[mode]} title={TITLES[mode]}
+      label={`${TITLES[mode]}. ${status}`} scene={() => lessonScene(mode, st, pot, activeAntBit, deadAntBits)}
+      actions={actions} actionsLabel="결과 세기" stats={stats} status={status} />
+  </>;
 }

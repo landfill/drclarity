@@ -7,6 +7,7 @@ import {
   BOARD, CERAMIC, CLEAR, DARK, PALS, WOOD, board, box, byDepth, cyl,
   ellUV, ink, line, on, pd, PZ, shape, tone, tx, type Mat, type Vec3,
 } from '@/lib/colorfigures/core';
+import { koreanLabels } from '@/lib/colorfigures/fonts';
 import { ANT_BITS, ANT_LABELS, POT_COUNT, potsForAnt, toBinary5 } from './binary';
 import { groupPots, outcomeCodes, readResult, type LessonMode, type LessonState } from './lesson';
 
@@ -111,7 +112,7 @@ function outcomesScene(n: number, assigned: boolean): string {
 /** 단계에 해당하는 장면. 글자는 ColorFigure의 crispText 층에서 그린다. */
 export function lessonScene(mode: LessonMode, s: LessonState, pot: number, activeAntBit: number | null, deadBits: readonly number[]): string {
   if (mode === 'codes' || mode === 'summary') return outcomesScene(mode === 'summary' ? 5 : s.antCount, mode === 'summary');
-  if (mode === 'signature' || mode === 'simulation') return labelScene(pot, mode === 'simulation' ? deadBits : null);
+  if (mode === 'signature' || mode === 'simulation') return koreanLabels(labelScene(pot, mode === 'simulation' ? deadBits : null));
   return potScene(mode, s.group, activeAntBit);
 }
 

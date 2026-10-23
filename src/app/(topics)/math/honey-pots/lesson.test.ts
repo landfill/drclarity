@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { FRONT_VIEW, frameFor, withFrame } from '@/lib/colorfigures/core';
+import { GENERAL_FONT } from '@/lib/colorfigures/fonts';
 import { ANT_BITS, POT_COUNT, antsForPot, potsForAnt, toBinary5 } from './binary';
 import { addAnt, groupPots, initialLesson, nextAction, outcomeCodes, readResult, type LessonMode } from './lesson';
 import { GRID_SIZE, LABEL_SIZE, OUTCOMES_SIZE, lessonScene } from './lessonScene';
@@ -47,6 +48,17 @@ describe('그림과 본문의 대응', () => {
 });
 
 describe('장면 그리기', () => {
+  it('생사 한글 라벨은 일반 글꼴로 쓰고 이진 숫자는 고정폭을 물려받는다', () => {
+    const svg = lessonScene('simulation', initialLesson(), 21, null, [16, 4, 1]);
+    const labels = [...svg.matchAll(/<text\b([^>]*)>(.*?)<\/text>/g)];
+    const states = labels.filter(label => label[2] === '생존' || label[2] === '사망');
+    expect(states).toHaveLength(5);
+    for (const label of states) expect(label[1]).toContain(`font-family: ${GENERAL_FONT}`);
+    const bits = labels.filter(label => /^[01]$/.test(label[2]));
+    expect(bits).toHaveLength(5);
+    for (const label of bits) expect(label[1]).not.toContain('font-family');
+  });
+
   it('모든 단계·선택·32가지 판독 결과를 숫자 오류 없이 그린다', () => {
     const modes: LessonMode[] = ['grid', 'groups', 'codes', 'signature', 'encoding', 'simulation', 'summary'];
     for (const mode of modes) {
