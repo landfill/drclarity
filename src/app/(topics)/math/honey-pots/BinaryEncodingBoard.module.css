@@ -1,11 +1,11 @@
-.lesson  {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+.lesson {
+  border: var(--line-ink);
+  border-radius: var(--radius-hand);
   background: var(--color-surface);
   margin-bottom: 28px;
 }
 
-.lessonToolbar  {
+.lessonToolbar {
   position: sticky;
   top: var(--header-h);
   z-index: 4;
@@ -13,59 +13,61 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px 18px;
+  padding: 8px 14px;
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-radius: var(--radius-hand);
   font-size: .8rem;
   color: var(--color-muted);
 }
 
-.lessonButtons  {
+.lessonToolbar > span {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.lessonButtons {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
 
-.lessonButtons button  {
-  min-height: 42px;
-  padding: 7px 13px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
+.lessonButtons button {
+  min-height: 40px;
+  padding: 6px 13px;
+  border: var(--line-ink);
+  border-radius: var(--radius-pill);
   font: inherit;
-  font-size: .8rem;
-  color: var(--color-text);
+  color: var(--color-ink);
   background: var(--color-surface);
   cursor: pointer;
 }
 
-.lessonButtons .nextButton  {
-  background: var(--color-accent);
-  color: var(--color-surface);
-  border-color: var(--color-accent);
+.lessonButtons .nextButton {
+  background: var(--color-accent-fill);
 }
 
-.lessonButtons button:disabled  {
+.lessonButtons button:disabled {
   opacity: .4;
   cursor: default;
 }
 
-.lessonSteps  {
+.lessonSteps {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  padding: 12px;
+  gap: 2px;
+  padding: 8px 10px;
   border-bottom: 1px solid var(--color-border);
 }
 
-.lessonSteps button  {
+.lessonSteps button {
   display: flex;
   gap: 6px;
   align-items: center;
   min-height: 36px;
-  padding: 6px 9px;
+  padding: 4px 8px;
   border: 0;
-  border-radius: 5px;
+  border-radius: var(--radius-pill);
   font: inherit;
   font-size: .7rem;
   background: transparent;
@@ -73,517 +75,232 @@
   cursor: pointer;
 }
 
-.lessonSteps button[aria-current]  {
+.lessonSteps button[aria-current] {
   color: var(--color-ink);
   background: var(--color-subtle);
   font-weight: 700;
 }
 
-.lessonGrid  {
+.lessonGrid {
   display: grid;
-  grid-template-columns: minmax(0,1.4fr) minmax(0,1fr);
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
 }
 
-.boardPanel  {
+.boardPanel {
   min-width: 0;
-  padding: 18px;
+  padding: 14px;
   border-right: 1px solid var(--color-border);
 }
 
-.constraints  {
+/* ColorFigure와 같은 종이, 잉크 선, 숫자 글꼴로 조건 세 가지를 한 줄에 놓는다. */
+.constraints {
+  display: grid;
+  grid-template-columns: 1.2fr .8fr 1fr;
+  padding: 12px 0;
+  margin: 0 0 14px;
+  border-block: var(--line-ink);
+}
+
+.constraints > div {
+  padding-inline: 12px;
+  min-width: 0;
+}
+
+.constraints > div + div {
+  border-left: 1px solid var(--color-border);
+}
+
+.constraints dt {
+  font-size: 11px;
+  color: var(--color-muted);
+  margin-bottom: 4px;
+}
+
+.constraints dd {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  align-items: baseline;
+  gap: 3px 6px;
+  font-size: 11px;
   color: var(--color-muted);
-  font-size: .7rem;
-  padding-bottom: 14px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid var(--color-border);
+  word-break: keep-all;
 }
 
-.constraints strong  {
+.constraints strong {
+  font-family: var(--font-mono);
   color: var(--color-ink);
-  font-size: .85rem;
-  margin-right: 4px;
+  font-size: 24px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
-.antCount  {
-  display: flex;
-  align-items: center;
-}
-
-.antCount svg  {
-  width: 28px;
-  height: 22px;
-  margin-right: 4px;
-  color: var(--color-ink);
-}
-
-.lessonExplanation  {
+.lessonExplanation {
   min-width: 0;
-  padding: 26px;
+  padding: 20px;
 }
 
-.lessonExplanation h2  {
-  font-size: 1.25rem;
-  margin-bottom: 18px;
+.lessonExplanation h2 {
+  font-size: 1.0625rem;
+  margin-bottom: 12px;
 }
 
-.lessonBody  {
-  font-size: .95rem;
-  line-height: 1.9;
-}
-
-.lessonHint  {
-  font-size: .8rem;
+.lessonBody {
+  font-size: .875rem;
   line-height: 1.8;
+}
+
+.lessonHint {
+  font-size: .8rem;
+  line-height: 1.7;
   color: var(--color-muted);
-  padding-top: 20px;
-  margin-top: 20px;
+  padding-top: 16px;
+  margin-top: 16px;
   border-top: 1px solid var(--color-border);
 }
 
-.lessonHint strong  {
+.lessonHint strong {
   color: var(--color-accent);
 }
 
-.board  {
+.board {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
   min-width: 0;
 }
 
-.grid  {
-  display: grid;
-  grid-template-columns: repeat(5,minmax(0,1fr));
-  gap: 6px;
+.potPicker,
+.antPicker {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
 }
 
-.potTile  {
+.potPicker legend,
+.antPicker legend {
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  padding: 0;
+}
+
+.pickerHelp {
+  font-size: .7rem;
+  color: var(--color-muted);
+  margin: 2px 0 8px;
+}
+
+.potGrid,
+.antChoices {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.potChoice,
+.antChoices button {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  min-width: 0;
-  min-height: 64px;
-  padding: 6px 2px;
-  border: 1px solid var(--color-border);
-  border-radius: 7px;
-  background: var(--color-surface);
-  color: var(--color-text);
-  transition: border-color .2s, background-color .2s;
-}
-
-.potButton  {
-  font: inherit;
-  cursor: pointer;
-}
-
-.potButton:hover  {
-  border-color: var(--color-blue);
-}
-
-.potGraphic  {
-  position: relative;
-  display: block;
-  width: 42px;
-  max-width: 100%;
-  height: 48px;
-  color: var(--color-ink);
-}
-
-.potGraphic svg  {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.potNumber  {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 22px;
-  font-size: .8rem;
-  font-weight: 700;
-  line-height: 1;
-  text-align: center;
-}
-
-.potBinary  {
-  font-size: .7rem;
-  line-height: 1.2;
-  font-family: monospace;
-  letter-spacing: .015em;
-  color: var(--color-muted);
-}
-
-.potTile.chosen  {
-  border: 2px solid var(--color-blue);
-  background: color-mix(in srgb,var(--color-blue) 8%,var(--color-surface));
-  padding: 5px 1px;
-}
-
-.potTile.highlighted  {
-  border: 2px solid var(--color-warm);
-  background: var(--color-note-bg);
-  padding: 5px 1px;
-}
-
-.potTile.selected  {
-  border: 2px solid var(--color-danger);
-  background: var(--color-formula-bg);
-  padding: 5px 1px;
-}
-
-.bridgePanel  {
-  padding: 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-bg);
-}
-
-.bridgeTitle  {
-  margin-bottom: 12px;
-  color: var(--color-ink);
-  font-size: .9rem;
-  line-height: 1.7;
-  text-align: left;
-}
-
-.signatureEquation  {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.selectedPotBadge, .binaryBadge  {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 5px;
-  align-items: center;
-  padding: 10px 4px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-surface);
-  font-size: .7rem;
-  color: var(--color-muted);
-}
-
-.selectedPotBadge strong, .binaryBadge strong  {
-  font-size: 1.15rem;
-  color: var(--color-blue);
-  font-variant-numeric: tabular-nums;
-}
-
-.binaryBadge strong  {
-  font-family: monospace;
-  letter-spacing: .12em;
-}
-
-.equality  {
-  color: var(--color-muted);
-  font-size: 1.2rem;
-}
-
-.bitMeaningGrid  {
-  display: grid;
-  grid-template-columns: repeat(5,minmax(0,1fr));
-  gap: 5px;
-}
-
-.bitMeaning  {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  align-items: center;
-  padding: 8px 2px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-surface);
-  color: var(--color-muted);
-  text-align: center;
-}
-
-.bitMeaning span  {
-  font-size: .65rem;
-  white-space: nowrap;
-}
-
-.bitMeaning strong  {
-  font-size: 1.15rem;
-  font-family: monospace;
-}
-
-.bitMeaning small  {
-  font-size: .6rem;
-  line-height: 1.5;
-  word-break: keep-all;
-}
-
-.bitIncluded  {
-  border-color: var(--color-blue);
-  color: var(--color-blue);
-  background: color-mix(in srgb,var(--color-blue) 7%,var(--color-surface));
-}
-
-.bridgeConclusion {
-  margin-top: 12px;
-  font-size: .75rem;
-  line-height: 1.8;
-  color: var(--color-muted);
-}
-
-.antBarTitle  {
-  margin-bottom: 10px;
-  color: var(--color-muted);
-  font-size: .8rem;
-  line-height: 1.7;
-}
-
-.antTiles  {
-  display: grid;
-  grid-template-columns: repeat(5,minmax(0,1fr));
-  gap: 5px;
-}
-
-.antTile  {
+  gap: 1px;
   min-width: 0;
   min-height: 44px;
-  padding: 8px 2px;
+  padding: 4px 2px;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-surface);
-  color: var(--color-text);
+  border-radius: var(--radius-hand-sm);
+  background: var(--color-bg);
+  color: var(--color-ink);
   font: inherit;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  transition: border-color .2s, background-color .2s;
 }
 
-.antDrawing  {
-  display: block;
-  width: 34px;
-  max-width: 100%;
-  height: 26px;
+.potChoice strong,
+.antChoices strong {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1.1;
 }
 
-.antDrawing svg  {
-  width: 100%;
-  height: 100%;
-}
-
-.antTileName, .antTileBit, .antTileStatus  {
-  font-size: .65rem;
-  line-height: 1.5;
-}
-
-.antTileName  {
-  white-space: nowrap;
-  font-weight: 600;
-}
-
-.antTileBit  {
-  font-family: monospace;
-}
-
-.antActive  {
-  border-color: var(--color-warm);
-  background: var(--color-note-bg);
-}
-
-.antStateTile.dead  {
-  border: 2px solid var(--color-danger);
-  padding: 7px 1px;
-  background: var(--color-formula-bg);
-}
-
-.antStateTile.dead .antTileStatus  {
-  color: var(--color-danger);
-  font-weight: 700;
-}
-
-.antStateTile.alive .antTileStatus  {
-  color: var(--color-success);
-}
-
-.antBarHelp  {
-  margin-top: 10px;
-  font-size: .75rem;
-  line-height: 1.7;
+.potChoice span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.3;
   color: var(--color-muted);
 }
 
-.simulationResult  {
-  padding: 12px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-bg);
+.antChoices {
+  margin-top: 8px;
 }
 
-.decodeBox  {
-  font-size: .75rem;
-  line-height: 1.8;
+.antChoices span {
+  font-size: 10px;
+  white-space: nowrap;
 }
 
-.decodeSum  {
-  margin: 6px 0;
-  font-size: 1.05rem;
-  font-variant-numeric: tabular-nums;
+.potChoice:hover,
+.antChoices button:hover {
+  border-color: var(--color-ink);
 }
 
-.decodeConclusion  {
+.potChoice[aria-pressed="true"],
+.antChoices button[aria-pressed="true"] {
+  background: var(--color-accent-fill);
+  border-color: var(--color-ink);
+  box-shadow: inset 0 0 0 .5px var(--color-ink);
+}
+
+.potChoice[aria-pressed="true"] span {
   color: var(--color-ink);
 }
 
-.decodeNote  {
-  color: var(--color-muted);
-}
-
-.lesson button:focus-visible  {
+.lesson button:focus-visible {
   outline: 2px solid var(--color-ink);
   outline-offset: 3px;
 }
 
-@media(max-width:760px)  {
-  .lessonGrid  {
+@media (max-width: 760px) {
+  .lessonGrid {
     grid-template-columns: 1fr;
   }
 
-  .boardPanel  {
+  .boardPanel {
     border-right: 0;
     border-bottom: 1px solid var(--color-border);
     padding: 12px;
   }
 
-  .lessonExplanation  {
-    padding: 20px;
+  .lessonToolbar {
+    padding: 8px 10px;
   }
 
-  .lessonToolbar  {
-    padding: 10px 12px;
+  .lessonButtons button {
+    padding: 6px 10px;
   }
 
-  .lessonButtons button  {
-    padding: 7px 10px;
-  }
-
-  .lessonSteps  {
+  .lessonSteps {
     justify-content: space-between;
     gap: 2px;
     padding: 8px;
   }
 
-  .lessonSteps button  {
-    width: 30px;
-    min-height: 34px;
+  .lessonSteps button {
+    width: 32px;
+    min-height: 36px;
     justify-content: center;
     padding: 5px;
   }
 
-  .lessonSteps button span  {
+  .lessonSteps button span {
     display: none;
   }
 
-  .bridgePanel  {
-    padding: 10px;
+  .constraints > div {
+    padding-inline: 6px;
   }
 
-}
-
-@media(prefers-reduced-motion:reduce)  {
-
-  .potTile, .antTile  {
-    transition: none;
+  .constraints strong {
+    font-size: 22px;
   }
-
-}
-
-.routingSource  {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 10px;
-  margin-bottom: 12px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-}
-
-.routingSource label  {
-  display: flex;
-  flex: 1;
-  min-width: 0;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  font-size: .75rem;
-}
-
-.routingSource select  {
-  min-width: 0;
-  max-width: 100%;
-  min-height: 38px;
-  padding: 6px;
-  border: 1px solid var(--color-border);
-  border-radius: 5px;
-  background: var(--color-surface);
-  color: var(--color-text);
-  font: inherit;
-}
-
-.gridDetails summary  {
-  padding: 10px 0;
-  color: var(--color-muted);
-  font-size: .75rem;
-  cursor: pointer;
-}
-
-/* Compact desktop workspace: reduce objects and empty space, not the viewport scale. */
-@media (min-width: 761px) {
-  .lessonToolbar { padding: 6px 12px; }
-  .lessonButtons button { min-height: 36px; padding: 5px 11px; }
-  .lessonSteps { padding: 6px 10px; gap: 2px; }
-  .lessonSteps button { min-height: 36px; padding: 4px 7px; }
-  .boardPanel { padding: 12px; }
-  .lessonExplanation { padding: 18px; }
-  .lessonExplanation h2 { font-size: 1.0625rem; margin-bottom: 12px; }
-  .lessonBody { font-size: .875rem; line-height: 1.65; }
-  .lessonHint { padding-top: 12px; margin-top: 12px; line-height: 1.6; }
-  .constraints { padding-bottom: 8px; margin-bottom: 8px; gap: 6px; }
-  .board { gap: 10px; }
-  .grid { gap: 4px; }
-  .potTile { min-height: 44px; padding: 3px 2px; gap: 2px; }
-  .potGraphic { width: 28px; height: 32px; }
-  .potNumber { top: 14px; font-size: .75rem; }
-  .potBinary { line-height: 1.2; }
-  .potTile.chosen, .potTile.selected, .potTile.highlighted { padding: 2px 1px; }
-  .bridgePanel { padding: 8px; }
-  .bridgeTitle { font-size: .8125rem; line-height: 1.4; margin-bottom: 6px; }
-  .signatureEquation { gap: 8px; margin-bottom: 8px; }
-  .selectedPotBadge, .binaryBadge { flex-direction: row; justify-content: center; gap: 8px; padding: 6px 4px; line-height: 1.3; }
-  .selectedPotBadge strong, .binaryBadge strong { font-size: 1rem; line-height: 1.3; }
-  .bitMeaning { padding: 4px 2px; gap: 2px; }
-  .bitMeaning span { line-height: 1.3; }
-  .bitMeaning strong { font-size: 1rem; line-height: 1.25; }
-  .bitMeaning small { line-height: 1.3; }
-  .routingSource { padding: 6px 8px; gap: 10px; margin-bottom: 8px; }
-  .routingSource select { min-height: 36px; padding: 4px 6px; }
-  .bridgeConclusion { margin-top: 8px; line-height: 1.55; }
-  .antBarTitle { margin-bottom: 6px; }
-  .antTile { padding: 5px 2px; gap: 2px; }
-  .antStateTile.dead { padding: 4px 1px; }
-  .antDrawing { width: 28px; height: 21px; }
-  .antBarHelp { margin-top: 6px; line-height: 1.55; }
-  .simulationResult { padding: 8px; }
-  .decodeBox { line-height: 1.55; }
-  .decodeSum { font-size: .9375rem; margin: 4px 0; }
 }

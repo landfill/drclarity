@@ -19,7 +19,7 @@ function DropperStage({ pot }: { pot: number }) {
   return (
     <ColorFigure
       size={DROPPER_SIZE}
-      fig="01"
+      fig="05"
       title="꿀 한 방울씩 나누기"
       hint="이름표가 1인 개미의 컵에만 넣습니다"
       label={`나무판 위의 ${st.pot}번 꿀통과 개미 A부터 E까지 다섯 마리, 개미마다 혼합 컵이 하나씩 있다. 이름표는 ${toBinary5(st.pot)}.`}

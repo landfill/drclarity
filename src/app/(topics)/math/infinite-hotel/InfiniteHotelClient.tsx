@@ -5,7 +5,7 @@ import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
 import { SolutionStepper } from '@/components/topic/SolutionStepper';
-import { HotelFigure } from './HotelFigure';
+import { InfiniteHotelFigure } from './InfiniteHotelFigure';
 import { VISIBLE_ROOMS, type HotelStepId, isHotelStepId } from './hotelScene';
 import { HOTEL_STEPS } from './steps';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
@@ -63,7 +63,7 @@ export default function InfiniteHotelClient() {
           >
             <div className={styles.figureSlot}>
               {/* 단계가 바뀌면 새로 마운트해 그 단계의 이동을 처음부터 보여 준다. */}
-              <HotelFigure key={stepId} stepId={stepId} />
+              <InfiniteHotelFigure key={stepId} stepId={stepId} />
             </div>
           </SolutionStepper>
         </section>
