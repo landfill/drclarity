@@ -92,17 +92,21 @@
   border-right: 1px solid var(--color-border);
 }
 
-/* ColorFigure와 같은 종이, 잉크 선, 숫자 글꼴로 조건 세 가지를 한 줄에 놓는다. */
+/* 조건은 공통 머리줄로 압축하고, 피겨와 선택판은 그 아래 나란히 놓는다. */
 .constraints {
   display: grid;
   grid-template-columns: 1.2fr .8fr 1fr;
-  padding: 12px 0;
-  margin: 0 0 14px;
-  border-block: var(--line-ink);
+  padding: 8px 14px;
+  margin: 0;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .constraints > div {
-  padding-inline: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 3px 8px;
+  padding-inline: 10px;
   min-width: 0;
 }
 
@@ -113,7 +117,6 @@
 .constraints dt {
   font-size: 11px;
   color: var(--color-muted);
-  margin-bottom: 4px;
 }
 
 .constraints dd {
@@ -129,14 +132,26 @@
 .constraints strong {
   font-family: var(--font-mono);
   color: var(--color-ink);
-  font-size: 24px;
+  font-size: 14px;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
+.lessonSidebar {
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  gap: 18px;
+  min-width: 0;
+  padding: 14px;
+}
+
+.lessonSidebar > section {
+  margin-bottom: 0;
+}
+
 .lessonExplanation {
   min-width: 0;
-  padding: 20px;
 }
 
 .lessonExplanation h2 {
@@ -300,7 +315,7 @@
     padding-inline: 6px;
   }
 
-  .constraints strong {
-    font-size: 22px;
-  }
+  .constraints { padding: 6px; }
+
+  .lessonSidebar { padding: 12px; }
 }
