@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { SplitStage } from '@/components/topic/SplitStage';
 import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
@@ -42,6 +43,7 @@ const INITIAL_PRESET = findPreset('summary') ?? PRESETS[0];
 const INITIAL_COMPARE = findPreset('poem')?.id ?? NO_COMPARE;
 
 export default function PrefillDecodeClient() {
+  const [lessonRevealed, setLessonRevealed] = useState(false);
   const [presetId, setPresetId] = useState(INITIAL_PRESET.id);
   const [inputTokens, setInputTokens] = useState(INITIAL_PRESET.inputTokens);
   const [outputTokens, setOutputTokens] = useState(INITIAL_PRESET.outputTokens);
@@ -187,9 +189,20 @@ export default function PrefillDecodeClient() {
           먼저 쓰기 시작하면, <Highlight>먼저 끝날까?</Highlight>
         </>
       }
-      subtitle="읽을 양과 쓸 양을 따로 바꾸며, 첫 토큰이 나오는 때와 답이 끝나는 때를 비교합니다."
+      subtitle="첫 토큰이 먼저 나오면 답도 먼저 끝날까요?"
     >
-      <QuizGate
+<SplitStage wideStage stage={<ProblemFigure kind="prefillDecode"><ShelfFigure
+            rows={[
+              { label: currentLabel, prompt: currentPrompt, phases },
+              ...(comparePreset || baseline ? [{ label: baseline ? '바꾸기 전 기준' : comparePreset!.label, prompt: baseline ? `입력 ${baseline.input} · 출력 ${baseline.output}토큰` : comparePreset!.prompt, phases: comparePhases, muted: true }] : []),
+            ]}
+            scale={scale}
+            active={active}
+            note={note}
+            onConfig={applyConfig}
+          /></ProblemFigure>}>
+
+      <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         labels={{ skip: '바로 실험하기' }}
         question={
           <>
@@ -205,6 +218,8 @@ export default function PrefillDecodeClient() {
           same: <QuizSame />,
         }}
       >
+<details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleParamChange} /></details>
+
         <ExplanationBox variant="note">
           <NoteModel />
         </ExplanationBox>
@@ -215,17 +230,8 @@ export default function PrefillDecodeClient() {
             <StageLead />
           </div>
 
-          <details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleParamChange} /></details>
-          <ProblemFigure kind="prefillDecode"><ShelfFigure
-            rows={[
-              { label: currentLabel, prompt: currentPrompt, phases },
-              ...(comparePreset || baseline ? [{ label: baseline ? '바꾸기 전 기준' : comparePreset!.label, prompt: baseline ? `입력 ${baseline.input} · 출력 ${baseline.output}토큰` : comparePreset!.prompt, phases: comparePhases, muted: true }] : []),
-            ]}
-            scale={scale}
-            active={active}
-            note={note}
-            onConfig={applyConfig}
-          /></ProblemFigure>
+
+
           <ul className={styles.legend} aria-label="타임라인 읽는 법">
             <li>
               <span className={`${styles.swatch} ${styles.swatchPrefill}`} aria-hidden="true" />
@@ -246,14 +252,20 @@ export default function PrefillDecodeClient() {
           </p>
         </section>
 
-        <ExplanationBox title={beatsTitle} collapsible>
-          <Beats />
-        </ExplanationBox>
 
-        <ExplanationBox title={aboutTitle} collapsible>
-          <About />
-        </ExplanationBox>
+
+
       </QuizGate>
-    </TopicLayout>
+
+</SplitStage>
+{lessonRevealed && (<ExplanationBox title={beatsTitle} collapsible defaultOpen={false}>
+          <Beats />
+        </ExplanationBox>)}
+
+{lessonRevealed && (<ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
+          <About />
+        </ExplanationBox>)}
+
+</TopicLayout>
   );
 }

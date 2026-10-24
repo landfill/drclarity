@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { SplitStage } from '@/components/topic/SplitStage';
 import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
@@ -17,6 +18,7 @@ import {
 import { ByteBoard } from './ByteBoard';
 import { TapeFigure } from './TapeFigure';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
+import QuizContext from './content/quiz-context.mdx';
 import QuizFour from './content/quiz-four.mdx';
 import QuizOne from './content/quiz-one.mdx';
 import QuizTwo from './content/quiz-two.mdx';
@@ -33,6 +35,7 @@ import styles from './Utf8.module.css';
 const DEFAULT_INPUT = '안녕 hi 😀';
 
 export default function Utf8Client() {
+  const [lessonRevealed, setLessonRevealed] = useState(false);
   const [input, setInput] = useState(DEFAULT_INPUT);
   const [showBinary, setShowBinary] = useState(false);
 
@@ -87,9 +90,11 @@ export default function Utf8Client() {
           이모지는 <Highlight>왜 깨지나</Highlight>
         </>
       }
-      subtitle="화면에서 한 칸을 차지하는 글자가 저장될 때도 한 자리인 것은 아닙니다."
+      subtitle="화면의 글자 한 칸은 저장할 때 몇 자리를 쓸까요?"
     >
-      <QuizGate
+<SplitStage wideStage stageRatio="2:1" stage={<ProblemFigure kind="utf8"><TapeFigure text={input} chars={chars} limit={byteLimit} onLimit={setRawLimit} /></ProblemFigure>}>
+
+      <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -104,8 +109,11 @@ export default function Utf8Client() {
           two: <QuizTwo />,
         }}
       >
+<ParameterPanel params={cutParams} onChange={handleCutChange} />
+
         <ExplanationBox variant="note">
           <NoteLive />
+          <QuizContext />
         </ExplanationBox>
 
         <section className={styles.stage} aria-label="글자별 바이트">
@@ -225,9 +233,9 @@ export default function Utf8Client() {
             <CutLead />
           </div>
 
-          <ParameterPanel params={cutParams} onChange={handleCutChange} />
 
-          <ProblemFigure kind="utf8"><TapeFigure text={input} chars={chars} limit={byteLimit} onLimit={setRawLimit} /></ProblemFigure>
+
+
 
           {/* 판독 창은 끝 몇 글자만 보이므로, 자른 결과 전체를 여기 적는다. 바뀔 때 읽어 주는 일은 figure 의 상태 줄이 맡는다. */}
           <p className={styles.cutResultLabel}>자른 결과</p>
@@ -251,10 +259,14 @@ export default function Utf8Client() {
           <Compare />
         </ExplanationBox>
 
-        <ExplanationBox title={aboutTitle} collapsible>
-          <About />
-        </ExplanationBox>
+
       </QuizGate>
-    </TopicLayout>
+
+</SplitStage>
+{lessonRevealed && (<ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
+          <About />
+        </ExplanationBox>)}
+
+</TopicLayout>
   );
 }
