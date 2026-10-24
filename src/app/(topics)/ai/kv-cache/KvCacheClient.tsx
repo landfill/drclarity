@@ -11,7 +11,7 @@ import { ParameterPanel, type ParameterDefinition } from '@/components/topic/Par
 import { QuizGate } from '@/components/topic/QuizGate';
 import { MAX_LENGTH, MIN_LENGTH, computedCount } from './grid';
 import { advanceKv, initialKv, isSettled, setCache, setLength, setStep } from './tiles';
-import { TilesFigure } from './TilesFigure';
+import { TilesFigure, tilesProblem } from './TilesFigure';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizHundred from './content/quiz-hundred.mdx';
 import QuizSame from './content/quiz-same.mdx';
@@ -85,7 +85,7 @@ export default function KvCacheClient() {
       }
       subtitle="KV 캐시를 켜면 어떤 계산이 달라질까요?"
     >
-<SplitStage wideStage stage={<ProblemFigure kind="kvCache" started={lessonRevealed}><TilesFigure state={st} dispatch={dispatch} /></ProblemFigure>}>
+<SplitStage wideStage stage={<ProblemFigure problem={tilesProblem(st)} started={lessonRevealed}><TilesFigure state={st} dispatch={dispatch} /></ProblemFigure>}>
 
       <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         labels={{ skip: '바로 실험하기' }}

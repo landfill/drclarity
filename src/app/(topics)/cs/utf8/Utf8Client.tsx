@@ -16,7 +16,7 @@ import {
   graphemeLength,
 } from './utf8';
 import { ByteBoard } from './ByteBoard';
-import { TapeFigure } from './TapeFigure';
+import { TapeFigure, tapeProblem } from './TapeFigure';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizContext from './content/quiz-context.mdx';
 import QuizFour from './content/quiz-four.mdx';
@@ -92,7 +92,7 @@ export default function Utf8Client() {
       }
       subtitle="화면의 글자 한 칸은 저장할 때 몇 자리를 쓸까요?"
     >
-<SplitStage wideStage stageRatio="2:1" stage={<ProblemFigure kind="utf8" started={lessonRevealed}><TapeFigure text={input} chars={chars} limit={byteLimit} onLimit={setRawLimit} /></ProblemFigure>}>
+<SplitStage wideStage stageRatio="2:1" stage={<ProblemFigure problem={tapeProblem(input, chars, byteLimit)} started={lessonRevealed}><TapeFigure text={input} chars={chars} limit={byteLimit} onLimit={setRawLimit} /></ProblemFigure>}>
 
       <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         question={

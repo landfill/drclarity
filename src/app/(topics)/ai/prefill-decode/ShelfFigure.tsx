@@ -1,9 +1,18 @@
 'use client';
 
 import { ColorFigure } from '@/components/topic/ColorFigure';
+import type { ProblemScene } from '@/components/topic/ProblemFigure';
 import { FRONT_VIEW } from '@/lib/colorfigures/core';
 import { CONFIG_LABEL, nextAction, observation, rowAlt, rowSummary, type Config } from './shelf';
 import { SHELF_SIZE, shelfScene, type Row } from './shelfScene';
+
+/** 퀴즈 전 첫 장면: 같은 시간 선반에 두 요청의 이름만 붙인다. */
+export const shelfProblem = (rows: Row[], scale: number): ProblemScene => ({
+  title: '시간 선반',
+  materials: rows.map(row => row.label),
+  size: SHELF_SIZE,
+  scene: () => shelfScene(rows, scale, { problem: true }),
+});
 
 interface ShelfFigureProps {
   /** 위 줄(지금 요청)과, 있으면 아래 줄(견줄 줄). */

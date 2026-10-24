@@ -1,6 +1,7 @@
 'use client';
 
 import { ColorFigure, useFigureState } from '@/components/topic/ColorFigure';
+import type { ProblemScene } from '@/components/topic/ProblemFigure';
 import { FRONT_VIEW } from '@/lib/colorfigures/core';
 import { formatProbabilityPercent, pairCount } from './birthday';
 import { BATCHES, advanceCalendar, clearTally, gather, initialCalendar, isSettled, nextAction, sharedPercent, theory } from './calendar';
@@ -14,6 +15,14 @@ const count = (v: number) => v.toLocaleString('ko-KR');
  * (다른 인원의 집계를 이어 쓰면 막대와 이론값이 서로 다른 분포를 가리킨다).
  * 첫 그림은 서버와 같도록 고정 씨앗으로 시작하고, 처음 모을 때 씨앗을 새로 뽑는다.
  */
+/** 퀴즈 전 첫 장면: 같은 달력판과 스티커 첩, 빈 집계 막대. 모이는 사람 수와 이론값은 적지 않는다. */
+export const calendarProblem = (people: number): ProblemScene => ({
+  title: '생일 달력판',
+  materials: ['365칸 달력판', '생일 스티커 첩', '빈 집계 막대'],
+  size: CALENDAR_SIZE,
+  scene: () => calendarScene(initialCalendar(people), { problem: true }),
+});
+
 export function CalendarFigure({ people }: { people: number }) {
   const [st, dispatch] = useFigureState(() => initialCalendar(people), advanceCalendar, isSettled);
   const next = nextAction(st);

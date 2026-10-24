@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { ColorFigure } from '@/components/topic/ColorFigure';
 import { FRONT_VIEW } from '@/lib/colorfigures/core';
 import { LOOP_STAGES, type LoopStage, type Sample } from './loop';
-import { STAGE_LABEL, nextAction, rewind, statusText, stepBack, stepOnce, stepsOf, togglePlay, view, endOf, cachedCount, tokenReadings, type ReelState } from './reel';
+import type { ProblemScene } from '@/components/topic/ProblemFigure';
+import { STAGE_LABEL, initialReel, nextAction, rewind, statusText, stepBack, stepOnce, stepsOf, togglePlay, view, endOf, cachedCount, tokenReadings, type ReelState } from './reel';
 import { REEL_SIZE, reelScene } from './reelScene';
 import styles from './Autoregressive.module.css';
 
@@ -20,6 +21,14 @@ const STAGE_INFO: Record<LoopStage, { href?: string; hint: string }> = {
  * 종이 테이프 기계. 고른 조각이 테이프 끝에 붙어 다음 선택의 입력이 되는 것을 한 단계씩 본다.
  * 예시 문장은 바깥 선택기가 정하므로, 바뀌면 부모가 key 로 새로 마운트한다.
  */
+/** 퀴즈 전 첫 장면: 같은 기계에 질문 조각만 올린다. */
+export const reelProblem = (sample: Sample): ProblemScene => ({
+  title: '종이 테이프 기계',
+  materials: ['질문 조각이 놓인 종이 테이프', '빈 고른 조각 창'],
+  size: REEL_SIZE,
+  scene: () => reelScene(initialReel(sample), { problem: true }),
+});
+
 export function ReelFigure({ sample, state: st, dispatch }: { sample: Sample; state: ReelState; dispatch: (action: (s: ReelState) => ReelState) => void }) {
   const next = nextAction(st);
   const { stepIndex, stage, context, isFinal } = view(st);

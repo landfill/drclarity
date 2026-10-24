@@ -148,7 +148,7 @@ function penHead(y: number, z: number): string {
 }
 
 /** 비율 막대 하나: 유리관 안에 비율만큼 찬 색 기둥과 이론값 눈금. */
-function bar(y0: number, y1: number, share: number | null, color: string, theory: number): string {
+function bar(y0: number, y1: number, share: number | null, color: string, theory: number | null): string {
   const x = PANEL_X + 0.05;
   const tube = on(PX(x), rectUV(y0, BAR_Z0, y1, BAR_Z0 + BAR_H));
   let s = shape(tube, '#e8f2f2', 0.9);
@@ -156,20 +156,21 @@ function bar(y0: number, y1: number, share: number | null, color: string, theory
     s += clipTo(tube, fill(pd(on(PX(x + 0.01), rectUV(y0, BAR_Z0, y1, BAR_Z0 + BAR_H * share))), color));
   }
   s += ink(pd(tube), 1.3);
+  if (theory === null) return s;
   const tz = BAR_Z0 + BAR_H * theory;
   s += `<path d="${pd([[x + 0.02, y0 - 1.6, tz], [x + 0.02, y1 + 1.6, tz]], false)}" fill="none" stroke="${INK}" stroke-width="1.5" stroke-dasharray="2.2 1.6"/>`;
   return s;
 }
 
 /** 비율 막대 판: 원 안(왼쪽), 원 밖(오른쪽), 0·50·100 눈금. */
-function tallyBoard(s: PlotterState): string {
+function tallyBoard(s: PlotterState, problem: boolean): string {
   const total = s.darts.length;
   const inside = insideCount(s);
   const shareIn = total ? inside / total : null;
   const shareOut = total ? (total - inside) / total : null;
   let out = box(PANEL_X - 4, TALLY.y0, BOARD_H, PANEL_X, TALLY.y1, TALLY.z1, BODY, tone, 1.2);
-  out += bar(BAR_IN.y0, BAR_IN.y1, shareIn, ORANGE, Math.PI / 4);
-  out += bar(BAR_OUT.y0, BAR_OUT.y1, shareOut, BLUE, 1 - Math.PI / 4);
+  out += bar(BAR_IN.y0, BAR_IN.y1, shareIn, ORANGE, problem ? null : Math.PI / 4);
+  out += bar(BAR_OUT.y0, BAR_OUT.y1, shareOut, BLUE, problem ? null : 1 - Math.PI / 4);
   out += tx(PANEL_X + 0.05, (BAR_IN.y0 + BAR_IN.y1) / 2, BAR_Z0 - 6, '원 안', 4);
   out += tx(PANEL_X + 0.05, (BAR_OUT.y0 + BAR_OUT.y1) / 2, BAR_Z0 - 6, '원 밖', 4);
   for (const [pct, z] of [[0, BAR_Z0], [50, BAR_Z0 + BAR_H / 2], [100, BAR_Z0 + BAR_H]] as const) {
@@ -179,8 +180,8 @@ function tallyBoard(s: PlotterState): string {
   return out;
 }
 
-/** 장면 전체. */
-export function plotterScene(s: PlotterState): string {
+/** 장면 전체. problem 이면 퀴즈 전의 첫 장면: 같은 기계와 빈 막대를 두고 이론값 점선과 이름표는 그리지 않는다. */
+export function plotterScene(s: PlotterState, { problem = false }: { problem?: boolean } = {}): string {
   const pen = penAt(s);
   const [, penY, penZ] = paperPoint(pen.x, pen.y);
   const busy = s.queue > 0;
@@ -197,11 +198,11 @@ export function plotterScene(s: PlotterState): string {
   out += gantry(penY);
   out += rail(RAIL_Z.top);
   out += penHead(penY, penZ);
-  out += tallyBoard(s);
+  out += tallyBoard(s, problem);
 
   // 펜 이름표는 종이 가운데 쪽으로 단다. 펜이 왼쪽 반에 있을 때 왼쪽으로 달면 비율 막대 판의 이름표와 겹친다.
   out += tag([HEAD_X1, penY, penZ + 1], pen.x < 0 ? 30 : -30, -26, '펜', busy);
-  out += tag([PANEL_X, BAR_IN.y1, BAR_Z0 + BAR_H * (Math.PI / 4)], 50, -90, '이론값 π/4');
+  if (!problem) out += tag([PANEL_X, BAR_IN.y1, BAR_Z0 + BAR_H * (Math.PI / 4)], 50, -90, '이론값 π/4');
   // 한글이 섞인 글자(막대 이름, 이름표)는 일반 글꼴로 쓴다.
   return koreanLabels(out);
 }

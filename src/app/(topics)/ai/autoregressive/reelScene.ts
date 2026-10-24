@@ -78,8 +78,11 @@ const face = (uv: [number, number][], dx = 0): Vec3[] => on(PX(FACE + dx), uv);
 const mono = (svg: string) => svg.replace('<text ', `<text font-family="${MONO_FONT}" `);
 const ease = (t: number) => t * t * (3 - 2 * t);
 
-/** 장면 전체. */
-export function reelScene(s: ReelState): string {
+/**
+ * 장면 전체. problem 이면 퀴즈 전의 첫 장면: 같은 기계에 질문 조각만 놓고, 단계 등·화살표·"다음 선택의 입력" 같은
+ * 순서와 답을 말하는 것은 그리지 않는다.
+ */
+export function reelScene(s: ReelState, { problem = false }: { problem?: boolean } = {}): string {
   const size = labelSize();
   const small = size * 0.85;
   const cellSize = cellTextSize();
@@ -96,7 +99,7 @@ export function reelScene(s: ReelState): string {
   const put = (u: number, v: number, str: string, sz: number, color: string = INK, weight = 700, dx = 0.1) => (text += tx(FACE + dx, u, v - sz * 0.35, str, sz, color, weight));
 
   // 저장된 계산: 계산해 둔 조각마다 작은 카드 한 장.
-  const reading = stage === 'read';
+  const reading = stage === 'read' && !problem;
   out += shape(face(rectUV(CACHE.u0, CACHE.v0, CACHE.u1, CACHE.v1), 0.05), reading ? PALS.cobalt.l : BOARD.l, 1);
   const cached = cachedCount(s);
   const cw = (CACHE.u1 - CACHE.u0 - 8) / CACHE.cols;
@@ -130,7 +133,9 @@ export function reelScene(s: ReelState): string {
     out += shape(face(rectUV(c.uR, TAPE.v0 + 2, c.uL, TAPE.v1 - 2), 0.1), generated ? PALS.mustard.l : PALS.cobalt.l, i === freshIndex ? 1.6 : 0.8);
     text += mono(tx(FACE + 0.2, (c.uL + c.uR) / 2, (TAPE.v0 + TAPE.v1) / 2 - cellSize * 0.35, visibleText(context[i]), cellSize, INK, i === freshIndex ? 700 : 400));
   });
-  put(TAPE.u1 - 4 - textWidth('질문 + 지금까지 쓴 답 → 다음 선택의 입력', small * 0.9) / 2, TAPE.v0 - 5, '질문 + 지금까지 쓴 답 → 다음 선택의 입력', small * 0.9, palette.muted, 400);
+  if (!problem) put(TAPE.u1 - 4 - textWidth('질문 + 지금까지 쓴 답 → 다음 선택의 입력', small * 0.9) / 2, TAPE.v0 - 5, '질문 + 지금까지 쓴 답 → 다음 선택의 입력', small * 0.9, palette.muted, 400);
+
+  if (problem) return koreanLabels(out + text);
 
   // 고른 조각: ③ 에서 창에, ④ 에서 테이프 끝으로 옮겨 간다. 마지막 바퀴에는 "끝".
   const pickedText = isFinal ? '끝' : step.emitted === null ? '' : visibleText(step.emitted);

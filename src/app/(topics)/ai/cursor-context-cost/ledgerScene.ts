@@ -107,8 +107,12 @@ export function rowBox(s: LedgerState, i: number) {
   return { vT: top, vB: top - h, mid: top - h / 2 };
 }
 
-/** 장면 전체. */
-export function ledgerScene(s: LedgerState): string {
+/**
+ * 장면 전체. problem 이면 퀴즈 전의 첫 장면: 같은 병과 기계를 두되 영수증은 비어 있고, 병·쪽지에 수치를 적지 않으며
+ * "호출마다 다시 읽음" 화살표도 그리지 않는다.
+ */
+export function ledgerScene(s: LedgerState, { problem = false }: { problem?: boolean } = {}): string {
+  if (problem) s = { ...s, printed: 0, feed: 0 };
   const d = derive(s);
   const size = labelSize();
   const ps = paperSize(labelScale(), s.calls);
@@ -126,8 +130,10 @@ export function ledgerScene(s: LedgerState): string {
   const ax = BASE[2] - 6;
   const ay0 = JAR.cy - JAR.r - 3;
   const ay1 = PRINTER.y1 + 4;
-  out += line([[ax, ay0, BASE_H + 0.05], [ax, ay1, BASE_H + 0.05]], 1.4);
-  out += line([[ax - 2.5, ay1 + 4, BASE_H + 0.05], [ax, ay1, BASE_H + 0.05], [ax + 2.5, ay1 + 4, BASE_H + 0.05]], 1.4);
+  if (!problem) {
+    out += line([[ax, ay0, BASE_H + 0.05], [ax, ay1, BASE_H + 0.05]], 1.4);
+    out += line([[ax - 2.5, ay1 + 4, BASE_H + 0.05], [ax, ay1, BASE_H + 0.05], [ax + 2.5, ay1 + 4, BASE_H + 0.05]], 1.4);
+  }
 
   // 이번 메시지 쪽지.
   out += box(NOTE.x0, NOTE.y0, BASE_H, NOTE.x1, NOTE.y1, NOTE.z1, CERAMIC, tone, 1);
@@ -153,7 +159,7 @@ export function ledgerScene(s: LedgerState): string {
 
   // 머리: 제목과 자.
   putPaper((PAPER.u0 + PAPER.u1) / 2, top - 5, PAPER_HEAD[0], head);
-  putPaper((ROW.barL + ROW.barR) / 2, top - 11, PAPER_HEAD[1], head * 0.85, palette.muted, 400);
+  if (!problem) putPaper((ROW.barL + ROW.barR) / 2, top - 11, PAPER_HEAD[1], head * 0.85, palette.muted, 400);
 
   // 다 찍힌 줄.
   const rows = d.scenario.slice(0, s.printed);
@@ -180,7 +186,7 @@ export function ledgerScene(s: LedgerState): string {
   }
 
   // 합계: 다 찍은 뒤에만. 막대를 그리지 않는다.
-  if (isSettled(s)) {
+  if (isSettled(s) && !problem) {
     const tv = rowBox(s, s.printed - 1).vB;
     out += `<path d="${pd(paper([[PAPER.u0 + 3, tv - 1.5], [PAPER.u1 - 3, tv - 1.5]], 0.15), false)}" fill="none" stroke="${INK}" stroke-width=".7" stroke-dasharray="1.6 1.2"/>`;
     putPaper((PAPER.u0 + PAPER.u1) / 2, tv - 7, `합계 ${d.grandTotal.toLocaleString('ko-KR')}`, head * 1.15);
@@ -189,18 +195,19 @@ export function ledgerScene(s: LedgerState): string {
 
   // 병의 글자: 위에 제목 두 줄, 층마다 이름과 크기 (병 앞면에).
   const jx = JAR.cx + JAR.r + 0.2;
-  const [t1, t2] = jarTitle(d.context, d.percentFull);
+  const [t1, t2] = problem ? ['요청 전 문맥', ''] : jarTitle(d.context, d.percentFull);
   text += tx(jx, JAR.cy, JAR_TITLE_Z + size * 1.25, t1, size);
-  text += tx(jx, JAR.cy, JAR_TITLE_Z, t2, size * 0.85, palette.muted, 400);
+  if (t2) text += tx(jx, JAR.cy, JAR_TITLE_Z, t2, size * 0.85, palette.muted, 400);
   const small = size * 0.85;
-  if (hOver >= small * 1.3) text += tx(jx, JAR.cy, JAR.z0 + hOver / 2 - small * 0.35, `설정·도구 ${formatTokens(d.overhead)}`, small);
-  if (hAll - hOver >= small * 1.3) text += tx(jx, JAR.cy, JAR.z0 + (hOver + hAll) / 2 - small * 0.35, `대화 ${formatTokens(d.breakdown.conversation)}`, small);
+  const amount = (n: number) => (problem ? '' : ` ${formatTokens(n)}`);
+  if (hOver >= small * 1.3) text += tx(jx, JAR.cy, JAR.z0 + hOver / 2 - small * 0.35, `설정·도구${amount(d.overhead)}`, small);
+  if (hAll - hOver >= small * 1.3) text += tx(jx, JAR.cy, JAR.z0 + (hOver + hAll) / 2 - small * 0.35, `대화${amount(d.breakdown.conversation)}`, small);
 
   // 쪽지와 화살표의 글자.
   const [n1, n2] = noteLines();
   const ns = noteSize();
   text += tx(NOTE.x1 + 0.1, (NOTE.y0 + NOTE.y1) / 2, NOTE.z1 - 3 - ns * 0.35, n1, ns, INK, 700);
-  text += tx(NOTE.x1 + 0.1, (NOTE.y0 + NOTE.y1) / 2, NOTE.z1 - 4 - ns * 1.6, n2, ns, INK, 400);
+  if (!problem) text += tx(NOTE.x1 + 0.1, (NOTE.y0 + NOTE.y1) / 2, NOTE.z1 - 4 - ns * 1.6, n2, ns, INK, 400);
 
   return koreanLabels(out + text);
 }

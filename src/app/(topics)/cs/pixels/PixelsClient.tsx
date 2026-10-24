@@ -18,7 +18,7 @@ import {
   viewportFor,
 } from './scene';
 import { drawGrid, drawVector } from './draw';
-import { LensFigure } from './LensFigure';
+import { LensFigure, lensProblem } from './LensFigure';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizGrid from './content/quiz-grid.mdx';
 import QuizBlur from './content/quiz-blur.mdx';
@@ -133,7 +133,7 @@ export default function PixelsClient() {
       }
       subtitle="사진을 확대하면 왜 네모난 얼룩이 보일까요?"
     >
-<SplitStage wideStage stage={<ProblemFigure kind="pixels" started={lessonRevealed}><LensFigure
+<SplitStage wideStage stage={<ProblemFigure problem={lensProblem(cells, gridSize, focus)} started={lessonRevealed}><LensFigure
             cells={cells}
             gridSize={gridSize}
             zoom={zoom}

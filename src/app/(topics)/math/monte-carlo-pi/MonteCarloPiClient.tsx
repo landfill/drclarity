@@ -7,7 +7,7 @@ import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
-import { PlotterFigure } from './PlotterFigure';
+import { PlotterFigure, plotterProblem } from './PlotterFigure';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizPi4 from './content/quiz-pi4.mdx';
 import QuizHalf from './content/quiz-half.mdx';
@@ -28,7 +28,7 @@ export default function MonteCarloPiClient() {
       title={<>점을 뿌려서 <Highlight>π</Highlight> 구하기</>}
       subtitle="무작위로 찍은 점으로 원주율을 구할 수 있을까요?"
     >
-      <SplitStage wideStage stage={<ProblemFigure kind="monteCarlo" started={lessonRevealed}><PlotterFigure /></ProblemFigure>}>
+      <SplitStage wideStage stage={<ProblemFigure problem={plotterProblem()} started={lessonRevealed}><PlotterFigure /></ProblemFigure>}>
         <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
           question={
             <>

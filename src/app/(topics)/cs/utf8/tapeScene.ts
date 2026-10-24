@@ -111,6 +111,7 @@ function tapePiece(
   shift: Shift,
   brokenFrom: number,
   tornRight: boolean,
+  blank = false,
 ): { art: string; text: string } {
   if (k1 <= k0) return { art: '', text: '' };
   const x = TAPE_X + shift.x;
@@ -123,7 +124,8 @@ function tapePiece(
   let art = '';
   let text = '';
   const size = hexSize(scale);
-  for (let k = k0; k < k1; k++) {
+  if (blank) art += fill(pd(on(plane, rectUV(yOf(k1), z0, yOf(k0), z1))), CERAMIC.l);
+  for (let k = k0; k < k1 && !blank; k++) {
     const c = cells[start + k];
     const broken = start + k >= brokenFrom;
     art += fill(pd(on(plane, rectUV(yOf(k + 1), z0, yOf(k), z1))), broken ? BROKEN_FILL : SIZE_FILL[c.size - 1]);
@@ -144,8 +146,11 @@ function tapePiece(
   return { art, text };
 }
 
-/** 장면 전체. chars 는 지금 문장의 글자별 바이트. */
-export function tapeScene(state: TapeState, chars: readonly EncodedChar[]): string {
+/**
+ * 장면 전체. chars 는 지금 문장의 글자별 바이트.
+ * problem 이면 퀴즈 전의 첫 장면: 기계는 문장을 읽고 있지만 테이프는 빈 종이다. 바이트와 칼날의 바이트 수는 적지 않는다.
+ */
+export function tapeScene(state: TapeState, chars: readonly EncodedChar[], { problem = false }: { problem?: boolean } = {}): string {
   const cells = tapeCells(chars);
   const total = cells.length;
   const limit = Math.min(Math.max(0, state.limit), total);
@@ -174,7 +179,9 @@ export function tapeScene(state: TapeState, chars: readonly EncodedChar[]): stri
   let text = '';
   const visibleEnd = end - start;
   const tornRight = end < total;
-  if (!cutDone || cutK >= visibleEnd) {
+  if (problem) {
+    out += tapePiece(cells, start, 0, visibleEnd, { x: 0, y: 0, z: 0 }, Infinity, tornRight, true).art;
+  } else if (!cutDone || cutK >= visibleEnd) {
     const p = tapePiece(cells, start, 0, visibleEnd, { x: 0, y: 0, z: 0 }, cutDone ? brokenFrom : Infinity, tornRight);
     out += p.art;
     text += p.text;
@@ -195,7 +202,7 @@ export function tapeScene(state: TapeState, chars: readonly EncodedChar[]): stri
   out += box(GX + 1.5, by - 4, RAIL_Z + 3, GX + 7, by + 4, RAIL_Z + 9, PALS.tomato, tone, 1);
   out += line([[bx, by, RAIL_Z + 3], [bx, by, bz1]], 1.4);
   out += shape(on(PX(bx), rectUV(by - BLADE.w / 2, bz0, by + BLADE.w / 2, bz1)), METAL.l, 1);
-  text += mono(tx(GX + 7.05, by, RAIL_Z + 4.6, `${limit}`, 3.6 * Math.min(1.5, labelScale())));
+  if (!problem) text += mono(tx(GX + 7.05, by, RAIL_Z + 4.6, `${limit}`, 3.6 * Math.min(1.5, labelScale())));
 
   // 기계와 판독 창.
   out += box(MACHINE.x0, MACHINE.y0, BASE_H, MACHINE.x1, MACHINE.y1, MACHINE.z1, PALS.cobalt, tone, 1.3);

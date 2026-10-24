@@ -80,8 +80,11 @@ export function rowLines(row: Row): [string, string] {
 
 const face = (uv: [number, number][], dx = 0): Vec3[] => on(PX(FACE + dx), uv);
 
-/** 장면 전체. rows 는 위 줄부터, scale 은 두 줄이 함께 쓰는 시간 눈금. */
-export function shelfScene(rows: Row[], scale: number): string {
+/**
+ * 장면 전체. rows 는 위 줄부터, scale 은 두 줄이 함께 쓰는 시간 눈금.
+ * problem 이면 퀴즈 전의 첫 장면: 같은 선반과 눈금에 요청 이름만 붙이고, 읽기 판·쓰기 막대·첫 토큰 깃발·수치는 그리지 않는다.
+ */
+export function shelfScene(rows: Row[], scale: number, { problem = false }: { problem?: boolean } = {}): string {
   const size = labelSize();
   const small = size * 0.85;
 
@@ -110,10 +113,10 @@ export function shelfScene(rows: Row[], scale: number): string {
     const x0 = WALL.x1 + 2;
     const x1 = SHELF.x1 - 2;
     const h = muted ? BLOCK_H * 0.75 : BLOCK_H;
-    if (prefill) {
+    if (prefill && !problem) {
       out += box(x0, timeU(prefill.start + prefill.width, scale), top, x1, timeU(prefill.start, scale), top + h, PALS.mustard, tone, muted ? 0.9 : 1.2);
     }
-    if (decodes.length) {
+    if (decodes.length && !problem) {
       const d0 = decodes[0].start;
       const d1 = decodes[decodes.length - 1].start + decodes[decodes.length - 1].width;
       out += box(x0 + 1, timeU(d1, scale), top, x1 - 1, timeU(d0, scale), top + h * 0.8, PALS.cobalt, tone, muted ? 0.9 : 1.1);
@@ -134,7 +137,7 @@ export function shelfScene(rows: Row[], scale: number): string {
     // 줄 이름과 수치.
     const [l1, l2] = rowLines(row);
     putLeft(FACE + 0.1, TRACK.u0, top + HEAD_V[0], l1, size, muted ? palette.muted : INK, 700);
-    putLeft(FACE + 0.1, TRACK.u0, top + HEAD_V[1], l2, small, muted ? palette.muted : INK, 400);
+    if (!problem) putLeft(FACE + 0.1, TRACK.u0, top + HEAD_V[1], l2, small, muted ? palette.muted : INK, 400);
   });
   const axis = '시간 → (모형의 상대 단위)';
   put(FACE + 0.1, TRACK.u1 + textWidth(axis, small * 0.9) / 2, SHELF_TOP[0] + HEAD_V[0], axis, small * 0.9, palette.muted, 400);

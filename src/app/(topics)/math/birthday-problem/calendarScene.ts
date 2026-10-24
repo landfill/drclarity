@@ -159,24 +159,25 @@ function stickers(days: readonly number[]): string {
 }
 
 /** 집계 막대 하나 (monte-carlo 의 비율 막대와 같은 꼴). */
-function bar(y0: number, y1: number, share: number | null, color: string, th: number): string {
+function bar(y0: number, y1: number, share: number | null, color: string, th: number | null): string {
   const x = FX + 0.05;
   const tube = on(PX(x), rectUV(y0, BAR_Z0, y1, BAR_Z0 + BAR_H));
   let s = shape(tube, '#e8f2f2', 0.9);
   if (share !== null && share > 0) s += clipTo(tube, fill(pd(on(PX(x + 0.01), rectUV(y0, BAR_Z0, y1, BAR_Z0 + BAR_H * share))), color));
   s += ink(pd(tube), 1.3);
+  if (th === null) return s;
   const tz = BAR_Z0 + BAR_H * th;
   s += `<path d="${pd([[x + 0.02, y0 - 1.6, tz], [x + 0.02, y1 + 1.6, tz]], false)}" fill="none" stroke="${INK}" stroke-width="1.5" stroke-dasharray="2.2 1.6"/>`;
   return s;
 }
 
-function tally(s: CalendarState): string {
-  const p = theory(s.n);
+function tally(s: CalendarState, problem: boolean): string {
+  const p = problem ? null : theory(s.n);
   const shareShared = s.groups ? s.shared / s.groups : null;
   const shareNone = s.groups ? (s.groups - s.shared) / s.groups : null;
   let out = box(FX - 4, TALLY.y0, BASE_H, FX, TALLY.y1, TALLY.z1, BODY, tone, 1.2);
   out += bar(BAR_SHARED.y0, BAR_SHARED.y1, shareShared, SHARED_COLOR, p);
-  out += bar(BAR_NONE.y0, BAR_NONE.y1, shareNone, NONE_COLOR, 1 - p);
+  out += bar(BAR_NONE.y0, BAR_NONE.y1, shareNone, NONE_COLOR, p === null ? null : 1 - p);
   for (const z of PCT_Z) out += line([[FX + 0.05, BAR_SHARED.y1 + 0.5, z], [FX + 0.05, BAR_SHARED.y1 + 2, z]], 0.8);
   return out;
 }
@@ -188,8 +189,11 @@ function pad(): string {
   return s;
 }
 
-/** 장면 전체. 한글이 섞인 글자(달 이름, 막대 이름)는 일반 글꼴로 쓴다. */
-export function calendarScene(s: CalendarState): string {
+/**
+ * 장면 전체. 한글이 섞인 글자(달 이름, 막대 이름)는 일반 글꼴로 쓴다.
+ * problem 이면 퀴즈 전의 첫 장면: 같은 달력판과 빈 집계 막대를 두고 이론값 점선은 그리지 않는다.
+ */
+export function calendarScene(s: CalendarState, { problem = false }: { problem?: boolean } = {}): string {
   let out = board(...BASE, BASE_H, 5, BOARD);
   const corners = (y0: number, y1: number, z1: number): Vec3[] =>
     [FX - 4, FX].flatMap((x) => [y0, y1].flatMap((y) => [BASE_H, z1].map((z) => [x, y, z] as Vec3)));
@@ -200,7 +204,7 @@ export function calendarScene(s: CalendarState): string {
   out += calendarBoard();
   out += stickers(s.last);
   out += pad();
-  out += tally(s);
+  out += tally(s, problem);
   for (const l of boardLabels(1.4)) {
     const t = tx(FX + 0.05, l.y, l.z, l.text, l.size);
     out += l.mono ? mono(t) : t;

@@ -1,6 +1,7 @@
 'use client';
 
 import { ColorFigure, useFigureState } from '@/components/topic/ColorFigure';
+import type { ProblemScene } from '@/components/topic/ProblemFigure';
 import { FRONT_VIEW } from '@/lib/colorfigures/core';
 import {
   advanceTape,
@@ -16,6 +17,14 @@ import {
 } from './tape';
 import { TAPE_SIZE, tapeScene } from './tapeScene';
 import { cutAt, type EncodedChar } from './utf8';
+
+/** 퀴즈 전 첫 장면: 같은 테이프 기계가 문장을 읽고 있지만 테이프에 바이트는 적지 않는다. */
+export const tapeProblem = (text: string, chars: EncodedChar[], limit: number): ProblemScene => ({
+  title: '바이트 테이프 기계',
+  materials: ['문장을 읽는 테이프 기계', '빈 테이프', '칼날'],
+  size: TAPE_SIZE,
+  scene: () => tapeScene(initialTape(text, limit), chars, { problem: true }),
+});
 
 interface TapeFigureProps {
   /** 지금 문장과 그 글자별 바이트. 위 입력 칸이 정한다. */

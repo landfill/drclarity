@@ -1,9 +1,18 @@
 'use client';
 
 import { ColorFigure } from '@/components/topic/ColorFigure';
+import type { ProblemScene } from '@/components/topic/ProblemFigure';
 import { FRONT_VIEW } from '@/lib/colorfigures/core';
 import { ACTION_LABEL, TABLE, act, figureLabel, hits, nextAction, statusText, type LookupAction, type LookupState } from './lookup';
 import { LOOKUP_SIZE, lookupScene } from './lookupScene';
+
+/** 퀴즈 전 첫 장면: 같은 유출된 저장소 종이와 장부. 무엇이 적혀 있는지는 비워 둔다. */
+export const lookupProblem = (state: LookupState): ProblemScene => ({
+  title: '유출된 저장소와 미리 만든 표',
+  materials: ['유출된 저장소 종이', '미리 만든 표 장부'],
+  size: LOOKUP_SIZE,
+  scene: () => lookupScene(state, { problem: true }),
+});
 
 interface LookupFigureProps {
   /** 위 칸의 소금 체크 상자와 같은 상태를 쓰므로 바깥(HashingClient)이 useFigureState 로 갖는다. */
