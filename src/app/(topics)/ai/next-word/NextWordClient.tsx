@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { SplitStage } from '@/components/topic/SplitStage';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
@@ -20,6 +21,7 @@ import styles from './NextWord.module.css';
 const DEFAULT_TEMPERATURE = 1;
 
 export default function NextWordClient() {
+  const [lessonRevealed, setLessonRevealed] = useState(false);
   const [promptId, setPromptId] = useState(PROMPTS[0].id);
   const [temperature, setTemperature] = useState(DEFAULT_TEMPERATURE);
   const prompt = useMemo(
@@ -78,9 +80,17 @@ export default function NextWordClient() {
       tags={meta.tags}
       topicHref="/ai/next-word"
       title={<>다음 단어는 <Highlight>어떻게 뽑을까?</Highlight></>}
-      subtitle="확률을 바꾸고 같은 조건에서 여러 번 뽑아 보세요. 어떤 말이 나올까요?"
+      subtitle="같은 확률로 여러 번 뽑으면 같은 말만 나올까요?"
     >
-      <QuizGate
+      <SplitStage wideStage stage={<WheelFigure
+          key={`${prompt.id}-${temperature}`}
+          prompt={prompt}
+          probs={probs}
+          temperature={temperature}
+          onTemperature={t => handleParamChange('temperature', t)}
+        />}>
+
+      <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         labels={{ skip: '바로 실험하기' }}
         question={
           <>
@@ -95,33 +105,36 @@ export default function NextWordClient() {
           same: <QuizSame />,
         }}
       >
+<details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleParamChange} /></details>
 
-      <ExplanationBox variant="note">
-        <NoteLogit />
-      </ExplanationBox>
+
+
 
       <section className={styles.stage} aria-label="확률 분포">
         <h2 className={styles.sectionTitle}>{stageTitle}</h2>
         <StageLead />
-        <details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleParamChange} /></details>
-        <WheelFigure
-          key={`${prompt.id}-${temperature}`}
-          prompt={prompt}
-          probs={probs}
-          temperature={temperature}
-          onTemperature={t => handleParamChange('temperature', t)}
-        />
-      </section>
 
-      <ExplanationBox title={entropyTitle} collapsible>
+
+      </section>
+<ExplanationBox variant="note">
+        <NoteLogit />
+      </ExplanationBox>
+
+
+
+
+      </QuizGate>
+
+      </SplitStage>
+{lessonRevealed && (<ExplanationBox title={entropyTitle} collapsible defaultOpen={false}>
         <p>현재 엔트로피: {bits.toFixed(2)}비트</p>
         <Entropy maxBits={maxBits.toFixed(2)} candidateCount={prompt.candidates.length} />
-      </ExplanationBox>
+      </ExplanationBox>)}
 
-      <ExplanationBox title={aboutTitle} collapsible>
+{lessonRevealed && (<ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
         <About />
-      </ExplanationBox>
-      </QuizGate>
+      </ExplanationBox>)}
+
     </TopicLayout>
   );
 }

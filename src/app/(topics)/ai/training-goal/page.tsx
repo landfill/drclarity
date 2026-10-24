@@ -13,12 +13,15 @@ export const metadata: Metadata = { title: meta.title, description: meta.summary
 /** 다음 조각 예측 학습 페이지를 렌더링한다. */
 export default function Page() {
   return (
-    <TopicLayout title={meta.title} subtitle={meta.summary} tags={meta.tags} topicHref="/ai/training-goal">
+    <TopicLayout wide title={meta.title} subtitle="앞의 글을 보고 다음에 올 조각을 고를 수 있을까요?" tags={meta.tags} topicHref="/ai/training-goal">
+<Experiment>
       <ExplanationBox title="질문 · 약 3~5분"><Intro /></ExplanationBox>
-      <Experiment />
+
       <ExplanationBox title="관찰하고 생각하기"><Observation /></ExplanationBox>
       <ExplanationBox title="한 문장 정리" variant="note"><Summary /></ExplanationBox>
-      <ExplanationBox title="더 알아보기 · 근거와 범위" collapsible><Sources /></ExplanationBox>
-    </TopicLayout>
+    </Experiment>
+
+      <ExplanationBox title="더 알아보기 · 근거와 범위" collapsible defaultOpen={false}><Sources /></ExplanationBox>
+</TopicLayout>
   );
 }

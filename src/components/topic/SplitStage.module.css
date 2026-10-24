@@ -30,6 +30,10 @@
     grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   }
 
+  .extraWideStage { grid-template-columns: minmax(0, 2fr) minmax(340px, 1fr); }
+  .fullStage { grid-template-columns: minmax(0, 1fr); }
+  .fullStage > .content { grid-column: 1; grid-row: 2; }
+
   .stage {
     grid-column: 1;
     grid-row: 1;
@@ -43,10 +47,14 @@
 }
 
 @media (max-width: 1099px) {
+  /* 헤더·주제 제목·피겨 머리줄을 제외하고 첫 화면에 그림을 남긴다. */
+  .stage svg[role="img"] {
+    max-height: min(500px, max(140px, calc(100svh - var(--header-h) - 310px)));
+  }
   .root {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-md);
+    gap: var(--space-sm);
     align-items: start;
   }
 
@@ -57,7 +65,7 @@
     top: auto;
     z-index: auto;
     margin: 0;
-    padding: var(--space-sm) 0;
+    padding: 0;
     background: var(--color-surface);
   }
 
@@ -74,4 +82,8 @@
     z-index: 2;
     background: var(--color-surface);
   }
+}
+
+@media (max-width: 600px) {
+  .wideStage .stage svg[role="img"] { max-height: var(--figure-mobile-height, 160px); }
 }

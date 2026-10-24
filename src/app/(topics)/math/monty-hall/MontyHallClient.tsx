@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { SplitStage } from '@/components/topic/SplitStage';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
@@ -9,7 +10,7 @@ import { TrialRunner, TrialBucket } from '@/components/topic/TrialRunner';
 import { CaseBoard, CaseHighlight } from './CaseBoard';
 import { StageFigure } from './StageFigure';
 import { THEORETICAL_WIN_RATE, playRound, type MontyHallTrial } from './montyHall';
-import { PLAY_TITLE, SOLUTION_STEPS, SOLUTION_TITLE } from './steps';
+import { SOLUTION_STEPS, SOLUTION_TITLE } from './steps';
 import Problem from './content/problem.mdx';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizSwitch from './content/quiz-switch.mdx';
@@ -56,19 +57,9 @@ export default function MontyHallClient() {
       tags={meta.tags}
       topicHref="/math/monty-hall"
       title={<>문을 <Highlight>바꿔야</Highlight> 할까?</>}
-      subtitle="직관이 가장 크게 배신당하는 확률 문제, 몬티 홀"
+      subtitle="선택을 바꾸는 편이 유리할까요?"
     >
-      <ExplanationBox variant="note">
-        <Problem />
-      </ExplanationBox>
-
-      <section className={styles.playSection} aria-label="직접 플레이">
-        <h2 className={styles.sectionTitle}>{PLAY_TITLE}</h2>
-
-        <StageFigure />
-      </section>
-
-      <QuizGate
+      <SplitStage wideStage sticky={false} className={styles.figureFirst} stage={<StageFigure />}><QuizGate layout="aside"
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -83,18 +74,30 @@ export default function MontyHallClient() {
           stay: <QuizStay />,
         }}
       >
-        <section className={styles.simSection} aria-label="대량 시뮬레이션">
+<section className={styles.simSection} aria-label="대량 시뮬레이션">
           <h2 className={styles.sectionTitle}>{simTitle}</h2>
           <div className={styles.sectionLead}>
             <SimLead />
           </div>
-          <TrialRunner
+
+        <TrialRunner
             runTrial={runTrial}
             bucketsOf={bucketsOf}
             buckets={TRIAL_BUCKETS}
             presets={[10, 100, 1000, 10000]}
-          />
-        </section>
+          /></section>
+
+
+
+
+      <ExplanationBox variant="note">
+        <Problem />
+      </ExplanationBox>
+
+
+
+
+
 
         <section className={styles.solutionSection} aria-label="풀이">
           <h2 className={styles.sectionTitle}>{SOLUTION_TITLE}</h2>
@@ -104,9 +107,13 @@ export default function MontyHallClient() {
         </section>
       </QuizGate>
 
-      <ExplanationBox title={historyTitle} variant="note" collapsible defaultOpen={false}>
+
+
+      </SplitStage>
+<ExplanationBox title={historyTitle} variant="note" collapsible defaultOpen={false}>
         <History />
       </ExplanationBox>
+
     </TopicLayout>
   );
 }
