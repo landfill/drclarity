@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import styles from './QuizGate.module.css';
 
 export interface QuizChoice {
@@ -21,6 +21,8 @@ export interface QuizGateProps {
   /** 건너뛰기 허용. 막다른 길을 만들지 않는다. */
   allowSkip?: boolean;
   labels?: { submit?: string; skip?: string; retry?: string };
+  /** 카드 밖의 부가 설명도 최초 공개에 맞춰 열 때 쓴다. */
+  onReveal?: () => void;
   children: React.ReactNode;
 }
 
@@ -33,6 +35,7 @@ export function QuizGate({
   gateContent = true,
   allowSkip = true,
   labels,
+  onReveal,
   children,
 }: QuizGateProps) {
   const submitLabel = labels?.submit ?? '이 답으로 확인하기';
@@ -63,6 +66,22 @@ export function QuizGate({
   const revealed = hasRevealed || submittedId !== null || skipped || !gateContent;
   const compact = layout === 'aside';
   const collapsed = compact && (submittedId !== null || skipped);
+
+  useLayoutEffect(() => {
+    if (!collapsed) return;
+    const card = revealedRef.current?.closest<HTMLElement>('[data-figure-stage]');
+    const svg = card?.querySelector<SVGSVGElement>('svg[role="img"]');
+    if (!card || !svg) return;
+    const header = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 0;
+    const bounds = svg.getBoundingClientRect();
+    const control = [...(revealedRef.current?.querySelectorAll<HTMLElement>('button, input, select, textarea, summary, fieldset') ?? [])]
+      .find(element => element.getBoundingClientRect().height > 0);
+    const controlTop = control?.getBoundingClientRect().top;
+    if (bounds.top < header || bounds.bottom > window.innerHeight || (controlTop !== undefined && controlTop >= window.innerHeight)) {
+      // 선택지가 접힐 때의 스크롤 앵커와 공개 영역 포커스가 그림을 밀어내지 않게 한다.
+      window.scrollTo({ top: window.scrollY + card.getBoundingClientRect().top - header, behavior: 'auto' });
+    }
+  }, [collapsed, submittedId, skipped]);
 
   return (
     <section className={`${styles.gate} ${compact ? styles.aside : ''}`} aria-label="풀이 전 답 고르기">
@@ -107,9 +126,10 @@ export function QuizGate({
 
       <div className={styles.actions}>
         {collapsed && <div className={styles.answerSummary} role="status">
-          {submittedId !== null
-            ? <>내 답: {choices.find(choice => choice.id === submittedId)?.label} · {isCorrect ? '맞았습니다' : '다릅니다'}</>
-            : `${skipLabel} 선택됨`}
+          {submittedId !== null ? <>
+            <div className={styles.answerChoice}>내 답: {choices.find(choice => choice.id === submittedId)?.label}</div>
+            <span className={styles.answerVerdict}>· {isCorrect ? '맞았습니다' : '다릅니다'}</span>
+          </> : <div className={styles.answerChoice}>{skipLabel} 선택됨</div>}
         </div>}
         {/*
           제출과 재선택이 같은 버튼 노드를 쓴다. 분기마다 다른 노드를 그리면
@@ -132,6 +152,7 @@ export function QuizGate({
             if (!selectedId) return;
             setSubmittedId(selectedId);
             setHasRevealed(true);
+            if (!hasRevealed) onReveal?.();
           }}
           disabled={!collapsed && submittedId === null && selectedId === null}
         >
@@ -146,8 +167,10 @@ export function QuizGate({
             onClick={() => {
               setSkipped(true);
               setHasRevealed(true);
+              if (!hasRevealed) onReveal?.();
               // 이 버튼은 사라지므로, 사용자가 요청한 풀이로 포커스를 보낸다.
-              requestAnimationFrame(() => revealedRef.current?.focus());
+              // 사이드바에서는 포커스 때문에 피겨가 화면 밖으로 밀리지 않게 한다.
+              requestAnimationFrame(() => revealedRef.current?.focus({ preventScroll: compact }));
             }}
           >
             {skipLabel}
