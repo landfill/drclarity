@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo } from 'react';
+import { SplitStage } from '@/components/topic/SplitStage';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
@@ -109,9 +110,11 @@ export default function CursorAgentLoopCostClient() {
           <Highlight>어디까지 찾을지</Highlight> 적으면 달라질까?
         </>
       }
-      subtitle="찾을 범위와 멈출 조건을 바꾸며, 사용량과 찾기 결과를 함께 비교합니다."
+      subtitle="조건을 더 적으면 탐색이 줄어들까요?"
     >
-      <QuizGate
+      <SplitStage wideStage className={styles.figureFirst} stage={<DrawerFigure state={st} dispatch={dispatch} />}>
+
+      <QuizGate layout="aside"
         labels={{ skip: '바로 실험하기' }}
         question={
           <>
@@ -123,41 +126,7 @@ export default function CursorAgentLoopCostClient() {
         correctId="both"
         feedback={{ scope: <QuizScope />, stop: <QuizStop />, both: <QuizBoth /> }}
       >
-        <ExplanationBox variant="note">
-          <NoteSim />
-        </ExplanationBox>
-
-        <section className={styles.stage} aria-label="프롬프트를 고쳐 가며 보기">
-          <h2 className={styles.sectionTitle}>{stageTitle}</h2>
-          <div className={styles.sectionLead}>
-            <StageLead />
-          </div>
-
-          {/* 프롬프트 — 이 화면의 유일한 원인이므로 가장 크게 둔다 */}
-          <div className={styles.promptCard}>
-            <p className={styles.prompt} aria-label={`프롬프트: ${promptText(prompt)}`}>
-              {parts.map(part => (
-                <span
-                  key={part.slot}
-                  // 내가 적어 넣은 어구만 강조한다. `이거 찾아봐.` 는 출발점이라 그대로 둔다.
-                  className={part.base ? styles.promptPart : styles.promptAdded}
-                >
-                  {part.text}
-                </span>
-              ))}
-            </p>
-            <p className={styles.promptEffect} role="status" aria-live="polite">
-              {clauseEffect(prompt)}
-            </p>
-          </div>
-
-          {/*
-            누적 슬라이더가 아니라 독립 토글이고, 한 줄에 하나씩 세운다. 이 화면의
-            결론이 "범위와 중단 조건을 **같이** 적어야 한다" 인데, 누적으로 묶으면 둘 중
-            하나만 켠 상태를 만들 수 없어 그 결론을 화면으로 보일 수 없다. 손잡이를 한 줄에
-            몰아 놓으면 한 덩어리로 보여 건너뛰게 되므로 줄을 나눈다.
-          */}
-          <details className={styles.fineControls}><summary>조건을 직접 조절하기</summary>
+<details className={styles.fineControls}><summary>조건을 직접 조절하기</summary>
           <div className={styles.controls}>
             <div className={styles.controlsHead}>
               <span className={styles.controlLabel}>프롬프트에 더 적어 넣기</span>
@@ -236,7 +205,41 @@ export default function CursorAgentLoopCostClient() {
 
           </details>
 
-          <DrawerFigure state={st} dispatch={dispatch} />
+
+
+        <section className={styles.stage} aria-label="프롬프트를 고쳐 가며 보기">
+          <h2 className={styles.sectionTitle}>{stageTitle}</h2>
+          <div className={styles.sectionLead}>
+            <StageLead />
+          </div>
+
+          {/* 프롬프트 — 이 화면의 유일한 원인이므로 가장 크게 둔다 */}
+          <div className={styles.promptCard}>
+            <p className={styles.prompt} aria-label={`프롬프트: ${promptText(prompt)}`}>
+              {parts.map(part => (
+                <span
+                  key={part.slot}
+                  // 내가 적어 넣은 어구만 강조한다. `이거 찾아봐.` 는 출발점이라 그대로 둔다.
+                  className={part.base ? styles.promptPart : styles.promptAdded}
+                >
+                  {part.text}
+                </span>
+              ))}
+            </p>
+            <p className={styles.promptEffect} role="status" aria-live="polite">
+              {clauseEffect(prompt)}
+            </p>
+          </div>
+
+          {/*
+            누적 슬라이더가 아니라 독립 토글이고, 한 줄에 하나씩 세운다. 이 화면의
+            결론이 "범위와 중단 조건을 **같이** 적어야 한다" 인데, 누적으로 묶으면 둘 중
+            하나만 켠 상태를 만들 수 없어 그 결론을 화면으로 보일 수 없다. 손잡이를 한 줄에
+            몰아 놓으면 한 덩어리로 보여 건너뛰게 되므로 줄을 나눈다.
+          */}
+          
+
+
           <div className={styles.screenNote}>
             <PanelANote />
           </div>
@@ -319,6 +322,9 @@ export default function CursorAgentLoopCostClient() {
             <StageNote />
           </div>
         </section>
+<ExplanationBox variant="note">
+          <NoteSim />
+        </ExplanationBox>
 
         <ExplanationBox title={countCallsTitle} collapsible>
           <CountCalls />
@@ -340,6 +346,8 @@ export default function CursorAgentLoopCostClient() {
           <Instruction />
         </ExplanationBox>
       </QuizGate>
+
+      </SplitStage>
     </TopicLayout>
   );
 }

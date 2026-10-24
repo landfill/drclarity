@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { SplitStage } from '@/components/topic/SplitStage';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
@@ -92,9 +93,11 @@ export default function ContextLimitClient() {
           AI 는 왜 긴 대화에서 <Highlight>앞을 잊나</Highlight>
         </>
       }
-      subtitle="대화 기록에 남은 이름이 이번 입력에도 있을까요? 대화를 늘리고 입력 창을 넓혀 확인합니다."
+      subtitle="대화 기록에 남은 이름이 이번 입력에도 있을까요?"
     >
-      <QuizGate
+      <SplitStage wideStage stageRatio="2:1" stage={<RailFigure state={state} active={active} note={note} onPreset={applyPreset} />}>
+
+      <QuizGate layout="aside"
         labels={{ skip: '바로 실험하기' }}
         question={
           <>
@@ -110,9 +113,9 @@ export default function ContextLimitClient() {
           save: <QuizSave />,
         }}
       >
-        <ExplanationBox variant="note">
-          <NoteLive />
-        </ExplanationBox>
+<details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleChange} onReset={handleReset} /></details>
+
+
 
         <section className={styles.stage} aria-label="대화를 이어가 보기">
           <h2 className={styles.sectionTitle}>{stageTitle}</h2>
@@ -120,8 +123,8 @@ export default function ContextLimitClient() {
             <StageLead />
           </div>
 
-          <details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleChange} onReset={handleReset} /></details>
-          <RailFigure state={state} active={active} note={note} onPreset={applyPreset} />
+          
+
           <details className={styles.chatDetails}><summary>메시지 원문 확인하기</summary>
           <ol className={styles.chat} aria-label="대화">
             {state.turns.map(turn => (
@@ -179,6 +182,9 @@ export default function ContextLimitClient() {
             <StageNote />
           </div>
         </section>
+<ExplanationBox variant="note">
+          <NoteLive />
+        </ExplanationBox>
 
         <ExplanationBox title={notMemoryTitle} collapsible>
           <NotMemory />
@@ -192,6 +198,8 @@ export default function ContextLimitClient() {
           <About />
         </ExplanationBox>
       </QuizGate>
+
+      </SplitStage>
     </TopicLayout>
   );
 }

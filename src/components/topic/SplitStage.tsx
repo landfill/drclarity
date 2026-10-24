@@ -10,10 +10,12 @@ export interface SplitStageProps {
   className?: string;
   /** 넓은 화면에서 그림 칸을 본문 칸보다 넓게 (3:2). 가로로 넓은 figure 에 쓴다. */
   wideStage?: boolean;
+  /** 글자 크기 실측에 따라 더 넓은 그림 칸 또는 전체 폭을 선택한다. */
+  stageRatio?: '2:1' | 'full';
 }
 
 /** Shared stage/content layout and the viewport-safe mobile sticky gate. */
-export function SplitStage({ stage, children, className = '', wideStage = false }: SplitStageProps) {
+export function SplitStage({ stage, children, className = '', wideStage = false, stageRatio }: SplitStageProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const [stageCanStick, setStageCanStick] = useState(false);
 
@@ -24,7 +26,8 @@ export function SplitStage({ stage, children, className = '', wideStage = false 
     const updateStageStickiness = () => {
       const rootStyles = getComputedStyle(document.documentElement);
       const headerHeight = Number.parseFloat(rootStyles.getPropertyValue('--header-h')) || 0;
-      const availableHeight = window.innerHeight - headerHeight - 16;
+      // 그림 아래 본문을 읽고 조작할 공간도 남아야 sticky 를 켠다.
+      const availableHeight = window.innerHeight - headerHeight - 160;
       setStageCanStick(stageElement.getBoundingClientRect().height <= availableHeight);
     };
 
@@ -40,7 +43,7 @@ export function SplitStage({ stage, children, className = '', wideStage = false 
   }, []);
 
   return (
-    <div className={`${styles.root} ${wideStage ? styles.wideStage : ''} ${className}`.replace(/\s+/g, ' ').trim()}>
+    <div className={`${styles.root} ${wideStage ? styles.wideStage : ''} ${stageRatio === '2:1' ? styles.extraWideStage : ''} ${stageRatio === 'full' ? styles.fullStage : ''} ${className}`.replace(/\s+/g, ' ').trim()}>
       <div ref={stageRef} className={`${styles.stage} ${stageCanStick ? styles.stageSticky : ''}`}>
         {stage}
       </div>

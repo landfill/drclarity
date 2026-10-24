@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { SplitStage } from '@/components/topic/SplitStage';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
@@ -69,28 +70,30 @@ export default function TokenizerClient() {
       tags={meta.tags}
       topicHref="/ai/tokenizer"
       title={<>AI는 글자가 아니라 <Highlight>토큰</Highlight>을 본다</>}
-      subtitle="같은 한 덩어리의 글도 여러 조각으로 나뉠까요? 직접 잘라 확인합니다."
+      subtitle="같은 한 덩어리의 글도 여러 조각으로 나뉠까요?"
     >
-      <QuizGate
+      <SplitStage wideStage stage={<BpeFigure key={input} text={input} animate={changed} />}>
+
+      <QuizGate layout="aside"
         question={<><h2 className={styles.sectionTitle}>{quizTitle}</h2><QuizQuestion /></>}
         choices={quizChoices}
         correctId="different"
         feedback={{ same: <QuizFeedback />, different: <QuizFeedback /> }}
         labels={{ skip: '바로 실험하기' }}
       >
-      <ExplanationBox variant="note">
-        <NoteIntro />
-      </ExplanationBox>
-
-      <section className={styles.section} aria-label="직접 잘라보기">
-        <h2 className={styles.sectionTitle}>{tryItTitle}</h2>
-
-        <div className={styles.experimentButtons} role="group" aria-label="비교할 입력">
+<div className={styles.experimentButtons} role="group" aria-label="비교할 입력">
           {EXAMPLES.map(example => (
             <button key={example.label} type="button" aria-pressed={input === example.text} onClick={() => setInput(example.text)}>{example.label}</button>
           ))}
           <button type="button" onClick={() => setInput('')}>비우기</button>
         </div>
+
+
+
+      <section className={styles.section} aria-label="직접 잘라보기">
+        <h2 className={styles.sectionTitle}>{tryItTitle}</h2>
+
+        
         <label className={styles.inputLabel} htmlFor="tokenizer-input">
           문장을 입력하면 토큰 경계가 보입니다 (최대 {MAX_INPUT_LENGTH}자)
         </label>
@@ -112,7 +115,7 @@ export default function TokenizerClient() {
           <li>→ 규칙대로 묶기 <strong>{stats.tokens}토큰</strong></li>
         </ol>
         {/* 입력이 바뀌면 새로 마운트한다(AGENTS.md). 이전 입력의 묶음이 한 프레임도 남지 않는다. */}
-        <BpeFigure key={input} text={input} animate={changed} />
+
         <TokenStrip tokens={tokens} />
         <p className={styles.observation} role="status">
           {input === 'token' ? 'token은 다섯 글자가 한 블록에 모여 1토큰입니다.'
@@ -128,6 +131,9 @@ export default function TokenizerClient() {
           <TryIt />
         </div>
       </section>
+<ExplanationBox variant="note">
+        <NoteIntro />
+      </ExplanationBox>
 
       <ExplanationBox title={spacingTitle} collapsible>
 
@@ -225,6 +231,8 @@ export default function TokenizerClient() {
         <WhyUnits />
       </ExplanationBox>
       </QuizGate>
+
+      </SplitStage>
     </TopicLayout>
   );
 }

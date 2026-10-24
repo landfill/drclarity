@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { SplitStage } from '@/components/topic/SplitStage';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, ParameterDefinition } from '@/components/topic/ParameterPanel';
@@ -83,8 +84,10 @@ export default function SortingRaceClient() {
       tags={meta.tags}
       topicHref="/cs/sorting-race"
       title={<>같은 배열, <Highlight>다른 속도</Highlight></>}
-      subtitle="O(n²)와 O(n log n)의 차이를 말이 아니라 속도로 봅니다."
+      subtitle="같은 배열을 정렬하는데 왜 속도가 다를까요?"
     >
+      <SplitStage wideStage stage={<RaceFigure key={`${size}-${pattern}`} size={size} pattern={pattern} />}>
+
       <ExplanationBox variant="note">
         <NoteRules />
       </ExplanationBox>
@@ -97,12 +100,14 @@ export default function SortingRaceClient() {
 
       {/* 원소 수나 패턴이 바뀌면 새로 마운트해 새 배열로 처음부터 시작한다. */}
       <section className={styles.figureSection} aria-label="정렬 선반">
-        <RaceFigure key={`${size}-${pattern}`} size={size} pattern={pattern} />
+
       </section>
 
       <ExplanationBox title={whyTitle} variant="note" collapsible defaultOpen={false}>
         <WhyDifference />
       </ExplanationBox>
+
+      </SplitStage>
     </TopicLayout>
   );
 }

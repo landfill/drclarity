@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { SplitStage } from '@/components/topic/SplitStage';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
@@ -56,19 +57,9 @@ export default function MontyHallClient() {
       tags={meta.tags}
       topicHref="/math/monty-hall"
       title={<>문을 <Highlight>바꿔야</Highlight> 할까?</>}
-      subtitle="직관이 가장 크게 배신당하는 확률 문제, 몬티 홀"
+      subtitle="선택을 바꾸는 편이 유리할까요?"
     >
-      <ExplanationBox variant="note">
-        <Problem />
-      </ExplanationBox>
-
-      <section className={styles.playSection} aria-label="직접 플레이">
-        <h2 className={styles.sectionTitle}>{PLAY_TITLE}</h2>
-
-        <StageFigure />
-      </section>
-
-      <QuizGate
+      <SplitStage wideStage stage={<StageFigure />}><QuizGate layout="aside"
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -83,6 +74,18 @@ export default function MontyHallClient() {
           stay: <QuizStay />,
         }}
       >
+
+      <ExplanationBox variant="note">
+        <Problem />
+      </ExplanationBox>
+
+      <section className={styles.playSection} aria-label="직접 플레이">
+        <h2 className={styles.sectionTitle}>{PLAY_TITLE}</h2>
+
+
+      </section>
+
+      
         <section className={styles.simSection} aria-label="대량 시뮬레이션">
           <h2 className={styles.sectionTitle}>{simTitle}</h2>
           <div className={styles.sectionLead}>
@@ -107,6 +110,8 @@ export default function MontyHallClient() {
       <ExplanationBox title={historyTitle} variant="note" collapsible defaultOpen={false}>
         <History />
       </ExplanationBox>
+
+      </SplitStage>
     </TopicLayout>
   );
 }
