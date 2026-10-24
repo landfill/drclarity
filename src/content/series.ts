@@ -76,26 +76,17 @@ export function findSeries(topics: TopicEntry[], current: TopicEntry): SeriesInf
 }
 
 /**
- * 이전/다음 주제를 고른다.
- *
- * 시리즈 안에서는 전체 순서보다 seriesOrder 를 우선한다. 다만 시리즈의 양 끝에서는
- * 전체 순서로 이어 붙인다 — 그러지 않으면 시리즈 마지막 편이 다시 막다른 길이 된다.
- * 그래서 경계에서는 prev/next 가 서로의 역함수가 아닐 수 있다(의도된 동작).
+ * 이전/다음은 주제 목록의 순서를 따른다. 시리즈 순서는 별도 스트립에서 제공한다.
+ * 두 순서를 한 쌍의 링크에 섞으면 카테고리를 넘는 시리즈에서 순환이 생긴다.
  */
 export function findAdjacent(topics: TopicEntry[], current: TopicEntry): AdjacentTopics {
   const at = topics.findIndex(t => t.href === current.href);
-  // draft 주제는 published 목록에 없다. 내비게이션을 통째로 비운다.
   if (at === -1) return {};
 
-  const globalPrev = topics[at - 1];
-  const globalNext = topics[at + 1];
-
   const series = findSeries(topics, current);
-  if (!series) return { prev: globalPrev, next: globalNext };
-
   return {
-    prev: series.members[series.index - 1] ?? globalPrev,
-    next: series.members[series.index + 1] ?? globalNext,
-    series,
+    prev: topics[at - 1],
+    next: topics[at + 1],
+    ...(series ? { series } : {}),
   };
 }
