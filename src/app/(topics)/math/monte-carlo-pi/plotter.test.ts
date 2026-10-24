@@ -231,4 +231,24 @@ describe('plotterScene', () => {
       }
     }
   });
+
+  it('확대된 이론값 이름표도 두 비율 막대 전체를 가리지 않는다', () => {
+    for (const labelScale of [1, 1.6, 2.2]) {
+      const svg = draw({ ...initialPlotter(), darts: [{ x: 1, y: 1, inside: false }] }, labelScale);
+      const tags = [...svg.matchAll(/<rect x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)];
+      const [x, y, width, height] = tags[1].slice(1).map(Number);
+      // 실제 그려진 유리관의 path에서 경계를 읽는다. 표본이 모두 원 밖일 때도 관 전체가 보여야 한다.
+      const bars = [...svg.matchAll(/<path d="([^"]+)" fill="#e8f2f2"/g)];
+      expect(bars).toHaveLength(2);
+      for (const bar of bars) {
+        const coordinates = [...bar[1].matchAll(/-?\d+(?:\.\d+)?/g)].map(m => Number(m[0]));
+        const xs = coordinates.filter((_, i) => i % 2 === 0);
+        const ys = coordinates.filter((_, i) => i % 2 === 1);
+        const overlaps = x < Math.max(...xs) && x + width > Math.min(...xs)
+          && y < Math.max(...ys) && y + height > Math.min(...ys);
+        expect(overlaps, `labelScale ${labelScale}`).toBe(false);
+      }
+    }
+  });
+
 });
