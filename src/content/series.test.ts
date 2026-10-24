@@ -178,23 +178,23 @@ describe('findAdjacent — 시리즈 있음', () => {
   const s3 = topic('s3', { series: 'binary', seriesOrder: 3 });
   const mixed = [s1, x, s2, y, s3];
 
-  it('시리즈 중간에서는 전체 순서보다 seriesOrder 를 우선한다', () => {
+  it('시리즈 중간에서도 이전·다음은 전체 순서를 따른다', () => {
     const { prev, next } = findAdjacent(mixed, s2);
-    expect(prev).toBe(s1);
-    expect(next).toBe(s3);
+    expect(prev).toBe(x);
+    expect(next).toBe(y);
   });
 
-  it('시리즈 첫 편의 prev 는 전체 순서로 이어 붙인다', () => {
+  it('시리즈 첫 편도 전체 순서의 다음 주제로 이동한다', () => {
     // s1 은 전체 목록의 맨 앞이라 prev 가 없다.
     const { prev, next } = findAdjacent(mixed, s1);
     expect(prev).toBeUndefined();
-    expect(next).toBe(s2);
+    expect(next).toBe(x);
   });
 
   it('시리즈 마지막 편의 next 는 전체 순서로 이어 붙인다 — 막다른 길을 만들지 않는다', () => {
     const tail = topic('tail');
     const { prev, next } = findAdjacent([...mixed, tail], s3);
-    expect(prev).toBe(s2);
+    expect(prev).toBe(y);
     expect(next).toBe(tail);
   });
 
@@ -216,5 +216,19 @@ describe('findAdjacent — 시리즈 있음', () => {
   it('시리즈 정보를 함께 돌려준다', () => {
     expect(findAdjacent(mixed, s2).series?.index).toBe(1);
     expect(findAdjacent(mixed, s2).series?.members).toHaveLength(3);
+  });
+});
+
+// 실제 시리즈가 카테고리를 건너도 모든 주제를 한 번씩 방문하고 되돌아갈 수 있어야 한다.
+describe('공개 주제의 이전·다음 연결', () => {
+  it('전체 목록을 빠짐없이 순회하고 이전 링크로 같은 경로를 돌아온다', async () => {
+    const { getTopics, getAdjacentTopics } = await import('./registry');
+    const topics = getTopics();
+    for (const [index, topic] of topics.entries()) {
+      const adjacent = getAdjacentTopics(topic.href);
+      expect(adjacent.prev?.href).toBe(topics[index - 1]?.href);
+      expect(adjacent.next?.href).toBe(topics[index + 1]?.href);
+      if (adjacent.next) expect(getAdjacentTopics(adjacent.next.href).prev?.href).toBe(topic.href);
+    }
   });
 });
