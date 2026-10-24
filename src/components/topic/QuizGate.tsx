@@ -107,9 +107,10 @@ export function QuizGate({
 
       <div className={styles.actions}>
         {collapsed && <div className={styles.answerSummary} role="status">
-          {submittedId !== null
-            ? <>내 답: {choices.find(choice => choice.id === submittedId)?.label} · {isCorrect ? '맞았습니다' : '다릅니다'}</>
-            : `${skipLabel} 선택됨`}
+          {submittedId !== null ? <>
+            <div className={styles.answerChoice}>내 답: {choices.find(choice => choice.id === submittedId)?.label}</div>
+            <span className={styles.answerVerdict}>· {isCorrect ? '맞았습니다' : '다릅니다'}</span>
+          </> : <div className={styles.answerChoice}>{skipLabel} 선택됨</div>}
         </div>}
         {/*
           제출과 재선택이 같은 버튼 노드를 쓴다. 분기마다 다른 노드를 그리면
