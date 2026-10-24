@@ -22,7 +22,7 @@ export function ProblemFigure({ kind, children }: { kind: ProblemKind; children:
     fig="01"
     title={problem.title}
     hint="재료를 보고 먼저 예상해 보세요"
-    label={`${problem.materials.join(', ')}이 놓여 있습니다. 실험은 아직 시작하지 않았습니다.`}
+    label={`재료: ${problem.materials.join(', ')}. 실험은 아직 시작하지 않았습니다.`}
     scene={() => problemScene(kind)}
     actions={[{ label: '실험 시작', onClick: () => dispatch(startProblem), primary: nextProblemAction(state) === 'start' }]}
     status="아직 실험하지 않았습니다. 예상한 뒤 실험 시작을 눌러 확인하세요."
