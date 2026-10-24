@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import styles from './QuizGate.module.css';
 
 export interface QuizChoice {
@@ -66,6 +66,22 @@ export function QuizGate({
   const revealed = hasRevealed || submittedId !== null || skipped || !gateContent;
   const compact = layout === 'aside';
   const collapsed = compact && (submittedId !== null || skipped);
+
+  useLayoutEffect(() => {
+    if (!collapsed) return;
+    const card = revealedRef.current?.closest<HTMLElement>('[data-figure-stage]');
+    const svg = card?.querySelector<SVGSVGElement>('svg[role="img"]');
+    if (!card || !svg) return;
+    const header = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 0;
+    const bounds = svg.getBoundingClientRect();
+    const control = [...(revealedRef.current?.querySelectorAll<HTMLElement>('button, input, select, textarea, summary, fieldset') ?? [])]
+      .find(element => element.getBoundingClientRect().height > 0);
+    const controlTop = control?.getBoundingClientRect().top;
+    if (bounds.top < header || bounds.bottom > window.innerHeight || (controlTop !== undefined && controlTop >= window.innerHeight)) {
+      // 선택지가 접힐 때의 스크롤 앵커와 공개 영역 포커스가 그림을 밀어내지 않게 한다.
+      window.scrollTo({ top: window.scrollY + card.getBoundingClientRect().top - header, behavior: 'auto' });
+    }
+  }, [collapsed, submittedId, skipped]);
 
   return (
     <section className={`${styles.gate} ${compact ? styles.aside : ''}`} aria-label="풀이 전 답 고르기">
@@ -153,7 +169,8 @@ export function QuizGate({
               setHasRevealed(true);
               if (!hasRevealed) onReveal?.();
               // 이 버튼은 사라지므로, 사용자가 요청한 풀이로 포커스를 보낸다.
-              requestAnimationFrame(() => revealedRef.current?.focus());
+              // 사이드바에서는 포커스 때문에 피겨가 화면 밖으로 밀리지 않게 한다.
+              requestAnimationFrame(() => revealedRef.current?.focus({ preventScroll: compact }));
             }}
           >
             {skipLabel}

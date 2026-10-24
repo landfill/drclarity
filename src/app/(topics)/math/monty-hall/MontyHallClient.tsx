@@ -10,7 +10,7 @@ import { TrialRunner, TrialBucket } from '@/components/topic/TrialRunner';
 import { CaseBoard, CaseHighlight } from './CaseBoard';
 import { StageFigure } from './StageFigure';
 import { THEORETICAL_WIN_RATE, playRound, type MontyHallTrial } from './montyHall';
-import { PLAY_TITLE, SOLUTION_STEPS, SOLUTION_TITLE } from './steps';
+import { SOLUTION_STEPS, SOLUTION_TITLE } from './steps';
 import Problem from './content/problem.mdx';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizSwitch from './content/quiz-switch.mdx';
@@ -74,32 +74,30 @@ export default function MontyHallClient() {
           stay: <QuizStay />,
         }}
       >
-<TrialRunner
+<section className={styles.simSection} aria-label="대량 시뮬레이션">
+          <h2 className={styles.sectionTitle}>{simTitle}</h2>
+          <div className={styles.sectionLead}>
+            <SimLead />
+          </div>
+
+        <TrialRunner
             runTrial={runTrial}
             bucketsOf={bucketsOf}
             buckets={TRIAL_BUCKETS}
             presets={[10, 100, 1000, 10000]}
-          />
+          /></section>
+
+
 
 
       <ExplanationBox variant="note">
         <Problem />
       </ExplanationBox>
 
-      <section className={styles.playSection} aria-label="직접 플레이">
-        <h2 className={styles.sectionTitle}>{PLAY_TITLE}</h2>
 
 
-      </section>
 
 
-        <section className={styles.simSection} aria-label="대량 시뮬레이션">
-          <h2 className={styles.sectionTitle}>{simTitle}</h2>
-          <div className={styles.sectionLead}>
-            <SimLead />
-          </div>
-
-        </section>
 
         <section className={styles.solutionSection} aria-label="풀이">
           <h2 className={styles.sectionTitle}>{SOLUTION_TITLE}</h2>
