@@ -10,7 +10,7 @@
 .lesson button:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 3px; }
 .grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
 .board { min-width: 0; padding: 14px; border-right: 1px solid var(--color-border); }
-.board svg[role="img"] { max-height: min(440px, calc(100svh - var(--header-h) - 400px)); }
+.board svg[role="img"] { max-height: min(440px, max(140px, calc(100svh - var(--header-h) - 400px))); }
 .sidebar { min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 14px; overflow-wrap: anywhere; }
 .explanation { font-size: .875rem; line-height: 1.8; }
 .explanation h2 { font-size: 1.1rem; margin-bottom: 8px; }
@@ -26,5 +26,5 @@
   .sidebar { padding: 12px; }
 }
 @media (max-width: 600px) {
-  .board svg[role="img"] { max-height: 140px; }
+  .board svg[role="img"] { max-height: 120px; }
 }

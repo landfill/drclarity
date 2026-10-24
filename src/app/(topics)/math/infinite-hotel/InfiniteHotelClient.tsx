@@ -21,6 +21,7 @@ import styles from './InfiniteHotel.module.css';
 
 export default function InfiniteHotelClient() {
   const [stepId, setStepId] = useState<HotelStepId>('full');
+  const [lessonRevealed, setLessonRevealed] = useState(false);
 
   return (
     <TopicLayout
@@ -34,7 +35,7 @@ export default function InfiniteHotelClient() {
       }
       subtitle="만실인 무한 호텔에 새 손님이 오면 어떻게 방을 배정할까요?"
     >
-      <LessonCard title="방 배정 풀이" steps={HOTEL_STEPS} labels={['문제', '한 방씩 이동', '방 배정', '두 배로 이동', '홀수 방', '정리']} index={HOTEL_STEPS.findIndex(step => step.id === stepId)} onStepChange={index => { const step = HOTEL_STEPS[index]; if (step && isHotelStepId(step.id)) setStepId(step.id); }} figure={<InfiniteHotelFigure key={stepId} stepId={stepId} />} quiz={content => <QuizGate layout="aside"
+      <LessonCard title="방 배정 풀이" steps={HOTEL_STEPS} labels={['문제', '한 방씩 이동', '방 배정', '두 배로 이동', '홀수 방', '정리']} index={HOTEL_STEPS.findIndex(step => step.id === stepId)} onStepChange={index => { const step = HOTEL_STEPS[index]; if (step && isHotelStepId(step.id)) { setStepId(step.id); if (index > 0) setLessonRevealed(true); } }} figure={<InfiniteHotelFigure key={stepId} stepId={stepId} />} quiz={content => <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -49,7 +50,7 @@ export default function InfiniteHotelClient() {
           kick: <QuizKick />,
         }}
       >{content}</QuizGate>}><h2 className={styles.sectionTitle}>{stageTitle}</h2><StageLead /></LessonCard>
-        <ExplanationBox variant="note">
+{lessonRevealed && <>        <ExplanationBox variant="note">
           <NoteFinite rooms={VISIBLE_ROOMS} />
         </ExplanationBox>
 
@@ -61,6 +62,7 @@ export default function InfiniteHotelClient() {
           <Beyond />
         </ExplanationBox>
 
+</>}
     </TopicLayout>
   );
 }

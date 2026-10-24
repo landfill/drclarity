@@ -45,6 +45,7 @@ export default function KeyExchangeClient() {
   const [aliceSecretId, setAliceSecretId] = useState(SECRET_COLORS[0].id);
   const [bobSecretId, setBobSecretId] = useState(SECRET_COLORS[1].id);
   const [mixStep, setMixStep] = useState(0);
+  const [lessonRevealed, setLessonRevealed] = useState(false);
 
   const aliceSecret = findSecretColor(aliceSecretId);
   const bobSecret = findSecretColor(bobSecretId);
@@ -88,7 +89,7 @@ export default function KeyExchangeClient() {
       title={<>자물쇠는 주고 <Highlight>열쇠는 안 준다</Highlight></>}
       subtitle="모두가 듣는 곳에서 두 사람만 아는 비밀을 만들 수 있을까요?"
     >
-      <RealMath quiz={content => <QuizGate layout="aside"
+      <RealMath quiz={content => <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -102,12 +103,12 @@ export default function KeyExchangeClient() {
           impossible: <QuizImpossible />,
           met: <QuizMet />,
         }}
-      >{content}
-        <ExplanationBox variant="note">
+      >{content}</QuizGate>} />
+{lessonRevealed && <>
+<ExplanationBox title="색으로 절차 보기" collapsible defaultOpen={false}><ExplanationBox variant="note">
           <NoteIntro />
         </ExplanationBox>
-
-        <section className={styles.stageSection} aria-label="색 섞기">
+<section className={styles.stageSection} aria-label="색 섞기">
           <h2 className={styles.sectionTitle}>{stageTitle}</h2>
           <div className={styles.sectionLead}>
             <StageLead />
@@ -165,8 +166,7 @@ export default function KeyExchangeClient() {
             </div>
           </>} />
         </section>
-
-        <ExplanationBox title={beyondAnalogyTitle}>
+<ExplanationBox title={beyondAnalogyTitle}>
           <BeyondAnalogyIntro />
           <div className={styles.recoveryRow}>
             <Swatch label="두 사람의 색" color={aliceResult} emphasis />
@@ -176,18 +176,14 @@ export default function KeyExchangeClient() {
             <Swatch label="도청자가 되만든 색" color={recovered} emphasis />
           </div>
           <BeyondAnalogyOutro />
-        </ExplanationBox>
-
-
-
-        <ExplanationBox title={notALockTitle}>
+        </ExplanationBox></ExplanationBox>
+<ExplanationBox title={notALockTitle}>
           <NotALock />
         </ExplanationBox>
-
-        <ExplanationBox title={mitmTitle} collapsible>
+<ExplanationBox title={mitmTitle} collapsible>
           <Mitm />
-        </ExplanationBox>
-      </QuizGate>} />
+        </ExplanationBox></>}
+
     </TopicLayout>
   );
 }
