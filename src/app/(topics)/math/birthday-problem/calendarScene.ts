@@ -19,7 +19,6 @@ import {
   fill,
   ink,
   line,
-  labelScale,
   on,
   pd,
   PX,
@@ -202,7 +201,7 @@ export function calendarScene(s: CalendarState): string {
   out += stickers(s.last);
   out += pad();
   out += tally(s);
-  for (const l of boardLabels(labelScale())) {
+  for (const l of boardLabels(1.4)) {
     const t = tx(FX + 0.05, l.y, l.z, l.text, l.size);
     out += l.mono ? mono(t) : t;
   }
