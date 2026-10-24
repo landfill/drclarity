@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { InteractiveCanvas } from '@/components/topic/InteractiveCanvas';
@@ -155,7 +156,7 @@ export default function PixelsClient() {
             <ZoomLead />
           </div>
 
-          <LensFigure
+          <ProblemFigure kind="pixels"><LensFigure
             cells={cells}
             gridSize={gridSize}
             zoom={zoom}
@@ -163,7 +164,7 @@ export default function PixelsClient() {
             focus={focus}
             onFocus={setFocus}
             focusHex={focusHex}
-          />
+          /></ProblemFigure>
 
           <ParameterPanel params={params} onChange={handleChange} onReset={handleReset} />
 

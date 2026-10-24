@@ -19,6 +19,7 @@ import {
   fill,
   ink,
   line,
+  labelScale,
   on,
   pd,
   PX,
@@ -73,14 +74,18 @@ export interface BoardLabel {
 }
 
 /** 앞면의 글자 전부: 달 이름, 날 눈금, 막대 이름, 백분율 눈금. 글자는 상태와 상관없이 같다. */
-export function boardLabels(): BoardLabel[] {
+export function boardLabels(scale = 1): BoardLabel[] {
   const out: BoardLabel[] = [];
   for (let m = 0; m < 12; m++) out.push({ y: COL0 + 6, z: ROW0 - m * RH - RH + 1.2, text: `${m + 1}월`, size: 3.2, mono: false });
   for (const day of [1, 10, 20, 31]) out.push({ y: COL0 - (day - 0.5) * CW, z: ROW0 + 1.6, text: String(day), size: 3, mono: true });
-  out.push({ y: (BAR_SHARED.y0 + BAR_SHARED.y1) / 2, z: BAR_Z0 - 5, text: '같은 생일', size: 3.2, mono: false });
-  out.push({ y: (BAR_NONE.y0 + BAR_NONE.y1) / 2, z: BAR_Z0 - 5, text: '모두 다름', size: 3.2, mono: false });
+  out.push({ y: (BAR_SHARED.y0 + BAR_SHARED.y1) / 2, z: BAR_Z0 - 6, text: '같은 생일', size: 3.2, mono: false });
+  out.push({ y: (BAR_NONE.y0 + BAR_NONE.y1) / 2, z: BAR_Z0 - 6, text: '모두 다름', size: 3.2, mono: false });
   PCT_Z.forEach((z, i) => out.push({ y: BAR_SHARED.y1 + 4.4, z: z - 1, text: String([0, 50, 100][i]), size: 2.8, mono: true }));
-  return out;
+  return out.map(label => ({
+    ...label,
+    // 막대 이름 둘 사이에는 눈금보다 여유가 적다.
+    size: label.size * Math.min(label.text === '같은 생일' || label.text === '모두 다름' ? 1.25 : 1.4, scale),
+  }));
 }
 
 /** 앞면의 영역 (y 는 왼쪽이 크다): 테스트가 글자가 칸·막대를 가리지 않는지 본다. */
@@ -197,7 +202,7 @@ export function calendarScene(s: CalendarState): string {
   out += stickers(s.last);
   out += pad();
   out += tally(s);
-  for (const l of boardLabels()) {
+  for (const l of boardLabels(labelScale())) {
     const t = tx(FX + 0.05, l.y, l.z, l.text, l.size);
     out += l.mono ? mono(t) : t;
   }

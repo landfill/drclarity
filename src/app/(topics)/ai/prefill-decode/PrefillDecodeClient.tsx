@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
@@ -215,7 +216,7 @@ export default function PrefillDecodeClient() {
           </div>
 
           <details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleParamChange} /></details>
-          <ShelfFigure
+          <ProblemFigure kind="prefillDecode"><ShelfFigure
             rows={[
               { label: currentLabel, prompt: currentPrompt, phases },
               ...(comparePreset || baseline ? [{ label: baseline ? '바꾸기 전 기준' : comparePreset!.label, prompt: baseline ? `입력 ${baseline.input} · 출력 ${baseline.output}토큰` : comparePreset!.prompt, phases: comparePhases, muted: true }] : []),
@@ -224,7 +225,7 @@ export default function PrefillDecodeClient() {
             active={active}
             note={note}
             onConfig={applyConfig}
-          />
+          /></ProblemFigure>
           <ul className={styles.legend} aria-label="타임라인 읽는 법">
             <li>
               <span className={`${styles.swatch} ${styles.swatchPrefill}`} aria-hidden="true" />

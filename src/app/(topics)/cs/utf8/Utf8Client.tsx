@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
@@ -226,7 +227,7 @@ export default function Utf8Client() {
 
           <ParameterPanel params={cutParams} onChange={handleCutChange} />
 
-          <TapeFigure text={input} chars={chars} limit={byteLimit} onLimit={setRawLimit} />
+          <ProblemFigure kind="utf8"><TapeFigure text={input} chars={chars} limit={byteLimit} onLimit={setRawLimit} /></ProblemFigure>
 
           {/* 판독 창은 끝 몇 글자만 보이므로, 자른 결과 전체를 여기 적는다. 바뀔 때 읽어 주는 일은 figure 의 상태 줄이 맡는다. */}
           <p className={styles.cutResultLabel}>자른 결과</p>

@@ -22,6 +22,7 @@ export function TilesFigure({ state: st, dispatch }: TilesFigureProps) {
       size={TILES_SIZE}
       view={FRONT_VIEW}
       crispText
+      labelPx={14}
       fig="01"
       title="타일 판과 메모 상자"
       hint="줄 하나가 처리 단계 하나입니다. + 는 새로 만든 K·V, ↶ 는 메모 상자에서 꺼내 다시 쓴 K·V 입니다"

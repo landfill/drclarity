@@ -21,6 +21,7 @@ export function LedgerFigure({ state, dispatch }: LedgerFigureProps) {
       size={LEDGER_SIZE}
       view={FRONT_VIEW}
       crispText
+      labelPx={14}
       fig="01"
       title="문맥 병과 사용량 영수증"
       hint="병 하나가 창 200K 입니다. 영수증은 호출마다 한 줄씩, 같은 200K 자로 찍습니다"

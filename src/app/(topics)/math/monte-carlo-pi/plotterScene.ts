@@ -115,12 +115,12 @@ function machineBack(): string {
   for (const t of [-1, 0, 1]) {
     s += line([paperPoint(t, -1), paperPoint(t, -1.06)], 0.9);
     const [, y, z] = paperPoint(t, -1);
-    s += mono(tx(PANEL_X + 0.05, y, z - 3.9, String(t), 3.2));
+    s += mono(tx(PANEL_X + 0.05, y, z - 3.9, String(t), 4));
   }
   for (const t of [0, 1]) {
     s += line([paperPoint(-1, t), paperPoint(-1.06, t)], 0.9);
     const [, y, z] = paperPoint(-1, t);
-    s += mono(tx(PANEL_X + 0.05, y + 3.6, z - 1.1, String(t), 3.2));
+    s += mono(tx(PANEL_X + 0.05, y + 3.6, z - 1.1, String(t), 4));
   }
   return s;
 }
@@ -174,7 +174,7 @@ function tallyBoard(s: PlotterState): string {
   out += tx(PANEL_X + 0.05, (BAR_OUT.y0 + BAR_OUT.y1) / 2, BAR_Z0 - 6, '원 밖', 4);
   for (const [pct, z] of [[0, BAR_Z0], [50, BAR_Z0 + BAR_H / 2], [100, BAR_Z0 + BAR_H]] as const) {
     out += line([[PANEL_X + 0.05, BAR_IN.y1 + 0.5, z], [PANEL_X + 0.05, BAR_IN.y1 + 2, z]], 0.8);
-    out += mono(tx(PANEL_X + 0.05, BAR_IN.y1 + 4.6, z - 1.1, String(pct), 3));
+    out += mono(tx(PANEL_X + 0.05, BAR_IN.y1 + 4.6, z - 1.1, String(pct), 4));
   }
   return out;
 }

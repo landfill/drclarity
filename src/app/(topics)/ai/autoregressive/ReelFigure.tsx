@@ -36,6 +36,7 @@ export function ReelFigure({ sample }: { sample: Sample }) {
         size={REEL_SIZE}
         view={FRONT_VIEW}
         crispText
+      labelPx={14}
         fig="01"
         title="종이 테이프 기계"
         hint="고른 조각이 테이프 끝에 붙어 다음 선택의 입력이 됩니다"

@@ -17,6 +17,7 @@ export function KnobFigure() {
       size={WEIGHT_SIZE}
       view={FRONT_VIEW}
       crispText
+      labelPx={14}
       fig="01"
       title="가중치 다이얼"
       hint="다이얼이 가중치, 노란 층이 정답 '맑다' 의 확률, 빨간 기둥이 손실입니다"

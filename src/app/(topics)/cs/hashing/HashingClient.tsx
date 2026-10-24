@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
@@ -290,7 +291,7 @@ export default function HashingClient() {
         </ExplanationBox>
 
         <section className={styles.stage} aria-label="미리 계산해 둔 표">
-          <LookupFigure state={lk} dispatch={dispatchLk} />
+          <ProblemFigure kind="hashing"><LookupFigure state={lk} dispatch={dispatchLk} /></ProblemFigure>
         </section>
 
         <ExplanationBox title={saltTitle}>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
+import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
@@ -151,7 +152,7 @@ export default function CursorContextCostClient() {
 
           </details>
 
-          <LedgerFigure state={st} dispatch={dispatch} />
+          <ProblemFigure kind="contextCost"><LedgerFigure state={st} dispatch={dispatch} /></ProblemFigure>
 
           <div className={styles.screens}>
             {/* 화면 하나 — 채팅창의 Context Usage 패널 */}

@@ -229,8 +229,8 @@ describe('calendarScene', () => {
   const overlap = (a: Rect, b: Rect) => a.yR < b.yL && b.yR < a.yL && a.zB < b.zT && b.zB < a.zT;
   const inside = (a: Rect, b: Rect) => a.yL <= b.yL && a.yR >= b.yR && a.zT <= b.zT && a.zB >= b.zB;
 
-  it('판에 쓴 글자는 서로 겹치지 않고, 칸과 막대를 가리지 않으며, 제 판 안에 있다', () => {
-    const boxes = boardLabels().map(box);
+  it.each([1, 1.2, 1.4])('배율 %s에서 글자는 겹치지 않고, 칸과 막대를 가리지 않으며, 제 판 안에 있다', scale => {
+    const boxes = boardLabels(scale).map(box);
     for (let i = 0; i < boxes.length; i++) {
       const b = boxes[i];
       expect(inside(b, REGIONS.calendarPanel) || inside(b, REGIONS.tallyPanel), b.text).toBe(true);

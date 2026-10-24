@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo } from 'react';
+import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { useFigureState } from '@/components/topic/ColorFigure';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
@@ -108,7 +109,7 @@ export default function KvCacheClient() {
           </div>
 
           <details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleParamChange} /></details>
-          <TilesFigure state={st} dispatch={dispatch} />
+          <ProblemFigure kind="kvCache"><TilesFigure state={st} dispatch={dispatch} /></ProblemFigure>
           <ul className={styles.legend} aria-label="칸 색의 뜻">
             <li>
               <span className={`${styles.swatch} ${styles.computed}`} aria-hidden="true" />
