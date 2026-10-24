@@ -78,6 +78,12 @@ export interface ColorFigureProps {
    * 먼저 만든 figure 넷은 끈 채로 둔다(지금 모양 그대로). 글자는 그림 위에 얹히므로 물체에 가려지지 않는다.
    */
   crispText?: boolean;
+  /**
+   * 좁은 칸(버튼과 숫자가 그림 위 줄로 내려오는 배치)에서 viewBox 높이를 4:3 대신 경계 상자에 맞춘다.
+   * 폭은 그대로라 그림 속 글자 크기는 같고, 그림 아래 빈 줄만 줄어 그 아래 본문이 첫 화면에 올라온다.
+   * 넓은 칸에서는 버튼이 그림 왼쪽 위에 떠 있으므로 지금 틀을 그대로 쓴다.
+   */
+  compactFit?: boolean;
   /** 장면 안 `act(name, …)` 부품을 눌렀을 때. 장면이 매 프레임 다시 그려지므로 click 이 아니라 누르는 순간에 받는다. */
   onAct?: (name: string, el: Element) => void;
 }
@@ -110,6 +116,7 @@ export function ColorFigure({
   accent = 'var(--color-accent-fill)',
   labelPx = 11,
   crispText = false,
+  compactFit = false,
   onAct,
 }: ColorFigureProps) {
   const id = 'cf' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
@@ -127,8 +134,9 @@ export function ColorFigure({
         view: az === undefined || el === undefined ? undefined : { az, el },
         // 원본처럼 버튼이 뜨는 왼쪽을 비워 둔다.
         shiftX: hasActions && !compact ? 0.08 : 0,
+        fit: compactFit && compact ? 'box' : undefined,
       }),
-    [w, d, h, id, az, el, hasActions, compact],
+    [w, d, h, id, az, el, hasActions, compact, compactFit],
   );
   const frame = useMemo(() => ({ ...base, labelScale }), [base, labelScale]);
   const { vbW, vbH } = base;

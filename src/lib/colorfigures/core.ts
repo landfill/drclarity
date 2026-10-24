@@ -182,7 +182,15 @@ export interface FrameOptions {
   view?: View;
   /** 물체를 오른쪽으로 미는 비율. 버튼이 그림 왼쪽 위에 떠 있을 때 쓴다 (원본은 0.06). */
   shiftX?: number;
+  /**
+   * 'box' 면 viewBox 높이를 4:3 대신 경계 상자 높이(위아래 여백 각각 폭의 4%)에 맞춘다. 폭은 그대로라
+   * 같은 칸 폭에서 그림과 글자 크기는 같고, 그림 아래의 빈 줄만 없어진다. 원본에는 없는 선택이다.
+   */
+  fit?: 'box';
 }
+
+/** fit: 'box' 의 위아래 여백 (viewBox 폭에 대한 비율). */
+export const BOX_FIT_PAD = 0.04;
 
 /**
  * 물체의 경계 상자 [W, D, H] 에 맞춰 화면 틀을 잡는다. 원본 `mountFigure` 의 계산과 같다:
@@ -200,6 +208,11 @@ export function frameFor(size: Vec3, idPrefix: string, options: FrameOptions = {
   const bw = Math.max(...xs) - Math.min(...xs);
   const bh = Math.max(...ys) - Math.min(...ys);
   const vbW = Math.max(bw / 0.74, bh / 0.88 / 0.75);
+  if (options.fit === 'box') {
+    const pad = vbW * BOX_FIT_PAD;
+    const ox = (vbW - bw) / 2 + vbW * shiftX - Math.min(...xs);
+    return { vbW, vbH: bh + pad * 2, ox, oy: pad - Math.min(...ys), inkK: vbW / INK_REF_VB, idPrefix, labelScale: 1, view };
+  }
   // 원본은 늘 4:3 이다. 납작하고 넓은 장면(도마 위 물건들)은 아래가 텅 비므로 높이를 물체에
   // 맞춰 줄이고, 이름표가 올라갈 위쪽에 여백을 조금 더 둔다.
   const flat = bh / 0.7 < vbW * 0.75;

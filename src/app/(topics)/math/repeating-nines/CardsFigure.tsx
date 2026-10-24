@@ -37,6 +37,7 @@ export function CardsFigure({ digits, onDigits }: CardsFigureProps) {
       size={CARDS_SIZE}
       view={FRONT_VIEW}
       crispText
+      compactFit
       fig="01"
       title="열 배씩 확대한 카드"
       hint="9 를 하나 붙일 때마다 마지막 한 칸을 열 배로 키운 카드가 나옵니다"
