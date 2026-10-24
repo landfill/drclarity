@@ -32,13 +32,17 @@ export default function GeometryAreaClient() {
   };
 
   return (
-    <TopicLayout wide tags={meta.tags} topicHref="/math/geometry-area" title="빨간색 영역의 넓이는?" subtitle="두 반원을 빼고 남은 빨간 영역의 넓이는 얼마일까요?">
+    <TopicLayout wide tags={meta.tags} topicHref="/math/geometry-area" title="빨간색 영역의 넓이는?" subtitle="어떤 도형의 넓이를 빼면 빨간 영역만 남을까요?">
       <LessonCard
         title="기하학 퍼즐 풀이"
         steps={GEOMETRY_STEPS}
         labels={STAGE_LABELS}
         index={step}
         onStepChange={go}
+        constraints={<dl className={styles.conditions} aria-label="퍼즐 조건">
+          <div><dt>사분원 반지름</dt><dd>{GEOMETRY.quarter.radius}</dd></div>
+          <div><dt>흰색 반원</dt><dd>2개</dd></div>
+        </dl>}
         figure={<CorkFigure key={`${step}-${replay}`} step={step} solved={solved} area={area} />}
         controls={<>
           <div className={styles.figureControls}>
