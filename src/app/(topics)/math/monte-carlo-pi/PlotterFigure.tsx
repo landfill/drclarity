@@ -1,6 +1,7 @@
 'use client';
 
 import { ColorFigure, useFigureState } from '@/components/topic/ColorFigure';
+import type { ProblemScene } from '@/components/topic/ProblemFigure';
 import { formatCount } from '@/components/topic/trialAggregate';
 import { FRONT_VIEW } from '@/lib/colorfigures/core';
 import { errorFromPi } from './pi';
@@ -21,6 +22,14 @@ import { PLOTTER_SIZE, plotterScene } from './plotterScene';
 const randomSeed = () => Math.floor(Math.random() * 2 ** 32);
 
 /** 점 찍는 기계 figure. 상태는 plotter.ts, 그림은 plotterScene.ts 가 맡고 여기서는 버튼과 숫자를 잇는다. */
+/** 퀴즈 전 첫 장면: 같은 점 찍는 기계와 빈 비율 막대. 이론값은 적지 않는다. */
+export const plotterProblem = (): ProblemScene => ({
+  title: '점 찍는 기계',
+  materials: ['원이 그려진 정사각형 종이', '펜', '빈 비율 막대'],
+  size: PLOTTER_SIZE,
+  scene: () => plotterScene(initialPlotter(), { problem: true }),
+});
+
 export function PlotterFigure() {
   const [st, dispatch] = useFigureState(initialPlotter, advancePlotter, isSettled);
   const next = nextAction(st);

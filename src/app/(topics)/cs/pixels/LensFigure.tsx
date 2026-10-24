@@ -2,10 +2,22 @@
 
 import type { PointerEvent as ReactPointerEvent } from 'react';
 import { ColorFigure, useFigureState } from '@/components/topic/ColorFigure';
+import type { ProblemScene } from '@/components/topic/ProblemFigure';
 import { FRONT_VIEW } from '@/lib/colorfigures/core';
 import { advanceLens, cellsInLens, clampFocus, initialLens, isSettled, pictureAt, retarget } from './lens';
 import { LENS_SIZE, lensScene } from './lensScene';
 import { FOCUS_PRESETS, type Rgb } from './scene';
+
+/**
+ * 퀴즈 전 첫 장면: 같은 벽화와 돋보기를 1배로 둔다. 줄눈은 그리지 않는다.
+ * 이름의 "타일"은 퀴즈의 답(원래 네모 칸)을 말하므로 뺀다.
+ */
+export const lensProblem = (cells: Rgb[], gridSize: number, focus: { x: number; y: number }): ProblemScene => ({
+  title: '벽화와 돋보기',
+  materials: ['나무 틀의 벽화', '스탠드에 달린 돋보기'],
+  size: LENS_SIZE,
+  scene: () => lensScene({ cells, gridSize, zoom: 1, showLines: false, lens: focus }),
+});
 
 interface LensFigureProps {
   cells: Rgb[];

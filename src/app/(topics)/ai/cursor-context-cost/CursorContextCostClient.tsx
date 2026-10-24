@@ -10,7 +10,7 @@ import { QuizGate } from '@/components/topic/QuizGate';
 import { useFigureState } from '@/components/topic/ColorFigure';
 import { CONTEXT_ROWS, CONVERSATION_RANGE, NEW_MESSAGE, WINDOW_LIMIT, costBreakdown, estimateUsageCost, type Rates } from './usage';
 import { CALLS_RANGE, advanceLedger, derive, formatTokens, initialLedger, isSettled, resetLedger, setCalls, setConversation, setTrimmed } from './ledger';
-import { LedgerFigure } from './LedgerFigure';
+import { LedgerFigure, ledgerProblem } from './LedgerFigure';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizSame from './content/quiz-same.mdx';
 import QuizSum from './content/quiz-sum.mdx';
@@ -79,7 +79,7 @@ export default function CursorContextCostClient() {
       }
       subtitle="문맥 크기와 사용량은 같은 것을 셀까요?"
     >
-<SplitStage wideStage stageRatio={figureOpen ? 'full' : '2:1'} stage={<ProblemFigure kind="contextCost" started={lessonRevealed} onStart={() => setFigureStarted(true)}><LedgerFigure state={st} dispatch={dispatch} /></ProblemFigure>}>
+<SplitStage wideStage stageRatio={figureOpen ? 'full' : '2:1'} stage={<ProblemFigure problem={ledgerProblem(st)} started={lessonRevealed} onStart={() => setFigureStarted(true)}><LedgerFigure state={st} dispatch={dispatch} /></ProblemFigure>}>
 
       <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         labels={{ skip: '바로 실험하기' }}

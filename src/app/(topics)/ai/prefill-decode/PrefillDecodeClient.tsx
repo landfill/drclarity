@@ -18,7 +18,8 @@ import {
   totalDuration,
 } from './timeline';
 import { BASELINE, CONFIGS, activeConfig, alreadyNote, type Config } from './shelf';
-import { ShelfFigure } from './ShelfFigure';
+import { ShelfFigure, shelfProblem } from './ShelfFigure';
+import type { Row } from './shelfScene';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizPoem from './content/quiz-poem.mdx';
 import QuizSummary from './content/quiz-summary.mdx';
@@ -179,6 +180,12 @@ export default function PrefillDecodeClient() {
   const currentPrompt =
     currentPreset?.prompt ?? `읽을 것 ${inputTokens.toLocaleString('ko-KR')}개 · 쓸 것 ${outputTokens.toLocaleString('ko-KR')}개`;
 
+  // 위 줄(지금 요청)과, 있으면 아래 줄(견줄 줄). 문제 상태 피겨와 실험 피겨가 같은 줄을 쓴다.
+  const shelfRows: Row[] = [
+    { label: currentLabel, prompt: currentPrompt, phases },
+    ...(comparePreset || baseline ? [{ label: baseline ? '바꾸기 전 기준' : comparePreset!.label, prompt: baseline ? `입력 ${baseline.input} · 출력 ${baseline.output}토큰` : comparePreset!.prompt, phases: comparePhases, muted: true }] : []),
+  ];
+
   return (
     <TopicLayout
       wide
@@ -191,11 +198,8 @@ export default function PrefillDecodeClient() {
       }
       subtitle="첫 토큰이 먼저 나오면 답도 먼저 끝날까요?"
     >
-<SplitStage wideStage stage={<ProblemFigure kind="prefillDecode" started={lessonRevealed}><ShelfFigure
-            rows={[
-              { label: currentLabel, prompt: currentPrompt, phases },
-              ...(comparePreset || baseline ? [{ label: baseline ? '바꾸기 전 기준' : comparePreset!.label, prompt: baseline ? `입력 ${baseline.input} · 출력 ${baseline.output}토큰` : comparePreset!.prompt, phases: comparePhases, muted: true }] : []),
-            ]}
+<SplitStage wideStage stage={<ProblemFigure problem={shelfProblem(shelfRows, scale)} started={lessonRevealed}><ShelfFigure
+            rows={shelfRows}
             scale={scale}
             active={active}
             note={note}

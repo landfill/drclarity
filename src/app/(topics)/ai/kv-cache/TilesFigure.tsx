@@ -1,9 +1,18 @@
 'use client';
 
 import { ColorFigure } from '@/components/topic/ColorFigure';
+import type { ProblemScene } from '@/components/topic/ProblemFigure';
 import { FRONT_VIEW } from '@/lib/colorfigures/core';
 import { compare, gridAlt, nextAction, readouts, rewind, statusText, stepOnce, togglePlay, type KvState } from './tiles';
 import { TILES_SIZE, tilesScene } from './tilesScene';
+
+/** 퀴즈 전 첫 장면: 같은 타일 판과 메모 상자. 아직 한 줄도 처리하지 않아 타일과 메모가 비어 있다. */
+export const tilesProblem = (state: KvState): ProblemScene => ({
+  title: '타일 판과 메모 상자',
+  materials: ['비어 있는 타일 판', '빈 메모 상자'],
+  size: TILES_SIZE,
+  scene: () => tilesScene({ ...state, step: 0, cacheOn: false }),
+});
 
 interface TilesFigureProps {
   /** 세밀 조절 패널과 함께 쓰는 상태 (KvCacheClient 의 useFigureState). */

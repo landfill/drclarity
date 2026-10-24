@@ -19,7 +19,7 @@ import {
 import { HASH_BITS, sha256 } from './sha256';
 import { HashDigits } from './HashDigits';
 import { ACCOUNT_PASSWORD, advanceLookup, initialLookup, isSettled, setSalted } from './lookup';
-import { LookupFigure } from './LookupFigure';
+import { LookupFigure, lookupProblem } from './LookupFigure';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizNobody from './content/quiz-nobody.mdx';
 import QuizPolicy from './content/quiz-policy.mdx';
@@ -88,7 +88,7 @@ export default function HashingClient() {
       }
       subtitle="사이트는 왜 잊어버린 비밀번호를 알려주지 않을까요?"
     >
-<SplitStage wideStage stageRatio="2:1" stage={<ProblemFigure kind="hashing" started={lessonRevealed}><LookupFigure state={lk} dispatch={dispatchLk} /></ProblemFigure>}>
+<SplitStage wideStage stageRatio="2:1" stage={<ProblemFigure problem={lookupProblem(lk)} started={lessonRevealed}><LookupFigure state={lk} dispatch={dispatchLk} /></ProblemFigure>}>
 
       <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         question={

@@ -15,7 +15,7 @@ import {
   pairCount,
   sharedBirthdayProbability,
 } from './birthday';
-import { CalendarFigure } from './CalendarFigure';
+import { CalendarFigure, calendarProblem } from './CalendarFigure';
 import { CURVE_HEIGHT, CURVE_WIDTH, MARKED_PEOPLE, drawProbabilityCurve } from './curveRenderer';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizN23 from './content/quiz-n23.mdx';
@@ -70,7 +70,7 @@ export default function BirthdayProblemClient() {
       title={<>생일 문제 — <Highlight>23명이면 50%</Highlight></>}
       subtitle="생일이 겹칠 확률은 몇 명부터 절반을 넘을까요?"
     >
-<SplitStage wideStage stageRatio={figureOpen ? 'full' : '2:1'} stage={<ProblemFigure kind="birthday" started={lessonRevealed} onStart={() => setFigureStarted(true)}><CalendarFigure key={people} people={people} /></ProblemFigure>}>
+<SplitStage wideStage stageRatio={figureOpen ? 'full' : '2:1'} stage={<ProblemFigure problem={calendarProblem(people)} started={lessonRevealed} onStart={() => setFigureStarted(true)}><CalendarFigure key={people} people={people} /></ProblemFigure>}>
 
       <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         question={

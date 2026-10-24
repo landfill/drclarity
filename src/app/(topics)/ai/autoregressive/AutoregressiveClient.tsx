@@ -8,7 +8,7 @@ import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
 import { SAMPLES, findSample } from './loop';
-import { ReelFigure, ReelStageNotes } from './ReelFigure';
+import { ReelFigure, ReelStageNotes, reelProblem } from './ReelFigure';
 import { useFigureState } from '@/components/topic/ColorFigure';
 import { initialReel, advanceReel, isSettled } from './reel';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
@@ -61,7 +61,7 @@ export default function AutoregressiveClient() {
       }
       subtitle="다음 조각은 언제 정해질까요?"
     >
-<SplitStage wideStage stage={<ProblemFigure kind="autoregressive" started={lessonRevealed}><ReelFigure key={sample.id} sample={sample} state={reelState} dispatch={dispatchReel} /></ProblemFigure>}>
+<SplitStage wideStage stage={<ProblemFigure problem={reelProblem(sample)} started={lessonRevealed}><ReelFigure key={sample.id} sample={sample} state={reelState} dispatch={dispatchReel} /></ProblemFigure>}>
 
       <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         labels={{ skip: '바로 실험하기' }}

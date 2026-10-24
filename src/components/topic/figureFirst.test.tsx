@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { ProblemFigure } from './ProblemFigure';
+import { ProblemFigure, type ProblemScene } from './ProblemFigure';
 import { QuizGate } from './QuizGate';
 
 const quiz = (layout: 'default' | 'aside') => renderToStaticMarkup(
@@ -11,15 +11,17 @@ const quiz = (layout: 'default' | 'aside') => renderToStaticMarkup(
   </QuizGate>,
 );
 
+const problem: ProblemScene = { title: '종이 테이프 기계', materials: ['종이 테이프'], size: [44, 200, 116], scene: () => '' };
+
 describe('문제 상태 피겨와 퀴즈 잇기', () => {
   it('퀴즈에 답했거나 건너뛰었으면(started) 문제 상태 대신 실험을 그린다', () => {
-    const html = renderToStaticMarkup(<ProblemFigure kind="autoregressive" started><span>실험 장면</span></ProblemFigure>);
+    const html = renderToStaticMarkup(<ProblemFigure problem={problem} started><span>실험 장면</span></ProblemFigure>);
     expect(html).toContain('실험 장면');
     expect(html).not.toContain('실험 시작');
   });
 
   it('아직 답하지 않았으면 문제 상태를 그리고 실험은 숨긴다', () => {
-    const html = renderToStaticMarkup(<ProblemFigure kind="autoregressive"><span>실험 장면</span></ProblemFigure>);
+    const html = renderToStaticMarkup(<ProblemFigure problem={problem}><span>실험 장면</span></ProblemFigure>);
     expect(html).toContain('실험 시작');
     expect(html).not.toContain('실험 장면');
   });

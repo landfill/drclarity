@@ -1,9 +1,18 @@
 'use client';
 
 import { ColorFigure } from '@/components/topic/ColorFigure';
+import type { ProblemScene } from '@/components/topic/ProblemFigure';
 import { FRONT_VIEW } from '@/lib/colorfigures/core';
 import { PRESET_LABEL, choosePreset, derive, figureLabel, formatTokens, nextAction, printedTotal, statusText, type LedgerState } from './ledger';
 import { LEDGER_SIZE, ledgerScene } from './ledgerScene';
+
+/** 퀴즈 전 첫 장면: 같은 병과 영수증 기계. 영수증은 비어 있고 수치를 적지 않는다. */
+export const ledgerProblem = (state: LedgerState): ProblemScene => ({
+  title: '문맥 병과 사용량 영수증',
+  materials: ['문맥이 담긴 계량 병', '새 메시지 쪽지', '빈 영수증 기계'],
+  size: LEDGER_SIZE,
+  scene: () => ledgerScene(state, { problem: true }),
+});
 
 interface LedgerFigureProps {
   state: LedgerState;

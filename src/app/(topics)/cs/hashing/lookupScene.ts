@@ -83,7 +83,11 @@ export function threadEnds(salted: boolean, i: number, j: number, size = labelSi
 }
 
 /** 장면 전체. */
-export function lookupScene(s: LookupState): string {
+/**
+ * 장면 전체. problem 이면 퀴즈 전의 첫 장면: 같은 종이와 장부를 세우되 제목만 적는다. 저장소에 무엇이 적혀 있는지
+ * (사용자 · 저장된 값, "비밀번호 칸은 없습니다")가 퀴즈의 답이므로 비워 둔다.
+ */
+export function lookupScene(s: LookupState, { problem = false }: { problem?: boolean } = {}): string {
   const size = labelSize();
   const small = size * 0.85;
   const rows = storedRows(s.salted);
@@ -139,6 +143,10 @@ export function lookupScene(s: LookupState): string {
 
   // 저장소 종이.
   put((SHEET.u0 + SHEET.u1) / 2, SHEET.v1 - 6, '유출된 저장소', size);
+  if (problem) {
+    put((BOOK.u0 + BOOK.u1) / 2, BOOK.v1 - 6, '미리 만든 표', size);
+    return koreanLabels(out + text);
+  }
   const cols = sheetColumns(s.salted);
   const headV = SHEET.v1 - SHEET_HEAD + 3;
   put(cols.name, headV, '사용자', small, palette.muted, 400);
