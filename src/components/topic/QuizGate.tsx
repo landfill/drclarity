@@ -146,7 +146,7 @@ export function QuizGate({
               retryRequestedRef.current = true;
               setSubmittedId(null);
               setSelectedId(null);
-              setSkipped(false);
+              if (compact) setSkipped(false);
               return;
             }
             if (!selectedId) return;
