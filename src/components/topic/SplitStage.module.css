@@ -84,6 +84,7 @@
   }
 }
 
+/* 좁은 화면에서는 카드 안쪽 여백만큼 그림 칸을 넓힌다. 그림 속 글자가 카드 밖에 있던 때보다 작아지지 않게 한다. */
 @media (max-width: 600px) {
-  .wideStage .stage svg[role="img"] { max-height: var(--figure-mobile-height, 160px); }
+  .stage { margin-inline: calc(-1 * var(--space-md)); }
 }

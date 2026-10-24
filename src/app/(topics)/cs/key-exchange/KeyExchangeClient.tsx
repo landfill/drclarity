@@ -237,7 +237,7 @@ function RealMath({ quiz }: { quiz: (content: React.ReactNode) => React.ReactNod
   );
 
   return (
-<SplitStage wideStage className={styles.figureFirst} stageRatio="2:1" stage={<TrialFigure state={st} dispatch={dispatch} />}>{quiz(    <section aria-label="실제 연산">
+<SplitStage wideStage stageRatio="2:1" stage={<TrialFigure state={st} dispatch={dispatch} />}>{quiz(    <section aria-label="실제 연산">
 
       <ParameterPanel params={params} onChange={handleChange} />
       <h2 className={styles.sectionTitle}>{mathTitle}</h2>

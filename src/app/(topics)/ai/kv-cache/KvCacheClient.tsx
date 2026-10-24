@@ -85,7 +85,7 @@ export default function KvCacheClient() {
       }
       subtitle="KV 캐시를 켜면 어떤 계산이 달라질까요?"
     >
-<SplitStage wideStage stage={<ProblemFigure kind="kvCache"><TilesFigure state={st} dispatch={dispatch} /></ProblemFigure>}>
+<SplitStage wideStage stage={<ProblemFigure kind="kvCache" started={lessonRevealed}><TilesFigure state={st} dispatch={dispatch} /></ProblemFigure>}>
 
       <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         labels={{ skip: '바로 실험하기' }}

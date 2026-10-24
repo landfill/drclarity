@@ -59,7 +59,7 @@ export default function MontyHallClient() {
       title={<>문을 <Highlight>바꿔야</Highlight> 할까?</>}
       subtitle="선택을 바꾸는 편이 유리할까요?"
     >
-      <SplitStage wideStage sticky={false} className={styles.figureFirst} stage={<StageFigure />}><QuizGate layout="aside"
+      <SplitStage wideStage sticky={false} stage={<StageFigure />}><QuizGate layout="aside"
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>

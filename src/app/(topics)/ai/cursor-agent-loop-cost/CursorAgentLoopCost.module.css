@@ -481,10 +481,6 @@
   margin: .75rem 0;
 }
 
-@media (max-width: 600px) {
-  .figureFirst { --figure-mobile-height: 120px; }
-}
-
 .fineControls summary {
   padding: .75rem 0;
   cursor: pointer;

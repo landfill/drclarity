@@ -61,7 +61,7 @@ export default function AutoregressiveClient() {
       }
       subtitle="다음 조각은 언제 정해질까요?"
     >
-<SplitStage wideStage stage={<ProblemFigure kind="autoregressive"><ReelFigure key={sample.id} sample={sample} state={reelState} dispatch={dispatchReel} /></ProblemFigure>}>
+<SplitStage wideStage stage={<ProblemFigure kind="autoregressive" started={lessonRevealed}><ReelFigure key={sample.id} sample={sample} state={reelState} dispatch={dispatchReel} /></ProblemFigure>}>
 
       <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         labels={{ skip: '바로 실험하기' }}

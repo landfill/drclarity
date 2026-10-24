@@ -114,7 +114,7 @@ export default function CursorAgentLoopCostClient() {
       }
       subtitle="조건을 더 적으면 탐색이 줄어들까요?"
     >
-      <SplitStage wideStage className={styles.figureFirst} stage={<DrawerFigure state={st} dispatch={dispatch} />}>
+      <SplitStage wideStage stage={<DrawerFigure state={st} dispatch={dispatch} />}>
 
       <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         labels={{ skip: '바로 실험하기' }}

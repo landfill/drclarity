@@ -35,6 +35,9 @@ const DEFAULT_PEOPLE = MARKED_PEOPLE;
 
 export default function BirthdayProblemClient() {
   const [lessonRevealed, setLessonRevealed] = useState(false);
+  // 그림의 "실험 시작"으로 먼저 연 경우. 퀴즈를 답하거나 건너뛴 경우는 lessonRevealed 가 연다.
+  const [figureStarted, setFigureStarted] = useState(false);
+  const figureOpen = lessonRevealed || figureStarted;
   const [people, setPeople] = useState(DEFAULT_PEOPLE);
 
   const probability = sharedBirthdayProbability(people);
@@ -67,7 +70,7 @@ export default function BirthdayProblemClient() {
       title={<>생일 문제 — <Highlight>23명이면 50%</Highlight></>}
       subtitle="생일이 겹칠 확률은 몇 명부터 절반을 넘을까요?"
     >
-<SplitStage wideStage stageRatio="full" stage={<ProblemFigure kind="birthday"><CalendarFigure key={people} people={people} /></ProblemFigure>}>
+<SplitStage wideStage stageRatio={figureOpen ? 'full' : '2:1'} stage={<ProblemFigure kind="birthday" started={lessonRevealed} onStart={() => setFigureStarted(true)}><CalendarFigure key={people} people={people} /></ProblemFigure>}>
 
       <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         question={

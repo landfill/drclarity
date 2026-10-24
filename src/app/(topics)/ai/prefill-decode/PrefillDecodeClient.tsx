@@ -191,7 +191,7 @@ export default function PrefillDecodeClient() {
       }
       subtitle="첫 토큰이 먼저 나오면 답도 먼저 끝날까요?"
     >
-<SplitStage wideStage stage={<ProblemFigure kind="prefillDecode"><ShelfFigure
+<SplitStage wideStage stage={<ProblemFigure kind="prefillDecode" started={lessonRevealed}><ShelfFigure
             rows={[
               { label: currentLabel, prompt: currentPrompt, phases },
               ...(comparePreset || baseline ? [{ label: baseline ? '바꾸기 전 기준' : comparePreset!.label, prompt: baseline ? `입력 ${baseline.input} · 출력 ${baseline.output}토큰` : comparePreset!.prompt, phases: comparePhases, muted: true }] : []),
