@@ -1,5 +1,6 @@
 import { BOARD, CERAMIC, INK, PALS, PX, board, box, ellUV, on, rectUV, shape, tone, tx, type Vec3 } from './core';
 import { PROBLEMS, type ProblemKind } from './problem';
+import { koreanLabels } from './fonts';
 
 export const PROBLEM_SIZE: Vec3 = [32, 150, 70];
 
@@ -17,5 +18,5 @@ export function problemScene(kind: ProblemKind): string {
       out += shape(on(PX(20.2), ellUV(y0 + 31, 26, 14, 14, 48)), PALS.mustard.l);
     }
   }
-  return out;
+  return koreanLabels(out);
 }
