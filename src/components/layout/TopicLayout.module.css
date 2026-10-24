@@ -69,18 +69,10 @@
   text-underline-offset: .15em;
 }
 
+/* 좁은 화면에서도 위 여백은 넓은 화면 값을 쓴다. 피겨와 퀴즈 질문이 첫 화면에 함께 들어가야 한다. */
 @media(max-width:600px)  {
   .container  {
-    padding: calc(var(--header-h) + 20px) 18px 20px;
-  }
-
-  .breadcrumb  {
-    margin-bottom: 20px;
-  }
-
-  .hero  {
-    margin-bottom: 24px;
-    padding-bottom: 22px;
+    padding: calc(var(--header-h) + 16px) 18px 20px;
   }
 
   .title  {

@@ -99,4 +99,3 @@
     font-size: 0.8rem;
   }
 }
-@media (max-width: 600px) { .figureFirst { --figure-mobile-height: 140px; } }

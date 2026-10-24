@@ -25,6 +25,3 @@
   .buttons button { padding-inline: 10px; }
   .sidebar { padding: 12px; }
 }
-@media (max-width: 600px) {
-  .board svg[role="img"] { max-height: 120px; }
-}

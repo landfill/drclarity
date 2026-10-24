@@ -50,6 +50,7 @@ export function QuizGate({
 
   const firstChoiceRef = useRef<HTMLInputElement>(null);
   const revealedRef = useRef<HTMLDivElement>(null);
+  const actionsRef = useRef<HTMLDivElement>(null);
   // 상태가 바뀌어 다시 그려진 뒤에야 옵션이 다시 활성화되므로,
   // 클릭 핸들러가 아니라 효과에서 포커스를 옮긴다.
   const retryRequestedRef = useRef(false);
@@ -66,6 +67,10 @@ export function QuizGate({
   const revealed = hasRevealed || submittedId !== null || skipped || !gateContent;
   const compact = layout === 'aside';
   const collapsed = compact && (submittedId !== null || skipped);
+  const submittedLabel = choices.find(choice => choice.id === submittedId)?.label;
+  const summaryText = submittedId !== null
+    ? `${typeof submittedLabel === 'string' ? `내 답: ${submittedLabel}` : '내 답'} · ${isCorrect ? '맞았습니다' : '다릅니다'}`
+    : `${skipLabel} 선택됨`;
 
   useLayoutEffect(() => {
     if (!collapsed) return;
@@ -77,7 +82,16 @@ export function QuizGate({
     const control = [...(revealedRef.current?.querySelectorAll<HTMLElement>('button, input, select, textarea, summary, fieldset') ?? [])]
       .find(element => element.getBoundingClientRect().height > 0);
     const controlTop = control?.getBoundingClientRect().top;
-    if (bounds.top < header || bounds.bottom > window.innerHeight || (controlTop !== undefined && controlTop >= window.innerHeight)) {
+    // sticky 로 붙은 피겨·툴바 밑으로 본문이 지나가므로, 결과 줄과 첫 조작부는 그 아래에 있어야 보인다.
+    // 그림의 SVG 도형은 수천 개일 수 있고 sticky 가 될 수 없으므로 건너뛴다.
+    const coveredTo = [...card.querySelectorAll<HTMLElement>(':not(svg, svg *)')]
+      .filter(element => getComputedStyle(element).position === 'sticky')
+      .map(element => element.getBoundingClientRect())
+      .filter(rect => rect.height > 0 && rect.top <= header + 1)
+      .reduce((bottom, rect) => Math.max(bottom, rect.bottom), header);
+    const actionsTop = actionsRef.current?.getBoundingClientRect().top;
+    const covered = (actionsTop !== undefined && actionsTop < coveredTo) || (controlTop !== undefined && controlTop < coveredTo);
+    if (covered || bounds.top < header || bounds.bottom > window.innerHeight || (controlTop !== undefined && controlTop >= window.innerHeight)) {
       // 선택지가 접힐 때의 스크롤 앵커와 공개 영역 포커스가 그림을 밀어내지 않게 한다.
       window.scrollTo({ top: window.scrollY + card.getBoundingClientRect().top - header, behavior: 'auto' });
     }
@@ -124,8 +138,11 @@ export function QuizGate({
         })}
       </fieldset>
 
-      <div className={styles.actions}>
-        {collapsed && <div className={styles.answerSummary} role="status">
+      {/* 알림 영역은 답하기 전부터 비어 있는 채로 둔다. 답할 때 새로 만들면 화면 낭독기가 읽지 않을 수 있다. */}
+      {compact && <p className={styles.srOnly} role="status" aria-live="polite">{collapsed ? summaryText : ''}</p>}
+
+      <div className={styles.actions} ref={actionsRef}>
+        {collapsed && <div className={styles.answerSummary}>
           {submittedId !== null ? <>
             <div className={styles.answerChoice}>내 답: {choices.find(choice => choice.id === submittedId)?.label}</div>
             <span className={styles.answerVerdict}>· {isCorrect ? '맞았습니다' : '다릅니다'}</span>
@@ -189,16 +206,18 @@ export function QuizGate({
         )}
       </div>}
 
-      {revealed && (
-        <div ref={revealedRef} className={styles.revealed} tabIndex={-1}>
-          {children}
-        </div>
-      )}
+      {/* 해설은 결과 줄 바로 아래에 둔다. 공개 내용 뒤에 두면 사이드바 끝까지 밀려 찾기 어렵다. */}
       {compact && submittedId !== null && feedback?.[submittedId] && (
         <details className={styles.feedbackBody}>
           <summary>선택한 답의 해설</summary>
           {feedback[submittedId]}
         </details>
+      )}
+
+      {revealed && (
+        <div ref={revealedRef} className={styles.revealed} tabIndex={-1}>
+          {children}
+        </div>
       )}
     </section>
   );

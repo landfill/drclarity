@@ -46,6 +46,9 @@ const RATES: Rates = { input: 1, cacheWrite: 1.25, cacheRead: 0.1, output: 5 };
  */
 export default function CursorContextCostClient() {
   const [lessonRevealed, setLessonRevealed] = useState(false);
+  // 그림의 "실험 시작"으로 먼저 연 경우. 퀴즈를 답하거나 건너뛴 경우는 lessonRevealed 가 연다.
+  const [figureStarted, setFigureStarted] = useState(false);
+  const figureOpen = lessonRevealed || figureStarted;
   // figure 와 세밀 조절이 같은 상태를 쓴다. 영수증을 찍는 움직임과 움직임 줄이기는 useFigureState 가 맡는다.
   const [st, dispatch] = useFigureState(initialLedger, advanceLedger, isSettled);
   const { conversation, calls, trimmed } = st;
@@ -76,7 +79,7 @@ export default function CursorContextCostClient() {
       }
       subtitle="문맥 크기와 사용량은 같은 것을 셀까요?"
     >
-<SplitStage wideStage stageRatio="full" stage={<ProblemFigure kind="contextCost"><LedgerFigure state={st} dispatch={dispatch} /></ProblemFigure>}>
+<SplitStage wideStage stageRatio={figureOpen ? 'full' : '2:1'} stage={<ProblemFigure kind="contextCost" started={lessonRevealed} onStart={() => setFigureStarted(true)}><LedgerFigure state={st} dispatch={dispatch} /></ProblemFigure>}>
 
       <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         labels={{ skip: '바로 실험하기' }}

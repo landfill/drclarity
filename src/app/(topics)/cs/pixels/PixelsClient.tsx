@@ -133,7 +133,7 @@ export default function PixelsClient() {
       }
       subtitle="사진을 확대하면 왜 네모난 얼룩이 보일까요?"
     >
-<SplitStage wideStage stage={<ProblemFigure kind="pixels"><LensFigure
+<SplitStage wideStage stage={<ProblemFigure kind="pixels" started={lessonRevealed}><LensFigure
             cells={cells}
             gridSize={gridSize}
             zoom={zoom}

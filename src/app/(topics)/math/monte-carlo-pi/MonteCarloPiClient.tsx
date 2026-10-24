@@ -28,7 +28,7 @@ export default function MonteCarloPiClient() {
       title={<>점을 뿌려서 <Highlight>π</Highlight> 구하기</>}
       subtitle="무작위로 찍은 점으로 원주율을 구할 수 있을까요?"
     >
-      <SplitStage wideStage stage={<ProblemFigure kind="monteCarlo"><PlotterFigure /></ProblemFigure>}>
+      <SplitStage wideStage stage={<ProblemFigure kind="monteCarlo" started={lessonRevealed}><PlotterFigure /></ProblemFigure>}>
         <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
           question={
             <>

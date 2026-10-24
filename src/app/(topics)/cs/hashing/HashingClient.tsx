@@ -88,7 +88,7 @@ export default function HashingClient() {
       }
       subtitle="사이트는 왜 잊어버린 비밀번호를 알려주지 않을까요?"
     >
-<SplitStage wideStage stageRatio="2:1" stage={<ProblemFigure kind="hashing"><LookupFigure state={lk} dispatch={dispatchLk} /></ProblemFigure>}>
+<SplitStage wideStage stageRatio="2:1" stage={<ProblemFigure kind="hashing" started={lessonRevealed}><LookupFigure state={lk} dispatch={dispatchLk} /></ProblemFigure>}>
 
       <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         question={
