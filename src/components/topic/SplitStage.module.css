@@ -85,5 +85,5 @@
 }
 
 @media (max-width: 600px) {
-  .wideStage .stage svg[role="img"] { max-height: 160px; }
+  .wideStage .stage svg[role="img"] { max-height: var(--figure-mobile-height, 160px); }
 }
