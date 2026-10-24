@@ -21,6 +21,8 @@ export interface QuizGateProps {
   /** 건너뛰기 허용. 막다른 길을 만들지 않는다. */
   allowSkip?: boolean;
   labels?: { submit?: string; skip?: string; retry?: string };
+  /** 카드 밖의 부가 설명도 최초 공개에 맞춰 열 때 쓴다. */
+  onReveal?: () => void;
   children: React.ReactNode;
 }
 
@@ -33,6 +35,7 @@ export function QuizGate({
   gateContent = true,
   allowSkip = true,
   labels,
+  onReveal,
   children,
 }: QuizGateProps) {
   const submitLabel = labels?.submit ?? '이 답으로 확인하기';
@@ -133,6 +136,7 @@ export function QuizGate({
             if (!selectedId) return;
             setSubmittedId(selectedId);
             setHasRevealed(true);
+            if (!hasRevealed) onReveal?.();
           }}
           disabled={!collapsed && submittedId === null && selectedId === null}
         >
@@ -147,6 +151,7 @@ export function QuizGate({
             onClick={() => {
               setSkipped(true);
               setHasRevealed(true);
+              if (!hasRevealed) onReveal?.();
               // 이 버튼은 사라지므로, 사용자가 요청한 풀이로 포커스를 보낸다.
               requestAnimationFrame(() => revealedRef.current?.focus());
             }}
