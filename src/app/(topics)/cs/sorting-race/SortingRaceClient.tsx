@@ -100,16 +100,10 @@ export default function SortingRaceClient() {
 
       
 
-      {/* 원소 수나 패턴이 바뀌면 새로 마운트해 새 배열로 처음부터 시작한다. */}
-      <section className={styles.figureSection} aria-label="정렬 선반">
-
-      </section>
-
+      </SplitStage>
       <ExplanationBox title={whyTitle} variant="note" collapsible defaultOpen={false}>
         <WhyDifference />
       </ExplanationBox>
-
-      </SplitStage>
     </TopicLayout>
   );
 }
