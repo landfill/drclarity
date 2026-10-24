@@ -106,11 +106,11 @@ export function QuizGate({
       </fieldset>
 
       <div className={styles.actions}>
-        {collapsed && <p className={styles.answerSummary}>
+        {collapsed && <div className={styles.answerSummary}>
           {submittedId !== null
             ? <>내 답: {choices.find(choice => choice.id === submittedId)?.label} · {isCorrect ? '맞았습니다' : '다릅니다'}</>
             : '바로 실험하기를 골랐습니다'}
-        </p>}
+        </div>}
         {/*
           제출과 재선택이 같은 버튼 노드를 쓴다. 분기마다 다른 노드를 그리면
           상태가 바뀔 때 이전 노드가 언마운트되어 키보드 포커스가 body 로 떨어지고,
