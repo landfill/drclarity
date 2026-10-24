@@ -105,6 +105,16 @@ export default function HashingClient() {
           mail: <QuizMail />,
         }}
       >
+<label className={styles.toggleRow} htmlFor="hash-salt">
+            <input
+              id="hash-salt"
+              type="checkbox"
+              checked={salted}
+              onChange={event => { const on = event.currentTarget.checked; dispatchLk(st => setSalted(st, on)); }}
+            />
+            <span>사용자마다 다른 소금을 섞어서 저장하기</span>
+          </label>
+
         <ExplanationBox variant="note">
           <NoteLive />
         </ExplanationBox>
@@ -210,15 +220,7 @@ export default function HashingClient() {
             <StoreLead />
           </div>
 
-          <label className={styles.toggleRow} htmlFor="hash-salt">
-            <input
-              id="hash-salt"
-              type="checkbox"
-              checked={salted}
-              onChange={event => { const on = event.currentTarget.checked; dispatchLk(st => setSalted(st, on)); }}
-            />
-            <span>사용자마다 다른 소금을 섞어서 저장하기</span>
-          </label>
+
 
           <table className={styles.table}>
             <caption className={styles.caption}>
