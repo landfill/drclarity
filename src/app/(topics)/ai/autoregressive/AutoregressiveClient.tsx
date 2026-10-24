@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
@@ -81,7 +82,7 @@ export default function AutoregressiveClient() {
 
           <ParameterPanel params={params} onChange={handleParamChange} />
 
-          <ReelFigure key={sample.id} sample={sample} />
+          <ProblemFigure kind="autoregressive"><ReelFigure key={sample.id} sample={sample} /></ProblemFigure>
 
           <p className={styles.footnote}>
             ③에서 고르고 ④에서 붙입니다. 마지막에는 종료 신호를 고르고 멈춥니다.

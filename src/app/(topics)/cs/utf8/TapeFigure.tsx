@@ -43,6 +43,7 @@ export function TapeFigure({ text, chars, limit, onLimit }: TapeFigureProps) {
       size={TAPE_SIZE}
       view={FRONT_VIEW}
       crispText
+      labelPx={14}
       fig="01"
       title="바이트 테이프 기계"
       hint="테이프에는 바이트만 있습니다. 기계가 남은 테이프를 앞에서부터 글자로 읽습니다"

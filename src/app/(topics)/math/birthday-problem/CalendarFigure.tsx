@@ -24,6 +24,7 @@ export function CalendarFigure({ people }: { people: number }) {
       size={CALENDAR_SIZE}
       view={FRONT_VIEW}
       crispText
+      labelPx={14}
       fig="01"
       title="생일 달력판"
       hint={`${people}명이 모일 때마다 생일 칸에 스티커를 붙입니다`}

@@ -19,6 +19,7 @@ export function LookupFigure({ state, dispatch }: LookupFigureProps) {
       size={LOOKUP_SIZE}
       view={FRONT_VIEW}
       crispText
+      labelPx={14}
       fig="01"
       title="유출된 저장소와 미리 만든 표"
       hint="자가 표를 한 줄씩 내려가며, 저장소의 값과 같은 해시를 찾습니다"

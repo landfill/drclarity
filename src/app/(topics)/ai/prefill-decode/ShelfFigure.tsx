@@ -28,6 +28,7 @@ export function ShelfFigure({ rows, scale, active, note, onConfig }: ShelfFigure
       size={SHELF_SIZE}
       view={FRONT_VIEW}
       crispText
+      labelPx={14}
       fig="01"
       title="시간 선반"
       hint="겨자색 판이 읽기, 파란 줄무늬 막대가 쓰기, 빨간 깃발이 첫 토큰입니다. 두 선반은 같은 시간 눈금입니다"

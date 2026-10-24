@@ -1,5 +1,6 @@
 'use client';
 
+import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
@@ -47,7 +48,7 @@ export default function MonteCarloPiClient() {
           <div className={styles.sectionLead}>
             <SimLead />
           </div>
-          <PlotterFigure />
+          <ProblemFigure kind="monteCarlo"><PlotterFigure /></ProblemFigure>
         </section>
 
         <ExplanationBox title={whyTitle}>

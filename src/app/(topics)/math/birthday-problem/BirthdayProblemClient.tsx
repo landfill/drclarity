@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { InteractiveCanvas } from '@/components/topic/InteractiveCanvas';
@@ -129,7 +130,7 @@ export default function BirthdayProblemClient() {
             <SimLead people={people} />
           </div>
           {/* 인원이 바뀌면 이론값이 통째로 달라지므로 새로 마운트해 집계를 비운다. */}
-          <CalendarFigure key={people} people={people} />
+          <ProblemFigure kind="birthday"><CalendarFigure key={people} people={people} /></ProblemFigure>
         </section>
 
         <ExplanationBox title={complementTitle}>
