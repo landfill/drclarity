@@ -1,11 +1,10 @@
 'use client';
 
-import { useCallback } from 'react';
 import Link from 'next/link';
-import { ColorFigure, useFigureState } from '@/components/topic/ColorFigure';
+import { ColorFigure } from '@/components/topic/ColorFigure';
 import { FRONT_VIEW } from '@/lib/colorfigures/core';
 import { LOOP_STAGES, type LoopStage, type Sample } from './loop';
-import { STAGE_LABEL, advanceReel, initialReel, isSettled, nextAction, rewind, statusText, stepBack, stepOnce, stepsOf, togglePlay, view, endOf, cachedCount, tokenReadings } from './reel';
+import { STAGE_LABEL, nextAction, rewind, statusText, stepBack, stepOnce, stepsOf, togglePlay, view, endOf, cachedCount, tokenReadings, type ReelState } from './reel';
 import { REEL_SIZE, reelScene } from './reelScene';
 import styles from './Autoregressive.module.css';
 
@@ -21,9 +20,7 @@ const STAGE_INFO: Record<LoopStage, { href?: string; hint: string }> = {
  * 종이 테이프 기계. 고른 조각이 테이프 끝에 붙어 다음 선택의 입력이 되는 것을 한 단계씩 본다.
  * 예시 문장은 바깥 선택기가 정하므로, 바뀌면 부모가 key 로 새로 마운트한다.
  */
-export function ReelFigure({ sample }: { sample: Sample }) {
-  const init = useCallback(() => initialReel(sample), [sample]);
-  const [st, dispatch] = useFigureState(init, advanceReel, isSettled);
+export function ReelFigure({ sample, state: st, dispatch }: { sample: Sample; state: ReelState; dispatch: (action: (s: ReelState) => ReelState) => void }) {
   const next = nextAction(st);
   const { stepIndex, stage, context, isFinal } = view(st);
   const total = stepsOf(st).length;
@@ -61,7 +58,15 @@ export function ReelFigure({ sample }: { sample: Sample }) {
           <li key={`${index}-${context[index]}`}>{reading}</li>
         ))}
       </ol>
-      <ol className={styles.stages}>
+
+    </>
+  );
+}
+
+/** 그림과 같은 상태를 읽는 단계 설명. 조작부 뒤 사이드바에 둔다. */
+export function ReelStageNotes({ state }: { state: ReelState }) {
+  const { stage, isFinal } = view(state);
+  return (<ol className={styles.stages}>
         {LOOP_STAGES.map((item) => {
           const info = STAGE_INFO[item];
           const unreachable = isFinal && item === 'append';
@@ -77,7 +82,5 @@ export function ReelFigure({ sample }: { sample: Sample }) {
             </li>
           );
         })}
-      </ol>
-    </>
-  );
+      </ol>);
 }

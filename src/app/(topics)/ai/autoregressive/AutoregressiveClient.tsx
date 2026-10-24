@@ -1,13 +1,16 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { SplitStage } from '@/components/topic/SplitStage';
 import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
 import { SAMPLES, findSample } from './loop';
-import { ReelFigure } from './ReelFigure';
+import { ReelFigure, ReelStageNotes } from './ReelFigure';
+import { useFigureState } from '@/components/topic/ColorFigure';
+import { initialReel, advanceReel, isSettled } from './reel';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizMany from './content/quiz-many.mdx';
 import QuizOnce from './content/quiz-once.mdx';
@@ -21,7 +24,9 @@ import meta from './meta';
 import styles from './Autoregressive.module.css';
 
 export default function AutoregressiveClient() {
+  const [lessonRevealed, setLessonRevealed] = useState(false);
   const [sampleId, setSampleId] = useState(SAMPLES[0].id);
+  const [reelState, dispatchReel] = useFigureState(() => initialReel(SAMPLES[0]), advanceReel, isSettled);
   const sample = findSample(sampleId) ?? SAMPLES[0];
 
   const params: ParameterDefinition[] = useMemo(
@@ -39,8 +44,10 @@ export default function AutoregressiveClient() {
 
   const handleParamChange = useCallback((_id: string, value: number | boolean | string) => {
     // 다른 문장은 다른 루프다. figure 는 key 로 새로 마운트되어 첫 바퀴부터 시작한다.
-    setSampleId((findSample(String(value)) ?? SAMPLES[0]).id);
-  }, []);
+    const nextSample = findSample(String(value)) ?? SAMPLES[0];
+    setSampleId(nextSample.id);
+    dispatchReel(() => initialReel(nextSample));
+  }, [dispatchReel]);
 
   return (
     <TopicLayout
@@ -52,9 +59,11 @@ export default function AutoregressiveClient() {
           AI 는 답을 <Highlight>한 조각씩</Highlight> 쓴다
         </>
       }
-      subtitle="통째로 뱉는 것이 아닙니다. 방금 쓴 조각을 자기 입력 끝에 다시 붙이며 한 조각씩 나아갑니다."
+      subtitle="다음 조각은 언제 정해질까요?"
     >
-      <QuizGate
+<SplitStage wideStage stage={<ProblemFigure kind="autoregressive"><ReelFigure key={sample.id} sample={sample} state={reelState} dispatch={dispatchReel} /></ProblemFigure>}>
+
+      <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         labels={{ skip: '바로 실험하기' }}
         question={
           <>
@@ -70,6 +79,9 @@ export default function AutoregressiveClient() {
           unknown: <QuizUnknown />,
         }}
       >
+<ParameterPanel params={params} onChange={handleParamChange} />
+<ReelStageNotes state={reelState} />
+
         <ExplanationBox variant="note">
           <NoteModel />
         </ExplanationBox>
@@ -80,27 +92,35 @@ export default function AutoregressiveClient() {
             <StageLead />
           </div>
 
-          <ParameterPanel params={params} onChange={handleParamChange} />
 
-          <ProblemFigure kind="autoregressive"><ReelFigure key={sample.id} sample={sample} /></ProblemFigure>
+
+
 
           <p className={styles.footnote}>
             ③에서 고르고 ④에서 붙입니다. 마지막에는 종료 신호를 고르고 멈춥니다.
           </p>
         </section>
 
-        <ExplanationBox title={loopPointTitle} collapsible>
-          <LoopPoint />
-        </ExplanationBox>
 
-        <ExplanationBox title={seriesTitle} collapsible>
-          <Series />
-        </ExplanationBox>
 
-        <ExplanationBox title={aboutTitle} collapsible>
-          <About />
-        </ExplanationBox>
+
+
+
       </QuizGate>
-    </TopicLayout>
+
+</SplitStage>
+{lessonRevealed && (<ExplanationBox title={loopPointTitle} collapsible defaultOpen={false}>
+          <LoopPoint />
+        </ExplanationBox>)}
+
+{lessonRevealed && (<ExplanationBox title={seriesTitle} collapsible defaultOpen={false}>
+          <Series />
+        </ExplanationBox>)}
+
+{lessonRevealed && (<ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
+          <About />
+        </ExplanationBox>)}
+
+</TopicLayout>
   );
 }

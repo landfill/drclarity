@@ -1,5 +1,6 @@
 'use client';
 
+import { SplitStage } from '@/components/topic/SplitStage';
 import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
@@ -22,9 +23,11 @@ export default function MonteCarloPiClient() {
       tags={meta.tags}
       topicHref="/math/monte-carlo-pi"
       title={<>점을 뿌려서 <Highlight>π</Highlight> 구하기</>}
-      subtitle="원의 넓이 공식을 쓰지 않고, 무작위로 던진 점을 세기만 해서 π 에 도달합니다."
+      subtitle="무작위로 찍은 점으로 원주율을 구할 수 있을까요?"
     >
-      <QuizGate
+<SplitStage wideStage stage={<ProblemFigure kind="monteCarlo"><PlotterFigure /></ProblemFigure>}>
+
+      <QuizGate layout="aside"
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -48,13 +51,15 @@ export default function MonteCarloPiClient() {
           <div className={styles.sectionLead}>
             <SimLead />
           </div>
-          <ProblemFigure kind="monteCarlo"><PlotterFigure /></ProblemFigure>
+
         </section>
 
         <ExplanationBox title={whyTitle}>
           <WhyInexact />
         </ExplanationBox>
       </QuizGate>
-    </TopicLayout>
+
+</SplitStage>
+</TopicLayout>
   );
 }

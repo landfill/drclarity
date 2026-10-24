@@ -1,6 +1,8 @@
 'use client';
+import { useState } from 'react';
 
 import { useCallback } from 'react';
+import { SplitStage } from '@/components/topic/SplitStage';
 import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
@@ -43,6 +45,7 @@ const RATES: Rates = { input: 1, cacheWrite: 1.25, cacheRead: 0.1, output: 5 };
  * 문구는 `content/*.mdx` 에 두고 여기서는 상태에 따라 달라지는 짧은 문장만 만든다.
  */
 export default function CursorContextCostClient() {
+  const [lessonRevealed, setLessonRevealed] = useState(false);
   // figure 와 세밀 조절이 같은 상태를 쓴다. 영수증을 찍는 움직임과 움직임 줄이기는 useFigureState 가 맡는다.
   const [st, dispatch] = useFigureState(initialLedger, advanceLedger, isSettled);
   const { conversation, calls, trimmed } = st;
@@ -71,9 +74,11 @@ export default function CursorContextCostClient() {
           컨텍스트와 <Highlight>사용량</Highlight>은 무엇이 다를까?
         </>
       }
-      subtitle="채팅창의 컨텍스트와 대시보드의 토큰 사용량은 서로 다른 것을 셉니다. 둘을 잇고 나면 어디를 줄여야 하는지가 보입니다."
+      subtitle="문맥 크기와 사용량은 같은 것을 셀까요?"
     >
-      <QuizGate
+<SplitStage wideStage stageRatio="full" stage={<ProblemFigure kind="contextCost"><LedgerFigure state={st} dispatch={dispatch} /></ProblemFigure>}>
+
+      <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         labels={{ skip: '바로 실험하기' }}
         question={
           <>
@@ -85,22 +90,7 @@ export default function CursorContextCostClient() {
         correctId="same"
         feedback={{ same: <QuizSame />, sum: <QuizSum />, none: <QuizNone /> }}
       >
-        <ExplanationBox variant="note">
-          <NoteSim />
-        </ExplanationBox>
-
-        <section className={styles.stage} aria-label="채팅창과 대시보드를 나란히 보기">
-          <h2 className={styles.sectionTitle}>{stageTitle}</h2>
-          <div className={styles.sectionLead}>
-            <StageLead />
-          </div>
-
-          {/*
-            공용 ParameterPanel 대신 한 줄짜리 컨트롤을 쓴다.
-            이 주제의 요점은 두 화면을 **동시에** 보는 것인데, 세로로 긴 패널이
-            둘을 한 화면 밖으로 밀어낸다. 컨트롤은 얇을수록 좋다.
-          */}
-          <details className={styles.fineControls}><summary>조건을 직접 조절하기</summary>
+<details className={styles.fineControls}><summary>조건을 직접 조절하기</summary>
           <div className={styles.controls}>
             <label className={styles.control}>
               <span className={styles.controlLabel}>대화</span>
@@ -152,7 +142,24 @@ export default function CursorContextCostClient() {
 
           </details>
 
-          <ProblemFigure kind="contextCost"><LedgerFigure state={st} dispatch={dispatch} /></ProblemFigure>
+        <ExplanationBox variant="note">
+          <NoteSim />
+        </ExplanationBox>
+
+        <section className={styles.stage} aria-label="채팅창과 대시보드를 나란히 보기">
+          <h2 className={styles.sectionTitle}>{stageTitle}</h2>
+          <div className={styles.sectionLead}>
+            <StageLead />
+          </div>
+
+          {/*
+            공용 ParameterPanel 대신 한 줄짜리 컨트롤을 쓴다.
+            이 주제의 요점은 두 화면을 **동시에** 보는 것인데, 세로로 긴 패널이
+            둘을 한 화면 밖으로 밀어낸다. 컨트롤은 얇을수록 좋다.
+          */}
+
+
+
 
           <div className={styles.screens}>
             {/* 화면 하나 — 채팅창의 Context Usage 패널 */}
@@ -247,18 +254,26 @@ export default function CursorContextCostClient() {
           </div>
         </section>
 
-        <ExplanationBox title={oneRowTitle} collapsible>
-          <OneRow />
-        </ExplanationBox>
 
-        <ExplanationBox title={costTitle} collapsible>
-          <Cost />
-        </ExplanationBox>
 
-        <ExplanationBox title={efficientTitle} collapsible>
-          <Efficient />
-        </ExplanationBox>
+
+
+
       </QuizGate>
-    </TopicLayout>
+
+</SplitStage>
+{lessonRevealed && (<ExplanationBox title={oneRowTitle} collapsible defaultOpen={false}>
+          <OneRow />
+        </ExplanationBox>)}
+
+{lessonRevealed && (<ExplanationBox title={costTitle} collapsible defaultOpen={false}>
+          <Cost />
+        </ExplanationBox>)}
+
+{lessonRevealed && (<ExplanationBox title={efficientTitle} collapsible defaultOpen={false}>
+          <Efficient />
+        </ExplanationBox>)}
+
+</TopicLayout>
   );
 }

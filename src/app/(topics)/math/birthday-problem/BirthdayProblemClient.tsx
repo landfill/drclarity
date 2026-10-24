@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { SplitStage } from '@/components/topic/SplitStage';
 import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
@@ -33,6 +34,7 @@ import styles from './BirthdayProblem.module.css';
 const DEFAULT_PEOPLE = MARKED_PEOPLE;
 
 export default function BirthdayProblemClient() {
+  const [lessonRevealed, setLessonRevealed] = useState(false);
   const [people, setPeople] = useState(DEFAULT_PEOPLE);
 
   const probability = sharedBirthdayProbability(people);
@@ -63,9 +65,11 @@ export default function BirthdayProblemClient() {
       tags={meta.tags}
       topicHref="/math/birthday-problem"
       title={<>생일 문제 — <Highlight>23명이면 50%</Highlight></>}
-      subtitle="365일 중 하루씩인데 스물세 명이면 절반을 넘습니다. 세야 할 것이 사람이 아니라 쌍이기 때문입니다."
+      subtitle="생일이 겹칠 확률은 몇 명부터 절반을 넘을까요?"
     >
-      <QuizGate
+<SplitStage wideStage stageRatio="full" stage={<ProblemFigure kind="birthday"><CalendarFigure key={people} people={people} /></ProblemFigure>}>
+
+      <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -80,6 +84,12 @@ export default function BirthdayProblemClient() {
           n60: <QuizN60 />,
         }}
       >
+<ParameterPanel
+            params={params}
+            onChange={(_, value) => setPeople(Number(value))}
+            onReset={() => setPeople(DEFAULT_PEOPLE)}
+          />
+
         <ExplanationBox variant="note">
           <NotePairs />
         </ExplanationBox>
@@ -90,11 +100,7 @@ export default function BirthdayProblemClient() {
             <StageLead />
           </div>
 
-          <ParameterPanel
-            params={params}
-            onChange={(_, value) => setPeople(Number(value))}
-            onReset={() => setPeople(DEFAULT_PEOPLE)}
-          />
+
 
           <InteractiveCanvas
             logicalWidth={CURVE_WIDTH}
@@ -130,21 +136,25 @@ export default function BirthdayProblemClient() {
             <SimLead people={people} />
           </div>
           {/* 인원이 바뀌면 이론값이 통째로 달라지므로 새로 마운트해 집계를 비운다. */}
-          <ProblemFigure kind="birthday"><CalendarFigure key={people} people={people} /></ProblemFigure>
+
         </section>
 
         <ExplanationBox title={complementTitle}>
           <Complement days={DAYS_IN_YEAR} />
         </ExplanationBox>
 
-        <ExplanationBox title={caveatsTitle} collapsible>
-          <Caveats />
-        </ExplanationBox>
+
 
         <ExplanationBox title={hashTitle}>
           <Hash />
         </ExplanationBox>
       </QuizGate>
-    </TopicLayout>
+
+</SplitStage>
+{lessonRevealed && (<ExplanationBox title={caveatsTitle} collapsible defaultOpen={false}>
+          <Caveats />
+        </ExplanationBox>)}
+
+</TopicLayout>
   );
 }

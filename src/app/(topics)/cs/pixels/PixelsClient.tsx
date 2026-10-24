@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { SplitStage } from '@/components/topic/SplitStage';
 import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
@@ -48,6 +49,7 @@ const MAX_ZOOM = 64;
 const DEFAULT_GRID_SIZE = 128;
 
 export default function PixelsClient() {
+  const [lessonRevealed, setLessonRevealed] = useState(false);
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   const [gridSize, setGridSize] = useState(DEFAULT_GRID_SIZE);
   const [showLines, setShowLines] = useState(true);
@@ -129,9 +131,19 @@ export default function PixelsClient() {
           이미지는 왜 <Highlight>확대하면 뭉개지나</Highlight>
         </>
       }
-      subtitle="당기면 어느 순간 네모난 칸이 드러납니다. 사진이 원래 색칠된 격자이기 때문입니다."
+      subtitle="사진을 확대하면 왜 네모난 얼룩이 보일까요?"
     >
-      <QuizGate
+<SplitStage wideStage stage={<ProblemFigure kind="pixels"><LensFigure
+            cells={cells}
+            gridSize={gridSize}
+            zoom={zoom}
+            showLines={showLines}
+            focus={focus}
+            onFocus={setFocus}
+            focusHex={focusHex}
+          /></ProblemFigure>}>
+
+      <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -146,6 +158,8 @@ export default function PixelsClient() {
           lost: <QuizLost />,
         }}
       >
+<ParameterPanel params={params} onChange={handleChange} onReset={handleReset} />
+
         <ExplanationBox variant="note">
           <NoteScene />
         </ExplanationBox>
@@ -156,17 +170,9 @@ export default function PixelsClient() {
             <ZoomLead />
           </div>
 
-          <ProblemFigure kind="pixels"><LensFigure
-            cells={cells}
-            gridSize={gridSize}
-            zoom={zoom}
-            showLines={showLines}
-            focus={focus}
-            onFocus={setFocus}
-            focusHex={focusHex}
-          /></ProblemFigure>
 
-          <ParameterPanel params={params} onChange={handleChange} onReset={handleReset} />
+
+
 
           <dl className={styles.stats}>
             <div className={styles.stat}>
@@ -238,10 +244,14 @@ export default function PixelsClient() {
           </div>
         </section>
 
-        <ExplanationBox title={aboutTitle} collapsible>
-          <About />
-        </ExplanationBox>
+
       </QuizGate>
-    </TopicLayout>
+
+</SplitStage>
+{lessonRevealed && (<ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
+          <About />
+        </ExplanationBox>)}
+
+</TopicLayout>
   );
 }

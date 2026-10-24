@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { SplitStage } from '@/components/topic/SplitStage';
 import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
@@ -41,6 +42,7 @@ const DEFAULT_RIGHT = 'Password';
 
 
 export default function HashingClient() {
+  const [lessonRevealed, setLessonRevealed] = useState(false);
   const [left, setLeft] = useState(DEFAULT_LEFT);
   const [right, setRight] = useState(DEFAULT_RIGHT);
   // 소금 체크 상자와 아래 figure 가 같은 상태를 쓴다. 표를 훑는 움직임과 움직임 줄이기는 useFigureState 가 맡는다.
@@ -84,9 +86,11 @@ export default function HashingClient() {
           비밀번호는 <Highlight>저장되지 않는다</Highlight>
         </>
       }
-      subtitle="잊어버렸다고 하면 알려주지 않고 새로 만들라고 합니다. 사이트에 남아 있지 않기 때문입니다."
+      subtitle="사이트는 왜 잊어버린 비밀번호를 알려주지 않을까요?"
     >
-      <QuizGate
+<SplitStage wideStage stageRatio="2:1" stage={<ProblemFigure kind="hashing"><LookupFigure state={lk} dispatch={dispatchLk} /></ProblemFigure>}>
+
+      <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -291,7 +295,7 @@ export default function HashingClient() {
         </ExplanationBox>
 
         <section className={styles.stage} aria-label="미리 계산해 둔 표">
-          <ProblemFigure kind="hashing"><LookupFigure state={lk} dispatch={dispatchLk} /></ProblemFigure>
+
         </section>
 
         <ExplanationBox title={saltTitle}>
@@ -302,10 +306,14 @@ export default function HashingClient() {
           <Recap />
         </ExplanationBox>
 
-        <ExplanationBox title={aboutTitle} collapsible>
-          <About />
-        </ExplanationBox>
+
       </QuizGate>
-    </TopicLayout>
+
+</SplitStage>
+{lessonRevealed && (<ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
+          <About />
+        </ExplanationBox>)}
+
+</TopicLayout>
   );
 }

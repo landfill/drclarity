@@ -1,6 +1,8 @@
 'use client';
+import { useState } from 'react';
 
 import { useCallback, useMemo } from 'react';
+import { SplitStage } from '@/components/topic/SplitStage';
 import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { useFigureState } from '@/components/topic/ColorFigure';
@@ -25,6 +27,7 @@ import styles from './KvCache.module.css';
 const QUIZ_LENGTH = 100;
 
 export default function KvCacheClient() {
+  const [lessonRevealed, setLessonRevealed] = useState(false);
   // figure 와 세밀 조절 패널이 같은 상태를 쓴다. 재생과 움직임 줄이기는 useFigureState 가 맡는다.
   const [st, dispatch] = useFigureState(initialKv, advanceKv, isSettled);
   const { length, step, cacheOn } = st;
@@ -80,9 +83,11 @@ export default function KvCacheClient() {
           앞에서 한 계산을 <Highlight>다시 쓴다면?</Highlight>
         </>
       }
-      subtitle="KV 캐시를 켜고 끄며, 다시 만드는 계산과 저장할 메모가 어떻게 달라지는지 봅니다."
+      subtitle="KV 캐시를 켜면 어떤 계산이 달라질까요?"
     >
-      <QuizGate
+<SplitStage wideStage stage={<ProblemFigure kind="kvCache"><TilesFigure state={st} dispatch={dispatch} /></ProblemFigure>}>
+
+      <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         labels={{ skip: '바로 실험하기' }}
         question={
           <>
@@ -98,6 +103,8 @@ export default function KvCacheClient() {
           random: <QuizRandom />,
         }}
       >
+<details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleParamChange} /></details>
+
         <ExplanationBox variant="note">
           <NoteModel />
         </ExplanationBox>
@@ -108,8 +115,8 @@ export default function KvCacheClient() {
             <StageLead length={length} />
           </div>
 
-          <details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleParamChange} /></details>
-          <ProblemFigure kind="kvCache"><TilesFigure state={st} dispatch={dispatch} /></ProblemFigure>
+
+
           <ul className={styles.legend} aria-label="칸 색의 뜻">
             <li>
               <span className={`${styles.swatch} ${styles.computed}`} aria-hidden="true" />
@@ -133,14 +140,20 @@ export default function KvCacheClient() {
           </p>
         </section>
 
-        <ExplanationBox title={memoTitle} collapsible>
-          <Memo />
-        </ExplanationBox>
 
-        <ExplanationBox title={aboutTitle} collapsible>
-          <About />
-        </ExplanationBox>
+
+
       </QuizGate>
-    </TopicLayout>
+
+</SplitStage>
+{lessonRevealed && (<ExplanationBox title={memoTitle} collapsible defaultOpen={false}>
+          <Memo />
+        </ExplanationBox>)}
+
+{lessonRevealed && (<ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
+          <About />
+        </ExplanationBox>)}
+
+</TopicLayout>
   );
 }
