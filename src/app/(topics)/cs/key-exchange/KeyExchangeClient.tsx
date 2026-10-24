@@ -5,7 +5,8 @@ import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
-import { SolutionStepper } from '@/components/topic/SolutionStepper';
+import { LessonCard } from '@/components/topic/LessonCard';
+import { SplitStage } from '@/components/topic/SplitStage';
 import { useFigureState } from '@/components/topic/ColorFigure';
 import { DH_PRESETS, secretRange } from './dh';
 import {
@@ -85,9 +86,9 @@ export default function KeyExchangeClient() {
       tags={meta.tags}
       topicHref="/cs/key-exchange"
       title={<>자물쇠는 주고 <Highlight>열쇠는 안 준다</Highlight></>}
-      subtitle="도청자가 오간 모든 것을 들어도, 두 사람만 아는 비밀을 만들 수 있습니다."
+      subtitle="모두가 듣는 곳에서 두 사람만 아는 비밀을 만들 수 있을까요?"
     >
-      <QuizGate
+      <RealMath quiz={content => <QuizGate layout="aside"
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -101,7 +102,7 @@ export default function KeyExchangeClient() {
           impossible: <QuizImpossible />,
           met: <QuizMet />,
         }}
-      >
+      >{content}
         <ExplanationBox variant="note">
           <NoteIntro />
         </ExplanationBox>
@@ -114,7 +115,7 @@ export default function KeyExchangeClient() {
 
           <ParameterPanel params={colorParams} onChange={handleColorChange} />
 
-          <SolutionStepper steps={MIX_STEPS} onStepChange={index => setMixStep(index)}>
+          <LessonCard title="색 섞기 풀이" steps={MIX_STEPS} labels={['문제', '비밀 색', '교환', '완성', '확인'].slice(0, MIX_STEPS.length)} index={mixStep} onStepChange={setMixStep} figure={<>
             <div className={styles.board}>
               <Party title="앨리스" tone="alice">
                 <Swatch label="공개 색" color={PUBLIC_COLOR} />
@@ -162,7 +163,7 @@ export default function KeyExchangeClient() {
                 <Swatch label="완성한 색" color={bobResult} revealed={mixStep >= 3} emphasis />
               </Party>
             </div>
-          </SolutionStepper>
+          </>} />
         </section>
 
         <ExplanationBox title={beyondAnalogyTitle}>
@@ -177,7 +178,7 @@ export default function KeyExchangeClient() {
           <BeyondAnalogyOutro />
         </ExplanationBox>
 
-        <RealMath />
+
 
         <ExplanationBox title={notALockTitle}>
           <NotALock />
@@ -186,13 +187,13 @@ export default function KeyExchangeClient() {
         <ExplanationBox title={mitmTitle} collapsible>
           <Mitm />
         </ExplanationBox>
-      </QuizGate>
+      </QuizGate>} />
     </TopicLayout>
   );
 }
 
 /** 실제 모듈러 거듭제곱 구간. 색 구간과 상태를 공유하지 않아 따로 둔다. */
-function RealMath() {
+function RealMath({ quiz }: { quiz: (content: React.ReactNode) => React.ReactNode }) {
   // 세밀 조절(공개 값 · 두 비밀)과 아래 figure 가 같은 상태를 쓴다. 카드가 건너는 움직임과 움직임 줄이기는 useFigureState 가 맡는다.
   const [st, dispatch] = useFigureState(initialTrial, advanceTrial, isTrialSettled);
   const { presetId, a: aliceSecret, b: bobSecret } = st;
@@ -240,15 +241,16 @@ function RealMath() {
   );
 
   return (
-    <section className={styles.mathSection} aria-label="실제 연산">
-      <h2 className={styles.sectionTitle}>{mathTitle}</h2>
+<SplitStage wideStage className={styles.figureFirst} stageRatio="2:1" stage={<TrialFigure state={st} dispatch={dispatch} />}>{quiz(    <section aria-label="실제 연산">
+
+<h2 className={styles.sectionTitle}>{mathTitle}</h2>
       <div className={styles.sectionLead}>
         <MathLead />
       </div>
 
-      <ParameterPanel params={params} onChange={handleChange} />
 
-      <TrialFigure state={st} dispatch={dispatch} />
+
+
 
       <div className={styles.punchline}>
         <MathPunchline shared={shared} />
@@ -267,7 +269,7 @@ function RealMath() {
       <ExplanationBox title={whySafeTitle}>
         <WhySafe />
       </ExplanationBox>
-    </section>
+    </section>)}</SplitStage>
   );
 }
 

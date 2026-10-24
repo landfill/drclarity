@@ -1,6 +1,7 @@
 'use client';
 
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useState } from 'react';
+import { useLessonAlignment } from '@/hooks/useLessonAlignment';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { BinaryEncodingBoard, HoneyBoardControls, type HoneyBoardMode } from './BinaryEncodingBoard';
@@ -21,30 +22,10 @@ export default function HoneyPotsClient() {
   const [activeAntBit, setActiveAntBit] = useState<number | null>(null);
   const [deadAntBits, setDeadAntBits] = useState<number[]>([]);
   const current = HONEY_STEPS[stepIndex];
-  const lessonRef = useRef<HTMLElement>(null);
-  const shouldAlignLessonRef = useRef(false);
-
-  useLayoutEffect(() => {
-    if (!shouldAlignLessonRef.current) return;
-    shouldAlignLessonRef.current = false;
-
-    const lesson = lessonRef.current;
-    if (!lesson) return;
-    const header = Number.parseFloat(
-      getComputedStyle(document.documentElement).getPropertyValue('--header-h')
-    ) || 0;
-    const bounds = lesson.getBoundingClientRect();
-    if (bounds.top < header + 8 || bounds.bottom > window.innerHeight) {
-      window.scrollTo({
-        top: window.scrollY + bounds.top - header - 8,
-        behavior: 'auto',
-      });
-    }
-  }, [stepIndex]);
+  const lessonRef = useLessonAlignment(stepIndex);
 
   const go = (index: number) => {
     const next = Math.max(0, Math.min(HONEY_STEPS.length-1,index));
-    if (next !== stepIndex) shouldAlignLessonRef.current = true;
     setStepIndex(next);
     if (next !== 1) setSelectedGroup(0);
     if (next !== 5) setActiveAntBit(null);
