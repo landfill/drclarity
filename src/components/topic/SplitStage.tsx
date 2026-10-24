@@ -45,7 +45,7 @@ export function SplitStage({ stage, children, className = '', wideStage = false,
   }, []);
 
   return (
-    <div className={`${styles.root} ${wideStage ? styles.wideStage : ''} ${stageRatio === '2:1' ? styles.extraWideStage : ''} ${stageRatio === 'full' ? styles.fullStage : ''} ${className}`.replace(/\s+/g, ' ').trim()}>
+    <div data-figure-stage className={`${styles.root} ${wideStage ? styles.wideStage : ''} ${stageRatio === '2:1' ? styles.extraWideStage : ''} ${stageRatio === 'full' ? styles.fullStage : ''} ${className}`.replace(/\s+/g, ' ').trim()}>
       <div ref={stageRef} className={`${styles.stage} ${sticky && stageCanStick ? styles.stageSticky : ''}`}>
         {stage}
       </div>
