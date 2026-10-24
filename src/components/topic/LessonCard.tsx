@@ -14,11 +14,12 @@ export interface LessonCardProps {
   children?: ReactNode;
   quiz?: (content: ReactNode) => ReactNode;
   controls?: ReactNode;
+  constraints?: ReactNode;
   title: string;
 }
 
 /** 피겨를 먼저 읽고, 같은 카드의 상단 툴바로 풀이 단계를 옮긴다. */
-export function LessonCard({ steps, labels, index, onStepChange, figure, children, quiz, controls, title }: LessonCardProps) {
+export function LessonCard({ steps, labels, index, onStepChange, figure, children, quiz, controls, constraints, title }: LessonCardProps) {
   const ref = useLessonAlignment(index);
   const step = steps[index];
   if (!step) return null;
@@ -44,6 +45,7 @@ export function LessonCard({ steps, labels, index, onStepChange, figure, childre
     <nav className={styles.steps} aria-label="풀이 단계">{steps.map((item, i) =>
       <button key={item.id} type="button" aria-label={`${i + 1}단계: ${labels[i]}`} aria-current={index === i ? 'step' : undefined} onClick={() => onStepChange(i)}>{i + 1}<span>{labels[i]}</span></button>
     )}</nav>
+    {constraints}
     <div className={styles.grid}>
       <div className={styles.board}>{figure}</div>
       <div className={styles.sidebar}>

@@ -84,7 +84,7 @@
 
 .figureControls button  {
   flex: 1 1 120px;
-  min-height: 42px;
+  min-height: 44px;
   padding: 8px;
   border: var(--line-ink);
   border-radius: var(--radius-pill);
@@ -101,7 +101,7 @@
 }
 
 .figureControls button[aria-pressed="true"]  {
-  background: var(--color-subtle);
+  background: var(--color-accent-fill);
   box-shadow: inset 0 0 0 1px var(--color-ink);
   font-weight: 700;
 }
@@ -236,3 +236,11 @@
   opacity: .4;
   cursor: default;
 }
+
+.picker { min-width: 0; margin: 0; padding: 0; border: 0; }
+.picker legend { font-size: .875rem; font-weight: 700; }
+.figureControls button:disabled { opacity: .4; cursor: default; }
+.conditions { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; margin: 0; padding: 6px 14px; border-bottom: 1px solid var(--color-border); font-size: .75rem; line-height: 1.2; }
+.conditions > div { display: flex; align-items: baseline; gap: 6px; }
+.conditions dt { color: var(--color-muted); }
+.conditions dd { margin: 0; font-weight: 700; }
