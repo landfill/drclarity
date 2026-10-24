@@ -5,7 +5,7 @@ import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
-import { SolutionStepper } from '@/components/topic/SolutionStepper';
+import { LessonCard } from '@/components/topic/LessonCard';
 import { CardsFigure } from './CardsFigure';
 import { MAX_DIGITS, gapString, ninesString } from './nines';
 import { SOLUTION_STEPS, SOLUTION_TITLE } from './steps';
@@ -23,6 +23,8 @@ import styles from './RepeatingNines.module.css';
 
 export default function RepeatingNinesClient() {
   const [digits, setDigits] = useState(3);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [lessonRevealed, setLessonRevealed] = useState(false);
 
   const params: ParameterDefinition[] = useMemo(
     () => [
@@ -46,9 +48,9 @@ export default function RepeatingNinesClient() {
       tags={meta.tags}
       topicHref="/math/repeating-nines"
       title={<>0.999… 는 <Highlight>1인가</Highlight></>}
-      subtitle="9 를 아무리 이어 붙여도 1에는 조금 못 미칠 것 같습니다. 그 조금이 얼마인지 재 봅니다."
+      subtitle="0.999…와 1 사이에는 얼마나 차이가 날까요?"
     >
-      <QuizGate
+      <LessonCard title={SOLUTION_TITLE} steps={[{id:'problem',body:<StageLead />}, ...SOLUTION_STEPS]} labels={['문제', '수에 이름 붙이기', '10배', '빼기', '정리']} index={stepIndex} onStepChange={index => { setStepIndex(index); if (index > 0) setLessonRevealed(true); if (index === 0) setDigits(3); }} figure={<CardsFigure digits={digits} onDigits={setDigits} />} quiz={content => <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -62,20 +64,14 @@ export default function RepeatingNinesClient() {
           less: <QuizLess />,
           close: <QuizClose />,
         }}
-      >
+      >{content}</QuizGate>} controls={<ParameterPanel params={params} onChange={(_, value) => setDigits(Number(value))} onReset={() => setDigits(3)} />} >
         <section className={styles.stage} aria-label="수직선 확대">
           <h2 className={styles.sectionTitle}>{stageTitle}</h2>
-          <div className={styles.sectionLead}>
-            <StageLead />
-          </div>
 
-          <ParameterPanel
-            params={params}
-            onChange={(_, value) => setDigits(Number(value))}
-            onReset={() => setDigits(3)}
-          />
 
-          <CardsFigure digits={digits} onDigits={setDigits} />
+
+
+
 
           <dl className={styles.readouts}>
             <div className={styles.readout}>
@@ -97,19 +93,17 @@ export default function RepeatingNinesClient() {
           <NoteFinite digits={digits} />
         </ExplanationBox>
 
-        <section className={styles.solutionSection} aria-label="풀이">
-          <h2 className={styles.sectionTitle}>{SOLUTION_TITLE}</h2>
-          <SolutionStepper steps={SOLUTION_STEPS} />
-        </section>
 
-        <ExplanationBox title={otherMethodsTitle}>
+
+      </LessonCard>
+{lessonRevealed && <>        <ExplanationBox title={otherMethodsTitle}>
           <OtherMethods />
         </ExplanationBox>
 
         <ExplanationBox title={computerTitle} collapsible>
           <Computer />
         </ExplanationBox>
-      </QuizGate>
+</>}
     </TopicLayout>
   );
 }

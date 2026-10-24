@@ -1,0 +1,30 @@
+.lesson { border: var(--line-ink); border-radius: var(--radius-hand); background: var(--color-surface); margin-bottom: var(--space-md); min-width: 0; }
+.toolbar { position: sticky; top: var(--header-h); z-index: 4; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 14px; background: var(--color-surface); border-bottom: 1px solid var(--color-border); font-size: .8rem; }
+.buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.buttons button { min-height: 40px; padding: 6px 12px; border: var(--line-ink); border-radius: var(--radius-pill); background: var(--color-surface); color: var(--color-ink); font: inherit; cursor: pointer; }
+.buttons .next { background: var(--color-accent-fill); }
+.buttons button:disabled { opacity: .4; cursor: default; }
+.steps { display: flex; flex-wrap: wrap; gap: 2px; padding: 8px; border-bottom: 1px solid var(--color-border); }
+.steps button { display: flex; align-items: center; gap: 6px; min-height: 36px; padding: 4px 8px; border: 0; border-radius: var(--radius-pill); background: transparent; color: var(--color-muted); font: inherit; font-size: .7rem; cursor: pointer; }
+.steps button[aria-current] { background: var(--color-subtle); color: var(--color-ink); font-weight: 700; }
+.lesson button:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 3px; }
+.grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
+.board { min-width: 0; padding: 14px; border-right: 1px solid var(--color-border); }
+.board svg[role="img"] { max-height: min(440px, max(140px, calc(100svh - var(--header-h) - 400px))); }
+.sidebar { min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 14px; overflow-wrap: anywhere; }
+.explanation { font-size: .875rem; line-height: 1.8; }
+.explanation h2 { font-size: 1.1rem; margin-bottom: 8px; }
+.formula { overflow-wrap: anywhere; }
+@media (max-width: 760px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .board { border-right: 0; border-bottom: 1px solid var(--color-border); padding: 10px; }
+  .steps { justify-content: space-between; }
+  .steps button { width: 32px; justify-content: center; padding: 5px; }
+  .steps button span { display: none; }
+  .toolbar { padding: 8px 10px; }
+  .buttons button { padding-inline: 10px; }
+  .sidebar { padding: 12px; }
+}
+@media (max-width: 600px) {
+  .board svg[role="img"] { max-height: 120px; }
+}

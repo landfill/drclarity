@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
-import { SolutionStepper } from '@/components/topic/SolutionStepper';
+import { LessonCard } from '@/components/topic/LessonCard';
 import { InfiniteHotelFigure } from './InfiniteHotelFigure';
 import { VISIBLE_ROOMS, type HotelStepId, isHotelStepId } from './hotelScene';
 import { HOTEL_STEPS } from './steps';
@@ -21,6 +21,7 @@ import styles from './InfiniteHotel.module.css';
 
 export default function InfiniteHotelClient() {
   const [stepId, setStepId] = useState<HotelStepId>('full');
+  const [lessonRevealed, setLessonRevealed] = useState(false);
 
   return (
     <TopicLayout
@@ -32,9 +33,9 @@ export default function InfiniteHotelClient() {
           만실인데 <Highlight>손님을 받는다</Highlight>
         </>
       }
-      subtitle="방이 무한히 많은 호텔은 가득 차고도 자리가 남습니다. 아무도 내보내지 않고요."
+      subtitle="만실인 무한 호텔에 새 손님이 오면 어떻게 방을 배정할까요?"
     >
-      <QuizGate
+      <LessonCard title="방 배정 풀이" steps={HOTEL_STEPS} labels={['문제', '한 방씩 이동', '방 배정', '두 배로 이동', '홀수 방', '정리']} index={HOTEL_STEPS.findIndex(step => step.id === stepId)} onStepChange={index => { const step = HOTEL_STEPS[index]; if (step && isHotelStepId(step.id)) { setStepId(step.id); if (index > 0) setLessonRevealed(true); } }} figure={<InfiniteHotelFigure key={stepId} stepId={stepId} />} quiz={content => <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -48,27 +49,8 @@ export default function InfiniteHotelClient() {
           shift: <QuizShift />,
           kick: <QuizKick />,
         }}
-      >
-        <section className={styles.stage} aria-label="방 배정 풀이">
-          <h2 className={styles.sectionTitle}>{stageTitle}</h2>
-          <div className={styles.sectionLead}>
-            <StageLead />
-          </div>
-
-          <SolutionStepper
-            steps={HOTEL_STEPS}
-            onStepChange={(_index, step) => {
-              if (isHotelStepId(step.id)) setStepId(step.id);
-            }}
-          >
-            <div className={styles.figureSlot}>
-              {/* 단계가 바뀌면 새로 마운트해 그 단계의 이동을 처음부터 보여 준다. */}
-              <InfiniteHotelFigure key={stepId} stepId={stepId} />
-            </div>
-          </SolutionStepper>
-        </section>
-
-        <ExplanationBox variant="note">
+      >{content}</QuizGate>}><h2 className={styles.sectionTitle}>{stageTitle}</h2><StageLead /></LessonCard>
+{lessonRevealed && <>        <ExplanationBox variant="note">
           <NoteFinite rooms={VISIBLE_ROOMS} />
         </ExplanationBox>
 
@@ -79,7 +61,8 @@ export default function InfiniteHotelClient() {
         <ExplanationBox title={beyondTitle} collapsible>
           <Beyond />
         </ExplanationBox>
-      </QuizGate>
+
+</>}
     </TopicLayout>
   );
 }

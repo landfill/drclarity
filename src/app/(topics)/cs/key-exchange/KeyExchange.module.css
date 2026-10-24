@@ -173,3 +173,4 @@
     display: none;
   }
 }
+@media (max-width: 600px) { .figureFirst { --figure-mobile-height: 100px; } }
