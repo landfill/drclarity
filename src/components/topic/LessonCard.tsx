@@ -21,6 +21,7 @@ export interface LessonCardProps {
 export function LessonCard({ steps, labels, index, onStepChange, figure, children, quiz, controls, title }: LessonCardProps) {
   const ref = useLessonAlignment(index);
   const step = steps[index];
+  if (!step) return null;
   const content = <>
     {controls}
     <div role="status" className={styles.explanation}>
