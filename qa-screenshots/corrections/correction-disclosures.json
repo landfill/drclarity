@@ -1,0 +1,302 @@
+[
+  {
+    "slug": "training-goal",
+    "w": 1440,
+    "visible": 100,
+    "width": 600.390625,
+    "bottom": 780.84375,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-targets",
+    "w": 1440,
+    "visible": 100,
+    "width": 600.390625,
+    "bottom": 711.140625,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-loss",
+    "w": 1440,
+    "visible": 100,
+    "width": 600.390625,
+    "bottom": 780.953125,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-weights",
+    "w": 1440,
+    "visible": 100,
+    "width": 600.390625,
+    "bottom": 780.84375,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-validation",
+    "w": 1440,
+    "visible": 100,
+    "width": 600.390625,
+    "bottom": 780.9375,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-assistant",
+    "w": 1440,
+    "visible": 100,
+    "width": 600.390625,
+    "bottom": 780.84375,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-goal",
+    "w": 1024,
+    "visible": 100,
+    "width": 902,
+    "bottom": 728.09375,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-targets",
+    "w": 1024,
+    "visible": 100,
+    "width": 902,
+    "bottom": 728.09375,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-loss",
+    "w": 1024,
+    "visible": 100,
+    "width": 902,
+    "bottom": 728.09375,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-weights",
+    "w": 1024,
+    "visible": 100,
+    "width": 902,
+    "bottom": 728.09375,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-validation",
+    "w": 1024,
+    "visible": 100,
+    "width": 902,
+    "bottom": 728.09375,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-assistant",
+    "w": 1024,
+    "visible": 100,
+    "width": 902,
+    "bottom": 728.09375,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-goal",
+    "w": 390,
+    "visible": 100,
+    "width": 288,
+    "bottom": 609.8125,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-targets",
+    "w": 390,
+    "visible": 100,
+    "width": 288,
+    "bottom": 591.015625,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-loss",
+    "w": 390,
+    "visible": 100,
+    "width": 288,
+    "bottom": 627.40625,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-weights",
+    "w": 390,
+    "visible": 100,
+    "width": 288,
+    "bottom": 627.40625,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-validation",
+    "w": 390,
+    "visible": 100,
+    "width": 288,
+    "bottom": 591.015625,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-assistant",
+    "w": 390,
+    "visible": 100,
+    "width": 288,
+    "bottom": 613.40625,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-goal",
+    "w": 1100,
+    "visible": 100,
+    "width": 564.390625,
+    "bottom": 753.84375,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-targets",
+    "w": 1100,
+    "visible": 100,
+    "width": 564.390625,
+    "bottom": 688.328125,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-loss",
+    "w": 1100,
+    "visible": 100,
+    "width": 564.390625,
+    "bottom": 753.9375,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-weights",
+    "w": 1100,
+    "visible": 100,
+    "width": 564.390625,
+    "bottom": 753.84375,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-validation",
+    "w": 1100,
+    "visible": 100,
+    "width": 564.390625,
+    "bottom": 753.9375,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-assistant",
+    "w": 1100,
+    "visible": 100,
+    "width": 564.390625,
+    "bottom": 753.84375,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-goal",
+    "w": 1099,
+    "visible": 100,
+    "width": 977,
+    "bottom": 830.5625,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-targets",
+    "w": 1099,
+    "visible": 100,
+    "width": 977,
+    "bottom": 830.5625,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-loss",
+    "w": 1099,
+    "visible": 100,
+    "width": 977,
+    "bottom": 830.5625,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-weights",
+    "w": 1099,
+    "visible": 100,
+    "width": 977,
+    "bottom": 830.5625,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-validation",
+    "w": 1099,
+    "visible": 100,
+    "width": 977,
+    "bottom": 830.5625,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  },
+  {
+    "slug": "training-assistant",
+    "w": 1099,
+    "visible": 100,
+    "width": 977,
+    "bottom": 830.5625,
+    "overflow": false,
+    "disclosures": 3,
+    "keyboard": true
+  }
+]
