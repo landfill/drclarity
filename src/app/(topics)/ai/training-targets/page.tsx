@@ -19,8 +19,9 @@ export default function Page() {
 
       <ExplanationBox title="관찰하고 생각하기"><Observation /></ExplanationBox>
       <ExplanationBox title="한 문장 정리" variant="note"><Summary /></ExplanationBox>
-      <ExplanationBox title="더 알아보기 · 근거와 범위" collapsible><Sources /></ExplanationBox>
     </Experiment>
+
+      <ExplanationBox title="더 알아보기 · 근거와 범위" collapsible defaultOpen={false}><Sources /></ExplanationBox>
 </TopicLayout>
   );
 }

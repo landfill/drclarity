@@ -182,7 +182,9 @@
 .aside .question h2 { font-size: var(--fs-body); margin-bottom: var(--space-xs); }
 .aside .feedback { padding: var(--space-xs); }
 .aside .revealed { padding-top: var(--space-xs); margin-top: 0; }
-.answerSummary { flex: 1 1 0; min-width: 0; margin: 0; align-self: center; overflow-wrap: anywhere; font-size: var(--fs-sm); }
+.answerSummary { display: flex; align-items: center; gap: .25rem; flex: 1 1 0; min-width: 0; margin: 0; align-self: center; font-size: var(--fs-sm); }
+.answerChoice { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.answerVerdict { flex-shrink: 0; white-space: nowrap; }
 .aside .feedbackBody summary { cursor: pointer; }
 .question h2 { margin-bottom: .75rem; }
 .actions { padding-top: .35rem; }

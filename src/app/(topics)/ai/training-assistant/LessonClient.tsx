@@ -22,9 +22,11 @@ export default function LessonClient() {
 
     </section>
     <ExplanationBox title="무엇이 달라졌나요?"><Observation /></ExplanationBox>
-    <ExplanationBox title="예시를 배우는 일과 선호를 배우는 일" collapsible><Details /></ExplanationBox>
+
     <ExplanationBox title="한 문장 정리" variant="note"><Summary /></ExplanationBox>
 
       </SplitStage>
+<ExplanationBox title="예시를 배우는 일과 선호를 배우는 일" collapsible defaultOpen={false}><Details /></ExplanationBox>
+
     </TopicLayout>;
 }

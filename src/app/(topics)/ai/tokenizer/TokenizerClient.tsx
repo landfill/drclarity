@@ -45,6 +45,7 @@ const PARALLEL_SENTENCES: { english: string; korean: string }[] = [
 const NUMBER_SAMPLES = ['2026', '19260817', '1000000'];
 
 export default function TokenizerClient() {
+  const [lessonRevealed, setLessonRevealed] = useState(false);
   const [input, setInputValue] = useState(DEFAULT_INPUT);
   /** 입력을 한 번이라도 바꿨는가. 바꾼 뒤에 새로 마운트되는 figure 는 바이트로 풀어 처음부터 묶는다. */
   const [changed, setChanged] = useState(false);
@@ -74,7 +75,7 @@ export default function TokenizerClient() {
     >
       <SplitStage wideStage stage={<BpeFigure key={input} text={input} animate={changed} />}>
 
-      <QuizGate layout="aside"
+      <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         question={<><h2 className={styles.sectionTitle}>{quizTitle}</h2><QuizQuestion /></>}
         choices={quizChoices}
         correctId="different"
@@ -135,7 +136,17 @@ export default function TokenizerClient() {
         <NoteIntro />
       </ExplanationBox>
 
-      <ExplanationBox title={spacingTitle} collapsible>
+
+
+
+
+
+
+
+      </QuizGate>
+
+      </SplitStage>
+{lessonRevealed && (<ExplanationBox title={spacingTitle} collapsible defaultOpen={false}>
 
         <div className={styles.lead}>
           <Spacing />
@@ -159,9 +170,9 @@ export default function TokenizerClient() {
         <div className={styles.caveat}>
           <SpacingCaveat />
         </div>
-      </ExplanationBox>
+      </ExplanationBox>)}
 
-      <ExplanationBox title={koreanTitle} collapsible>
+{lessonRevealed && (<ExplanationBox title={koreanTitle} collapsible defaultOpen={false}>
 
         <div className={styles.lead}>
           <Korean />
@@ -209,9 +220,9 @@ export default function TokenizerClient() {
         <div className={styles.caveat}>
           <KoreanCaveat />
         </div>
-      </ExplanationBox>
+      </ExplanationBox>)}
 
-      <ExplanationBox title={numbersTitle} collapsible>
+{lessonRevealed && (<ExplanationBox title={numbersTitle} collapsible defaultOpen={false}>
 
         <div className={styles.lead}>
           <Numbers />
@@ -225,14 +236,12 @@ export default function TokenizerClient() {
             </li>
           ))}
         </ul>
-      </ExplanationBox>
+      </ExplanationBox>)}
 
-      <ExplanationBox title={whyUnitsTitle} variant="note" collapsible defaultOpen={false}>
+{lessonRevealed && (<ExplanationBox title={whyUnitsTitle} variant="note" collapsible defaultOpen={false}>
         <WhyUnits />
-      </ExplanationBox>
-      </QuizGate>
+      </ExplanationBox>)}
 
-      </SplitStage>
     </TopicLayout>
   );
 }

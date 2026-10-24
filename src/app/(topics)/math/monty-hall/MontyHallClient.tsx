@@ -59,7 +59,7 @@ export default function MontyHallClient() {
       title={<>문을 <Highlight>바꿔야</Highlight> 할까?</>}
       subtitle="선택을 바꾸는 편이 유리할까요?"
     >
-      <SplitStage wideStage stage={<StageFigure />}><QuizGate layout="aside"
+      <SplitStage wideStage sticky={false} className={styles.figureFirst} stage={<StageFigure />}><QuizGate layout="aside"
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -74,6 +74,13 @@ export default function MontyHallClient() {
           stay: <QuizStay />,
         }}
       >
+<TrialRunner
+            runTrial={runTrial}
+            bucketsOf={bucketsOf}
+            buckets={TRIAL_BUCKETS}
+            presets={[10, 100, 1000, 10000]}
+          />
+
 
       <ExplanationBox variant="note">
         <Problem />
@@ -91,12 +98,7 @@ export default function MontyHallClient() {
           <div className={styles.sectionLead}>
             <SimLead />
           </div>
-          <TrialRunner
-            runTrial={runTrial}
-            bucketsOf={bucketsOf}
-            buckets={TRIAL_BUCKETS}
-            presets={[10, 100, 1000, 10000]}
-          />
+
         </section>
 
         <section className={styles.solutionSection} aria-label="풀이">
@@ -107,11 +109,13 @@ export default function MontyHallClient() {
         </section>
       </QuizGate>
 
-      <ExplanationBox title={historyTitle} variant="note" collapsible defaultOpen={false}>
+
+
+      </SplitStage>
+<ExplanationBox title={historyTitle} variant="note" collapsible defaultOpen={false}>
         <History />
       </ExplanationBox>
 
-      </SplitStage>
     </TopicLayout>
   );
 }

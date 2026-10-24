@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 
 import { useCallback, useMemo } from 'react';
 import { SplitStage } from '@/components/topic/SplitStage';
@@ -72,6 +73,7 @@ function clauseEffect(options: PromptOptions): string {
  * 문구는 `content/*.mdx` 에 두고 여기서는 상태에 따라 달라지는 짧은 문장만 만든다.
  */
 export default function CursorAgentLoopCostClient() {
+  const [lessonRevealed, setLessonRevealed] = useState(false);
   // figure 와 세밀 조절이 같은 상태를 쓴다. 서랍이 열리는 움직임과 움직임 줄이기는 useFigureState 가 맡는다.
   const [st, dispatch] = useFigureState(initialDrawer, advanceDrawer, isSettled);
   const { prompt, exists } = st;
@@ -114,7 +116,7 @@ export default function CursorAgentLoopCostClient() {
     >
       <SplitStage wideStage className={styles.figureFirst} stage={<DrawerFigure state={st} dispatch={dispatch} />}>
 
-      <QuizGate layout="aside"
+      <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         labels={{ skip: '바로 실험하기' }}
         question={
           <>
@@ -326,28 +328,38 @@ export default function CursorAgentLoopCostClient() {
           <NoteSim />
         </ExplanationBox>
 
-        <ExplanationBox title={countCallsTitle} collapsible>
-          <CountCalls />
-        </ExplanationBox>
 
-        <ExplanationBox title={clausesTitle} collapsible>
-          <Clauses />
-        </ExplanationBox>
 
-        <ExplanationBox title={missingTitle} collapsible>
-          <Missing />
-        </ExplanationBox>
 
-        <ExplanationBox title={accumulateTitle} collapsible>
-          <Accumulate />
-        </ExplanationBox>
 
-        <ExplanationBox title={instructionTitle} collapsible>
-          <Instruction />
-        </ExplanationBox>
+
+
+
+
+
       </QuizGate>
 
       </SplitStage>
+{lessonRevealed && (<ExplanationBox title={countCallsTitle} collapsible defaultOpen={false}>
+          <CountCalls />
+        </ExplanationBox>)}
+
+{lessonRevealed && (<ExplanationBox title={clausesTitle} collapsible defaultOpen={false}>
+          <Clauses />
+        </ExplanationBox>)}
+
+{lessonRevealed && (<ExplanationBox title={missingTitle} collapsible defaultOpen={false}>
+          <Missing />
+        </ExplanationBox>)}
+
+{lessonRevealed && (<ExplanationBox title={accumulateTitle} collapsible defaultOpen={false}>
+          <Accumulate />
+        </ExplanationBox>)}
+
+{lessonRevealed && (<ExplanationBox title={instructionTitle} collapsible defaultOpen={false}>
+          <Instruction />
+        </ExplanationBox>)}
+
     </TopicLayout>
   );
 }

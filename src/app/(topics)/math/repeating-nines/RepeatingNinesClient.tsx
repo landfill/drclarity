@@ -24,6 +24,7 @@ import styles from './RepeatingNines.module.css';
 export default function RepeatingNinesClient() {
   const [digits, setDigits] = useState(3);
   const [stepIndex, setStepIndex] = useState(0);
+  const [lessonRevealed, setLessonRevealed] = useState(false);
 
   const params: ParameterDefinition[] = useMemo(
     () => [
@@ -49,7 +50,7 @@ export default function RepeatingNinesClient() {
       title={<>0.999… 는 <Highlight>1인가</Highlight></>}
       subtitle="0.999…와 1 사이에는 얼마나 차이가 날까요?"
     >
-      <LessonCard title={SOLUTION_TITLE} steps={[{id:'problem',body:<StageLead />}, ...SOLUTION_STEPS]} labels={['문제', '수에 이름 붙이기', '10배', '빼기', '정리']} index={stepIndex} onStepChange={index => { setStepIndex(index); if (index === 0) setDigits(3); }} figure={<CardsFigure digits={digits} onDigits={setDigits} />} quiz={content => <QuizGate layout="aside"
+      <LessonCard title={SOLUTION_TITLE} steps={[{id:'problem',body:<StageLead />}, ...SOLUTION_STEPS]} labels={['문제', '수에 이름 붙이기', '10배', '빼기', '정리']} index={stepIndex} onStepChange={index => { setStepIndex(index); if (index > 0) setLessonRevealed(true); if (index === 0) setDigits(3); }} figure={<CardsFigure digits={digits} onDigits={setDigits} />} quiz={content => <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -66,9 +67,7 @@ export default function RepeatingNinesClient() {
       >{content}</QuizGate>} controls={<ParameterPanel params={params} onChange={(_, value) => setDigits(Number(value))} onReset={() => setDigits(3)} />} >
         <section className={styles.stage} aria-label="수직선 확대">
           <h2 className={styles.sectionTitle}>{stageTitle}</h2>
-          <div className={styles.sectionLead}>
-            <StageLead />
-          </div>
+
 
 
 
@@ -96,14 +95,15 @@ export default function RepeatingNinesClient() {
 
 
 
-        <ExplanationBox title={otherMethodsTitle}>
+      </LessonCard>
+{lessonRevealed && <>        <ExplanationBox title={otherMethodsTitle}>
           <OtherMethods />
         </ExplanationBox>
 
         <ExplanationBox title={computerTitle} collapsible>
           <Computer />
         </ExplanationBox>
-      </LessonCard>
+</>}
     </TopicLayout>
   );
 }
