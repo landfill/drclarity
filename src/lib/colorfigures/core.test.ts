@@ -36,6 +36,38 @@ describe('frameFor', () => {
   });
 });
 
+describe("frameFor fit: 'box' (좁은 칸에서 경계 상자 높이에 맞춘 틀)", () => {
+  const sizes: [Vec3][] = [[[50, 188, 115]], [[40, 240, 142]], [[40, 226, 146]], [[62, 65, 88]], [[84, 156, 10]]];
+
+  it.each(sizes)('경계 상자 %j: 폭과 가로 자리는 기본 틀과 같다 (그림 속 글자 크기가 그대로다)', (size) => {
+    const base = frameFor(size, 'a', { view: FRONT_VIEW });
+    const fit = frameFor(size, 'a', { view: FRONT_VIEW, fit: 'box' });
+    expect(fit.vbW).toBe(base.vbW);
+    expect(fit.ox).toBe(base.ox);
+    expect(fit.inkK).toBe(base.inkK);
+    expect(fit.vbH).toBeLessThanOrEqual(base.vbH);
+  });
+
+  it.each(sizes)('경계 상자 %j 의 모든 꼭짓점이 위아래 여백을 남기고 틀 안에 들어온다', (size) => {
+    const frame = frameFor(size, 'a', { view: FRONT_VIEW, fit: 'box' });
+    const pad = frame.vbW * 0.04;
+    withFrame(frame, () => {
+      const ys = corners(size).map((c) => P(...c)[1]);
+      expect(Math.min(...ys)).toBeCloseTo(pad);
+      expect(Math.max(...ys)).toBeCloseTo(frame.vbH - pad);
+      for (const c of corners(size)) {
+        const [x] = P(...c);
+        expect(x).toBeGreaterThanOrEqual(0);
+        expect(x).toBeLessThanOrEqual(frame.vbW);
+      }
+    });
+  });
+
+  it('fit 을 주지 않으면 지금 틀 그대로다', () => {
+    expect(frameFor([50, 188, 115], 'a', { view: FRONT_VIEW, fit: undefined })).toEqual(frameFor([50, 188, 115], 'a', { view: FRONT_VIEW }));
+  });
+});
+
 describe('보는 방향', () => {
   it('ISO_VIEW 는 원본 스킬의 정아이소메트릭 투영과 같다', () => {
     const C = Math.cos(Math.PI / 6);

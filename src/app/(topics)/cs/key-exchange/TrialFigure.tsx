@@ -20,6 +20,7 @@ export function TrialFigure({ state, dispatch }: TrialFigureProps) {
       size={TRIAL_SIZE}
       view={FRONT_VIEW}
       crispText
+      compactFit
       fig="01"
       title="숫자 카드 탁자"
       hint="빨간 카드는 자리에 남고, 파란 카드만 통로를 건넙니다. 겨자색 카드는 두 사람이 따로 만듭니다"

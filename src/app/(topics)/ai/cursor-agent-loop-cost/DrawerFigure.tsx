@@ -22,6 +22,7 @@ export function DrawerFigure({ state, dispatch }: DrawerFigureProps) {
       size={DRAWER_SIZE}
       view={FRONT_VIEW}
       crispText
+      compactFit
       fig="01"
       title="범위 서랍장"
       hint="프롬프트가 정한 범위만큼 서랍이 열립니다. 아래가 짚어 준 파일, 위로 갈수록 넓은 범위입니다"
