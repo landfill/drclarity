@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 import { SplitStage } from '@/components/topic/SplitStage';
 import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
@@ -17,6 +19,7 @@ import meta from './meta';
 import styles from './MonteCarloPi.module.css';
 
 export default function MonteCarloPiClient() {
+  const [lessonRevealed, setLessonRevealed] = useState(false);
   return (
     <TopicLayout
       wide
@@ -25,41 +28,38 @@ export default function MonteCarloPiClient() {
       title={<>점을 뿌려서 <Highlight>π</Highlight> 구하기</>}
       subtitle="무작위로 찍은 점으로 원주율을 구할 수 있을까요?"
     >
-<SplitStage wideStage stageRatio="full" stage={<ProblemFigure kind="monteCarlo"><PlotterFigure /></ProblemFigure>}>
-
-      <QuizGate layout="aside"
-        question={
-          <>
-            <h2 className={styles.sectionTitle}>{quizTitle}</h2>
-            <QuizQuestion />
-          </>
-        }
-        choices={quizChoices}
-        correctId="pi4"
-        feedback={{
-          pi4: <QuizPi4 />,
-          half: <QuizHalf />,
-          unknown: <QuizUnknown />,
-        }}
-      >
-        <ExplanationBox variant="note">
-          <NoteAreas />
-        </ExplanationBox>
-
-        <section className={styles.simSection} aria-label="시뮬레이션">
-          <h2 className={styles.sectionTitle}>{simTitle}</h2>
-          <div className={styles.sectionLead}>
-            <SimLead />
-          </div>
-
-        </section>
-
-        <ExplanationBox title={whyTitle}>
+      <SplitStage wideStage stage={<ProblemFigure kind="monteCarlo"><PlotterFigure /></ProblemFigure>}>
+        <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
+          question={
+            <>
+              <h2 className={styles.sectionTitle}>{quizTitle}</h2>
+              <QuizQuestion />
+            </>
+          }
+          choices={quizChoices}
+          correctId="pi4"
+          feedback={{
+            pi4: <QuizPi4 />,
+            half: <QuizHalf />,
+            unknown: <QuizUnknown />,
+          }}
+        >
+          <ExplanationBox variant="note">
+            <NoteAreas />
+          </ExplanationBox>
+          <section className={styles.simSection} aria-label="시뮬레이션">
+            <h2 className={styles.sectionTitle}>{simTitle}</h2>
+            <div className={styles.sectionLead}>
+              <SimLead />
+            </div>
+          </section>
+        </QuizGate>
+      </SplitStage>
+      {lessonRevealed && (
+        <ExplanationBox title={whyTitle} collapsible defaultOpen={false}>
           <WhyInexact />
         </ExplanationBox>
-      </QuizGate>
-
-</SplitStage>
-</TopicLayout>
+      )}
+    </TopicLayout>
   );
 }
