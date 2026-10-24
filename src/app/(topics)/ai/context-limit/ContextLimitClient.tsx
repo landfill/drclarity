@@ -123,7 +123,7 @@ export default function ContextLimitClient() {
             <StageLead />
           </div>
 
-          
+
 
           <details className={styles.chatDetails}><summary>메시지 원문 확인하기</summary>
           <ol className={styles.chat} aria-label="대화">

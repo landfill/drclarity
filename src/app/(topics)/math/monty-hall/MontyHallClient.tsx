@@ -85,7 +85,7 @@ export default function MontyHallClient() {
 
       </section>
 
-      
+
         <section className={styles.simSection} aria-label="대량 시뮬레이션">
           <h2 className={styles.sectionTitle}>{simTitle}</h2>
           <div className={styles.sectionLead}>

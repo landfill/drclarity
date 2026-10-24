@@ -237,7 +237,7 @@ export default function CursorAgentLoopCostClient() {
             하나만 켠 상태를 만들 수 없어 그 결론을 화면으로 보일 수 없다. 손잡이를 한 줄에
             몰아 놓으면 한 덩어리로 보여 건너뛰게 되므로 줄을 나눈다.
           */}
-          
+
 
 
           <div className={styles.screenNote}>

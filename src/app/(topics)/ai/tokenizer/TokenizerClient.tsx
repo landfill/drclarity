@@ -93,7 +93,7 @@ export default function TokenizerClient() {
       <section className={styles.section} aria-label="직접 잘라보기">
         <h2 className={styles.sectionTitle}>{tryItTitle}</h2>
 
-        
+
         <label className={styles.inputLabel} htmlFor="tokenizer-input">
           문장을 입력하면 토큰 경계가 보입니다 (최대 {MAX_INPUT_LENGTH}자)
         </label>

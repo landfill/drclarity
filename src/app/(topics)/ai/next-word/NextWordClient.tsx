@@ -112,7 +112,7 @@ export default function NextWordClient() {
       <section className={styles.stage} aria-label="확률 분포">
         <h2 className={styles.sectionTitle}>{stageTitle}</h2>
         <StageLead />
-        
+
 
       </section>
 <ExplanationBox variant="note">
