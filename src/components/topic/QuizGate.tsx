@@ -106,10 +106,10 @@ export function QuizGate({
       </fieldset>
 
       <div className={styles.actions}>
-        {collapsed && <div className={styles.answerSummary}>
+        {collapsed && <div className={styles.answerSummary} role="status">
           {submittedId !== null
             ? <>내 답: {choices.find(choice => choice.id === submittedId)?.label} · {isCorrect ? '맞았습니다' : '다릅니다'}</>
-            : '바로 실험하기를 골랐습니다'}
+            : `${skipLabel} 선택됨`}
         </div>}
         {/*
           제출과 재선택이 같은 버튼 노드를 쓴다. 분기마다 다른 노드를 그리면
@@ -155,23 +155,27 @@ export function QuizGate({
         )}
       </div>
 
-      <div role="status" aria-live="polite">
-        {submittedId !== null && (
+      {!compact && <div role="status" aria-live="polite">
+        {!compact && submittedId !== null && (
           <div className={`${styles.feedback} ${isCorrect ? styles.feedbackCorrect : styles.feedbackIncorrect}`}>
             <p className={styles.verdict}>
               {isCorrect ? '맞았습니다.' : '아쉽게도 다릅니다.'}
             </p>
-            {feedback?.[submittedId] && (compact
-              ? <details className={styles.feedbackBody}><summary>해설 더 보기</summary>{feedback[submittedId]}</details>
-              : <div className={styles.feedbackBody}>{feedback[submittedId]}</div>)}
+            {feedback?.[submittedId] && <div className={styles.feedbackBody}>{feedback[submittedId]}</div>}
           </div>
         )}
-      </div>
+      </div>}
 
       {revealed && (
         <div ref={revealedRef} className={styles.revealed} tabIndex={-1}>
           {children}
         </div>
+      )}
+      {compact && submittedId !== null && feedback?.[submittedId] && (
+        <details className={styles.feedbackBody}>
+          <summary>선택한 답의 해설</summary>
+          {feedback[submittedId]}
+        </details>
       )}
     </section>
   );
