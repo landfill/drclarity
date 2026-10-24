@@ -30,6 +30,7 @@ import meta from './meta';
 import styles from './ContextLimit.module.css';
 
 export default function ContextLimitClient() {
+  const [lessonRevealed, setLessonRevealed] = useState(false);
   const [turnCount, setTurnCount] = useState(DEFAULT_TURNS);
   const [windowSize, setWindowSize] = useState<number>(DEFAULT_WINDOW);
 
@@ -97,7 +98,7 @@ export default function ContextLimitClient() {
     >
       <SplitStage wideStage stageRatio="2:1" stage={<RailFigure state={state} active={active} note={note} onPreset={applyPreset} />}>
 
-      <QuizGate layout="aside"
+      <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         labels={{ skip: '바로 실험하기' }}
         question={
           <>
@@ -186,20 +187,26 @@ export default function ContextLimitClient() {
           <NoteLive />
         </ExplanationBox>
 
-        <ExplanationBox title={notMemoryTitle} collapsible>
-          <NotMemory />
-        </ExplanationBox>
 
-        <ExplanationBox title={biggerTitle} collapsible>
-          <WhyNotBigger />
-        </ExplanationBox>
 
-        <ExplanationBox title={aboutTitle} collapsible>
-          <About />
-        </ExplanationBox>
+
+
+
       </QuizGate>
 
       </SplitStage>
+{lessonRevealed && (<ExplanationBox title={notMemoryTitle} collapsible defaultOpen={false}>
+          <NotMemory />
+        </ExplanationBox>)}
+
+{lessonRevealed && (<ExplanationBox title={biggerTitle} collapsible defaultOpen={false}>
+          <WhyNotBigger />
+        </ExplanationBox>)}
+
+{lessonRevealed && (<ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
+          <About />
+        </ExplanationBox>)}
+
     </TopicLayout>
   );
 }
