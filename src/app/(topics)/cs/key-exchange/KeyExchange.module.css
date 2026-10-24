@@ -173,4 +173,4 @@
     display: none;
   }
 }
-@media (max-width: 600px) { .figureFirst svg[role="img"] { max-height: 120px; } }
+@media (max-width: 600px) { .figureFirst { --figure-mobile-height: 120px; } }
