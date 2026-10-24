@@ -21,6 +21,7 @@ import styles from './NextWord.module.css';
 const DEFAULT_TEMPERATURE = 1;
 
 export default function NextWordClient() {
+  const [lessonRevealed, setLessonRevealed] = useState(false);
   const [promptId, setPromptId] = useState(PROMPTS[0].id);
   const [temperature, setTemperature] = useState(DEFAULT_TEMPERATURE);
   const prompt = useMemo(
@@ -89,7 +90,7 @@ export default function NextWordClient() {
           onTemperature={t => handleParamChange('temperature', t)}
         />}>
 
-      <QuizGate layout="aside"
+      <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         labels={{ skip: '바로 실험하기' }}
         question={
           <>
@@ -119,17 +120,21 @@ export default function NextWordClient() {
         <NoteLogit />
       </ExplanationBox>
 
-      <ExplanationBox title={entropyTitle} collapsible>
-        <p>현재 엔트로피: {bits.toFixed(2)}비트</p>
-        <Entropy maxBits={maxBits.toFixed(2)} candidateCount={prompt.candidates.length} />
-      </ExplanationBox>
 
-      <ExplanationBox title={aboutTitle} collapsible>
-        <About />
-      </ExplanationBox>
+
+
       </QuizGate>
 
       </SplitStage>
+{lessonRevealed && (<ExplanationBox title={entropyTitle} collapsible defaultOpen={false}>
+        <p>현재 엔트로피: {bits.toFixed(2)}비트</p>
+        <Entropy maxBits={maxBits.toFixed(2)} candidateCount={prompt.candidates.length} />
+      </ExplanationBox>)}
+
+{lessonRevealed && (<ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
+        <About />
+      </ExplanationBox>)}
+
     </TopicLayout>
   );
 }

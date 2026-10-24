@@ -21,9 +21,11 @@ export default function LessonClient() {
 
     </section>
     <ExplanationBox title="성적표 두 장을 비교해 보세요"><Observation /></ExplanationBox>
-    <ExplanationBox title="이 체험의 한계와 평가의 역할" collapsible><Details /></ExplanationBox>
+
     <ExplanationBox title="한 문장 정리" variant="note"><Summary /></ExplanationBox>
 
       </SplitStage>
+<ExplanationBox title="이 체험의 한계와 평가의 역할" collapsible defaultOpen={false}><Details /></ExplanationBox>
+
     </TopicLayout>;
 }
