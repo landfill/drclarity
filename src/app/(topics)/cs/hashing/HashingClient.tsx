@@ -296,10 +296,6 @@ export default function HashingClient() {
           <Rainbow />
         </ExplanationBox>
 
-        <section className={styles.stage} aria-label="미리 계산해 둔 표">
-
-        </section>
-
         <ExplanationBox title={saltTitle}>
           <Salt />
         </ExplanationBox>
