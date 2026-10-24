@@ -9,6 +9,8 @@ export interface QuizChoice {
 }
 
 export interface QuizGateProps {
+  /** 사이드바에서는 제출·건너뛰기 뒤 질문과 선택지를 접는다. */
+  layout?: 'default' | 'aside';
   question: React.ReactNode;
   choices: QuizChoice[];
   correctId: string;
@@ -23,6 +25,7 @@ export interface QuizGateProps {
 }
 
 export function QuizGate({
+  layout = 'default',
   question,
   choices,
   correctId,
@@ -33,7 +36,7 @@ export function QuizGate({
   children,
 }: QuizGateProps) {
   const submitLabel = labels?.submit ?? '이 답으로 확인하기';
-  const skipLabel = labels?.skip ?? '바로 풀이 보기';
+  const skipLabel = labels?.skip ?? (layout === 'aside' ? '바로 실험하기' : '바로 풀이 보기');
   const retryLabel = labels?.retry ?? '다시 고르기';
 
   const groupId = useId();
@@ -52,18 +55,20 @@ export function QuizGate({
     if (!retryRequestedRef.current || submittedId !== null) return;
     retryRequestedRef.current = false;
     firstChoiceRef.current?.focus();
-  }, [submittedId]);
+  }, [submittedId, skipped]);
 
   const isCorrect = submittedId === correctId;
   // 한 번 열린 풀이는 다시 닫지 않는다. '다시 고르기'로 선택만 되돌릴 때
   // 풀이가 사라지면 이미 읽은 내용이 없어지고, 하위 컴포넌트의 내부 상태도 초기화된다.
   const revealed = hasRevealed || submittedId !== null || skipped || !gateContent;
+  const compact = layout === 'aside';
+  const collapsed = compact && (submittedId !== null || skipped);
 
   return (
-    <section className={styles.gate} aria-label="풀이 전 답 고르기">
-      <div className={styles.question}>{question}</div>
+    <section className={`${styles.gate} ${compact ? styles.aside : ''}`} aria-label="풀이 전 답 고르기">
+      <div className={styles.question} hidden={collapsed}>{question}</div>
 
-      <fieldset className={styles.choices} disabled={submittedId !== null}>
+      <fieldset className={styles.choices} hidden={collapsed} disabled={submittedId !== null}>
         <legend className={styles.legend}>답을 하나 고르세요</legend>
         {choices.map((choice, index) => {
           const inputId = `${groupId}-${choice.id}`;
@@ -101,6 +106,11 @@ export function QuizGate({
       </fieldset>
 
       <div className={styles.actions}>
+        {collapsed && <p className={styles.answerSummary}>
+          {submittedId !== null
+            ? <>내 답: {choices.find(choice => choice.id === submittedId)?.label} · {isCorrect ? '맞았습니다' : '다릅니다'}</>
+            : '바로 실험하기를 골랐습니다'}
+        </p>}
         {/*
           제출과 재선택이 같은 버튼 노드를 쓴다. 분기마다 다른 노드를 그리면
           상태가 바뀔 때 이전 노드가 언마운트되어 키보드 포커스가 body 로 떨어지고,
@@ -108,23 +118,24 @@ export function QuizGate({
         */}
         <button
           type="button"
-          className={submittedId === null ? styles.submitButton : styles.skipButton}
+          className={submittedId === null && !collapsed ? styles.submitButton : styles.skipButton}
           onClick={() => {
-            if (submittedId !== null) {
+            if (submittedId !== null || collapsed) {
               // 이 버튼은 곧바로 disabled 가 되어 포커스를 들고 있을 수 없다.
               // 다시 고를 수 있게 된 첫 선택지로 넘긴다.
               retryRequestedRef.current = true;
               setSubmittedId(null);
               setSelectedId(null);
+              setSkipped(false);
               return;
             }
             if (!selectedId) return;
             setSubmittedId(selectedId);
             setHasRevealed(true);
           }}
-          disabled={submittedId === null && selectedId === null}
+          disabled={!collapsed && submittedId === null && selectedId === null}
         >
-          {submittedId === null ? submitLabel : retryLabel}
+          {submittedId === null && !collapsed ? submitLabel : retryLabel}
         </button>
 
         {submittedId === null && allowSkip && !skipped && (
@@ -150,7 +161,9 @@ export function QuizGate({
             <p className={styles.verdict}>
               {isCorrect ? '맞았습니다.' : '아쉽게도 다릅니다.'}
             </p>
-            {feedback?.[submittedId] && <div className={styles.feedbackBody}>{feedback[submittedId]}</div>}
+            {feedback?.[submittedId] && (compact
+              ? <details className={styles.feedbackBody}><summary>해설 더 보기</summary>{feedback[submittedId]}</details>
+              : <div className={styles.feedbackBody}>{feedback[submittedId]}</div>)}
           </div>
         )}
       </div>
