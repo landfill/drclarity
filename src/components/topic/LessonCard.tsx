@@ -32,7 +32,7 @@ export function LessonCard({ steps, labels, index, onStepChange, figure, childre
     </div>
     {children}
   </>;
-  return <section ref={ref} className={styles.lesson} aria-label={title}>
+  return <section ref={ref} data-figure-stage className={styles.lesson} aria-label={title}>
     <div className={styles.toolbar}>
       <span>{index + 1} / {steps.length}</span>
       <div className={styles.buttons}>
