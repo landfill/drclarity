@@ -6,6 +6,7 @@ import { ProblemFigure } from '@/components/topic/ProblemFigure';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
+import { AfterStage } from '@/components/topic/AfterStage';
 import { useFigureState } from '@/components/topic/ColorFigure';
 import {
   ACCOUNTS,
@@ -114,7 +115,11 @@ export default function HashingClient() {
             />
             <span>사용자마다 다른 소금을 섞어서 저장하기</span>
           </label>
+      </QuizGate>
 
+</SplitStage>
+{lessonRevealed && (
+      <AfterStage>
         <ExplanationBox variant="note">
           <NoteLive />
         </ExplanationBox>
@@ -210,7 +215,7 @@ export default function HashingClient() {
           </div>
         </section>
 
-        <ExplanationBox title={oneWayTitle}>
+        <ExplanationBox title={oneWayTitle} collapsible defaultOpen={false}>
           <OneWay />
         </ExplanationBox>
 
@@ -304,13 +309,11 @@ export default function HashingClient() {
           <Recap />
         </ExplanationBox>
 
-
-      </QuizGate>
-
-</SplitStage>
-{lessonRevealed && (<ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
           <About />
-        </ExplanationBox>)}
+        </ExplanationBox>
+      </AfterStage>
+)}
 
 </TopicLayout>
   );

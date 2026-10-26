@@ -1,0 +1,9 @@
+.root {
+  margin-top: var(--space-lg);
+  text-align: left;
+}
+
+/* 전체 폭에서 문단이 한 줄로 너무 길어지지 않게 한다. 표·격자·그림은 폭을 그대로 쓴다. */
+.root :where(p, li) {
+  max-width: 72ch;
+}

@@ -8,6 +8,7 @@ import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { InteractiveCanvas } from '@/components/topic/InteractiveCanvas';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
+import { AfterStage } from '@/components/topic/AfterStage';
 import {
   DAYS_IN_YEAR,
   MAX_PEOPLE,
@@ -35,9 +36,6 @@ const DEFAULT_PEOPLE = MARKED_PEOPLE;
 
 export default function BirthdayProblemClient() {
   const [lessonRevealed, setLessonRevealed] = useState(false);
-  // 그림의 "실험 시작"으로 먼저 연 경우. 퀴즈를 답하거나 건너뛴 경우는 lessonRevealed 가 연다.
-  const [figureStarted, setFigureStarted] = useState(false);
-  const figureOpen = lessonRevealed || figureStarted;
   const [people, setPeople] = useState(DEFAULT_PEOPLE);
 
   const probability = sharedBirthdayProbability(people);
@@ -70,7 +68,7 @@ export default function BirthdayProblemClient() {
       title={<>생일 문제 — <Highlight>23명이면 50%</Highlight></>}
       subtitle="생일이 겹칠 확률은 몇 명부터 절반을 넘을까요?"
     >
-<SplitStage wideStage stageRatio={figureOpen ? 'full' : '2:1'} stage={<ProblemFigure problem={calendarProblem(people)} started={lessonRevealed} onStart={() => setFigureStarted(true)}><CalendarFigure key={people} people={people} /></ProblemFigure>}>
+<SplitStage wideStage stageRatio="2:1" stage={<ProblemFigure problem={calendarProblem(people)} started={lessonRevealed}><CalendarFigure key={people} people={people} /></ProblemFigure>}>
 
       <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         question={
@@ -96,7 +94,11 @@ export default function BirthdayProblemClient() {
         <ExplanationBox variant="note">
           <NotePairs />
         </ExplanationBox>
+      </QuizGate>
 
+</SplitStage>
+{lessonRevealed && (
+      <AfterStage>
         <section className={styles.stage} aria-label="확률 곡선">
           <h2 className={styles.sectionTitle}>{stageTitle}</h2>
           <div className={styles.sectionLead}>
@@ -148,15 +150,15 @@ export default function BirthdayProblemClient() {
 
 
 
-        <ExplanationBox title={hashTitle}>
+        <ExplanationBox title={hashTitle} collapsible defaultOpen={false}>
           <Hash />
         </ExplanationBox>
-      </QuizGate>
 
-</SplitStage>
-{lessonRevealed && (<ExplanationBox title={caveatsTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={caveatsTitle} collapsible defaultOpen={false}>
           <Caveats />
-        </ExplanationBox>)}
+        </ExplanationBox>
+      </AfterStage>
+)}
 
 </TopicLayout>
   );
