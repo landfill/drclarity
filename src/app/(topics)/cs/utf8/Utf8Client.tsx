@@ -7,6 +7,7 @@ import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
+import { AfterStage } from '@/components/topic/AfterStage';
 import {
   MAX_INPUT_CHARS,
   SAMPLE_PAIRS,
@@ -110,7 +111,11 @@ export default function Utf8Client() {
         }}
       >
 <ParameterPanel params={cutParams} onChange={handleCutChange} />
+      </QuizGate>
 
+</SplitStage>
+{lessonRevealed && (
+      <AfterStage>
         <ExplanationBox variant="note">
           <NoteLive />
           <QuizContext />
@@ -259,13 +264,11 @@ export default function Utf8Client() {
           <Compare />
         </ExplanationBox>
 
-
-      </QuizGate>
-
-</SplitStage>
-{lessonRevealed && (<ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
           <About />
-        </ExplanationBox>)}
+        </ExplanationBox>
+      </AfterStage>
+)}
 
 </TopicLayout>
   );

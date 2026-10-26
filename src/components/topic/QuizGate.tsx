@@ -23,7 +23,8 @@ export interface QuizGateProps {
   labels?: { submit?: string; skip?: string; retry?: string };
   /** 카드 밖의 부가 설명도 최초 공개에 맞춰 열 때 쓴다. */
   onReveal?: () => void;
-  children: React.ReactNode;
+  /** 사이드바는 피겨 조작이 없으면 비워 둘 수 있다. 실험과 설명은 카드 아래(AfterStage)에 둔다. */
+  children?: React.ReactNode;
 }
 
 export function QuizGate({
@@ -84,10 +85,13 @@ export function QuizGate({
     const controlTop = control?.getBoundingClientRect().top;
     // sticky 로 붙은 피겨·툴바 밑으로 본문이 지나가므로, 결과 줄과 첫 조작부는 그 아래에 있어야 보인다.
     // 그림의 SVG 도형은 수천 개일 수 있고 sticky 가 될 수 없으므로 건너뛴다.
+    // 넓은 화면에서는 sticky 피겨가 옆 칸에 있어 결과 줄을 가리지 않으므로, 가로로 겹치는 것만 센다.
+    const own = revealedRef.current?.getBoundingClientRect();
     const coveredTo = [...card.querySelectorAll<HTMLElement>(':not(svg, svg *)')]
       .filter(element => getComputedStyle(element).position === 'sticky')
       .map(element => element.getBoundingClientRect())
       .filter(rect => rect.height > 0 && rect.top <= header + 1)
+      .filter(rect => !own || (rect.left < own.right && rect.right > own.left))
       .reduce((bottom, rect) => Math.max(bottom, rect.bottom), header);
     const actionsTop = actionsRef.current?.getBoundingClientRect().top;
     const covered = (actionsTop !== undefined && actionsTop < coveredTo) || (controlTop !== undefined && controlTop < coveredTo);

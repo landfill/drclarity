@@ -6,6 +6,7 @@ import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
+import { AfterStage } from '@/components/topic/AfterStage';
 import {
   DEFAULT_TURNS,
   DEFAULT_WINDOW,
@@ -115,9 +116,11 @@ export default function ContextLimitClient() {
         }}
       >
 <details className={styles.fineControls}><summary>값을 직접 조절하기</summary><ParameterPanel params={params} onChange={handleChange} onReset={handleReset} /></details>
+      </QuizGate>
 
-
-
+      </SplitStage>
+{lessonRevealed && (
+      <AfterStage>
         <section className={styles.stage} aria-label="대화를 이어가 보기">
           <h2 className={styles.sectionTitle}>{stageTitle}</h2>
           <div className={styles.sectionLead}>
@@ -183,30 +186,26 @@ export default function ContextLimitClient() {
             <StageNote />
           </div>
         </section>
-<ExplanationBox variant="note">
+        <ExplanationBox variant="note">
           <NoteLive />
         </ExplanationBox>
 
-
-
-
-
-
-      </QuizGate>
-
-      </SplitStage>
-{lessonRevealed && (<ExplanationBox title={notMemoryTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={notMemoryTitle} collapsible defaultOpen={false}>
           <NotMemory />
-        </ExplanationBox>)}
+        </ExplanationBox>
 
-{lessonRevealed && (<ExplanationBox title={biggerTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={biggerTitle} collapsible defaultOpen={false}>
           <WhyNotBigger />
-        </ExplanationBox>)}
+        </ExplanationBox>
 
-{lessonRevealed && (<ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
           <About />
-        </ExplanationBox>)}
+        </ExplanationBox>
 
-    </TopicLayout>
+    
+      </AfterStage>
+)}
+
+</TopicLayout>
   );
 }

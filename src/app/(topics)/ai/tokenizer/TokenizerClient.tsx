@@ -5,6 +5,7 @@ import { SplitStage } from '@/components/topic/SplitStage';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
+import { AfterStage } from '@/components/topic/AfterStage';
 import QuizQuestion, { title as quizTitle, choices as quizChoices } from './content/quiz.mdx';
 import QuizFeedback from './content/quiz-feedback.mdx';
 import { TokenStrip } from './TokenStrip';
@@ -88,9 +89,11 @@ export default function TokenizerClient() {
           ))}
           <button type="button" onClick={() => setInput('')}>비우기</button>
         </div>
+      </QuizGate>
 
-
-
+      </SplitStage>
+{lessonRevealed && (
+      <AfterStage>
       <section className={styles.section} aria-label="직접 잘라보기">
         <h2 className={styles.sectionTitle}>{tryItTitle}</h2>
 
@@ -132,21 +135,11 @@ export default function TokenizerClient() {
           <TryIt />
         </div>
       </section>
-<ExplanationBox variant="note">
+        <ExplanationBox variant="note">
         <NoteIntro />
       </ExplanationBox>
 
-
-
-
-
-
-
-
-      </QuizGate>
-
-      </SplitStage>
-{lessonRevealed && (<ExplanationBox title={spacingTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={spacingTitle} collapsible defaultOpen={false}>
 
         <div className={styles.lead}>
           <Spacing />
@@ -170,9 +163,9 @@ export default function TokenizerClient() {
         <div className={styles.caveat}>
           <SpacingCaveat />
         </div>
-      </ExplanationBox>)}
+        </ExplanationBox>
 
-{lessonRevealed && (<ExplanationBox title={koreanTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={koreanTitle} collapsible defaultOpen={false}>
 
         <div className={styles.lead}>
           <Korean />
@@ -220,9 +213,9 @@ export default function TokenizerClient() {
         <div className={styles.caveat}>
           <KoreanCaveat />
         </div>
-      </ExplanationBox>)}
+        </ExplanationBox>
 
-{lessonRevealed && (<ExplanationBox title={numbersTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={numbersTitle} collapsible defaultOpen={false}>
 
         <div className={styles.lead}>
           <Numbers />
@@ -236,12 +229,16 @@ export default function TokenizerClient() {
             </li>
           ))}
         </ul>
-      </ExplanationBox>)}
+        </ExplanationBox>
 
-{lessonRevealed && (<ExplanationBox title={whyUnitsTitle} variant="note" collapsible defaultOpen={false}>
+        <ExplanationBox title={whyUnitsTitle} variant="note" collapsible defaultOpen={false}>
         <WhyUnits />
-      </ExplanationBox>)}
+        </ExplanationBox>
 
-    </TopicLayout>
+    
+      </AfterStage>
+)}
+
+</TopicLayout>
   );
 }

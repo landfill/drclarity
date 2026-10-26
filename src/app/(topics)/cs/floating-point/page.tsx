@@ -1,6 +1,7 @@
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { SplitStage } from '@/components/topic/SplitStage';
+import { AfterStage } from '@/components/topic/AfterStage';
 import { PizzaFigure } from './PizzaFigure';
 import { CalculatorReveal } from './CalculatorReveal';
 import WhatIsError, { title as whatIsErrorTitle } from './content/what-is-error.mdx';
@@ -25,8 +26,10 @@ export default function FloatingPointPage() {
         <ExplanationBox title={whatIsErrorTitle}>
           <WhatIsError />
         </ExplanationBox>
-        <CalculatorReveal />
       </SplitStage>
+      <AfterStage>
+        <CalculatorReveal />
+      </AfterStage>
     </TopicLayout>
   );
 }

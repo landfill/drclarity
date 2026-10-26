@@ -8,6 +8,7 @@ import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { InteractiveCanvas } from '@/components/topic/InteractiveCanvas';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
+import { AfterStage } from '@/components/topic/AfterStage';
 import {
   DEFAULT_FOCUS,
   GRID_SIZES,
@@ -159,7 +160,11 @@ export default function PixelsClient() {
         }}
       >
 <ParameterPanel params={params} onChange={handleChange} onReset={handleReset} />
+      </QuizGate>
 
+</SplitStage>
+{lessonRevealed && (
+      <AfterStage>
         <ExplanationBox variant="note">
           <NoteScene />
         </ExplanationBox>
@@ -244,13 +249,11 @@ export default function PixelsClient() {
           </div>
         </section>
 
-
-      </QuizGate>
-
-</SplitStage>
-{lessonRevealed && (<ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
           <About />
-        </ExplanationBox>)}
+        </ExplanationBox>
+      </AfterStage>
+)}
 
 </TopicLayout>
   );

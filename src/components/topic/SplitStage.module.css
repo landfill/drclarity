@@ -31,8 +31,6 @@
   }
 
   .extraWideStage { grid-template-columns: minmax(0, 2fr) minmax(340px, 1fr); }
-  .fullStage { grid-template-columns: minmax(0, 1fr); }
-  .fullStage > .content { grid-column: 1; grid-row: 2; }
 
   .stage {
     grid-column: 1;
@@ -43,6 +41,15 @@
   .content {
     grid-column: 2;
     grid-row: 1;
+  }
+
+  /*
+   * 옆 칸이 그림보다 길면 그림이 먼저 스크롤되어 사라지고 그 아래가 빈다.
+   * 화면에 들어가는 그림은 옆 칸을 읽는 동안 따라오게 한다.
+   */
+  .stageSticky {
+    position: sticky;
+    top: calc(var(--header-h) + var(--space-sm));
   }
 }
 
