@@ -38,7 +38,13 @@ const browser = await chromium.launch();
 const rows = [];
 for (const route of routes) {
   const page = await browser.newPage({ viewport: { width, height: 900 } });
-  await page.goto(base + route, { waitUntil: 'networkidle' });
+  const response = await page.goto(base + route, { waitUntil: 'networkidle' });
+  if (!response?.ok()) {
+    console.error(`${route}: 응답 ${response?.status() ?? '없음'}`);
+    process.exitCode = 1;
+    await page.close();
+    continue;
+  }
   const skip = page.locator('[data-figure-stage] > div:nth-child(2) button', { hasText: /바로/ }).first();
   if (await skip.count()) {
     await skip.click();
@@ -49,7 +55,8 @@ for (const route of routes) {
     if (!root) return null;
     const [stage, content] = [...root.children].map(el => el.getBoundingClientRect());
     return {
-      sideBySide: Math.abs(stage.top - content.top) < 5,
+      // 그림이 sticky 로 붙으면 세로 위치가 달라지므로 가로 위치로 판정한다.
+      sideBySide: stage.right <= content.left + 1,
       stageW: Math.round(stage.width),
       stageH: Math.round(stage.height),
       contentH: Math.round(content.height),
@@ -60,6 +67,11 @@ for (const route of routes) {
   rows.push({ route, ...m, gap: m.sideBySide ? Math.max(0, m.contentH - m.stageH) : 0 });
 }
 await browser.close();
+
+if (rows.length === 0) {
+  console.error(`${base} 에서 피겨 카드를 하나도 찾지 못했습니다. 서버 주소를 확인하세요.`);
+  process.exit(1);
+}
 
 rows.sort((a, b) => b.gap - a.gap);
 console.log(`width ${width}px — 옆 칸 높이 − 그림 높이 (퀴즈를 건너뛴 뒤)`);
