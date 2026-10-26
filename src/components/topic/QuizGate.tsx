@@ -23,7 +23,8 @@ export interface QuizGateProps {
   labels?: { submit?: string; skip?: string; retry?: string };
   /** 카드 밖의 부가 설명도 최초 공개에 맞춰 열 때 쓴다. */
   onReveal?: () => void;
-  children: React.ReactNode;
+  /** 사이드바는 피겨 조작이 없으면 비워 둘 수 있다. 실험과 설명은 카드 아래(AfterStage)에 둔다. */
+  children?: React.ReactNode;
 }
 
 export function QuizGate({

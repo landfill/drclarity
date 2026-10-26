@@ -7,6 +7,7 @@ import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
+import { AfterStage } from '@/components/topic/AfterStage';
 import { SAMPLES, findSample } from './loop';
 import { ReelFigure, ReelStageNotes, reelProblem } from './ReelFigure';
 import { useFigureState } from '@/components/topic/ColorFigure';
@@ -81,7 +82,11 @@ export default function AutoregressiveClient() {
       >
 <ParameterPanel params={params} onChange={handleParamChange} />
 <ReelStageNotes state={reelState} />
+      </QuizGate>
 
+</SplitStage>
+{lessonRevealed && (
+      <AfterStage>
         <ExplanationBox variant="note">
           <NoteModel />
         </ExplanationBox>
@@ -101,25 +106,19 @@ export default function AutoregressiveClient() {
           </p>
         </section>
 
-
-
-
-
-
-      </QuizGate>
-
-</SplitStage>
-{lessonRevealed && (<ExplanationBox title={loopPointTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={loopPointTitle} collapsible defaultOpen={false}>
           <LoopPoint />
-        </ExplanationBox>)}
+        </ExplanationBox>
 
-{lessonRevealed && (<ExplanationBox title={seriesTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={seriesTitle} collapsible defaultOpen={false}>
           <Series />
-        </ExplanationBox>)}
+        </ExplanationBox>
 
-{lessonRevealed && (<ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={aboutTitle} collapsible defaultOpen={false}>
           <About />
-        </ExplanationBox>)}
+        </ExplanationBox>
+      </AfterStage>
+)}
 
 </TopicLayout>
   );

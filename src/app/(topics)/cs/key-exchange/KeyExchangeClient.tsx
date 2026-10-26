@@ -5,6 +5,7 @@ import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { ParameterPanel, type ParameterDefinition } from '@/components/topic/ParameterPanel';
 import { QuizGate } from '@/components/topic/QuizGate';
+import { AfterStage } from '@/components/topic/AfterStage';
 import { LessonCard } from '@/components/topic/LessonCard';
 import { SplitStage } from '@/components/topic/SplitStage';
 import { useFigureState } from '@/components/topic/ColorFigure';
@@ -89,7 +90,7 @@ export default function KeyExchangeClient() {
       title={<>자물쇠는 주고 <Highlight>열쇠는 안 준다</Highlight></>}
       subtitle="모두가 듣는 곳에서 두 사람만 아는 비밀을 만들 수 있을까요?"
     >
-      <RealMath quiz={content => <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
+      <RealMath revealed={lessonRevealed} quiz={content => <QuizGate layout="aside" onReveal={() => setLessonRevealed(true)}
         question={
           <>
             <h2 className={styles.sectionTitle}>{quizTitle}</h2>
@@ -189,7 +190,7 @@ export default function KeyExchangeClient() {
 }
 
 /** 실제 모듈러 거듭제곱 구간. 색 구간과 상태를 공유하지 않아 따로 둔다. */
-function RealMath({ quiz }: { quiz: (content: React.ReactNode) => React.ReactNode }) {
+function RealMath({ quiz, revealed }: { quiz: (content: React.ReactNode) => React.ReactNode; revealed: boolean }) {
   // 세밀 조절(공개 값 · 두 비밀)과 아래 figure 가 같은 상태를 쓴다. 카드가 건너는 움직임과 움직임 줄이기는 useFigureState 가 맡는다.
   const [st, dispatch] = useFigureState(initialTrial, advanceTrial, isTrialSettled);
   const { presetId, a: aliceSecret, b: bobSecret } = st;
@@ -237,9 +238,13 @@ function RealMath({ quiz }: { quiz: (content: React.ReactNode) => React.ReactNod
   );
 
   return (
-<SplitStage wideStage stageRatio="2:1" stage={<TrialFigure state={st} dispatch={dispatch} />}>{quiz(    <section aria-label="실제 연산">
-
+<>
+<SplitStage wideStage stageRatio="2:1" stage={<TrialFigure state={st} dispatch={dispatch} />}>{quiz(
       <ParameterPanel params={params} onChange={handleChange} />
+    )}</SplitStage>
+{revealed && (
+  <AfterStage>
+    <section aria-label="실제 연산">
       <h2 className={styles.sectionTitle}>{mathTitle}</h2>
       <div className={styles.sectionLead}>
         <MathLead />
@@ -266,7 +271,10 @@ function RealMath({ quiz }: { quiz: (content: React.ReactNode) => React.ReactNod
       <ExplanationBox title={whySafeTitle}>
         <WhySafe />
       </ExplanationBox>
-    </section>)}</SplitStage>
+    </section>
+  </AfterStage>
+)}
+</>
   );
 }
 

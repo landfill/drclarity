@@ -75,11 +75,7 @@ export default function MontyHallClient() {
           same: <QuizSame />,
           stay: <QuizStay />,
         }}
-      >
-        <ExplanationBox variant="note">
-          <Problem />
-        </ExplanationBox>
-      </QuizGate>
+      />
 
 
 
@@ -99,6 +95,10 @@ export default function MontyHallClient() {
             presets={[10, 100, 1000, 10000]}
           />
         </section>
+
+        <ExplanationBox variant="note">
+          <Problem />
+        </ExplanationBox>
 
         <section className={styles.solutionSection} aria-label="풀이">
           <h2 className={styles.sectionTitle}>{SOLUTION_TITLE}</h2>

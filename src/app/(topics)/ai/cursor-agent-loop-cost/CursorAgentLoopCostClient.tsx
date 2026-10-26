@@ -6,6 +6,7 @@ import { SplitStage } from '@/components/topic/SplitStage';
 import { TopicLayout, Highlight } from '@/components/layout/TopicLayout';
 import { ExplanationBox } from '@/components/topic/ExplanationBox';
 import { QuizGate } from '@/components/topic/QuizGate';
+import { AfterStage } from '@/components/topic/AfterStage';
 import { useFigureState } from '@/components/topic/ColorFigure';
 import {
   BARE_PROMPT,
@@ -206,9 +207,11 @@ export default function CursorAgentLoopCostClient() {
           </div>
 
           </details>
+      </QuizGate>
 
-
-
+      </SplitStage>
+{lessonRevealed && (
+      <AfterStage>
         <section className={styles.stage} aria-label="프롬프트를 고쳐 가며 보기">
           <h2 className={styles.sectionTitle}>{stageTitle}</h2>
           <div className={styles.sectionLead}>
@@ -324,42 +327,34 @@ export default function CursorAgentLoopCostClient() {
             <StageNote />
           </div>
         </section>
-<ExplanationBox variant="note">
+        <ExplanationBox variant="note">
           <NoteSim />
         </ExplanationBox>
 
-
-
-
-
-
-
-
-
-
-      </QuizGate>
-
-      </SplitStage>
-{lessonRevealed && (<ExplanationBox title={countCallsTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={countCallsTitle} collapsible defaultOpen={false}>
           <CountCalls />
-        </ExplanationBox>)}
+        </ExplanationBox>
 
-{lessonRevealed && (<ExplanationBox title={clausesTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={clausesTitle} collapsible defaultOpen={false}>
           <Clauses />
-        </ExplanationBox>)}
+        </ExplanationBox>
 
-{lessonRevealed && (<ExplanationBox title={missingTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={missingTitle} collapsible defaultOpen={false}>
           <Missing />
-        </ExplanationBox>)}
+        </ExplanationBox>
 
-{lessonRevealed && (<ExplanationBox title={accumulateTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={accumulateTitle} collapsible defaultOpen={false}>
           <Accumulate />
-        </ExplanationBox>)}
+        </ExplanationBox>
 
-{lessonRevealed && (<ExplanationBox title={instructionTitle} collapsible defaultOpen={false}>
+        <ExplanationBox title={instructionTitle} collapsible defaultOpen={false}>
           <Instruction />
-        </ExplanationBox>)}
+        </ExplanationBox>
 
-    </TopicLayout>
+    
+      </AfterStage>
+)}
+
+</TopicLayout>
   );
 }
