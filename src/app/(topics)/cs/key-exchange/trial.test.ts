@@ -115,7 +115,7 @@ describe('본문과 같은 수', () => {
     expect(bodies).toContain('비밀은 못 들음');
   });
 
-  // eaves-explain: "x 를 1 부터 하나씩 넣어 보는 수밖에 없습니다."
+  // eaves-explain: "여기서는 x 를 1 부터 하나씩 넣어 봅니다."
   it('도청자 테이프는 x 를 1 부터 차례로 넣고, 맞은 줄에서 멈춘다', () => {
     const s = through(initialTrial(), 4);
     const { attack, A } = values(s);
